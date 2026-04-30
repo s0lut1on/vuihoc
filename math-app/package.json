@@ -1,0 +1,25 @@
+{
+  "name": "math-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Flutter + Rust math learning app for kids (Vietnam market)",
+  "scripts": {
+    "setup": "npm run setup:frontend && npm run setup:backend",
+    "setup:frontend": "cd frontend && flutter pub get",
+    "setup:backend": "cd backend && cargo fetch",
+    "test": "npm run test:frontend && npm run test:backend",
+    "test:frontend": "cd frontend && flutter test",
+    "test:backend": "cd backend && cargo test",
+    "test:frontend:cov": "cd frontend && flutter test --coverage",
+    "build": "npm run build:web && npm run build:backend",
+    "build:apk": "cd frontend && flutter build apk",
+    "build:web": "cd frontend && flutter build web",
+    "build:backend": "cd backend && cargo build",
+    "format": "cd frontend && dart format --fix . && cd ../backend && cargo fmt",
+    "lint": "cd frontend && flutter analyze && cd ../backend && cargo clippy -- -D warnings",
+    "clean": "cd frontend && flutter clean && cd ../backend && cargo clean",
+    "docker:test": "docker compose -f docker-compose.test.yml up --build",
+    "docker:dev": "docker compose up --build -d",
+    "docker:stop": "docker compose down"
+  }
+}

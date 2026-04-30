@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Math Learning App - Desktop Web Design Preview</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif; background: #f0f0f0; }
+  .screen { width: 1440px; height: auto; min-height: 900px; margin: 40px auto; position: relative; overflow: hidden; }
+  .divider { width: 1440px; height: 4px; background: #2D1B4E; margin: 0 auto; }
+
+  /* ===== Screen 1D: Welcome Desktop ===== */
+  .s1 { background: #FFFFFF; }
+  .s1 .nav { display: flex; justify-content: space-between; align-items: center; height: 72px; padding: 0 48px; background: #FFFFFF; }
+  .s1 .nav-left { display: flex; align-items: center; gap: 12px; }
+  .s1 .nav-left span { font-size: 32px; }
+  .s1 .nav-left h1 { font-size: 24px; color: #2D1B4E; font-weight: 700; }
+  .s1 .nav-right { display: flex; align-items: center; gap: 32px; }
+  .s1 .nav-right a { text-decoration: none; color: #2D1B4E; font-size: 14px; font-weight: 600; }
+  .s1 .nav-right .btn { background: #FF6B9D; color: #fff; padding: 10px 28px; border-radius: 22px; font-size: 14px; font-weight: 700; }
+  .s1 .hero { display: flex; align-items: center; justify-content: center; gap: 48px; background: #FFE8F0; height: 828px; padding: 60px 48px; }
+  .s1 .hero-left { display: flex; flex-direction: column; align-items: center; gap: 28px; width: 720px; }
+  .s1 .hero-left h2 { font-size: 56px; color: #2D1B4E; font-weight: 700; text-align: center; }
+  .s1 .hero-left p.sub { font-size: 22px; color: #6B5B95; text-align: center; line-height: 1.5; }
+  .s1 .hero-left p.label { font-size: 18px; color: #4A4A6A; font-weight: 600; }
+  .s1 .persona-row { display: flex; gap: 20px; }
+  .s1 .persona-card { width: 160px; height: 160px; border-radius: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
+  .s1 .persona-card span { font-size: 40px; }
+  .s1 .persona-card p { font-size: 14px; text-align: center; }
+  .s1 .pc1 { background: #FFF3E0; } .s1 .pc1 p { color: #E65100; }
+  .s1 .pc2 { background: #E8F5E9; } .s1 .pc2 p { color: #2E7D32; }
+  .s1 .pc3 { background: #E3F2FD; } .s1 .pc3 p { color: #1565C0; }
+  .s1 .pc4 { background: #F3E5F5; } .s1 .pc4 p { color: #7B1FA2; }
+  .s1 .hero-cta { background: #FF6B9D; color: #fff; padding: 16px 48px; border-radius: 28px; font-size: 20px; font-weight: 700; border: none; cursor: pointer; }
+  .s1 .hero-left .parent-link { color: #6B5B95; font-size: 14px; }
+  .s1 .hero-right { width: 480px; height: 480px; background: #fff; border-radius: 24px; border: 1px solid #E0E0E0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; }
+  .s1 .hero-right .m-circle { width: 200px; height: 200px; background: #FF6B9D; border-radius: 50%; }
+  .s1 .hero-right span.frog { font-size: 96px; position: absolute; }
+  .s1 .hero-right p { color: #999; font-size: 14px; }
+
+  /* ===== Screen 2D: Assessment Desktop ===== */
+  .s2 { background: #FFF8E1; }
+  .s2 .nav { display: flex; justify-content: space-between; align-items: center; height: 72px; padding: 0 48px; background: #FFFFFF; }
+  .s2 .nav-left { display: flex; align-items: center; gap: 12px; }
+  .s2 .nav-left span { font-size: 32px; }
+  .s2 .nav-left h1 { font-size: 24px; color: #2D1B4E; font-weight: 700; }
+  .s2 .nav-right { display: flex; gap: 16px; }
+  .s2 .nav-right .prog { width: 40px; height: 40px; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; }
+  .s2 .nav-right .prog-on { background: #FF6B9D; }
+  .s2 .nav-right .prog-off { background: #E0E0E0; color: #666; }
+  .s2 .main { display: flex; flex-direction: column; align-items: center; gap: 40px; padding: 40px 48px; height: 828px; }
+  .s2 .main h2 { font-size: 32px; color: #4A4A6A; font-weight: 700; text-align: center; }
+  .s2 .opts { display: flex; gap: 24px; }
+  .s2 .opt { width: 360px; height: 120px; border-radius: 16px; background: #fff; display: flex; align-items: center; gap: 16px; padding: 0 24px; }
+  .s2 .opt.sel { border: 3px solid #FF6B9D; }
+  .s2 .opt:not(.sel) { border: 1px solid #E0E0E0; }
+  .s2 .opt-num { font-size: 48px; font-weight: 700; color: #FF6B9D; }
+  .s2 .opt-text { font-size: 18px; color: #4A4A6A; }
+  .s2 .hint { color: #888; font-size: 16px; }
+
+  /* ===== Screen 3D: Home Dashboard Desktop ===== */
+  .s3 { background: #F5F7FA; }
+  .s3 .nav { display: flex; justify-content: space-between; align-items: center; height: 72px; padding: 0 48px; background: #FFFFFF; }
+  .s3 .nav-left { display: flex; align-items: center; gap: 12px; }
+  .s3 .nav-left span { font-size: 32px; }
+  .s3 .nav-left h1 { font-size: 24px; color: #2D1B4E; font-weight: 700; }
+  .s3 .nav-right { display: flex; align-items: center; gap: 24px; }
+  .s3 .nav-right .stats { color: #FF6B9D; font-size: 16px; font-weight: 700; }
+  .s3 .nav-right .avatar { width: 40px; height: 40px; background: #FF6B9D; border-radius: 50%; }
+  .s3 .main { display: flex; flex-direction: column; gap: 32px; padding: 40px 48px; }
+  .s3 .main h2 { font-size: 36px; color: #2D1B4E; font-weight: 700; }
+  .s3 .stats-row { display: flex; gap: 24px; }
+  .s3 .stat-card { height: 140px; border-radius: 16px; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; gap: 8px; }
+  .s3 .stat-card .num { font-size: 40px; font-weight: 700; }
+  .s3 .stat-card .label { font-size: 14px; color: #666; }
+  .s3 .sc1 .num { color: #FF6B9D; }
+  .s3 .sc2 .num { color: #4CAF50; }
+  .s3 .sc3 { background: #FF6B9D; } .s3 .sc3 .num,.s3 .sc3 .label { color: #fff !important; }
+  .s3 .sc4 .num { color: #FF6B9D; }
+  .s3 .subjects-title { font-size: 24px; color: #2D1B4E; font-weight: 700; margin-top: 8px; }
+  .s3 .subjects { display: flex; gap: 24px; }
+  .s3 .sub-card { height: 220px; border-radius: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; gap: 8px; }
+  .s3 .sub-card span { font-size: 48px; }
+  .s3 .sub-card .title { font-size: 18px; color: #2D1B4E; font-weight: 700; }
+  .s3 .sub-card .count { font-size: 14px; color: #666; }
+  .s3 .sb1 { background: #FFE8F0; } .s3 .sb2 { background: #E8F5E9; } .s3 .sb3 { background: #E3F2FD; } .s3 .sb4 { background: #F3E5F5; }
+
+  /* ===== Screen 4D: Math Lesson Desktop ===== */
+  .s4 { background: #E3F2FD; }
+  .s4 .nav { display: flex; justify-content: space-between; align-items: center; height: 72px; padding: 0 48px; background: #FFFFFF; }
+  .s4 .nav-left { display: flex; align-items: center; gap: 12px; }
+  .s4 .nav-left span { font-size: 32px; }
+  .s4 .nav-left h1 { font-size: 24px; color: #2D1B4E; font-weight: 700; }
+  .s4 .nav-right { display: flex; gap: 16px; }
+  .s4 .nav-right .prog { width: 40px; height: 40px; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; }
+  .s4 .nav-right .prog-on { background: #4CAF50; }
+  .s4 .nav-right .prog-off { background: #E0E0E0; color: #666; }
+  .s4 .main { display: flex; gap: 48px; align-items: center; padding: 40px 48px; height: 828px; }
+  .s4 .q-card { width: 800px; height: 560px; background: #fff; border-radius: 24px; border: 1px solid #E0E0E0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; }
+  .s4 .q-card h2 { font-size: 28px; color: #2D1B4E; font-weight: 700; text-align: center; }
+  .s4 .q-card .emoji { font-size: 64px; text-align: center; }
+  .s4 .right { display: flex; flex-direction: column; gap: 24px; width: 500px; align-items: center; }
+  .s4 .answers { display: flex; gap: 24px; }
+  .s4 .ans { width: 140px; height: 140px; border-radius: 20px; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 48px; font-weight: 700; }
+  .s4 .ans.sel { border: 3px solid #FF6B9D; color: #FF6B9D; }
+  .s4 .ans:not(.sel) { border: 1px solid #E0E0E0; color: #2D1B4E; }
+  .s4 .hint { width: 100%; height: 60px; background: #fff; border-radius: 12px; display: flex; align-items: center; gap: 12px; padding: 0 16px; }
+  .s4 .hint span { font-size: 20px; }
+  .s4 .hint p { color: #FF6B9D; font-size: 14px; }
+  .s4 .voice { width: 64px; height: 64px; background: #FF6B9D; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; color: #fff; }
+
+  /* Labels */
+  .label-box { width: 1440px; margin: 20px auto 0; text-align: center; font-size: 14px; color: #999; padding: 8px; background: #fff; border-radius: 8px; font-family: monospace; }
+</style>
+</head>
+<body>
+
+<div class="label-box">Screen 1D: Welcome Desktop (1440x900)</div>
+<div class="screen s1">
+  <div class="nav">
+    <div class="nav-left">
+      <span>🐸</span>
+      <h1>Học Toán Vui</h1>
+    </div>
+    <div class="nav-right">
+      <a href="#">Chủ đề</a>
+      <a href="#">Bảng giá</a>
+      <a href="#">Liên hệ</a>
+      <span class="btn">Bắt đầu</span>
+    </div>
+  </div>
+  <div class="hero">
+    <div class="hero-left">
+      <h2>Xin chào, bé yêu!</h2>
+      <p class="sub">Hãy cùng học Toán vui nhé! Chọn cách học phù hợp với bé.</p>
+      <p class="label">Chọn cách học của bé:</p>
+      <div class="persona-row">
+        <div class="persona-card pc1"><span>⭐</span><p><b>Học giỏi</b><br>Thích thi đua</p></div>
+        <div class="persona-card pc2"><span>🎮</span><p><b>Chơi nhiều</b><br>Thích game</p></div>
+        <div class="persona-card pc3"><span>💙</span><p><b>Cần động viên</b><br>Học chậm rãi</p></div>
+        <div class="persona-card pc4"><span>🦉</span><p><b>Nhút nhát</b><br>Học âm thầm</p></div>
+      </div>
+      <button class="hero-cta">Bắt đầu học!</button>
+      <p class="parent-link">Bố mẹ nhấn vào đây</p>
+    </div>
+    <div class="hero-right">
+      <div class="m-circle"></div>
+      <span class="frog">🐸</span>
+      <p>Mascot Preview</p>
+    </div>
+  </div>
+</div>
+<div class="divider"></div>
+
+<div class="label-box">Screen 2D: Assessment Desktop (1440x900)</div>
+<div class="screen s2">
+  <div class="nav">
+    <div class="nav-left"><span>🐸</span><h1>Học Toán Vui</h1></div>
+    <div class="nav-right">
+      <div class="prog prog-on">1</div><div class="prog prog-on">2</div><div class="prog prog-on">3</div><div class="prog prog-off">4</div>
+    </div>
+  </div>
+  <div class="main">
+    <h2>Bé đã đếm được đến số mấy rồi?</h2>
+    <div class="opts">
+      <div class="opt sel"><span class="opt-num">10</span><span class="opt-text">Đếm đến 10</span></div>
+      <div class="opt"><span class="opt-num">50</span><span class="opt-text">Đếm đến 50</span></div>
+      <div class="opt"><span class="opt-num">100+</span><span class="opt-text">Đếm đến 100 hoặc hơn</span></div>
+    </div>
+    <p class="hint">💡 Không biết? Chọn câu gần đúng nhất nhé!</p>
+  </div>
+</div>
+<div class="divider"></div>
+
+<div class="label-box">Screen 3D: Home Dashboard Desktop (1440x900)</div>
+<div class="screen s3">
+  <div class="nav">
+    <div class="nav-left"><span>🐸</span><h1>Học Toán Vui</h1></div>
+    <div class="nav-right">
+      <span class="stats">💎 248</span>
+      <span class="stats">🔥 7 ngày</span>
+      <div class="avatar"></div>
+    </div>
+  </div>
+  <div class="main">
+    <h2>Hôm nay học gì?</h2>
+    <div class="stats-row">
+      <div class="stat-card sc1"><span class="num">12</span><span class="label">Bài đã học</span></div>
+      <div class="stat-card sc2"><span class="num">3 ⭐</span><span class="label">Sao tích lũy</span></div>
+      <div class="stat-card sc3"><span>▶️</span><span class="label">Tiếp tục học</span><span class="num">Phép cộng 1 - 10</span></div>
+      <div class="stat-card sc4"><span>🔥</span><span class="label">7 ngày liên tiếp</span></div>
+    </div>
+    <p class="subjects-title">Các chủ đề</p>
+    <div class="subjects">
+      <div class="sub-card sb1"><span>🔢</span><span class="title">Số học</span><span class="count">12 bài học</span></div>
+      <div class="sub-card sb2"><span>📐</span><span class="title">Hình học</span><span class="count">5 bài học</span></div>
+      <div class="sub-card sb3"><span>📏</span><span class="title">Đo lường</span><span class="count">8 bài học</span></div>
+      <div class="sub-card sb4"><span>🧩</span><span class="title">Giải đố</span><span class="count">3 bài học</span></div>
+    </div>
+  </div>
+</div>
+<div class="divider"></div>
+
+<div class="label-box">Screen 4D: Math Lesson Desktop (1440x900)</div>
+<div class="screen s4">
+  <div class="nav">
+    <div class="nav-left"><span>🐸</span><h1>Học Toán Vui</h1></div>
+    <div class="nav-right">
+      <div class="prog prog-on">1</div><div class="prog prog-on">2</div><div class="prog prog-on">3</div><div class="prog prog-on">4</div><div class="prog prog-off">5</div>
+    </div>
+  </div>
+  <div class="main">
+    <div class="q-card">
+      <h2>🍎 Đếm có bao nhiêu quả táo?</h2>
+      <div class="emoji">🍎🍎🍎<br>🍎🍎</div>
+    </div>
+    <div class="right">
+      <div class="answers">
+        <div class="ans sel">3</div>
+        <div class="ans">5</div>
+        <div class="ans">4</div>
+      </div>
+      <div class="hint"><span>💡</span><p>Gợi ý: Hãy chỉ vào từng quả táo và đếm từng quả một!</p></div>
+      <div class="voice">🔊</div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

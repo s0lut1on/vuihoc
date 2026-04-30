@@ -1,0 +1,19 @@
+# Flutter SDK (embedded git repo)
+math-app/frontend/flutter_sdk/
+
+# Generated design exports (auto-generated previews)
+design-exports/
+
+# Build artifacts
+build/
+target/
+*.lock
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db

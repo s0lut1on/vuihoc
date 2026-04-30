@@ -1,0 +1,564 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import '../core/app_colors.dart';
+import '../models/persona_model.dart';
+import '../providers/app_providers.dart';
+import '../services/auth_service.dart';
+
+class WelcomeScreen extends ConsumerStatefulWidget {
+  const WelcomeScreen({super.key});
+
+  @override
+  ConsumerState<WelcomeScreen> createState() => _WelcomeScreenState();
+}
+
+class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
+    with SingleTickerProviderStateMixin {
+  Persona? _selectedPersona;
+  late final AnimationController _mascotController;
+  late final Animation<double> _mascotAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _mascotController = AnimationController(
+      duration: const Duration(milliseconds: 1200),
+      vsync: this,
+    );
+    _mascotAnimation = CurvedAnimation(
+      parent: _mascotController,
+      curve: Curves.elasticOut,
+    );
+    _mascotController.forward();
+  }
+
+  @override
+  void dispose() {
+    _mascotController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final locale = ref.watch(localeProvider);
+    final isVietnamese = locale.languageCode == 'vi';
+
+    return Scaffold(
+      backgroundColor: AppColors.lightPinkBg,
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          if (constraints.maxWidth > 900) {
+            return _buildDesktop(isVietnamese);
+          }
+          return _buildMobile(isVietnamese);
+        },
+      ),
+    );
+  }
+
+  // =================== DESKTOP ===================
+  Widget _buildDesktop(bool isVietnamese) {
+    return Column(
+      children: [
+        _buildDesktopNav(isVietnamese),
+        Expanded(
+          child: Container(
+            color: const Color(0xFFFFE8F0),
+            padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 60),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        isVietnamese
+                            ? 'Xin chào, bé yêu!'
+                            : 'Hello, little friend!',
+                        style: const TextStyle(
+                          fontSize: 56,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.darkPurple,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        isVietnamese
+                            ? 'Hãy cùng học Toán vui nhé! Chọn cách học phù hợp với bé.'
+                            : "Let's learn math together! Choose a learning style.",
+                        style: const TextStyle(
+                          fontSize: 22,
+                          color: AppColors.mutedPurple,
+                          height: 1.5,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 24),
+                      Text(
+                        isVietnamese
+                            ? 'Chọn cách học của bé:'
+                            : 'Choose your style:',
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF4A4A6A),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      Wrap(
+                        spacing: 20,
+                        runSpacing: 20,
+                        alignment: WrapAlignment.center,
+                        children: [
+                          _personaCardDesktop(Persona.achiever),
+                          _personaCardDesktop(Persona.gamer),
+                          _personaCardDesktop(Persona.struggler),
+                          _personaCardDesktop(Persona.silent),
+                        ],
+                      ),
+                      const SizedBox(height: 32),
+                      ElevatedButton(
+                        onPressed: _selectedPersona == null ? null : _onStart,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primaryPink,
+                          minimumSize: const Size(260, 56),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(28),
+                          ),
+                          textStyle: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        child: Text(
+                          isVietnamese ? 'Bắt đầu học!' : 'Start Learning!',
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      TextButton(
+                        onPressed: _onParentAccess,
+                        child: Text(
+                          isVietnamese ? 'Bố mẹ nhấn vào đây' : 'Parent access',
+                          style: const TextStyle(
+                              color: AppColors.mutedPurple, fontSize: 14),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 48),
+                Container(
+                  width: 480,
+                  height: 480,
+                  decoration: BoxDecoration(
+                    color: AppColors.white,
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(color: AppColors.divider),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: 200,
+                        height: 200,
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: AppColors.primaryPink,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      const Text('🐸', style: TextStyle(fontSize: 96)),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Mascot Preview',
+                        style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDesktopNav(bool isVietnamese) {
+    return Container(
+      height: 72,
+      padding: const EdgeInsets.symmetric(horizontal: 48),
+      color: AppColors.white,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              const Text('🐸', style: TextStyle(fontSize: 32)),
+              const SizedBox(width: 12),
+              const Text(
+                'Học Toán Vui',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.darkPurple,
+                ),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              TextButton(
+                onPressed: () {},
+                child: const Text(
+                  'Chủ đề',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.darkPurple,
+                  ),
+                ),
+              ),
+              TextButton(
+                onPressed: () {},
+                child: const Text(
+                  'Bảng giá',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.darkPurple,
+                  ),
+                ),
+              ),
+              TextButton(
+                onPressed: () {},
+                child: const Text(
+                  'Liên hệ',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.darkPurple,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              ElevatedButton(
+                onPressed: () {},
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primaryPink,
+                  minimumSize: const Size(140, 44),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(22),
+                  ),
+                  textStyle: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                child: const Text('Bắt đầu',
+                    style: TextStyle(color: AppColors.white)),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _personaCardDesktop(Persona persona) {
+    final isSelected = _selectedPersona == persona;
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        setState(() => _selectedPersona = persona);
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        width: 160,
+        height: 160,
+        decoration: BoxDecoration(
+          color: persona.backgroundColor,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? AppColors.primaryPink : Colors.transparent,
+            width: 3,
+          ),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(persona.emoji, style: const TextStyle(fontSize: 40)),
+            const SizedBox(height: 8),
+            Text(
+              persona.displayNameVi,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14,
+                color: persona.textColor,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // =================== MOBILE (unchanged) ===================
+  Widget _buildMobile(bool isVietnamese) {
+    return SafeArea(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            _buildMascot(),
+            const SizedBox(height: 16),
+            Text(
+              isVietnamese ? 'Xin chào, bé yêu!' : 'Hello, little friend!',
+              style: Theme.of(context).textTheme.displayLarge,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              isVietnamese
+                  ? 'Hãy cùng học Toán vui nhé!'
+                  : "Let's learn math together!",
+              style: Theme.of(context).textTheme.bodyLarge,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            Text(
+              isVietnamese
+                  ? 'Chọn cách học của bé:'
+                  : 'Choose your learning style:',
+              style: Theme.of(context).textTheme.labelLarge,
+            ),
+            const SizedBox(height: 16),
+            _buildPersonaGrid(),
+            const SizedBox(height: 24),
+            _buildLanguageToggle(isVietnamese),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: _selectedPersona == null ? null : _onStart,
+              child: Text(
+                isVietnamese ? 'Bắt đầu học!' : 'Start Learning!',
+              ),
+            ),
+            const SizedBox(height: 16),
+            _buildGoogleSignInButton(isVietnamese),
+            const SizedBox(height: 16),
+            TextButton(
+              onPressed: _onParentAccess,
+              child: Text(
+                isVietnamese ? 'Bố mẹ nhấn vào đây' : 'Parent access',
+                style: const TextStyle(color: AppColors.mutedPurple),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMascot() {
+    return ScaleTransition(
+      scale: _mascotAnimation,
+      child: Container(
+        width: 160,
+        height: 160,
+        decoration: const BoxDecoration(
+          shape: BoxShape.circle,
+          color: AppColors.primaryPink,
+        ),
+        child: const Center(
+          child: Text('🐸', style: TextStyle(fontSize: 80)),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPersonaGrid() {
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _personaCardMobile(Persona.achiever),
+            const SizedBox(width: 16),
+            _personaCardMobile(Persona.gamer),
+          ],
+        ),
+        const SizedBox(height: 16),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _personaCardMobile(Persona.struggler),
+            const SizedBox(width: 16),
+            _personaCardMobile(Persona.silent),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _personaCardMobile(Persona persona) {
+    final isSelected = _selectedPersona == persona;
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        setState(() => _selectedPersona = persona);
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        width: 150,
+        height: 150,
+        decoration: BoxDecoration(
+          color: persona.backgroundColor,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isSelected ? AppColors.primaryPink : Colors.transparent,
+            width: 3,
+          ),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(persona.emoji, style: const TextStyle(fontSize: 40)),
+            const SizedBox(height: 8),
+            Text(
+              persona.displayNameVi,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 13,
+                color: persona.textColor,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLanguageToggle(bool isVietnamese) {
+    return GestureDetector(
+      onTap: () {
+        final newLocale =
+            isVietnamese ? const Locale('en', 'US') : const Locale('vi', 'VN');
+        ref.read(localeProvider.notifier).state = newLocale;
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          color: AppColors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: AppColors.divider),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              isVietnamese ? '🇻🇳' : '🇬🇧',
+              style: const TextStyle(fontSize: 20),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              isVietnamese ? 'Tiếng Việt' : 'English',
+              style: const TextStyle(fontSize: 14, color: Color(0xFF333333)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _onStart() async {
+    if (_selectedPersona == null) return;
+
+    ref.read(personaProvider.notifier).state = _selectedPersona!;
+    final locale = ref.read(localeProvider);
+    final isVietnamese = locale.languageCode == 'vi';
+
+    final userNotifier = ref.read(userProvider.notifier);
+    try {
+      await userNotifier.createUser(
+        name: isVietnamese ? 'bé yêu' : 'Little friend',
+        persona: _selectedPersona!,
+        locale: locale.toString(),
+      );
+    } catch (_) {
+      // Silently ignore user creation failure; app works offline
+    }
+
+    if (mounted) {
+      context.go('/assessment');
+    }
+  }
+
+  Widget _buildGoogleSignInButton(bool isVietnamese) {
+    if (_selectedPersona != null) return const SizedBox();
+
+    return GestureDetector(
+      onTap: _signInWithGoogle,
+      child: Container(
+        width: 260,
+        height: 48,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: AppColors.divider),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text('G',
+                style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.red)),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                isVietnamese ? 'Đăng nhập bằng Google' : 'Sign in with Google',
+                style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF333333)),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _signInWithGoogle() async {
+    final success = await AuthService().signInWithGoogle();
+    if (success && mounted) {
+      context.go('/home');
+    }
+  }
+
+  void _onParentAccess() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Danh cho phu huynh'),
+        content: const Text(
+          'Vui long nhap nam sinh de truy cap khu vuc phu huynh.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Đóng'),
+          ),
+        ],
+      ),
+    );
+  }
+}

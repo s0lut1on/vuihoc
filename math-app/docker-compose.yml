@@ -1,0 +1,218 @@
+services:
+  traefik:
+    image: traefik:latest
+    ports:
+      - "8082:80"
+      - "8083:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--entrypoints.web.address=:80"
+    restart: unless-stopped
+
+  flutter-web:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.flutter-web.rule=Host(`localhost`)"
+    restart: unless-stopped
+
+  auth-service:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: auth
+    environment:
+      - PORT=3000
+      - DATABASE_URL=postgres://auth_user:auth_pass@auth-db:5432/auth_db
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      - auth-db
+      - redis
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.auth.rule=PathPrefix(`/api/auth`)"
+    restart: unless-stopped
+
+  user-service:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: user
+    environment:
+      - PORT=3000
+      - DATABASE_URL=postgres://user_user:user_pass@user-db:5432/user_db
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - user-db
+      - redis
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.user.rule=PathPrefix(`/api/users`)"
+    restart: unless-stopped
+
+  content-service:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: content
+    environment:
+      - PORT=3000
+      - DATABASE_URL=postgres://content_user:content_pass@content-db:5432/content_db
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - content-db
+      - redis
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.content.rule=PathPrefix(`/api/content`)"
+    restart: unless-stopped
+
+  progress-service:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: progress
+    environment:
+      - PORT=3000
+      - DATABASE_URL=postgres://progress_user:progress_pass@progress-db:5432/progress_db
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - progress-db
+      - redis
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.progress.rule=PathPrefix(`/api/progress`)"
+    restart: unless-stopped
+
+  notification-service:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: notification
+    environment:
+      - PORT=3000
+      - DATABASE_URL=postgres://postgres:postgres@notification-db:5432/notification_db
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - notification-db
+      - redis
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.notification.rule=PathPrefix(`/api/notifications`)"
+    restart: unless-stopped
+
+  media-service:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: media
+    environment:
+      - PORT=3000
+      - DATABASE_URL=postgres://postgres:postgres@media-db:5432/media_db
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - media-db
+      - redis
+      - minio
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.media.rule=PathPrefix(`/api/media`)"
+    restart: unless-stopped
+
+  auth-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: auth_db
+      POSTGRES_USER: auth_user
+      POSTGRES_PASSWORD: auth_pass
+    volumes:
+      - auth_db_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  user-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: user_db
+      POSTGRES_USER: user_user
+      POSTGRES_PASSWORD: user_pass
+    volumes:
+      - user_db_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  content-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: content_db
+      POSTGRES_USER: content_user
+      POSTGRES_PASSWORD: content_pass
+    volumes:
+      - content_db_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  progress-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: progress_db
+      POSTGRES_USER: progress_user
+      POSTGRES_PASSWORD: progress_pass
+    volumes:
+      - progress_db_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  notification-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: notification_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - notification_db_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  media-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: media_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - media_db_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+
+  minio:
+    image: minio/minio:latest
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY}
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+    ports:
+      - "9002:9000"
+      - "9003:9001"
+    restart: unless-stopped
+
+volumes:
+  auth_db_data:
+  user_db_data:
+  content_db_data:
+  progress_db_data:
+  notification_db_data:
+  media_db_data:
+  minio_data:

@@ -1,0 +1,42 @@
+# ════════════════════════════════════════════
+# Docker-based Test Runner
+# ─────────────────────────────────────────────
+# Run ALL tests without installing any dependencies locally.
+# Just needs Docker + docker compose.
+# ════════════════════════════════════════════
+
+services:
+  flutter-test:
+    image: ghcr.io/cirruslabs/flutter:stable
+    working_dir: /app/frontend
+    volumes:
+      - ./frontend:/app/frontend:ro
+      - flutter_cache:/app/.flutter_cache
+    command: >
+      sh -c "
+        export PATH='/opt/flutter/bin:$PATH' &&
+        flutter config --no-analytics &&
+        flutter pub get &&
+        flutter test
+      "
+
+  rust-test:
+    image: rust:1.85-slim
+    working_dir: /app/backend
+    volumes:
+      - ./backend:/app/backend:ro
+      - cargo_cache:/usr/local/cargo/registry
+      - target_cache:/app/backend/target
+    command: >
+      sh -c '
+        apt-get update -qq && apt-get install -y -qq libssl-dev pkg-config &&
+        cargo test
+      '
+
+volumes:
+  flutter_cache:
+  cargo_cache:
+  target_cache:
+
+# Orchestrator that runs both tests sequentially
+# Usage: docker compose -f docker-compose.test.yml run test-runner

@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS media_assets (
+    id VARCHAR(255) PRIMARY KEY,
+    url TEXT NOT NULL,
+    mime_type VARCHAR(255) NOT NULL,
+    file_size BIGINT NOT NULL DEFAULT 0,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
