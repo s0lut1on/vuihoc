@@ -29,10 +29,22 @@ class ContentApi {
     try {
       final response = await _api.get('/content/subjects');
       final data = response['data'] as List<dynamic>;
-      return data.map((s) => s as Map<String, dynamic>).toList();
+      return data.map((s) {
+        final json = s as Map<String, dynamic>;
+        return <String, dynamic>{
+          'nameVi': json['name_vi'] ?? '',
+          'nameEn': json['name_en'] ?? '',
+          'icon': json['icon'] ?? '📚',
+          'color': _parseColor(json['color'] ?? '#FFE8F0'),
+        };
+      }).toList();
     } catch (_) {
       return [];
     }
+  }
+
+  static int _parseColor(String hex) {
+    return int.tryParse(hex.replaceFirst('#', '0xFF')) ?? 0xFFFFE8F0;
   }
 
   static Future<bool> checkHealth() async {
