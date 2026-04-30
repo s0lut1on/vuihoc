@@ -127,36 +127,37 @@ impl AppState {
             LEFT JOIN lessons l ON l.subject_id = s.id
             GROUP BY s.id, s.name_vi, s.name_en, s.icon, s.color, s.display_order
             ORDER BY s.display_order
-            "#
+            "#,
         )
         .fetch_all(&self.db)
         .await?;
 
         Ok(rows
             .into_iter()
-            .map(|(id, name_vi, name_en, icon, color, lesson_count)| SubjectSummary {
-                id,
-                name_vi,
-                name_en,
-                icon,
-                color,
-                lesson_count,
-            })
+            .map(
+                |(id, name_vi, name_en, icon, color, lesson_count)| SubjectSummary {
+                    id,
+                    name_vi,
+                    name_en,
+                    icon,
+                    color,
+                    lesson_count,
+                },
+            )
             .collect())
     }
 
     pub async fn get_curriculum(&self) -> Result<Vec<CurriculumSubject>, sqlx::Error> {
-        let subjects = sqlx::query_as::<_, Subject>(
-            "SELECT * FROM subjects ORDER BY display_order"
-        )
-        .fetch_all(&self.db)
-        .await?;
+        let subjects =
+            sqlx::query_as::<_, Subject>("SELECT * FROM subjects ORDER BY display_order")
+                .fetch_all(&self.db)
+                .await?;
 
         let mut result = Vec::with_capacity(subjects.len());
 
         for subj in subjects {
             let lessons = sqlx::query_as::<_, Lesson>(
-                "SELECT * FROM lessons WHERE subject_id = $1 ORDER BY lesson_order"
+                "SELECT * FROM lessons WHERE subject_id = $1 ORDER BY lesson_order",
             )
             .bind(&subj.id)
             .fetch_all(&self.db)
@@ -165,7 +166,7 @@ impl AppState {
             let mut api_lessons = Vec::with_capacity(lessons.len());
             for lesson in lessons {
                 let exercises = sqlx::query_as::<_, Exercise>(
-                    "SELECT * FROM exercises WHERE lesson_id = $1 ORDER BY exercise_order"
+                    "SELECT * FROM exercises WHERE lesson_id = $1 ORDER BY exercise_order",
                 )
                 .bind(&lesson.id)
                 .fetch_all(&self.db)
@@ -213,17 +214,15 @@ impl AppState {
     }
 
     pub async fn get_lesson(&self, lesson_id: &str) -> Result<Option<ApiLesson>, sqlx::Error> {
-        let lesson = sqlx::query_as::<_, Lesson>(
-            "SELECT * FROM lessons WHERE id = $1"
-        )
-        .bind(lesson_id)
-        .fetch_optional(&self.db)
-        .await?;
+        let lesson = sqlx::query_as::<_, Lesson>("SELECT * FROM lessons WHERE id = $1")
+            .bind(lesson_id)
+            .fetch_optional(&self.db)
+            .await?;
 
         match lesson {
             Some(l) => {
                 let exercises = sqlx::query_as::<_, Exercise>(
-                    "SELECT * FROM exercises WHERE lesson_id = $1 ORDER BY exercise_order"
+                    "SELECT * FROM exercises WHERE lesson_id = $1 ORDER BY exercise_order",
                 )
                 .bind(&l.id)
                 .fetch_all(&self.db)
@@ -273,18 +272,21 @@ pub fn get_curriculum_static() -> Vec<CurriculumSubject> {
             subject_en: "Numbers".to_string(),
             subject_icon: "🔢".to_string(),
             subject_color: "#FFE8F0".to_string(),
-            lessons: vec![
-                static_lesson("lesson_n1", "Đếm đến 10", "Count to 10", vec![
-                    static_ex(
-                        "ex_n1_01",
-                        "Có bao nhiêu quả táo 🍎?", "How many apples 🍎?",
-                        vec!["3".into(), "5".into(), "4".into()], 1,
-                        "🍎🍎🍎🍎🍎",
-                        "Đếm từng quả táo và nhớ số cuối cùng!",
-                        "Count each apple, the last number is the answer!",
-                    ),
-                ]),
-            ],
+            lessons: vec![static_lesson(
+                "lesson_n1",
+                "Đếm đến 10",
+                "Count to 10",
+                vec![static_ex(StaticExerciseParams {
+                    id: "ex_n1_01",
+                    question_vi: "Có bao nhiêu quả táo 🍎?",
+                    question_en: "How many apples 🍎?",
+                    options: vec!["3".into(), "5".into(), "4".into()],
+                    correct: 1,
+                    visual: "🍎🍎🍎🍎🍎",
+                    hint_vi: "Đếm từng quả táo và nhớ số cuối cùng!",
+                    hint_en: "Count each apple, the last number is the answer!",
+                })],
+            )],
         },
         CurriculumSubject {
             subject_id: "geometry".to_string(),
@@ -292,18 +294,21 @@ pub fn get_curriculum_static() -> Vec<CurriculumSubject> {
             subject_en: "Geometry".to_string(),
             subject_icon: "📐".to_string(),
             subject_color: "#E8F5E9".to_string(),
-            lessons: vec![
-                static_lesson("lesson_g1", "Nhận biết hình tròn", "Recognize circles", vec![
-                    static_ex(
-                        "ex_g1_01",
-                        "Hình nào là hình tròn?", "Which shape is a circle?",
-                        vec!["Tam giác".into(), "Hình tròn".into(), "Hình vuông".into()], 1,
-                        "🔺 🔴 ⬜",
-                        "Hình tròn tròn trịa, không có góc cạnh!",
-                        "A circle is round with no corners!",
-                    ),
-                ]),
-            ],
+            lessons: vec![static_lesson(
+                "lesson_g1",
+                "Nhận biết hình tròn",
+                "Recognize circles",
+                vec![static_ex(StaticExerciseParams {
+                    id: "ex_g1_01",
+                    question_vi: "Hình nào là hình tròn?",
+                    question_en: "Which shape is a circle?",
+                    options: vec!["Tam giác".into(), "Hình tròn".into(), "Hình vuông".into()],
+                    correct: 1,
+                    visual: "🔺 🔴 ⬜",
+                    hint_vi: "Hình tròn tròn trịa, không có góc cạnh!",
+                    hint_en: "A circle is round with no corners!",
+                })],
+            )],
         },
         CurriculumSubject {
             subject_id: "logic".to_string(),
@@ -311,23 +316,31 @@ pub fn get_curriculum_static() -> Vec<CurriculumSubject> {
             subject_en: "Logic".to_string(),
             subject_icon: "🧩".to_string(),
             subject_color: "#E3F2FD".to_string(),
-            lessons: vec![
-                static_lesson("lesson_l1", "Tìm quy luật số", "Number patterns", vec![
-                    static_ex(
-                        "ex_l1_01",
-                        "Số tiếp theo: 2, 4, 6, ...?", "Next number: 2, 4, 6, ...?",
-                        vec!["7".into(), "8".into(), "9".into()], 1,
-                        "🔢",
-                        "Cộng thêm 2 mỗi lần: 2+2=4, 4+2=6, 6+2=?",
-                        "Add 2 each time: 2+2=4, 4+2=6, 6+2=?",
-                    ),
-                ]),
-            ],
+            lessons: vec![static_lesson(
+                "lesson_l1",
+                "Tìm quy luật số",
+                "Number patterns",
+                vec![static_ex(StaticExerciseParams {
+                    id: "ex_l1_01",
+                    question_vi: "Số tiếp theo: 2, 4, 6, ...?",
+                    question_en: "Next number: 2, 4, 6, ...?",
+                    options: vec!["7".into(), "8".into(), "9".into()],
+                    correct: 1,
+                    visual: "🔢",
+                    hint_vi: "Cộng thêm 2 mỗi lần: 2+2=4, 4+2=6, 6+2=?",
+                    hint_en: "Add 2 each time: 2+2=4, 4+2=6, 6+2=?",
+                })],
+            )],
         },
     ]
 }
 
-fn static_lesson(id: &str, title_vi: &str, title_en: &str, exercises: Vec<ApiExercise>) -> ApiLesson {
+fn static_lesson(
+    id: &str,
+    title_vi: &str,
+    title_en: &str,
+    exercises: Vec<ApiExercise>,
+) -> ApiLesson {
     ApiLesson {
         id: id.to_string(),
         title_vi: title_vi.to_string(),
@@ -341,20 +354,27 @@ fn static_lesson(id: &str, title_vi: &str, title_en: &str, exercises: Vec<ApiExe
     }
 }
 
-fn static_ex(
-    id: &str, question_vi: &str, question_en: &str,
-    options: Vec<String>, correct: i32, visual: &str,
-    hint_vi: &str, hint_en: &str,
-) -> ApiExercise {
+struct StaticExerciseParams<'a> {
+    id: &'a str,
+    question_vi: &'a str,
+    question_en: &'a str,
+    options: Vec<String>,
+    correct: i32,
+    visual: &'a str,
+    hint_vi: &'a str,
+    hint_en: &'a str,
+}
+
+fn static_ex(params: StaticExerciseParams<'_>) -> ApiExercise {
     ApiExercise {
-        id: id.to_string(),
-        question_vi: question_vi.to_string(),
-        question_en: question_en.to_string(),
-        options,
-        correct,
-        visual: visual.to_string(),
-        hint_vi: Some(hint_vi.to_string()),
-        hint_en: Some(hint_en.to_string()),
+        id: params.id.to_string(),
+        question_vi: params.question_vi.to_string(),
+        question_en: params.question_en.to_string(),
+        options: params.options,
+        correct: params.correct,
+        visual: params.visual.to_string(),
+        hint_vi: Some(params.hint_vi.to_string()),
+        hint_en: Some(params.hint_en.to_string()),
         exercise_order: 1,
     }
 }
