@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,6 +8,7 @@ import 'core/app_router.dart';
 import 'providers/app_providers.dart';
 import 'services/api_service.dart';
 import 'services/auth_service.dart';
+import 'l10n/app_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,8 +37,8 @@ void main() async {
 
 Future<Locale> _loadLocale() async {
   final box = await Hive.openBox('settings');
-  final locale = box.get('locale', defaultValue: 'vi_VN') as String;
-  if (locale == 'en_US') return const Locale('en', 'US');
+  final locale = box.get('locale', defaultValue: 'vi') as String;
+  if (locale == 'en') return const Locale('en', 'US');
   return const Locale('vi', 'VN');
 }
 
@@ -61,20 +63,18 @@ class MathApp extends StatelessWidget {
 
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
-      title: 'Math Learning App',
+      title: 'Học Toán Vui',
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.light,
       locale: locale,
-      supportedLocales: const [
-        Locale('vi', 'VN'),
-        Locale('en', 'US'),
-      ],
-      localizationsDelegates: const [
+      localizationsDelegates: [
+        AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
+      supportedLocales: AppLocalizations.supportedLocales,
       routerDelegate: router.routerDelegate,
       routeInformationParser: router.routeInformationParser,
       routeInformationProvider: router.routeInformationProvider,

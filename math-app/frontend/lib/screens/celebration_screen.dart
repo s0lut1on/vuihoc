@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../core/app_colors.dart';
+import '../l10n/app_localizations.dart';
 import '../models/persona_model.dart';
-import '../providers/app_providers.dart';
 
 class CelebrationScreen extends ConsumerStatefulWidget {
   final int stars;
@@ -46,11 +46,10 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
 
   @override
   Widget build(BuildContext context) {
-    final locale = ref.watch(localeProvider);
-    final isVietnamese = locale.languageCode == 'vi';
+    final l10n = AppLocalizations.of(context)!;
     final persona = Persona.values.byName(widget.persona);
 
-    final messages = _getMessages(isVietnamese, persona);
+    final messages = _getMessages(l10n, persona);
 
     return Scaffold(
       backgroundColor: AppColors.warmCream,
@@ -120,9 +119,7 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      isVietnamese
-                          ? 'Mo khoa: Phep cong cap do 2!'
-                          : 'Unlock: Addition Level 2!',
+                      l10n.celebrationGamerUnlock,
                       style: TextStyle(
                         color: AppColors.gamerText,
                         fontWeight: FontWeight.w600,
@@ -155,43 +152,32 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
     );
   }
 
-  Map<String, String> _getMessages(bool isVietnamese, Persona persona) {
+  Map<String, String> _getMessages(AppLocalizations l10n, Persona persona) {
     final baseMessages = {
       'achiever': {
-        'titleVi': 'Chinh xac!',
-        'titleEn': 'Correct!',
-        'subVi': 'Be gioi qua! Tiep tuc nao!',
-        'subEn': 'Great job! Keep going!',
+        'title': l10n.celebrationAchieverTitle,
+        'subtitle': l10n.celebrationAchieverSubtitle,
       },
       'gamer': {
-        'titleVi': 'Chien thang!',
-        'titleEn': 'Victory!',
-        'subVi': 'Be nhan duoc +15 diem!',
-        'subEn': 'You earned +15 points!',
+        'title': l10n.celebrationGamerTitle,
+        'subtitle': l10n.celebrationGamerSubtitle,
       },
       'struggler': {
-        'titleVi': 'Be lam rat co gang!',
-        'titleEn': 'Great effort!',
-        'subVi': 'Dung bo cuoi, minh lam tiep bai khac nhe!',
-        'subEn': "Don't give up, let's try another!",
+        'title': l10n.celebrationStrugglerTitle,
+        'subtitle': l10n.celebrationStrugglerSubtitle,
       },
       'silent': {
-        'titleVi': 'Lam tot lam!',
-        'titleEn': 'Well done!',
-        'subVi': 'Bé đã học được thứ mới rồi!',
-        'subEn': 'You learned something new!',
+        'title': l10n.celebrationSilentTitle,
+        'subtitle': l10n.celebrationSilentSubtitle,
       },
     };
 
     final personaMessages = baseMessages[persona.name]!;
     return {
-      'title': isVietnamese
-          ? personaMessages['titleVi']!
-          : personaMessages['titleEn']!,
-      'subtitle':
-          isVietnamese ? personaMessages['subVi']! : personaMessages['subEn']!,
-      'next': isVietnamese ? 'Học tiếp' : 'Continue',
-      'home': isVietnamese ? 'Về nhà' : 'Home',
+      'title': personaMessages['title']!,
+      'subtitle': personaMessages['subtitle']!,
+      'next': l10n.celebrationNext,
+      'home': l10n.celebrationHome,
     };
   }
 }

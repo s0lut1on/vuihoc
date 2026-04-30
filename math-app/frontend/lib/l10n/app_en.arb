@@ -1,0 +1,105 @@
+{
+  "@@locale": "en",
+  "appTitle": "Math Learning Fun",
+
+  "welcomeGreeting": "Hello, little friend!",
+  "welcomeTitle": "Start Learning!",
+  "welcomeParentAccess": "Parent access",
+  "welcomeSubtitle": "Let's learn math together! Choose a learning style.",
+  "welcomeLanguageVi": "English",
+  "welcomeGoogleSignIn": "Sign in with Google",
+  "welcomeSelectPersona": "Choose character",
+  "welcomeBackButton": "Back",
+
+  "assessmentProgress": "Question {current}/{total}",
+  "@assessmentProgress": {
+    "placeholders": {
+      "current": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
+  "assessmentQuestion1": "How far can you count?",
+  "assessmentQuestion2": "Do you know addition and subtraction?",
+  "assessmentQuestion3": "How fast do you learn?",
+  "assessmentQuestion4": "What do you like most?",
+  "assessmentSkip": "Skip: answered {count}/4",
+  "@assessmentSkip": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "assessmentHint": "Don't know? Pick the closest answer!",
+
+  "homeSubjects": "Subjects",
+  "homeNavSubjects": "Subjects",
+  "homeNavPricing": "Pricing",
+  "homeNavContact": "Contact",
+  "homeLessonsLearned": "Lessons learned",
+  "homeStarsEarned": "Stars earned",
+  "homeDayStreak": "{streak} day streak",
+  "@homeDayStreak": {
+    "placeholders": {
+      "streak": {"type": "int"}
+    }
+  },
+  "homeContinueAchieverLabel": "Grab 3 stars!",
+  "homeContinueAchieverTopic": "Addition 1–10",
+  "homeContinueGamerLabel": "Earn 50 points!",
+  "homeContinueGamerTopic": "Fun counting – Level 2",
+  "homeContinueStrugglerLabel": "What today?",
+  "homeContinueStrugglerTopic": "Numbers 1–5",
+  "homeContinueSilentLabel": "Ready?",
+  "homeContinueSilentTopic": "Start gently",
+  "homeDefaultName": "Little friend",
+
+  "lessonNotFound": "Lesson not found",
+  "lessonClose": "Close",
+  "lessonHintPrefix": "Hint",
+  "lessonCorrectFeedback": "Correct!",
+  "lessonIncorrectFeedback": "Try again!",
+  "lessonSpeakQuestion": "Read question",
+
+  "celebrationTitle": "Great job!",
+  "celebrationStars": "You earned {stars} stars!",
+  "@celebrationStars": {
+    "placeholders": {
+      "stars": {"type": "int"}
+    }
+  },
+  "celebrationNext": "Continue",
+  "celebrationHome": "Home",
+  "celebrationAchieverTitle": "Correct!",
+  "celebrationAchieverSubtitle": "Great job! Keep going!",
+  "celebrationGamerTitle": "Victory!",
+  "celebrationGamerSubtitle": "You earned +15 points!",
+  "celebrationGamerUnlock": "Unlock: Addition Level 2!",
+  "celebrationStrugglerTitle": "Great effort!",
+  "celebrationStrugglerSubtitle": "Don't give up, let's try another!",
+  "celebrationSilentTitle": "Well done!",
+  "celebrationSilentSubtitle": "You learned something new!",
+
+  "pinGateTitle": "Parent Dashboard",
+  "pinGateEnterPin": "Enter PIN to access parent area",
+  "pinGateBack": "Back",
+  "pinGateWrongPin": "Wrong PIN!",
+
+  "parentDashboardTitle": "Parent Dashboard",
+  "parentDashboardBackToHome": "Back to Home",
+  "parentDashboardLessonsLearned": "Lessons learned",
+  "parentDashboardStarsEarned": "Stars earned",
+  "parentDashboardStudyStreak": "Study streak",
+  "parentDashboardProgress": "Learning Progress",
+  "parentDashboardSubjectNumbers": "Numbers",
+  "parentDashboardSubjectGeometry": "Geometry",
+  "parentDashboardSubjectMeasurement": "Measurement",
+  "parentDashboardSubjectLogic": "Logic",
+  "parentDashboardSettings": "Settings",
+  "parentDashboardLanguage": "Language",
+  "parentDashboardLanguageValue": "English",
+  "parentDashboardStudyTime": "Study Time",
+  "parentDashboardStudyTimeValue": "15 min/day",
+  "parentDashboardNotifications": "Notifications",
+  "parentDashboardLogout": "Logout",
+
+  "languageSwitcherLabel": "Language"
+}

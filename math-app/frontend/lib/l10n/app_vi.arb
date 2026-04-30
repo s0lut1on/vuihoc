@@ -1,0 +1,105 @@
+{
+  "@@locale": "vi",
+  "appTitle": "Học Toán Vui",
+
+  "welcomeGreeting": "Xin chào, bé yêu!",
+  "welcomeTitle": "Bắt đầu học!",
+  "welcomeParentAccess": "Bố mẹ nhấn vào đây",
+  "welcomeSubtitle": "Hãy cùng học Toán vui nhé! Chọn cách học của bé.",
+  "welcomeLanguageVi": "Tiếng Việt",
+  "welcomeGoogleSignIn": "Đăng nhập bằng Google",
+  "welcomeSelectPersona": "Chọn nhân vật",
+  "welcomeBackButton": "Quay lại",
+
+  "assessmentProgress": "Câu hỏi {current}/{total}",
+  "@assessmentProgress": {
+    "placeholders": {
+      "current": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
+  "assessmentQuestion1": "Bé đã đếm được đến số mấy rồi?",
+  "assessmentQuestion2": "Bé đã biết cộng trừ chưa?",
+  "assessmentQuestion3": "Bé học nhanh hay chậm?",
+  "assessmentQuestion4": "Bé thích điều gì nhất?",
+  "assessmentSkip": "Bỏ qua: đã trả lời {count}/4",
+  "@assessmentSkip": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "assessmentHint": "Không biết? Chọn câu gần đúng nhất nhé!",
+
+  "homeSubjects": "Các chủ đề",
+  "homeNavSubjects": "Chủ đề",
+  "homeNavPricing": "Bảng giá",
+  "homeNavContact": "Liên hệ",
+  "homeLessonsLearned": "Bài đã học",
+  "homeStarsEarned": "Sao tích lũy",
+  "homeDayStreak": "{streak} ngày liên tiếp",
+  "@homeDayStreak": {
+    "placeholders": {
+      "streak": {"type": "int"}
+    }
+  },
+  "homeContinueAchieverLabel": "Tiếp tục giành 3 sao!",
+  "homeContinueAchieverTopic": "Phép cộng 1 – 10",
+  "homeContinueGamerLabel": "Kiếm thêm 50 điểm!",
+  "homeContinueGamerTopic": "Đếm vui – Cấp độ 2",
+  "homeContinueStrugglerLabel": "Hôm nay mình học gì?",
+  "homeContinueStrugglerTopic": "Nhận biết số 1 – 5",
+  "homeContinueSilentLabel": "Bé sẵn sàng chưa?",
+  "homeContinueSilentTopic": "Bắt đầu nhé",
+  "homeDefaultName": "bé yêu",
+
+  "lessonNotFound": "Không tìm thấy bài học",
+  "lessonClose": "Đóng",
+  "lessonHintPrefix": "Gợi ý",
+  "lessonCorrectFeedback": "Chính xác!",
+  "lessonIncorrectFeedback": "Thử lại nhé!",
+  "lessonSpeakQuestion": "Đọc câu hỏi",
+
+  "celebrationTitle": "Tuyệt vời!",
+  "celebrationStars": "Bé đã giành được {stars} sao!",
+  "@celebrationStars": {
+    "placeholders": {
+      "stars": {"type": "int"}
+    }
+  },
+  "celebrationNext": "Học tiếp",
+  "celebrationHome": "Về nhà",
+  "celebrationAchieverTitle": "Chính xác!",
+  "celebrationAchieverSubtitle": "Bé giỏi quá! Tiếp tục nào!",
+  "celebrationGamerTitle": "Chiến thắng!",
+  "celebrationGamerSubtitle": "Bé nhận được +15 điểm!",
+  "celebrationGamerUnlock": "Mở khóa: Phép cộng cấp độ 2!",
+  "celebrationStrugglerTitle": "Bé làm rất cố gắng!",
+  "celebrationStrugglerSubtitle": "Đừng bỏ cuộc, mình làm tiếp bài khác nhé!",
+  "celebrationSilentTitle": "Làm tốt lắm!",
+  "celebrationSilentSubtitle": "Bé đã học được thứ mới rồi!",
+
+  "pinGateTitle": "Khu vực cha mẹ",
+  "pinGateEnterPin": "Nhập mã PIN để vào khu vực cha mẹ",
+  "pinGateBack": "Quay lại",
+  "pinGateWrongPin": "Sai mã PIN!",
+
+  "parentDashboardTitle": "Khu vực cha mẹ",
+  "parentDashboardBackToHome": "Về trang chủ",
+  "parentDashboardLessonsLearned": "Bài đã học",
+  "parentDashboardStarsEarned": "Sao tích lũy",
+  "parentDashboardStudyStreak": "Liên tiếp học",
+  "parentDashboardProgress": "Tiến độ học tập",
+  "parentDashboardSubjectNumbers": "Số học",
+  "parentDashboardSubjectGeometry": "Hình học",
+  "parentDashboardSubjectMeasurement": "Đo lường",
+  "parentDashboardSubjectLogic": "Tư duy",
+  "parentDashboardSettings": "Cài đặt",
+  "parentDashboardLanguage": "Ngôn ngữ",
+  "parentDashboardLanguageValue": "Tiếng Việt",
+  "parentDashboardStudyTime": "Thời gian học",
+  "parentDashboardStudyTimeValue": "15 phút/ngày",
+  "parentDashboardNotifications": "Thông báo",
+  "parentDashboardLogout": "Đăng xuất",
+
+  "languageSwitcherLabel": "Ngôn ngữ"
+}

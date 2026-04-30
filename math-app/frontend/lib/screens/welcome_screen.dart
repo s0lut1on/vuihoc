@@ -3,9 +3,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../core/app_colors.dart';
+import '../l10n/app_localizations.dart';
 import '../models/persona_model.dart';
 import '../providers/app_providers.dart';
 import '../services/auth_service.dart';
+import '../widgets/language_switcher.dart';
 
 class WelcomeScreen extends ConsumerStatefulWidget {
   const WelcomeScreen({super.key});
@@ -42,27 +44,25 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
 
   @override
   Widget build(BuildContext context) {
-    final locale = ref.watch(localeProvider);
-    final isVietnamese = locale.languageCode == 'vi';
-
     return Scaffold(
       backgroundColor: AppColors.lightPinkBg,
       body: LayoutBuilder(
         builder: (context, constraints) {
           if (constraints.maxWidth > 900) {
-            return _buildDesktop(isVietnamese);
+            return _buildDesktop();
           }
-          return _buildMobile(isVietnamese);
+          return _buildMobile();
         },
       ),
     );
   }
 
   // =================== DESKTOP ===================
-  Widget _buildDesktop(bool isVietnamese) {
+  Widget _buildDesktop() {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       children: [
-        _buildDesktopNav(isVietnamese),
+        _buildDesktopNav(),
         Expanded(
           child: Container(
             color: const Color(0xFFFFE8F0),
@@ -75,9 +75,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        isVietnamese
-                            ? 'Xin chào, bé yêu!'
-                            : 'Hello, little friend!',
+                        l10n.welcomeGreeting,
                         style: const TextStyle(
                           fontSize: 56,
                           fontWeight: FontWeight.w700,
@@ -87,11 +85,9 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        isVietnamese
-                            ? 'Hãy cùng học Toán vui nhé! Chọn cách học phù hợp với bé.'
-                            : "Let's learn math together! Choose a learning style.",
+                        l10n.welcomeSubtitle,
                         style: const TextStyle(
-                          fontSize: 22,
+                          fontSize: 20,
                           color: AppColors.mutedPurple,
                           height: 1.5,
                         ),
@@ -99,9 +95,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
                       ),
                       const SizedBox(height: 24),
                       Text(
-                        isVietnamese
-                            ? 'Chọn cách học của bé:'
-                            : 'Choose your style:',
+                        l10n.welcomeSelectPersona,
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
@@ -134,15 +128,13 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
                             fontWeight: FontWeight.w700,
                           ),
                         ),
-                        child: Text(
-                          isVietnamese ? 'Bắt đầu học!' : 'Start Learning!',
-                        ),
+                        child: Text(l10n.welcomeTitle),
                       ),
                       const SizedBox(height: 16),
                       TextButton(
                         onPressed: _onParentAccess,
                         child: Text(
-                          isVietnamese ? 'Bố mẹ nhấn vào đây' : 'Parent access',
+                          l10n.welcomeParentAccess,
                           style: const TextStyle(
                               color: AppColors.mutedPurple, fontSize: 14),
                         ),
@@ -188,7 +180,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
     );
   }
 
-  Widget _buildDesktopNav(bool isVietnamese) {
+  Widget _buildDesktopNav() {
     return Container(
       height: 72,
       padding: const EdgeInsets.symmetric(horizontal: 48),
@@ -309,7 +301,8 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
   }
 
   // =================== MOBILE (unchanged) ===================
-  Widget _buildMobile(bool isVietnamese) {
+  Widget _buildMobile() {
+    final l10n = AppLocalizations.of(context)!;
     return SafeArea(
       child: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
@@ -319,43 +312,37 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
             _buildMascot(),
             const SizedBox(height: 16),
             Text(
-              isVietnamese ? 'Xin chào, bé yêu!' : 'Hello, little friend!',
+              l10n.welcomeGreeting,
               style: Theme.of(context).textTheme.displayLarge,
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
             Text(
-              isVietnamese
-                  ? 'Hãy cùng học Toán vui nhé!'
-                  : "Let's learn math together!",
+              l10n.welcomeSubtitle,
               style: Theme.of(context).textTheme.bodyLarge,
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
             Text(
-              isVietnamese
-                  ? 'Chọn cách học của bé:'
-                  : 'Choose your learning style:',
+              l10n.welcomeSelectPersona,
               style: Theme.of(context).textTheme.labelLarge,
             ),
             const SizedBox(height: 16),
             _buildPersonaGrid(),
             const SizedBox(height: 24),
-            _buildLanguageToggle(isVietnamese),
+            _buildLanguageToggle(),
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: _selectedPersona == null ? null : _onStart,
-              child: Text(
-                isVietnamese ? 'Bắt đầu học!' : 'Start Learning!',
-              ),
+              child: Text(l10n.welcomeTitle),
             ),
             const SizedBox(height: 16),
-            _buildGoogleSignInButton(isVietnamese),
+            _buildGoogleSignInButton(),
             const SizedBox(height: 16),
             TextButton(
               onPressed: _onParentAccess,
               child: Text(
-                isVietnamese ? 'Bố mẹ nhấn vào đây' : 'Parent access',
+                l10n.welcomeParentAccess,
                 style: const TextStyle(color: AppColors.mutedPurple),
               ),
             ),
@@ -445,36 +432,8 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
     );
   }
 
-  Widget _buildLanguageToggle(bool isVietnamese) {
-    return GestureDetector(
-      onTap: () {
-        final newLocale =
-            isVietnamese ? const Locale('en', 'US') : const Locale('vi', 'VN');
-        ref.read(localeProvider.notifier).state = newLocale;
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        decoration: BoxDecoration(
-          color: AppColors.white,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: AppColors.divider),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              isVietnamese ? '🇻🇳' : '🇬🇧',
-              style: const TextStyle(fontSize: 20),
-            ),
-            const SizedBox(width: 8),
-            Text(
-              isVietnamese ? 'Tiếng Việt' : 'English',
-              style: const TextStyle(fontSize: 14, color: Color(0xFF333333)),
-            ),
-          ],
-        ),
-      ),
-    );
+  Widget _buildLanguageToggle() {
+    return const LanguageSwitcher();
   }
 
   void _onStart() async {
@@ -482,12 +441,12 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
 
     ref.read(personaProvider.notifier).state = _selectedPersona!;
     final locale = ref.read(localeProvider);
-    final isVietnamese = locale.languageCode == 'vi';
+    final l10n = AppLocalizations.of(context)!;
 
     final userNotifier = ref.read(userProvider.notifier);
     try {
       await userNotifier.createUser(
-        name: isVietnamese ? 'bé yêu' : 'Little friend',
+        name: l10n.homeDefaultName,
         persona: _selectedPersona!,
         locale: locale.toString(),
       );
@@ -500,8 +459,9 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
     }
   }
 
-  Widget _buildGoogleSignInButton(bool isVietnamese) {
+  Widget _buildGoogleSignInButton() {
     if (_selectedPersona != null) return const SizedBox();
+    final l10n = AppLocalizations.of(context)!;
 
     return GestureDetector(
       onTap: _signInWithGoogle,
@@ -524,7 +484,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                isVietnamese ? 'Đăng nhập bằng Google' : 'Sign in with Google',
+                l10n.welcomeGoogleSignIn,
                 style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,

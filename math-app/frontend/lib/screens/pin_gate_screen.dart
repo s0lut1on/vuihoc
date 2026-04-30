@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import '../core/app_colors.dart';
+import '../l10n/app_localizations.dart';
 
 class PinGateScreen extends StatefulWidget {
   const PinGateScreen({super.key});
@@ -37,8 +38,8 @@ class _PinGateScreenState extends State<PinGateScreen> {
     } else {
       setState(() => _pin = '');
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Sai ma PIN!'),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.pinGateWrongPin),
           backgroundColor: Colors.red,
         ),
       );
@@ -47,8 +48,7 @@ class _PinGateScreenState extends State<PinGateScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final locale = Localizations.localeOf(context);
-    final isVietnamese = locale.languageCode == 'vi';
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: AppColors.darkPurple,
@@ -60,9 +60,7 @@ class _PinGateScreenState extends State<PinGateScreen> {
                 size: 48, color: AppColors.primaryPink),
             const SizedBox(height: 24),
             Text(
-              isVietnamese
-                  ? 'Nhập mã PIN để vào khu vực cha mẹ'
-                  : 'Enter PIN to access parent area',
+              l10n.pinGateTitle,
               style: const TextStyle(
                 fontSize: 18,
                 color: AppColors.white,
@@ -88,21 +86,22 @@ class _PinGateScreenState extends State<PinGateScreen> {
               }),
             ),
             const SizedBox(height: 48),
-            _buildKeypad(isVietnamese),
+            _buildKeypad(),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildKeypad(bool isVietnamese) {
+  Widget _buildKeypad() {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       children: [
         for (final row in [
           ['1', '2', '3'],
           ['4', '5', '6'],
           ['7', '8', '9'],
-          [isVietnamese ? 'Quay lại' : 'Back', '0', '←'],
+          [l10n.pinGateBack, '0', '←'],
         ])
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -116,17 +115,16 @@ class _PinGateScreenState extends State<PinGateScreen> {
                     onPressed: () {
                       if (label == '←') {
                         _onBackspace();
-                      } else if (label == 'Quay lại' || label == 'Back') {
+                      } else if (label == l10n.pinGateBack) {
                         context.go('/home');
                       } else {
                         _onKeyPressed(label);
                       }
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          label == '←' || label == 'Quay lại' || label == 'Back'
-                              ? Colors.transparent
-                              : AppColors.lightPinkBg.withValues(alpha: 0.2),
+                      backgroundColor: label == '←' || label == l10n.pinGateBack
+                          ? Colors.transparent
+                          : AppColors.lightPinkBg.withValues(alpha: 0.2),
                       foregroundColor: AppColors.white,
                       elevation: 0,
                       shape: RoundedRectangleBorder(

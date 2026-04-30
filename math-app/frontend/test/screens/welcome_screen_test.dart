@@ -1,33 +1,54 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:hive/hive.dart';
+import 'package:math_app/l10n/app_localizations.dart';
 import 'package:math_app/screens/welcome_screen.dart';
 
 void main() {
-  testWidgets('WelcomeScreen renders mascot and welcome text',
-      (WidgetTester tester) async {
-    await tester.pumpWidget(
-      ProviderScope(
-        child: MaterialApp(
-          home: const WelcomeScreen(),
-        ),
+  setUpAll(() async {
+    final tempDir = await Directory.systemTemp.createTemp('hive_test');
+    Hive.init(tempDir.path);
+  });
+
+  tearDownAll(() async {
+    await Hive.deleteFromDisk();
+  });
+
+  Widget localizedApp(Widget home) {
+    return ProviderScope(
+      child: MaterialApp(
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [Locale('en'), Locale('vi')],
+        locale: const Locale('vi'),
+        home: home,
       ),
     );
+  }
+
+  testWidgets('WelcomeScreen renders mascot and welcome text',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(localizedApp(const WelcomeScreen()));
+    await tester.pumpAndSettle();
 
     expect(find.text('Xin chào, bé yêu!'), findsOneWidget);
-    expect(find.text('Hãy cùng học Toán vui nhé!'), findsOneWidget);
+    expect(find.text('Hãy cùng học Toán vui nhé! Chọn cách học của bé.'),
+        findsOneWidget);
     expect(find.textContaining('🐸'), findsOneWidget);
   });
 
   testWidgets('WelcomeScreen shows 4 persona cards',
       (WidgetTester tester) async {
-    await tester.pumpWidget(
-      ProviderScope(
-        child: MaterialApp(
-          home: const WelcomeScreen(),
-        ),
-      ),
-    );
+    await tester.pumpWidget(localizedApp(const WelcomeScreen()));
+    await tester.pumpAndSettle();
 
     expect(find.text('Học giỏi'), findsOneWidget);
     expect(find.text('Thích chơi game'), findsOneWidget);
@@ -37,13 +58,8 @@ void main() {
 
   testWidgets('Start button is disabled until persona selected',
       (WidgetTester tester) async {
-    await tester.pumpWidget(
-      ProviderScope(
-        child: MaterialApp(
-          home: const WelcomeScreen(),
-        ),
-      ),
-    );
+    await tester.pumpWidget(localizedApp(const WelcomeScreen()));
+    await tester.pumpAndSettle();
 
     final buttonFinder = find.widgetWithText(ElevatedButton, 'Bắt đầu học!');
     expect(buttonFinder, findsOneWidget);
@@ -54,22 +70,17 @@ void main() {
 
   testWidgets('Language toggle switches between vi and en',
       (WidgetTester tester) async {
-    await tester.pumpWidget(
-      ProviderScope(
-        child: MaterialApp(
-          home: const WelcomeScreen(),
-        ),
-      ),
-    );
+    await tester.pumpWidget(localizedApp(const WelcomeScreen()));
+    await tester.pumpAndSettle();
 
     expect(find.text('🇻🇳'), findsOneWidget);
-    expect(find.text('Tiếng Việt'), findsOneWidget);
+    expect(find.text('Ngôn ngữ'), findsOneWidget);
 
     await tester.ensureVisible(find.text('🇻🇳'));
     await tester.tap(find.text('🇻🇳'));
     await tester.pumpAndSettle();
 
     expect(find.text('🇬🇧'), findsOneWidget);
-    expect(find.text('English'), findsOneWidget);
+    expect(find.text('Ngôn ngữ'), findsOneWidget);
   });
 }

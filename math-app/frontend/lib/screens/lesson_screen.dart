@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../core/app_colors.dart';
+import '../l10n/app_localizations.dart';
 import '../models/lesson_model.dart';
 import '../providers/app_providers.dart';
 import '../services/content_api.dart';
@@ -12,8 +13,11 @@ class LessonScreen extends ConsumerStatefulWidget {
   final String subjectId;
   final String lessonId;
 
-  const LessonScreen(
-      {super.key, required this.subjectId, required this.lessonId});
+  const LessonScreen({
+    super.key,
+    required this.subjectId,
+    required this.lessonId,
+  });
 
   @override
   ConsumerState<LessonScreen> createState() => _LessonScreenState();
@@ -57,15 +61,14 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final locale = ref.watch(localeProvider);
-    final isVietnamese = locale.languageCode == 'vi';
     final screenWidth = MediaQuery.of(context).size.width;
     final isDesktop = screenWidth > 900;
 
     if (_loading) {
       return const Scaffold(
         body: Center(
-            child: CircularProgressIndicator(color: AppColors.primaryPink)),
+          child: CircularProgressIndicator(color: AppColors.primaryPink),
+        ),
       );
     }
 
@@ -73,7 +76,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
       return Scaffold(
         body: Center(
           child: Text(
-            isVietnamese ? 'Không tìm thấy bài học' : 'Lesson not found',
+            AppLocalizations.of(context)!.lessonNotFound,
             style: const TextStyle(fontSize: 18, color: AppColors.primaryPink),
           ),
         ),
@@ -87,15 +90,13 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
       backgroundColor: AppColors.lightBlueBg,
       body: SafeArea(
         child: isDesktop
-            ? _buildDesktopLayout(currentQ, isVietnamese, totalQuestions)
-            : _buildMobileLayout(currentQ, isVietnamese, totalQuestions),
+            ? _buildDesktopLayout(currentQ, totalQuestions)
+            : _buildMobileLayout(currentQ, totalQuestions),
       ),
     );
   }
 
-  // ==================== MOBILE ====================
-  Widget _buildMobileLayout(
-      ApiExercise currentQ, bool isVietnamese, int totalQuestions) {
+  Widget _buildMobileLayout(ApiExercise currentQ, int totalQuestions) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       child: Column(
@@ -112,7 +113,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            '🍎 ${isVietnamese ? currentQ.questionVi : currentQ.questionEn}',
+            '🍎 ${currentQ.questionVi}',
             style: Theme.of(context).textTheme.titleLarge,
             textAlign: TextAlign.center,
           ),
@@ -125,7 +126,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
             ),
           ),
           const SizedBox(height: 32),
-          _buildOptions(currentQ, isVietnamese),
+          _buildOptions(currentQ),
           const SizedBox(height: 16),
           if (_showHint)
             Container(
@@ -139,9 +140,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      isVietnamese
-                          ? currentQ.hintVi ?? ''
-                          : currentQ.hintEn ?? '',
+                      currentQ.hintEn ?? '',
                       style: const TextStyle(
                           fontSize: 14, color: AppColors.primaryPink),
                     ),
@@ -169,9 +168,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
     );
   }
 
-  // ==================== DESKTOP ====================
-  Widget _buildDesktopLayout(
-      ApiExercise currentQ, bool isVietnamese, int totalQuestions) {
+  Widget _buildDesktopLayout(ApiExercise currentQ, int totalQuestions) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 24),
       child: Column(
@@ -182,7 +179,6 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Left: Question card
                 Expanded(
                   flex: 2,
                   child: Container(
@@ -197,7 +193,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          '🍎 ${isVietnamese ? currentQ.questionVi : currentQ.questionEn}',
+                          '🍎 ${currentQ.questionVi}',
                           style: const TextStyle(
                               fontSize: 28,
                               fontWeight: FontWeight.w700,
@@ -214,13 +210,12 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
                     ),
                   ),
                 ),
-                // Right: Answers + hint + voice
                 Expanded(
                   flex: 1,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      _buildOptions(currentQ, isVietnamese),
+                      _buildOptions(currentQ),
                       const SizedBox(height: 24),
                       if (_showHint)
                         Container(
@@ -235,9 +230,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
-                                  isVietnamese
-                                      ? currentQ.hintVi ?? ''
-                                      : currentQ.hintEn ?? '',
+                                  currentQ.hintEn ?? '',
                                   style: const TextStyle(
                                       fontSize: 14,
                                       color: AppColors.primaryPink),
@@ -321,7 +314,6 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
     );
   }
 
-  // ==================== SHARED ====================
   Widget _buildProgressBar(int total) {
     return Row(
       children: List.generate(total, (index) {
@@ -340,7 +332,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
     );
   }
 
-  Widget _buildOptions(ApiExercise question, bool isVietnamese) {
+  Widget _buildOptions(ApiExercise question) {
     final isDesktop = MediaQuery.of(context).size.width > 900;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,

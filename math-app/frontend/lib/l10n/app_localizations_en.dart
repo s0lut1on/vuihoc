@@ -1,0 +1,239 @@
+// ignore: unused_import
+import 'package:intl/intl.dart' as intl;
+import 'app_localizations.dart';
+
+// ignore_for_file: type=lint
+
+/// The translations for English (`en`).
+class AppLocalizationsEn extends AppLocalizations {
+  AppLocalizationsEn([String locale = 'en']) : super(locale);
+
+  @override
+  String get appTitle => 'Math Learning Fun';
+
+  @override
+  String get welcomeGreeting => 'Hello, little friend!';
+
+  @override
+  String get welcomeTitle => 'Start Learning!';
+
+  @override
+  String get welcomeParentAccess => 'Parent access';
+
+  @override
+  String get welcomeSubtitle =>
+      'Let\'s learn math together! Choose a learning style.';
+
+  @override
+  String get welcomeLanguageVi => 'English';
+
+  @override
+  String get welcomeGoogleSignIn => 'Sign in with Google';
+
+  @override
+  String get welcomeSelectPersona => 'Choose character';
+
+  @override
+  String get welcomeBackButton => 'Back';
+
+  @override
+  String assessmentProgress(int current, int total) {
+    return 'Question $current/$total';
+  }
+
+  @override
+  String get assessmentQuestion1 => 'How far can you count?';
+
+  @override
+  String get assessmentQuestion2 => 'Do you know addition and subtraction?';
+
+  @override
+  String get assessmentQuestion3 => 'How fast do you learn?';
+
+  @override
+  String get assessmentQuestion4 => 'What do you like most?';
+
+  @override
+  String assessmentSkip(int count) {
+    return 'Skip: answered $count/4';
+  }
+
+  @override
+  String get assessmentHint => 'Don\'t know? Pick the closest answer!';
+
+  @override
+  String get homeSubjects => 'Subjects';
+
+  @override
+  String get homeNavSubjects => 'Subjects';
+
+  @override
+  String get homeNavPricing => 'Pricing';
+
+  @override
+  String get homeNavContact => 'Contact';
+
+  @override
+  String get homeLessonsLearned => 'Lessons learned';
+
+  @override
+  String get homeStarsEarned => 'Stars earned';
+
+  @override
+  String homeDayStreak(int streak) {
+    return '$streak day streak';
+  }
+
+  @override
+  String get homeContinueAchieverLabel => 'Grab 3 stars!';
+
+  @override
+  String get homeContinueAchieverTopic => 'Addition 1–10';
+
+  @override
+  String get homeContinueGamerLabel => 'Earn 50 points!';
+
+  @override
+  String get homeContinueGamerTopic => 'Fun counting – Level 2';
+
+  @override
+  String get homeContinueStrugglerLabel => 'What today?';
+
+  @override
+  String get homeContinueStrugglerTopic => 'Numbers 1–5';
+
+  @override
+  String get homeContinueSilentLabel => 'Ready?';
+
+  @override
+  String get homeContinueSilentTopic => 'Start gently';
+
+  @override
+  String get homeDefaultName => 'Little friend';
+
+  @override
+  String get lessonNotFound => 'Lesson not found';
+
+  @override
+  String get lessonClose => 'Close';
+
+  @override
+  String get lessonHintPrefix => 'Hint';
+
+  @override
+  String get lessonCorrectFeedback => 'Correct!';
+
+  @override
+  String get lessonIncorrectFeedback => 'Try again!';
+
+  @override
+  String get lessonSpeakQuestion => 'Read question';
+
+  @override
+  String get celebrationTitle => 'Great job!';
+
+  @override
+  String celebrationStars(int stars) {
+    return 'You earned $stars stars!';
+  }
+
+  @override
+  String get celebrationNext => 'Continue';
+
+  @override
+  String get celebrationHome => 'Home';
+
+  @override
+  String get celebrationAchieverTitle => 'Correct!';
+
+  @override
+  String get celebrationAchieverSubtitle => 'Great job! Keep going!';
+
+  @override
+  String get celebrationGamerTitle => 'Victory!';
+
+  @override
+  String get celebrationGamerSubtitle => 'You earned +15 points!';
+
+  @override
+  String get celebrationGamerUnlock => 'Unlock: Addition Level 2!';
+
+  @override
+  String get celebrationStrugglerTitle => 'Great effort!';
+
+  @override
+  String get celebrationStrugglerSubtitle =>
+      'Don\'t give up, let\'s try another!';
+
+  @override
+  String get celebrationSilentTitle => 'Well done!';
+
+  @override
+  String get celebrationSilentSubtitle => 'You learned something new!';
+
+  @override
+  String get pinGateTitle => 'Parent Dashboard';
+
+  @override
+  String get pinGateEnterPin => 'Enter PIN to access parent area';
+
+  @override
+  String get pinGateBack => 'Back';
+
+  @override
+  String get pinGateWrongPin => 'Wrong PIN!';
+
+  @override
+  String get parentDashboardTitle => 'Parent Dashboard';
+
+  @override
+  String get parentDashboardBackToHome => 'Back to Home';
+
+  @override
+  String get parentDashboardLessonsLearned => 'Lessons learned';
+
+  @override
+  String get parentDashboardStarsEarned => 'Stars earned';
+
+  @override
+  String get parentDashboardStudyStreak => 'Study streak';
+
+  @override
+  String get parentDashboardProgress => 'Learning Progress';
+
+  @override
+  String get parentDashboardSubjectNumbers => 'Numbers';
+
+  @override
+  String get parentDashboardSubjectGeometry => 'Geometry';
+
+  @override
+  String get parentDashboardSubjectMeasurement => 'Measurement';
+
+  @override
+  String get parentDashboardSubjectLogic => 'Logic';
+
+  @override
+  String get parentDashboardSettings => 'Settings';
+
+  @override
+  String get parentDashboardLanguage => 'Language';
+
+  @override
+  String get parentDashboardLanguageValue => 'English';
+
+  @override
+  String get parentDashboardStudyTime => 'Study Time';
+
+  @override
+  String get parentDashboardStudyTimeValue => '15 min/day';
+
+  @override
+  String get parentDashboardNotifications => 'Notifications';
+
+  @override
+  String get parentDashboardLogout => 'Logout';
+
+  @override
+  String get languageSwitcherLabel => 'Language';
+}

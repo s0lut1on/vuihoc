@@ -1,7 +1,7 @@
 use axum::{routing::get, Router};
+use sqlx::PgPool;
 use std::net::SocketAddr;
 use std::path::PathBuf;
-use sqlx::PgPool;
 use tower_http::cors::CorsLayer;
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
@@ -9,7 +9,7 @@ use utoipa_swagger_ui::SwaggerUi;
 mod handlers;
 mod models;
 
-use models::{ApiLesson, ApiExercise, CurriculumSubject, SubjectSummary, AppState};
+use models::{ApiExercise, ApiLesson, AppState, CurriculumSubject, SubjectSummary};
 
 #[derive(OpenApi)]
 #[openapi(components(schemas(CurriculumSubject, ApiLesson, ApiExercise, SubjectSummary)))]
@@ -107,14 +107,14 @@ mod tests {
         let curriculum = models::get_curriculum_static();
         let summaries: Vec<_> = curriculum
             .iter()
-                .map(|s| models::SubjectSummary {
-                    id: s.subject_id.clone(),
-                    name_vi: s.subject_vi.clone(),
-                    name_en: s.subject_en.clone(),
-                    icon: s.subject_icon.clone(),
-                    color: s.subject_color.clone(),
-                    lesson_count: s.lessons.len() as i64,
-                })
+            .map(|s| models::SubjectSummary {
+                id: s.subject_id.clone(),
+                name_vi: s.subject_vi.clone(),
+                name_en: s.subject_en.clone(),
+                icon: s.subject_icon.clone(),
+                color: s.subject_color.clone(),
+                lesson_count: s.lessons.len() as i64,
+            })
             .collect();
         assert_eq!(summaries[0].lesson_count, 1);
         assert_eq!(summaries[0].name_vi, "S\u{1ed1} h\u{1ecd}c");

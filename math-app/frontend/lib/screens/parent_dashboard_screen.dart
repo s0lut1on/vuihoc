@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../core/app_colors.dart';
+import '../l10n/app_localizations.dart';
+import '../widgets/language_switcher.dart';
 
 class ParentDashboardScreen extends StatelessWidget {
   const ParentDashboardScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final locale = Localizations.localeOf(context);
-    final isVietnamese = locale.languageCode == 'vi';
+    final l10n = AppLocalizations.of(context)!;
     final screenWidth = MediaQuery.of(context).size.width;
     final isDesktop = screenWidth > 900;
 
@@ -16,37 +17,37 @@ class ParentDashboardScreen extends StatelessWidget {
       backgroundColor: AppColors.grayBg,
       body: SafeArea(
         child: isDesktop
-            ? _buildDesktopLayout(context, isVietnamese)
-            : _buildMobileLayout(context, isVietnamese),
+            ? _buildDesktopLayout(context, l10n)
+            : _buildMobileLayout(context, l10n),
       ),
     );
   }
 
-  Widget _buildMobileLayout(BuildContext context, bool isVietnamese) {
+  Widget _buildMobileLayout(BuildContext context, AppLocalizations l10n) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildHeader(context, isVietnamese),
+          _buildHeader(context, l10n),
           const SizedBox(height: 32),
-          _buildStatsCards(isVietnamese),
+          _buildStatsCards(l10n),
           const SizedBox(height: 32),
-          _buildChildProgress(isVietnamese),
+          _buildChildProgress(l10n),
           const SizedBox(height: 32),
-          _buildSettings(isVietnamese),
+          _buildSettings(l10n),
         ],
       ),
     );
   }
 
-  Widget _buildDesktopLayout(BuildContext context, bool isVietnamese) {
+  Widget _buildDesktopLayout(BuildContext context, AppLocalizations l10n) {
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 32),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildDesktopNav(context, isVietnamese),
+          _buildDesktopNav(context, l10n),
           const SizedBox(height: 32),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -55,16 +56,16 @@ class ParentDashboardScreen extends StatelessWidget {
                 flex: 2,
                 child: Column(
                   children: [
-                    _buildStatsCards(isVietnamese),
+                    _buildStatsCards(l10n),
                     const SizedBox(height: 32),
-                    _buildChildProgress(isVietnamese),
+                    _buildChildProgress(l10n),
                   ],
                 ),
               ),
               const SizedBox(width: 32),
               Expanded(
                 flex: 1,
-                child: _buildSettings(isVietnamese),
+                child: _buildSettings(l10n),
               ),
             ],
           ),
@@ -73,7 +74,7 @@ class ParentDashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildDesktopNav(BuildContext context, bool isVietnamese) {
+  Widget _buildDesktopNav(BuildContext context, AppLocalizations l10n) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -92,10 +93,12 @@ class ParentDashboardScreen extends StatelessWidget {
         ),
         Row(
           children: [
+            const LanguageSwitcher(),
+            const SizedBox(width: 8),
             TextButton(
               onPressed: () => context.go('/home'),
               child: Text(
-                isVietnamese ? 'Về trang chủ' : 'Back to Home',
+                l10n.parentDashboardBackToHome,
                 style: const TextStyle(color: AppColors.darkPurple),
               ),
             ),
@@ -110,12 +113,12 @@ class ParentDashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader(BuildContext context, bool isVietnamese) {
+  Widget _buildHeader(BuildContext context, AppLocalizations l10n) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          isVietnamese ? 'Khu vực cha mẹ' : 'Parent Dashboard',
+          l10n.parentDashboardTitle,
           style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.w700,
@@ -129,22 +132,22 @@ class ParentDashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildStatsCards(bool isVietnamese) {
+  Widget _buildStatsCards(AppLocalizations l10n) {
     return Row(
       children: [
         Expanded(
-          child: _statCard('📚', '12',
-              isVietnamese ? 'Bài đã học' : 'Lessons learned', Colors.blue),
+          child: _statCard(
+              '📚', '12', l10n.parentDashboardLessonsLearned, Colors.blue),
         ),
         const SizedBox(width: 16),
         Expanded(
-          child: _statCard('⭐', '36',
-              isVietnamese ? 'Sao tích lũy' : 'Stars earned', Colors.amber),
+          child: _statCard(
+              '⭐', '36', l10n.parentDashboardStarsEarned, Colors.amber),
         ),
         const SizedBox(width: 16),
         Expanded(
-          child: _statCard('🔥', '5 ngày',
-              isVietnamese ? 'Liên tiếp học' : 'Study streak', Colors.orange),
+          child: _statCard(
+              '🔥', '5 ngày', l10n.parentDashboardStudyStreak, Colors.orange),
         ),
       ],
     );
@@ -180,7 +183,7 @@ class ParentDashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildChildProgress(bool isVietnamese) {
+  Widget _buildChildProgress(AppLocalizations l10n) {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -191,7 +194,7 @@ class ParentDashboardScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            isVietnamese ? 'Tiến độ học tập' : 'Learning Progress',
+            l10n.parentDashboardProgress,
             style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
@@ -199,15 +202,14 @@ class ParentDashboardScreen extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           _progressRow(
-              isVietnamese ? 'Số học' : 'Numbers', 0.75, AppColors.primaryPink),
+              l10n.parentDashboardSubjectNumbers, 0.75, AppColors.primaryPink),
+          const SizedBox(height: 12),
+          _progressRow(l10n.parentDashboardSubjectGeometry, 0.40, Colors.green),
           const SizedBox(height: 12),
           _progressRow(
-              isVietnamese ? 'Hình học' : 'Geometry', 0.40, Colors.green),
+              l10n.parentDashboardSubjectMeasurement, 0.20, Colors.orange),
           const SizedBox(height: 12),
-          _progressRow(
-              isVietnamese ? 'Đo lường' : 'Measurement', 0.20, Colors.orange),
-          const SizedBox(height: 12),
-          _progressRow(isVietnamese ? 'Tư duy' : 'Logic', 0.10, Colors.blue),
+          _progressRow(l10n.parentDashboardSubjectLogic, 0.10, Colors.blue),
         ],
       ),
     );
@@ -242,7 +244,7 @@ class ParentDashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSettings(bool isVietnamese) {
+  Widget _buildSettings(AppLocalizations l10n) {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -253,22 +255,20 @@ class ParentDashboardScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            isVietnamese ? 'Cài đặt' : 'Settings',
+            l10n.parentDashboardSettings,
             style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
                 color: AppColors.darkPurple),
           ),
           const SizedBox(height: 16),
-          _settingTile(Icons.language, isVietnamese ? 'Ngôn ngữ' : 'Language',
-              isVietnamese ? 'Tiếng Việt' : 'Vietnamese'),
+          _settingTile(Icons.language, l10n.parentDashboardLanguage,
+              l10n.parentDashboardLanguageValue),
+          _settingTile(Icons.timer, l10n.parentDashboardStudyTime,
+              l10n.parentDashboardStudyTimeValue),
           _settingTile(
-              Icons.timer,
-              isVietnamese ? 'Thời gian học' : 'Study Time',
-              '15 ${isVietnamese ? 'phút/ngày' : 'min/day'}'),
-          _settingTile(Icons.notifications,
-              isVietnamese ? 'Thông báo' : 'Notifications', 'On'),
-          _settingTile(Icons.logout, isVietnamese ? 'Đăng xuất' : 'Logout', ''),
+              Icons.notifications, l10n.parentDashboardNotifications, 'On'),
+          _settingTile(Icons.logout, l10n.parentDashboardLogout, ''),
         ],
       ),
     );

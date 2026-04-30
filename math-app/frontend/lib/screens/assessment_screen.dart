@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../core/app_colors.dart';
+import '../l10n/app_localizations.dart';
 import '../providers/app_providers.dart';
 import '../services/local_storage_service.dart';
 
@@ -58,8 +59,7 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final locale = ref.watch(localeProvider);
-    final isVietnamese = locale.languageCode == 'vi';
+    final l10n = AppLocalizations.of(context)!;
     final currentQ = _questions[_currentQuestion];
     final options = currentQ['options'] as List<Map<String, dynamic>>;
     final answeredCount = _answers.where((a) => a != null).length;
@@ -70,17 +70,19 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen> {
       backgroundColor: AppColors.warmCream,
       body: SafeArea(
         child: isDesktop
-            ? _buildDesktopLayout(
-                isVietnamese, currentQ, options, answeredCount)
-            : _buildMobileLayout(
-                isVietnamese, currentQ, options, answeredCount),
+            ? _buildDesktopLayout(l10n, currentQ, options, answeredCount)
+            : _buildMobileLayout(l10n, currentQ, options, answeredCount),
       ),
     );
   }
 
   // ==================== MOBILE ====================
-  Widget _buildMobileLayout(bool isVietnamese, Map<String, dynamic> currentQ,
-      List<Map<String, dynamic>> options, int answeredCount) {
+  Widget _buildMobileLayout(
+      AppLocalizations l10n,
+      Map<String, dynamic> currentQ,
+      List<Map<String, dynamic>> options,
+      int answeredCount) {
+    final questionText = _getQuestionText(l10n, _currentQuestion);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       child: Column(
@@ -102,7 +104,7 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen> {
                     border: Border.all(color: AppColors.divider),
                   ),
                   child: Text(
-                    isVietnamese ? currentQ['vi'] : currentQ['en'],
+                    questionText,
                     style: const TextStyle(
                         fontSize: 17, color: AppColors.darkText),
                   ),
@@ -117,7 +119,7 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen> {
               separatorBuilder: (_, __) => const SizedBox(height: 12),
               itemBuilder: (context, index) {
                 final isSelected = _answers[_currentQuestion] == index;
-                return _optionCard(options[index], isVietnamese, isSelected,
+                return _optionCard(options[index], l10n, isSelected,
                     () => _selectAnswer(index));
               },
             ),
@@ -128,9 +130,7 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen> {
               child: TextButton(
                 onPressed: () => context.go('/home'),
                 child: Text(
-                  isVietnamese
-                      ? 'Bỏ qua: đã trả lời $answeredCount/4'
-                      : 'Skip: answered $answeredCount/4',
+                  l10n.assessmentSkip(answeredCount),
                   style: const TextStyle(color: AppColors.mutedText),
                 ),
               ),
@@ -142,8 +142,12 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen> {
   }
 
   // ==================== DESKTOP ====================
-  Widget _buildDesktopLayout(bool isVietnamese, Map<String, dynamic> currentQ,
-      List<Map<String, dynamic>> options, int answeredCount) {
+  Widget _buildDesktopLayout(
+      AppLocalizations l10n,
+      Map<String, dynamic> currentQ,
+      List<Map<String, dynamic>> options,
+      int answeredCount) {
+    final questionText = _getQuestionText(l10n, _currentQuestion);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 24),
       child: Column(
@@ -161,7 +165,7 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen> {
               border: Border.all(color: AppColors.divider),
             ),
             child: Text(
-              isVietnamese ? currentQ['vi'] : currentQ['en'],
+              questionText,
               style: const TextStyle(fontSize: 20, color: AppColors.darkText),
               textAlign: TextAlign.center,
             ),
@@ -176,24 +180,22 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen> {
               return Expanded(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: _buildDesktopOptionCard(option, isVietnamese,
-                      isSelected, () => _selectAnswer(index), index),
+                  child: _buildDesktopOptionCard(option, l10n, isSelected,
+                      () => _selectAnswer(index), index),
                 ),
               );
             }).toList(),
           ),
           const SizedBox(height: 24),
           Text(
-            '💡 ${isVietnamese ? 'Không biết? Chọn câu gần đúng nhất nhé!' : "Don't know? Pick the closest answer!"}',
+            '💡 ${l10n.assessmentHint}',
             style: const TextStyle(fontSize: 14, color: AppColors.mutedText),
           ),
           if (answeredCount > 0)
             TextButton(
               onPressed: () => context.go('/home'),
               child: Text(
-                isVietnamese
-                    ? 'Bỏ qua: đã trả lời $answeredCount/4'
-                    : 'Skip: answered $answeredCount/4',
+                l10n.assessmentSkip(answeredCount),
                 style: const TextStyle(color: AppColors.mutedText),
               ),
             ),
@@ -255,8 +257,10 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen> {
     );
   }
 
-  Widget _buildDesktopOptionCard(Map<String, dynamic> option, bool isVietnamese,
-      bool isSelected, VoidCallback onTap, int index) {
+  Widget _buildDesktopOptionCard(Map<String, dynamic> option,
+      AppLocalizations l10n, bool isSelected, VoidCallback onTap, int index) {
+    final locale = Localizations.localeOf(context);
+    final optionText = _getOptionText(locale, option);
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -283,7 +287,7 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen> {
             const SizedBox(width: 16),
             Expanded(
               child: Text(
-                isVietnamese ? option['vi'] : option['en'],
+                optionText,
                 style: const TextStyle(fontSize: 18, color: AppColors.darkText),
               ),
             ),
@@ -312,8 +316,10 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen> {
     );
   }
 
-  Widget _optionCard(Map<String, dynamic> option, bool isVietnamese,
+  Widget _optionCard(Map<String, dynamic> option, AppLocalizations l10n,
       bool isSelected, VoidCallback onTap) {
+    final locale = Localizations.localeOf(context);
+    final optionText = _getOptionText(locale, option);
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -329,13 +335,32 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen> {
         child: Row(
           children: [
             Text(
-              isVietnamese ? option['vi'] : option['en'],
+              optionText,
               style: const TextStyle(fontSize: 16, color: AppColors.darkText),
             ),
           ],
         ),
       ),
     );
+  }
+
+  String _getQuestionText(AppLocalizations l10n, int index) {
+    switch (index) {
+      case 0:
+        return l10n.assessmentQuestion1;
+      case 1:
+        return l10n.assessmentQuestion2;
+      case 2:
+        return l10n.assessmentQuestion3;
+      case 3:
+        return l10n.assessmentQuestion4;
+      default:
+        return l10n.assessmentQuestion1;
+    }
+  }
+
+  String _getOptionText(Locale locale, Map<String, dynamic> option) {
+    return option[locale.languageCode] as String;
   }
 
   void _selectAnswer(int index) async {

@@ -2,7 +2,9 @@ use crate::models::{get_curriculum_static, AppState};
 use axum::extract::{Path, State};
 use shared::ApiResponse;
 
-pub async fn curriculum(State(state): State<AppState>) -> ApiResponse<Vec<crate::models::CurriculumSubject>> {
+pub async fn curriculum(
+    State(state): State<AppState>,
+) -> ApiResponse<Vec<crate::models::CurriculumSubject>> {
     match state.get_curriculum().await {
         Ok(data) => ApiResponse::ok(data),
         Err(e) => {
@@ -12,7 +14,9 @@ pub async fn curriculum(State(state): State<AppState>) -> ApiResponse<Vec<crate:
     }
 }
 
-pub async fn subjects(State(state): State<AppState>) -> ApiResponse<Vec<crate::models::SubjectSummary>> {
+pub async fn subjects(
+    State(state): State<AppState>,
+) -> ApiResponse<Vec<crate::models::SubjectSummary>> {
     match state.get_subjects().await {
         Ok(data) => ApiResponse::ok(data),
         Err(e) => {
@@ -40,9 +44,7 @@ pub async fn get_lesson(
 ) -> ApiResponse<crate::models::ApiLesson> {
     match state.get_lesson(&lesson_id).await {
         Ok(Some(lesson)) => ApiResponse::ok(lesson),
-        Ok(None) => {
-            ApiResponse::err(&format!("Lesson {} not found", lesson_id))
-        }
+        Ok(None) => ApiResponse::err(&format!("Lesson {} not found", lesson_id)),
         Err(e) => {
             tracing::warn!("DB query failed ({}), trying static fallback", e);
             let static_curriculum = get_curriculum_static();

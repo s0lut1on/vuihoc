@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../core/app_colors.dart';
 import '../models/persona_model.dart';
 import '../providers/app_providers.dart';
+import '../l10n/app_localizations.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -32,26 +33,24 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final locale = ref.watch(localeProvider);
-    final isVietnamese = locale.languageCode == 'vi';
     final persona = ref.watch(personaProvider) ?? Persona.achiever;
     final userAsync = ref.watch(userProvider);
 
     return userAsync.when(
-      data: (user) => _buildScaffold(context, ref, isVietnamese, persona, user),
+      data: (user) => _buildScaffold(context, ref, persona, user),
       loading: () => const Scaffold(
         body: Center(
             child: CircularProgressIndicator(color: AppColors.primaryPink)),
       ),
       error: (err, _) {
         // Silently recover from user load error and show home with defaults
-        return _buildScaffold(context, ref, isVietnamese, persona, null);
+        return _buildScaffold(context, ref, persona, null);
       },
     );
   }
 
-  Widget _buildScaffold(BuildContext context, WidgetRef ref, bool isVietnamese,
-      Persona persona, dynamic user) {
+  Widget _buildScaffold(
+      BuildContext context, WidgetRef ref, Persona persona, dynamic user) {
     final screenWidth = MediaQuery.of(context).size.width;
     final isDesktop = screenWidth > 900;
 
@@ -59,71 +58,73 @@ class HomeScreen extends ConsumerWidget {
       backgroundColor: AppColors.grayBg,
       body: SafeArea(
         child: isDesktop
-            ? _buildDesktopLayout(context, ref, isVietnamese, persona, user)
-            : _buildMobileLayout(context, ref, isVietnamese, persona, user),
+            ? _buildDesktopLayout(context, ref, persona, user)
+            : _buildMobileLayout(context, ref, persona, user),
       ),
     );
   }
 
   // ==================== MOBILE ====================
-  Widget _buildMobileLayout(BuildContext context, WidgetRef ref,
-      bool isVietnamese, Persona persona, dynamic user) {
+  Widget _buildMobileLayout(
+      BuildContext context, WidgetRef ref, Persona persona, dynamic user) {
+    final l10n = AppLocalizations.of(context)!;
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildMobileHeader(context, user, isVietnamese),
+          _buildMobileHeader(context, ref, user),
           const SizedBox(height: 24),
-          _buildContinueCard(context, isVietnamese, persona),
+          _buildContinueCard(context, ref, persona),
           const SizedBox(height: 32),
           Text(
-            isVietnamese ? 'Các chủ đề' : 'Subjects',
+            l10n.homeSubjects,
             style: Theme.of(context).textTheme.titleLarge,
           ),
           const SizedBox(height: 16),
-          _buildSubjectGrid(context, isVietnamese),
+          _buildSubjectGrid(context, ref),
         ],
       ),
     );
   }
 
   // ==================== DESKTOP ====================
-  Widget _buildDesktopLayout(BuildContext context, WidgetRef ref,
-      bool isVietnamese, Persona persona, dynamic user) {
+  Widget _buildDesktopLayout(
+      BuildContext context, WidgetRef ref, Persona persona, dynamic user) {
+    final l10n = AppLocalizations.of(context)!;
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 32),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildDesktopNav(context, user, isVietnamese),
+          _buildDesktopNav(context, ref, user),
           const SizedBox(height: 32),
           Text(
-            isVietnamese ? 'Hom nay hoc gi?' : "What to learn today?",
+            l10n.homeContinueStrugglerLabel,
             style: const TextStyle(
                 fontSize: 36,
                 fontWeight: FontWeight.w700,
                 color: AppColors.darkPurple),
           ),
           const SizedBox(height: 24),
-          _buildDesktopStatsRow(context, isVietnamese, persona, user),
+          _buildDesktopStatsRow(context, ref, persona, user),
           const SizedBox(height: 32),
           Text(
-            isVietnamese ? 'Các chủ đề' : 'Subjects',
+            l10n.homeSubjects,
             style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.w700,
                 color: AppColors.darkPurple),
           ),
           const SizedBox(height: 16),
-          _buildDesktopSubjectRow(context, isVietnamese),
+          _buildDesktopSubjectRow(context, ref),
         ],
       ),
     );
   }
 
-  Widget _buildDesktopNav(
-      BuildContext context, dynamic user, bool isVietnamese) {
+  Widget _buildDesktopNav(BuildContext context, WidgetRef ref, dynamic user) {
+    final l10n = AppLocalizations.of(context)!;
     final gems = user?.gems ?? 0;
 
     return Row(
@@ -144,7 +145,7 @@ class HomeScreen extends ConsumerWidget {
             TextButton(
               onPressed: () {},
               child: Text(
-                isVietnamese ? 'Chủ đề' : 'Subjects',
+                l10n.homeNavSubjects,
                 style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -154,7 +155,7 @@ class HomeScreen extends ConsumerWidget {
             TextButton(
               onPressed: () {},
               child: Text(
-                isVietnamese ? 'Bảng giá' : 'Pricing',
+                l10n.homeNavPricing,
                 style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -164,7 +165,7 @@ class HomeScreen extends ConsumerWidget {
             TextButton(
               onPressed: () {},
               child: Text(
-                isVietnamese ? 'Liên hệ' : 'Contact',
+                l10n.homeNavContact,
                 style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -202,23 +203,24 @@ class HomeScreen extends ConsumerWidget {
   }
 
   Widget _buildDesktopStatsRow(
-      BuildContext context, bool isVietnamese, Persona persona, dynamic user) {
+      BuildContext context, WidgetRef ref, Persona persona, dynamic user) {
+    final l10n = AppLocalizations.of(context)!;
     final streak = user?.streakDays ?? 0;
     String label;
     String topic;
     switch (persona) {
       case Persona.achiever:
-        label = isVietnamese ? 'Tiep tuc gianh 3 sao!' : 'Grab 3 stars!';
-        topic = isVietnamese ? 'Phep cong 1 - 10' : 'Addition 1 - 10';
+        label = l10n.homeContinueAchieverLabel;
+        topic = l10n.homeContinueAchieverTopic;
       case Persona.gamer:
-        label = isVietnamese ? 'Kiem them 50 diem!' : 'Earn 50 points!';
-        topic = isVietnamese ? 'Dem vui - Cap do 2' : 'Fun counting - Level 2';
+        label = l10n.homeContinueGamerLabel;
+        topic = l10n.homeContinueGamerTopic;
       case Persona.struggler:
-        label = isVietnamese ? 'Hom nay minh hoc gi?' : 'What today?';
-        topic = isVietnamese ? 'Nhan biet so 1 - 5' : 'Numbers 1 - 5';
+        label = l10n.homeContinueStrugglerLabel;
+        topic = l10n.homeContinueStrugglerTopic;
       case Persona.silent:
-        label = isVietnamese ? 'Be san sang chua?' : 'Ready?';
-        topic = isVietnamese ? 'Bắt đầu nhé' : 'Start gently';
+        label = l10n.homeContinueSilentLabel;
+        topic = l10n.homeContinueSilentTopic;
     }
 
     return Row(
@@ -238,7 +240,7 @@ class HomeScreen extends ConsumerWidget {
                         fontSize: 40,
                         fontWeight: FontWeight.w700,
                         color: AppColors.primaryPink)),
-                Text(isVietnamese ? 'Bài đã học' : 'Lessons learned',
+                Text(l10n.homeLessonsLearned,
                     style: const TextStyle(
                         fontSize: 14, color: Color(0xFF666666))),
               ],
@@ -261,7 +263,7 @@ class HomeScreen extends ConsumerWidget {
                         fontSize: 36,
                         fontWeight: FontWeight.w700,
                         color: Color(0xFF4CAF50))),
-                Text(isVietnamese ? 'Sao tích lũy' : 'Stars earned',
+                Text(l10n.homeStarsEarned,
                     style: const TextStyle(
                         fontSize: 14, color: Color(0xFF666666))),
               ],
@@ -307,8 +309,7 @@ class HomeScreen extends ConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text('🔥', style: const TextStyle(fontSize: 32)),
-                Text(
-                    '$streak ${isVietnamese ? 'ngày liên tiếp' : 'day streak'}',
+                Text(l10n.homeDayStreak(streak),
                     style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
@@ -321,27 +322,28 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildDesktopSubjectRow(BuildContext context, bool isVietnamese) {
+  Widget _buildDesktopSubjectRow(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     return Row(
-      children: _subjects.map((subject) {
-        return Expanded(
+      children: [
+        Expanded(
           child: GestureDetector(
-            onTap: () => context.push('/subject/${subject['nameVi']}'),
+            onTap: () => context.push('/subject/numbers'),
             child: Container(
               height: 220,
               margin: const EdgeInsets.symmetric(horizontal: 8),
               decoration: BoxDecoration(
-                color: Color(subject['color'] as int),
+                color: Color(_subjects[0]['color'] as int),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(subject['icon'] as String,
+                  Text(_subjects[0]['icon'] as String,
                       style: const TextStyle(fontSize: 48)),
                   const SizedBox(height: 8),
                   Text(
-                    isVietnamese ? subject['nameVi'] : subject['nameEn'],
+                    l10n.parentDashboardSubjectNumbers,
                     style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
@@ -351,15 +353,99 @@ class HomeScreen extends ConsumerWidget {
               ),
             ),
           ),
-        );
-      }).toList(),
+        ),
+        Expanded(
+          child: GestureDetector(
+            onTap: () => context.push('/subject/geometry'),
+            child: Container(
+              height: 220,
+              margin: const EdgeInsets.symmetric(horizontal: 8),
+              decoration: BoxDecoration(
+                color: Color(_subjects[1]['color'] as int),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(_subjects[1]['icon'] as String,
+                      style: const TextStyle(fontSize: 48)),
+                  const SizedBox(height: 8),
+                  Text(
+                    l10n.parentDashboardSubjectGeometry,
+                    style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.darkPurple),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        Expanded(
+          child: GestureDetector(
+            onTap: () => context.push('/subject/measurement'),
+            child: Container(
+              height: 220,
+              margin: const EdgeInsets.symmetric(horizontal: 8),
+              decoration: BoxDecoration(
+                color: Color(_subjects[2]['color'] as int),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(_subjects[2]['icon'] as String,
+                      style: const TextStyle(fontSize: 48)),
+                  const SizedBox(height: 8),
+                  Text(
+                    l10n.parentDashboardSubjectMeasurement,
+                    style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.darkPurple),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        Expanded(
+          child: GestureDetector(
+            onTap: () => context.push('/subject/logic'),
+            child: Container(
+              height: 220,
+              margin: const EdgeInsets.symmetric(horizontal: 8),
+              decoration: BoxDecoration(
+                color: Color(_subjects[3]['color'] as int),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(_subjects[3]['icon'] as String,
+                      style: const TextStyle(fontSize: 48)),
+                  const SizedBox(height: 8),
+                  Text(
+                    l10n.parentDashboardSubjectLogic,
+                    style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.darkPurple),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
   // ==================== MOBILE SHARED ====================
-  Widget _buildMobileHeader(
-      BuildContext context, dynamic user, bool isVietnamese) {
-    final name = user?.name ?? (isVietnamese ? 'bé yêu' : 'Little friend');
+  Widget _buildMobileHeader(BuildContext context, WidgetRef ref, dynamic user) {
+    final l10n = AppLocalizations.of(context)!;
+    final name = user?.name ?? l10n.homeDefaultName;
     final avatar = user?.avatar ?? '🐸';
     final streak = user?.streakDays ?? 0;
     final gems = user?.gems ?? 0;
@@ -386,7 +472,7 @@ class HomeScreen extends ConsumerWidget {
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
                         color: AppColors.darkPurple)),
-                Text('🔥 $streak day streak',
+                Text(l10n.homeDayStreak(streak),
                     style: const TextStyle(
                         fontSize: 12, color: AppColors.primaryPink)),
               ],
@@ -415,22 +501,23 @@ class HomeScreen extends ConsumerWidget {
   }
 
   Widget _buildContinueCard(
-      BuildContext context, bool isVietnamese, Persona persona) {
+      BuildContext context, WidgetRef ref, Persona persona) {
+    final l10n = AppLocalizations.of(context)!;
     String label;
     String topic;
     switch (persona) {
       case Persona.achiever:
-        label = isVietnamese ? 'Tiep tuc gianh 3 sao!' : 'Grab 3 stars!';
-        topic = isVietnamese ? 'Phep cong 1 - 10' : 'Addition 1 - 10';
+        label = l10n.homeContinueAchieverLabel;
+        topic = l10n.homeContinueAchieverTopic;
       case Persona.gamer:
-        label = isVietnamese ? 'Kiem them 50 diem!' : 'Earn 50 points!';
-        topic = isVietnamese ? 'Dem vui - Cap do 2' : 'Fun counting - Level 2';
+        label = l10n.homeContinueGamerLabel;
+        topic = l10n.homeContinueGamerTopic;
       case Persona.struggler:
-        label = isVietnamese ? 'Hom nay minh hoc gi?' : 'What today?';
-        topic = isVietnamese ? 'Nhan biet so 1 - 5' : 'Numbers 1 - 5';
+        label = l10n.homeContinueStrugglerLabel;
+        topic = l10n.homeContinueStrugglerTopic;
       case Persona.silent:
-        label = isVietnamese ? 'Be san sang chua?' : 'Ready?';
-        topic = isVietnamese ? 'Bắt đầu nhé' : 'Start gently';
+        label = l10n.homeContinueSilentLabel;
+        topic = l10n.homeContinueSilentTopic;
     }
 
     return GestureDetector(
@@ -467,7 +554,14 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSubjectGrid(BuildContext context, bool isVietnamese) {
+  Widget _buildSubjectGrid(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
+    final subjectLabels = [
+      l10n.parentDashboardSubjectNumbers,
+      l10n.parentDashboardSubjectGeometry,
+      l10n.parentDashboardSubjectMeasurement,
+      l10n.parentDashboardSubjectLogic,
+    ];
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -481,7 +575,7 @@ class HomeScreen extends ConsumerWidget {
       itemBuilder: (context, index) {
         final subject = _subjects[index];
         return GestureDetector(
-          onTap: () => context.push('/subject/${subject['nameVi']}'),
+          onTap: () => context.push('/subject/$index'),
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -494,7 +588,7 @@ class HomeScreen extends ConsumerWidget {
                     style: const TextStyle(fontSize: 36)),
                 const SizedBox(height: 8),
                 Text(
-                  isVietnamese ? subject['nameVi'] : subject['nameEn'],
+                  subjectLabels[index],
                   style: const TextStyle(
                       fontSize: 14, color: AppColors.darkPurple),
                 ),
