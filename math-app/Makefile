@@ -6,7 +6,7 @@ FLUTTER_ROOT = $(CURDIR)/$(FRONTEND)/flutter_sdk
 FLUTTER_CMD = $(if $(wildcard $(FLUTTER_ROOT)),$(FLUTTER_ROOT)/bin/flutter,flutter)
 DART_CMD    = $(if $(wildcard $(FLUTTER_ROOT)),$(FLUTTER_ROOT)/bin/dart,dart)
 
-.PHONY: help setup test test-cov watch format lint build-apk build-web build-rust test-rust check-rust test-all clean deploy docker-test docker-dev
+.PHONY: help setup test test-cov watch format lint changelog-check build-apk build-web build-rust test-rust check-rust test-all clean deploy docker-test docker-dev docker-stop e2e-setup e2e-test
 
 help:
 	@echo "Math App - Local Development"
@@ -16,9 +16,12 @@ help:
 	@echo "  make setup         Install all dependencies"
 	@echo "  make test          Run Flutter tests only"
 	@echo "  make test-rust     Run Rust tests only"
-	@echo "  make test-all      Run ALL tests (Flutter + Rust)"
+	@echo "  make test-all      Run ALL tests (Flutter + Rust + E2E)"
 	@echo "  make test-cov      Run Flutter tests with coverage"
 	@echo "  make watch         Watch mode Flutter tests"
+	@echo ""
+	@echo "  make e2e-setup    Install Playwright + browsers"
+	@echo "  make e2e-test     Run E2E tests (requires services running)"
 	@echo ""
 	@echo "  make build-apk     Build Android APK"
 	@echo "  make build-web     Build web app"
@@ -29,7 +32,8 @@ help:
 	@echo "  make lint          Analyze Dart + Rust code"
 	@echo "  make clean         Clean all build files"
 	@echo ""
-	@echo "  make deploy        Full CI pipeline (format+lint+test+build)"
+	@echo "  make deploy        Full pipeline + docker-dev + e2e"
+	@echo "  make changelog-check Ensure CHANGELOG.md [Unreleased] exists"
 	@echo "  make docker-test   Run all tests in Docker (no local install)"
 	@echo "  make docker-dev    Start dev services in Docker"
 	@echo "  make docker-stop   Stop Docker dev services"
@@ -81,7 +85,8 @@ build-apk:
 build-web:
 	@echo ""
 	@echo "🌐 Building web app..."
-	cd $(FRONTEND) && $(FLUTTER_CMD) build web
+	@GOOGLE_CLIENT_ID=$$(grep GOOGLE_CLIENT_ID .env 2>/dev/null | cut -d '=' -f2 | tr -d '[:space:]' || echo ""); \
+	cd $(FRONTEND) && $(FLUTTER_CMD) build web --dart-define=GOOGLE_CLIENT_ID=$$GOOGLE_CLIENT_ID
 
 # ─── Rust Backend ─────────────────────────────
 
@@ -112,9 +117,45 @@ clean:
 	cd $(FRONTEND) && $(FLUTTER_CMD) clean
 	cd $(BACKEND) && cargo clean
 
-deploy: format lint test-all build-web build-rust
+# ─── Changelog Check ──────────────────────────
+
+changelog-check:
 	@echo ""
-	@echo "✅ All checks passed. Ready for deployment."
+	@echo "📝 Checking CHANGELOG.md..."
+	@if [ ! -f CHANGELOG.md ]; then \
+		echo "❌ CHANGELOG.md not found"; \
+		exit 1; \
+	fi
+	@if ! grep -q "## \[Unreleased\]" CHANGELOG.md; then \
+		echo "❌ CHANGELOG.md missing [Unreleased] section"; \
+		exit 1; \
+	fi
+	@echo "✅ CHANGELOG.md has [Unreleased] section"
+
+# ─── E2E Tests ────────────────────────────────
+
+e2e-setup:
+	@echo ""
+	@echo "🎭 Installing Playwright + Chromium..."
+	cd ./e2e && npm install
+	cd ./e2e && npx playwright install chromium
+
+e2e-test:
+	@echo ""
+	@echo "🎭 Waiting for Traefik + flutter-web to be ready..."
+	@for i in $$(seq 1 30); do \
+		if curl -sf http://localhost:8082/ > /dev/null 2>&1; then \
+			echo "✅ Frontend ready"; \
+			break; \
+		fi; \
+		sleep 1; \
+	done
+	@echo "🎭 Running E2E tests..."
+	cd ./e2e && npx playwright test
+
+deploy: format lint changelog-check test-all build-web build-rust docker-dev e2e-test
+	@echo ""
+	@echo "✅ All checks passed, services rebuilt, E2E verified. Ready for deployment."
 
 # ─── Docker ───────────────────────────────────
 

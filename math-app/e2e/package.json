@@ -1,0 +1,17 @@
+{
+  "name": "math-app-e2e",
+  "version": "1.0.0",
+  "private": true,
+  "description": "End-to-end tests for math-app Flutter web + Rust backend",
+  "scripts": {
+    "test": "npx playwright test",
+    "test:ui": "npx playwright test --ui",
+    "test:headed": "npx playwright test --headed",
+    "test:debug": "npx playwright test --debug",
+    "install:browsers": "npx playwright install chromium",
+    "report": "npx playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0"
+  }
+}
