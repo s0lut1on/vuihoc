@@ -30,6 +30,7 @@ async fn main() {
         .route("/api/auth/health", get(handlers::health))
         .route("/api/auth/google", post(handlers::login_with_google))
         .route("/api/auth/register", post(handlers::register))
+        .route("/api/auth/guest", post(handlers::login_as_guest))
         .route("/api/auth/me", get(handlers::me))
         .merge(
             SwaggerUi::new("/api/auth/swagger-ui")

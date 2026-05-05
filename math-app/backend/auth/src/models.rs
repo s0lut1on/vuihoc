@@ -6,7 +6,8 @@ use uuid::Uuid;
 
 #[derive(Serialize, Deserialize, ToSchema, Clone)]
 pub struct GoogleLoginRequest {
-    pub id_token: String,
+    pub id_token: Option<String>,
+    pub access_token: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, ToSchema, Clone)]
@@ -14,6 +15,12 @@ pub struct RegisterRequest {
     pub email: String,
     pub password: String,
     pub name: String,
+    pub locale: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, ToSchema, Clone)]
+pub struct GuestLoginRequest {
+    pub name: Option<String>,
     pub locale: Option<String>,
 }
 

@@ -1,7 +1,10 @@
 mod handlers;
 mod models;
 
-use axum::{routing::get, Router};
+use axum::{
+    routing::{get, post},
+    Router,
+};
 use std::net::SocketAddr;
 use tower_http::cors::CorsLayer;
 use utoipa::OpenApi;
@@ -59,10 +62,12 @@ async fn main() {
     let state = models::AppState { db };
     let app = Router::new()
         .route("/api/progress/health", get(handlers::health))
+        .route("/api/progress/:user_id", get(handlers::get_user_progress))
         .route(
-            "/api/progress",
-            get(handlers::get_progress).post(handlers::update_progress),
+            "/api/progress/streak/:user_id",
+            get(handlers::get_user_streak),
         )
+        .route("/api/progress", post(handlers::update_progress))
         .merge(
             SwaggerUi::new("/api/progress/swagger-ui")
                 .url("/api/progress/openapi.json", ApiDoc::openapi()),

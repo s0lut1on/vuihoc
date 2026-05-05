@@ -7,6 +7,7 @@ use utoipa::ToSchema;
 // DATABASE MODELS (sqlx::FromRow)
 // ============================================================================
 
+#[allow(dead_code)]
 #[derive(Serialize, sqlx::FromRow, Clone, ToSchema)]
 pub struct Subject {
     pub id: String,
@@ -47,6 +48,34 @@ pub struct Exercise {
     pub hint_en: Option<String>,
     pub exercise_order: i32,
     pub created_at: DateTime<Utc>,
+}
+
+// ============================================================================
+// CURRICULUM JOIN ROW (for single-query curriculum fetch)
+// ============================================================================
+
+#[derive(sqlx::FromRow, Clone)]
+pub struct CurriculumRow {
+    pub subject_id: String,
+    pub subject_vi: String,
+    pub subject_en: String,
+    pub subject_icon: String,
+    pub subject_color: String,
+    pub lesson_id: Option<String>,
+    pub title_vi: Option<String>,
+    pub title_en: Option<String>,
+    pub lesson_order: Option<i32>,
+    pub difficulty: Option<i32>,
+    pub is_premium: Option<bool>,
+    pub ex_id: Option<String>,
+    pub ex_question_vi: Option<String>,
+    pub ex_question_en: Option<String>,
+    pub ex_options: Option<Vec<String>>,
+    pub ex_correct_index: Option<i32>,
+    pub ex_visual_asset: Option<String>,
+    pub ex_hint_vi: Option<String>,
+    pub ex_hint_en: Option<String>,
+    pub ex_exercise_order: Option<i32>,
 }
 
 // ============================================================================
@@ -148,66 +177,90 @@ impl AppState {
     }
 
     pub async fn get_curriculum(&self) -> Result<Vec<CurriculumSubject>, sqlx::Error> {
-        let subjects =
-            sqlx::query_as::<_, Subject>("SELECT * FROM subjects ORDER BY display_order")
-                .fetch_all(&self.db)
-                .await?;
+        let rows = sqlx::query_as::<_, CurriculumRow>(
+            r#"SELECT
+                s.id as subject_id,
+                s.name_vi as subject_vi,
+                s.name_en as subject_en,
+                s.icon as subject_icon,
+                s.color as subject_color,
+                l.id as lesson_id,
+                l.title_vi,
+                l.title_en,
+                l.lesson_order,
+                l.difficulty,
+                l.is_premium,
+                e.id as ex_id,
+                e.question_vi as ex_question_vi,
+                e.question_en as ex_question_en,
+                e.options as ex_options,
+                e.correct_index as ex_correct_index,
+                e.visual_asset as ex_visual_asset,
+                e.hint_vi as ex_hint_vi,
+                e.hint_en as ex_hint_en,
+                e.exercise_order as ex_exercise_order
+            FROM subjects s
+            LEFT JOIN lessons l ON l.subject_id = s.id
+            LEFT JOIN exercises e ON e.lesson_id = l.id
+            ORDER BY s.display_order, l.lesson_order, e.exercise_order"#,
+        )
+        .fetch_all(&self.db)
+        .await?;
 
-        let mut result = Vec::with_capacity(subjects.len());
+        let mut result: Vec<CurriculumSubject> = Vec::new();
+        let mut current_subject_id: Option<String> = None;
+        let mut current_lesson_id: Option<String> = None;
+        let mut subject_idx: usize = 0;
+        let mut lesson_idx: usize = 0;
 
-        for subj in subjects {
-            let lessons = sqlx::query_as::<_, Lesson>(
-                "SELECT * FROM lessons WHERE subject_id = $1 ORDER BY lesson_order",
-            )
-            .bind(&subj.id)
-            .fetch_all(&self.db)
-            .await?;
-
-            let mut api_lessons = Vec::with_capacity(lessons.len());
-            for lesson in lessons {
-                let exercises = sqlx::query_as::<_, Exercise>(
-                    "SELECT * FROM exercises WHERE lesson_id = $1 ORDER BY exercise_order",
-                )
-                .bind(&lesson.id)
-                .fetch_all(&self.db)
-                .await?;
-
-                let api_exercises: Vec<ApiExercise> = exercises
-                    .into_iter()
-                    .map(|e| ApiExercise {
-                        id: e.id,
-                        question_vi: e.question_vi,
-                        question_en: e.question_en,
-                        options: e.options,
-                        correct: e.correct_index,
-                        visual: e.visual_asset,
-                        hint_vi: e.hint_vi,
-                        hint_en: e.hint_en,
-                        exercise_order: e.exercise_order,
-                    })
-                    .collect();
-
-                api_lessons.push(ApiLesson {
-                    id: lesson.id,
-                    title_vi: lesson.title_vi,
-                    title_en: lesson.title_en,
-                    description_vi: lesson.description_vi,
-                    description_en: lesson.description_en,
-                    lesson_order: lesson.lesson_order,
-                    difficulty: lesson.difficulty,
-                    is_premium: lesson.is_premium,
-                    exercises: api_exercises,
+        for row in rows {
+            if current_subject_id.as_ref() != Some(&row.subject_id) {
+                result.push(CurriculumSubject {
+                    subject_id: row.subject_id.clone(),
+                    subject_vi: row.subject_vi.clone(),
+                    subject_en: row.subject_en.clone(),
+                    subject_icon: row.subject_icon.clone(),
+                    subject_color: row.subject_color.clone(),
+                    lessons: Vec::new(),
                 });
+                subject_idx = result.len() - 1;
+                current_subject_id = Some(row.subject_id.clone());
+                current_lesson_id = None;
             }
 
-            result.push(CurriculumSubject {
-                subject_id: subj.id,
-                subject_vi: subj.name_vi,
-                subject_en: subj.name_en,
-                subject_icon: subj.icon,
-                subject_color: subj.color,
-                lessons: api_lessons,
-            });
+            if let Some(ref lid) = row.lesson_id {
+                if current_lesson_id.as_ref() != Some(lid) {
+                    result[subject_idx].lessons.push(ApiLesson {
+                        id: lid.clone(),
+                        title_vi: row.title_vi.clone().unwrap_or_default(),
+                        title_en: row.title_en.clone().unwrap_or_default(),
+                        description_vi: None,
+                        description_en: None,
+                        lesson_order: row.lesson_order.unwrap_or(1),
+                        difficulty: row.difficulty.unwrap_or(1),
+                        is_premium: row.is_premium.unwrap_or(false),
+                        exercises: Vec::new(),
+                    });
+                    lesson_idx = result[subject_idx].lessons.len() - 1;
+                    current_lesson_id = Some(lid.clone());
+                }
+
+                if let Some(ref eid) = row.ex_id {
+                    result[subject_idx].lessons[lesson_idx]
+                        .exercises
+                        .push(ApiExercise {
+                            id: eid.clone(),
+                            question_vi: row.ex_question_vi.clone().unwrap_or_default(),
+                            question_en: row.ex_question_en.clone().unwrap_or_default(),
+                            options: row.ex_options.clone().unwrap_or_default(),
+                            correct: row.ex_correct_index.unwrap_or(0),
+                            visual: row.ex_visual_asset.clone().unwrap_or_default(),
+                            hint_vi: row.ex_hint_vi.clone(),
+                            hint_en: row.ex_hint_en.clone(),
+                            exercise_order: row.ex_exercise_order.unwrap_or(1),
+                        });
+                }
+            }
         }
 
         Ok(result)

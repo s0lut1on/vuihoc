@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["shared", "auth", "user", "content", "progress", "notification", "media"]
+members = ["shared", "auth", "user", "content", "progress", "notification", "media", "question_bank"]
 
 [workspace.dependencies]
 tokio = { version = "1", features = ["full"] }
@@ -20,6 +20,10 @@ chrono = { version = "0.4", features = ["serde"] }
 uuid = { version = "1", features = ["v4", "serde"] }
 anyhow = "1"
 thiserror = "1"
+minijinja = "2"
+meval = "0.2"
+statrs = "0.16"
+rand = "0.8"
 
 [workspace.dev-dependencies]
 hyper = { version = "1", features = ["full"] }

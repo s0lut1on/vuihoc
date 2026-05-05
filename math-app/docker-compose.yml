@@ -16,9 +16,13 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.flutter-web.rule=Host(`localhost`)"
+      - "traefik.http.middlewares.flutter-coop.headers.customResponseHeaders.Cross-Origin-Opener-Policy=unsafe-none"
+      - "traefik.http.routers.flutter-web.middlewares=flutter-coop"
     restart: unless-stopped
 
   auth-service:
@@ -208,6 +212,35 @@ services:
       - "9003:9001"
     restart: unless-stopped
 
+  question-bank-service:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: question_bank
+    environment:
+      - PORT=3000
+      - DATABASE_URL=postgres://qb_user:qb_pass@qb-db:5432/qb_db
+      - REDIS_URL=redis://redis:6379
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+    depends_on:
+      - qb-db
+      - redis
+    labels:
+      - "traefik.enable=true"
+      - 'traefik.http.routers.question-bank.rule=PathPrefix(`/api/questions`)'
+    restart: unless-stopped
+
+  qb-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: qb_db
+      POSTGRES_USER: qb_user
+      POSTGRES_PASSWORD: qb_pass
+    volumes:
+      - qb_db_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
 volumes:
   auth_db_data:
   user_db_data:
@@ -215,4 +248,5 @@ volumes:
   progress_db_data:
   notification_db_data:
   media_db_data:
+  qb_db_data:
   minio_data:

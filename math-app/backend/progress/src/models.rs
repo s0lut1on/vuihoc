@@ -20,8 +20,9 @@ pub struct ProgressUpdate {
     pub completed: bool,
 }
 
-#[derive(Serialize, ToSchema)]
+#[derive(Serialize, sqlx::FromRow, ToSchema, Clone)]
 pub struct Streak {
+    pub user_id: uuid::Uuid,
     pub current_streak: i32,
     pub best_streak: i32,
     pub last_activity: DateTime<Utc>,
