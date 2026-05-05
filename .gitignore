@@ -1,3 +1,21 @@
+# Environment variables
+.env
+math-app/.env
+
+# AI agent artifacts
+.playwright-mcp/
+test-results/
+*.png
+error.png
+welcome.png
+
+# Node modules
+math-app/e2e/node_modules/
+
+# Playwright reports
+math-app/e2e/playwright-report/
+math-app/e2e/test-results/
+
 # Flutter SDK (embedded git repo)
 math-app/frontend/flutter_sdk/
 
