@@ -3,9 +3,22 @@ import 'api_service.dart';
 class ProgressApi {
   static final _api = ApiService();
 
-  static Future<Map<String, dynamic>?> getProgress() async {
+  /// Load all progress rows for a specific user (completed lessons + stars).
+  static Future<List<Map<String, dynamic>>> getUserProgress(
+      String userId) async {
     try {
-      final response = await _api.get('/progress');
+      final response = await _api.get('/progress/$userId');
+      final data = response['data'] as List<dynamic>? ?? [];
+      return data.map((e) => e as Map<String, dynamic>).toList();
+    } catch (_) {
+      return [];
+    }
+  }
+
+  /// Load streak info for a specific user.
+  static Future<Map<String, dynamic>?> getUserStreak(String userId) async {
+    try {
+      final response = await _api.get('/progress/streak/$userId');
       return response['data'] as Map<String, dynamic>?;
     } catch (_) {
       return null;

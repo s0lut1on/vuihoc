@@ -28,7 +28,7 @@ class ApiLesson {
       subjectId: json['subject_id'] as String? ?? '',
       titleVi: json['title_vi'] as String? ?? '',
       titleEn: json['title_en'] as String? ?? '',
-      order: json['order'] as int? ?? 0,
+      order: json['lesson_order'] as int? ?? json['order'] as int? ?? 0,
       isPremium: json['is_premium'] as bool? ?? false,
       difficulty: json['difficulty'] as int? ?? 1,
       exercises: (json['exercises'] as List<dynamic>? ?? [])

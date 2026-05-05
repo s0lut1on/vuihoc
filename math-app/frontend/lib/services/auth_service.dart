@@ -11,9 +11,12 @@ class AuthService {
   AuthService._internal();
 
   final GoogleSignIn _googleSignIn = GoogleSignIn(
-    scopes: ['email', 'profile'],
+    scopes: const ['email', 'profile'],
     clientId: kIsWeb || !Platform.isAndroid
-        ? 'YOUR_WEB_CLIENT_ID.apps.googleusercontent.com'
+        ? const String.fromEnvironment(
+            'GOOGLE_CLIENT_ID',
+            defaultValue: '',
+          )
         : null,
   );
 
@@ -24,13 +27,35 @@ class AuthService {
 
       final auth = await account.authentication;
       final idToken = auth.idToken;
+      final accessToken = auth.accessToken;
 
-      if (idToken == null) return false;
+      Map<String, dynamic> payload;
+      if (idToken != null) {
+        payload = {'id_token': idToken};
+      } else if (accessToken != null) {
+        // On web google_sign_in returns access_token instead of id_token
+        payload = {'access_token': accessToken};
+      } else {
+        return false;
+      }
 
-      final response = await ApiService().post('/auth/google', data: {
-        'id_token': idToken,
-      });
+      final response = await ApiService().post('/auth/google', data: payload);
 
+      final token = response['data']?['access_token'] as String?;
+      if (token != null) {
+        ApiService().setToken(token);
+        await _persistToken(token);
+        return true;
+      }
+      return false;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> signInAsGuest() async {
+    try {
+      final response = await ApiService().post('/auth/guest', data: {});
       final token = response['data']?['access_token'] as String?;
       if (token != null) {
         ApiService().setToken(token);
@@ -51,6 +76,8 @@ class AuthService {
   }
 
   Future<bool> isSignedIn() async {
+    final storedToken = await _loadToken();
+    if (storedToken != null) return true;
     return await _googleSignIn.isSignedIn();
   }
 

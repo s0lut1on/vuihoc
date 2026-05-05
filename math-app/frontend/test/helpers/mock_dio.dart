@@ -84,6 +84,17 @@ Map<String, dynamic> mockAuthResponse() => {
           }
         }
       },
+      '/auth/guest': {
+        'statusCode': 200,
+        'data': {
+          'success': true,
+          'data': {
+            'access_token': 'guest-token-456',
+            'token_type': 'Bearer',
+            'expires_in': 31536000,
+          }
+        }
+      },
       '/auth/me': {
         'statusCode': 200,
         'data': {

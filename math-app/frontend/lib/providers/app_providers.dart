@@ -6,6 +6,7 @@ import '../models/lesson_model.dart';
 import '../services/api_service.dart';
 import '../services/user_api.dart';
 import '../services/content_api.dart';
+import '../services/progress_api.dart';
 
 final apiServiceProvider =
     Provider<ApiService>((ref) => ApiService()..initialize());
@@ -24,6 +25,18 @@ final curriculumProvider =
 
 final subjectsProvider = FutureProvider<List<Map<String, dynamic>>>(
     (ref) => ContentApi.getSubjects());
+
+/// Loads the user's progress (completed lesson IDs) from the backend.
+/// Auto-refreshes when userId changes.
+final userProgressProvider = FutureProvider<Set<String>>((ref) async {
+  final userId = ref.watch(userIdProvider);
+  if (userId == null || userId.isEmpty) return {};
+  final rows = await ProgressApi.getUserProgress(userId);
+  return rows
+      .where((r) => r['completed'] == true)
+      .map((r) => r['lesson_id'] as String)
+      .toSet();
+});
 
 class UserNotifier extends StateNotifier<AsyncValue<User?>> {
   final Ref _ref;
@@ -62,6 +75,38 @@ class UserNotifier extends StateNotifier<AsyncValue<User?>> {
     }
   }
 }
+
+/// Computes the next lesson the child should play.
+/// Returns {subjectId, lessonId} for the first unlocked-but-uncompleted lesson.
+final nextLessonProvider = FutureProvider<Map<String, String>?>((ref) async {
+  final lessons = await ref.watch(curriculumProvider.future);
+  final completed = await ref.watch(userProgressProvider.future);
+
+  const subjectOrder = ['numbers', 'geometry', 'measurement', 'logic'];
+  for (final subjectId in subjectOrder) {
+    final subjectLessons = lessons
+        .where((l) => l.subjectId == subjectId)
+        .toList()
+      ..sort((a, b) => a.order.compareTo(b.order));
+
+    for (int i = 0; i < subjectLessons.length; i++) {
+      final lesson = subjectLessons[i];
+      final isUnlocked = i == 0 || completed.contains(subjectLessons[i - 1].id);
+      if (isUnlocked && !completed.contains(lesson.id)) {
+        return {'subjectId': subjectId, 'lessonId': lesson.id};
+      }
+    }
+  }
+  return null;
+});
+
+/// Total stars earned across all completed lessons.
+final totalStarsProvider = FutureProvider<int>((ref) async {
+  final userId = ref.watch(userIdProvider);
+  if (userId == null || userId.isEmpty) return 0;
+  final rows = await ProgressApi.getUserProgress(userId);
+  return rows.fold<int>(0, (sum, r) => sum + ((r['stars'] as int?) ?? 0));
+});
 
 final onboardingCompletedProvider = StateProvider<bool>((ref) => false);
 

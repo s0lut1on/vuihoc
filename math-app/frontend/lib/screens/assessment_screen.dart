@@ -6,6 +6,7 @@ import '../core/app_colors.dart';
 import '../l10n/app_localizations.dart';
 import '../providers/app_providers.dart';
 import '../services/local_storage_service.dart';
+import '../widgets/language_switcher.dart';
 
 class AssessmentScreen extends ConsumerStatefulWidget {
   const AssessmentScreen({super.key});
@@ -156,6 +157,10 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen> {
           const SizedBox(height: 32),
           _buildDesktopProgressBar(),
           const SizedBox(height: 40),
+          Align(
+            alignment: Alignment.centerRight,
+            child: const LanguageSwitcher(),
+          ),
           Container(
             constraints: const BoxConstraints(maxWidth: 800),
             padding: const EdgeInsets.all(24),
@@ -221,9 +226,14 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen> {
             ),
           ],
         ),
-        IconButton(
-          icon: const Icon(Icons.close, color: AppColors.darkText),
-          onPressed: () => context.go('/home'),
+        Row(
+          children: [
+            const LanguageSwitcher(),
+            IconButton(
+              icon: const Icon(Icons.close, color: AppColors.darkText),
+              onPressed: () => context.go('/home'),
+            ),
+          ],
         ),
       ],
     );

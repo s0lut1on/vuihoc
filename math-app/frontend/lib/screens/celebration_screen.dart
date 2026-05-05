@@ -4,15 +4,21 @@ import 'package:go_router/go_router.dart';
 import '../core/app_colors.dart';
 import '../l10n/app_localizations.dart';
 import '../models/persona_model.dart';
+import '../services/content_api.dart';
+import '../widgets/language_switcher.dart';
 
 class CelebrationScreen extends ConsumerStatefulWidget {
   final int stars;
   final String persona;
+  final String? subjectId;
+  final String? lessonId;
 
   const CelebrationScreen({
     super.key,
     required this.stars,
     required this.persona,
+    this.subjectId,
+    this.lessonId,
   });
 
   @override
@@ -54,85 +60,121 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
     return Scaffold(
       backgroundColor: AppColors.warmCream,
       body: SafeArea(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(32),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ScaleTransition(
-                  scale: _scaleAnimation,
-                  child: _buildStars(),
-                ),
-                const SizedBox(height: 24),
-                Text(
-                  messages['title']!,
-                  style: Theme.of(context).textTheme.displayLarge,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  messages['subtitle']!,
-                  style: Theme.of(context).textTheme.bodyLarge,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 32),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text('🎉', style: const TextStyle(fontSize: 32)),
-                    const SizedBox(width: 8),
-                    Text(
-                      '+${widget.stars * 5} 💎',
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.primaryPink,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 48),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    ElevatedButton(
-                      onPressed: () => context.go('/home'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.successGreen,
-                      ),
-                      child: Text(messages['next']!),
-                    ),
-                    const SizedBox(width: 16),
-                    OutlinedButton(
-                      onPressed: () => context.go('/home'),
-                      child: Text(messages['home']!),
-                    ),
-                  ],
-                ),
-                if (persona == Persona.gamer) ...[
-                  const SizedBox(height: 16),
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: AppColors.gamerGreen,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      l10n.celebrationGamerUnlock,
-                      style: TextStyle(
-                        color: AppColors.gamerText,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ],
-              ],
+        child: Stack(
+          children: [
+            Align(
+              alignment: Alignment.topRight,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: const LanguageSwitcher(),
+              ),
             ),
-          ),
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.all(32),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ScaleTransition(
+                      scale: _scaleAnimation,
+                      child: _buildStars(),
+                    ),
+                    const SizedBox(height: 24),
+                    Text(
+                      messages['title']!,
+                      style: Theme.of(context).textTheme.displayLarge,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      messages['subtitle']!,
+                      style: Theme.of(context).textTheme.bodyLarge,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 32),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text('🎉', style: const TextStyle(fontSize: 32)),
+                        const SizedBox(width: 8),
+                        Text(
+                          '+${widget.stars * 5} 💎',
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.primaryPink,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 48),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ElevatedButton(
+                          onPressed: _goNext,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.successGreen,
+                          ),
+                          child: Text(messages['next']!),
+                        ),
+                        const SizedBox(width: 16),
+                        OutlinedButton(
+                          onPressed: () => context.go('/home'),
+                          child: Text(messages['home']!),
+                        ),
+                      ],
+                    ),
+                    if (persona == Persona.gamer) ...[
+                      const SizedBox(height: 16),
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: AppColors.gamerGreen,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          l10n.celebrationGamerUnlock,
+                          style: TextStyle(
+                            color: AppColors.gamerText,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
+  }
+
+  void _goNext() async {
+    final nextRoute = await _resolveNextLesson();
+    if (mounted) {
+      context.go(nextRoute ?? '/home');
+    }
+  }
+
+  Future<String?> _resolveNextLesson() async {
+    if (widget.subjectId == null || widget.lessonId == null) return null;
+    final lessons = await ContentApi.getCurriculum();
+    final subjectLessons = lessons
+        .where((l) => l.subjectId == widget.subjectId)
+        .toList()
+      ..sort((a, b) => a.order.compareTo(b.order));
+
+    final currentIndex =
+        subjectLessons.indexWhere((l) => l.id == widget.lessonId);
+    if (currentIndex == -1 || currentIndex >= subjectLessons.length - 1) {
+      return null;
+    }
+
+    final next = subjectLessons[currentIndex + 1];
+    return '/lesson/${widget.subjectId}/${next.id}';
   }
 
   Widget _buildStars() {

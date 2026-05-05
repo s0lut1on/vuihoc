@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import '../core/app_colors.dart';
 import '../l10n/app_localizations.dart';
+import '../widgets/language_switcher.dart';
 
 class PinGateScreen extends StatefulWidget {
   const PinGateScreen({super.key});
@@ -53,40 +54,51 @@ class _PinGateScreenState extends State<PinGateScreen> {
     return Scaffold(
       backgroundColor: AppColors.darkPurple,
       body: SafeArea(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+        child: Stack(
           children: [
-            const Icon(Icons.admin_panel_settings,
-                size: 48, color: AppColors.primaryPink),
-            const SizedBox(height: 24),
-            Text(
-              l10n.pinGateTitle,
-              style: const TextStyle(
-                fontSize: 18,
-                color: AppColors.white,
-                fontWeight: FontWeight.w600,
-              ),
-              textAlign: TextAlign.center,
+            const Positioned(
+              top: 16,
+              right: 16,
+              child: LanguageSwitcher(),
             ),
-            const SizedBox(height: 32),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(4, (index) {
-                return Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 8),
-                  width: 16,
-                  height: 16,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: index < _pin.length
-                        ? AppColors.primaryPink
-                        : AppColors.white.withValues(alpha: 0.3),
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.admin_panel_settings,
+                      size: 48, color: AppColors.primaryPink),
+                  const SizedBox(height: 24),
+                  Text(
+                    l10n.pinGateTitle,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      color: AppColors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
-                );
-              }),
+                  const SizedBox(height: 32),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(4, (index) {
+                      return Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 8),
+                        width: 16,
+                        height: 16,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: index < _pin.length
+                              ? AppColors.primaryPink
+                              : AppColors.white.withValues(alpha: 0.3),
+                        ),
+                      );
+                    }),
+                  ),
+                  const SizedBox(height: 48),
+                  _buildKeypad(),
+                ],
+              ),
             ),
-            const SizedBox(height: 48),
-            _buildKeypad(),
           ],
         ),
       ),

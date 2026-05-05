@@ -30,7 +30,7 @@ void main() async {
       overrides: [
         localeProvider.overrideWith((ref) => storedLocale),
       ],
-      child: MathApp(autoSignedIn: didAutoSignIn, locale: storedLocale),
+      child: MathApp(autoSignedIn: didAutoSignIn),
     ),
   );
 }
@@ -38,7 +38,7 @@ void main() async {
 Future<Locale> _loadLocale() async {
   final box = await Hive.openBox('settings');
   final locale = box.get('locale', defaultValue: 'vi') as String;
-  if (locale == 'en') return const Locale('en', 'US');
+  if (locale.startsWith('en')) return const Locale('en', 'GB');
   return const Locale('vi', 'VN');
 }
 
@@ -47,18 +47,17 @@ Future<String?> _loadToken() async {
   return box.get('token') as String?;
 }
 
-class MathApp extends StatelessWidget {
+class MathApp extends ConsumerWidget {
   final bool autoSignedIn;
-  final Locale locale;
 
   const MathApp({
     super.key,
     this.autoSignedIn = false,
-    this.locale = const Locale('vi', 'VN'),
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final locale = ref.watch(localeProvider);
     final router = AppRouter(initialSignedIn: autoSignedIn);
 
     return MaterialApp.router(
@@ -68,7 +67,7 @@ class MathApp extends StatelessWidget {
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.light,
       locale: locale,
-      localizationsDelegates: [
+      localizationsDelegates: const [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,

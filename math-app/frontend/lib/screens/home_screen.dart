@@ -5,9 +5,17 @@ import '../core/app_colors.dart';
 import '../models/persona_model.dart';
 import '../providers/app_providers.dart';
 import '../l10n/app_localizations.dart';
+import '../widgets/language_switcher.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
+
+  static const List<String> _subjectIds = [
+    'numbers',
+    'geometry',
+    'measurement',
+    'logic'
+  ];
 
   static const List<Map<String, dynamic>> _subjects = [
     {
@@ -124,7 +132,6 @@ class HomeScreen extends ConsumerWidget {
   }
 
   Widget _buildDesktopNav(BuildContext context, WidgetRef ref, dynamic user) {
-    final l10n = AppLocalizations.of(context)!;
     final gems = user?.gems ?? 0;
 
     return Row(
@@ -132,50 +139,8 @@ class HomeScreen extends ConsumerWidget {
       children: [
         Row(
           children: [
-            const Text('🐸', style: TextStyle(fontSize: 32)),
-            const SizedBox(width: 12),
-            const Text(
-              'Học Toán Vui',
-              style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.darkPurple),
-            ),
-            const SizedBox(width: 32),
-            TextButton(
-              onPressed: () {},
-              child: Text(
-                l10n.homeNavSubjects,
-                style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.darkPurple),
-              ),
-            ),
-            TextButton(
-              onPressed: () {},
-              child: Text(
-                l10n.homeNavPricing,
-                style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.darkPurple),
-              ),
-            ),
-            TextButton(
-              onPressed: () {},
-              child: Text(
-                l10n.homeNavContact,
-                style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.darkPurple),
-              ),
-            ),
-          ],
-        ),
-        Row(
-          children: [
+            const LanguageSwitcher(),
+            const SizedBox(width: 16),
             Text('💎 $gems',
                 style: const TextStyle(
                     fontSize: 16,
@@ -206,6 +171,12 @@ class HomeScreen extends ConsumerWidget {
       BuildContext context, WidgetRef ref, Persona persona, dynamic user) {
     final l10n = AppLocalizations.of(context)!;
     final streak = user?.streakDays ?? 0;
+    final completed = ref.watch(userProgressProvider).valueOrNull ?? {};
+    final totalStars = ref.watch(totalStarsProvider).valueOrNull ?? 0;
+    final nextLesson = ref.watch(nextLessonProvider).valueOrNull;
+    final nextRoute = nextLesson != null
+        ? '/lesson/${nextLesson['subjectId']}/${nextLesson['lessonId']}'
+        : '/lesson/numbers/lesson_n1';
     String label;
     String topic;
     switch (persona) {
@@ -235,8 +206,8 @@ class HomeScreen extends ConsumerWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text('12',
-                    style: TextStyle(
+                Text('${completed.length}',
+                    style: const TextStyle(
                         fontSize: 40,
                         fontWeight: FontWeight.w700,
                         color: AppColors.primaryPink)),
@@ -258,8 +229,8 @@ class HomeScreen extends ConsumerWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text('3 ⭐',
-                    style: TextStyle(
+                Text('$totalStars ⭐',
+                    style: const TextStyle(
                         fontSize: 36,
                         fontWeight: FontWeight.w700,
                         color: Color(0xFF4CAF50))),
@@ -273,7 +244,7 @@ class HomeScreen extends ConsumerWidget {
         const SizedBox(width: 24),
         Expanded(
           child: GestureDetector(
-            onTap: () => context.go('/lesson/numbers/lesson_001'),
+            onTap: () => context.go(nextRoute),
             child: Container(
               height: 140,
               decoration: BoxDecoration(
@@ -328,7 +299,7 @@ class HomeScreen extends ConsumerWidget {
       children: [
         Expanded(
           child: GestureDetector(
-            onTap: () => context.push('/subject/numbers'),
+            onTap: () => context.push('/subject/${_subjectIds[0]}'),
             child: Container(
               height: 220,
               margin: const EdgeInsets.symmetric(horizontal: 8),
@@ -356,7 +327,7 @@ class HomeScreen extends ConsumerWidget {
         ),
         Expanded(
           child: GestureDetector(
-            onTap: () => context.push('/subject/geometry'),
+            onTap: () => context.push('/subject/${_subjectIds[1]}'),
             child: Container(
               height: 220,
               margin: const EdgeInsets.symmetric(horizontal: 8),
@@ -384,7 +355,7 @@ class HomeScreen extends ConsumerWidget {
         ),
         Expanded(
           child: GestureDetector(
-            onTap: () => context.push('/subject/measurement'),
+            onTap: () => context.push('/subject/${_subjectIds[2]}'),
             child: Container(
               height: 220,
               margin: const EdgeInsets.symmetric(horizontal: 8),
@@ -412,7 +383,7 @@ class HomeScreen extends ConsumerWidget {
         ),
         Expanded(
           child: GestureDetector(
-            onTap: () => context.push('/subject/logic'),
+            onTap: () => context.push('/subject/${_subjectIds[3]}'),
             child: Container(
               height: 220,
               margin: const EdgeInsets.symmetric(horizontal: 8),
@@ -487,6 +458,8 @@ class HomeScreen extends ConsumerWidget {
                   color: AppColors.mutedPurple, size: 28),
             ),
             const SizedBox(width: 12),
+            const LanguageSwitcher(),
+            const SizedBox(width: 12),
             const Text('💎', style: TextStyle(fontSize: 20)),
             const SizedBox(width: 4),
             Text('$gems',
@@ -503,6 +476,10 @@ class HomeScreen extends ConsumerWidget {
   Widget _buildContinueCard(
       BuildContext context, WidgetRef ref, Persona persona) {
     final l10n = AppLocalizations.of(context)!;
+    final nextLesson = ref.watch(nextLessonProvider).valueOrNull;
+    final nextRoute = nextLesson != null
+        ? '/lesson/${nextLesson['subjectId']}/${nextLesson['lessonId']}'
+        : '/lesson/numbers/lesson_n1';
     String label;
     String topic;
     switch (persona) {
@@ -521,7 +498,7 @@ class HomeScreen extends ConsumerWidget {
     }
 
     return GestureDetector(
-      onTap: () => context.go('/lesson/numbers/lesson_001'),
+      onTap: () => context.go(nextRoute),
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
@@ -575,7 +552,7 @@ class HomeScreen extends ConsumerWidget {
       itemBuilder: (context, index) {
         final subject = _subjects[index];
         return GestureDetector(
-          onTap: () => context.push('/subject/$index'),
+          onTap: () => context.push('/subject/${_subjectIds[index]}'),
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(

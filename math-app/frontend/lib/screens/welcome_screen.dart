@@ -6,7 +6,6 @@ import '../core/app_colors.dart';
 import '../l10n/app_localizations.dart';
 import '../models/persona_model.dart';
 import '../providers/app_providers.dart';
-import '../services/auth_service.dart';
 import '../widgets/language_switcher.dart';
 
 class WelcomeScreen extends ConsumerStatefulWidget {
@@ -204,6 +203,8 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
           ),
           Row(
             children: [
+              const LanguageSwitcher(),
+              const SizedBox(width: 16),
               TextButton(
                 onPressed: () {},
                 child: const Text(
@@ -239,7 +240,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
               ),
               const SizedBox(width: 16),
               ElevatedButton(
-                onPressed: () {},
+                onPressed: _selectedPersona == null ? null : _onStart,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primaryPink,
                   minimumSize: const Size(140, 44),
@@ -336,8 +337,6 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
               onPressed: _selectedPersona == null ? null : _onStart,
               child: Text(l10n.welcomeTitle),
             ),
-            const SizedBox(height: 16),
-            _buildGoogleSignInButton(),
             const SizedBox(height: 16),
             TextButton(
               onPressed: _onParentAccess,
@@ -456,51 +455,6 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
 
     if (mounted) {
       context.go('/assessment');
-    }
-  }
-
-  Widget _buildGoogleSignInButton() {
-    if (_selectedPersona != null) return const SizedBox();
-    final l10n = AppLocalizations.of(context)!;
-
-    return GestureDetector(
-      onTap: _signInWithGoogle,
-      child: Container(
-        width: 260,
-        height: 48,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: AppColors.divider),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text('G',
-                style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.red)),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                l10n.welcomeGoogleSignIn,
-                style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF333333)),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _signInWithGoogle() async {
-    final success = await AuthService().signInWithGoogle();
-    if (success && mounted) {
-      context.go('/home');
     }
   }
 

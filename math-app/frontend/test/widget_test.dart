@@ -10,7 +10,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:math_app/main.dart';
 
 void main() {
-  testWidgets('MathApp renders WelcomeScreen', (WidgetTester tester) async {
+  testWidgets('MathApp renders LoginScreen as initial route',
+      (WidgetTester tester) async {
     // Build our app and trigger a frame.
     await tester.pumpWidget(
       ProviderScope(
@@ -20,7 +21,6 @@ void main() {
     await tester.pumpAndSettle();
 
     // Verify that the app renders without error
-    // (locale-agnostic check: just ensure WelcomeScreen is present)
     expect(find.byType(MathApp), findsOneWidget);
   });
 }

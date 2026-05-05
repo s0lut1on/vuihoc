@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../screens/login_screen.dart';
 import '../screens/welcome_screen.dart';
 import '../screens/assessment_screen.dart';
 import '../screens/home_screen.dart';
 import '../screens/lesson_screen.dart';
 import '../screens/celebration_screen.dart';
 import '../screens/pin_gate_screen.dart';
+import '../screens/subject_screen.dart';
 import '../screens/parent_dashboard_screen.dart';
 
 class AppRouter {
@@ -15,10 +17,14 @@ class AppRouter {
   AppRouter({this.initialSignedIn = false});
 
   late final GoRouter _router = GoRouter(
-    initialLocation: initialSignedIn ? '/home' : '/',
+    initialLocation: initialSignedIn ? '/home' : '/login',
     routes: [
       GoRoute(
-        path: '/',
+        path: '/login',
+        builder: (context, state) => const LoginScreen(),
+      ),
+      GoRoute(
+        path: '/welcome',
         builder: (context, state) => const WelcomeScreen(),
       ),
       GoRoute(
@@ -28,6 +34,13 @@ class AppRouter {
       GoRoute(
         path: '/home',
         builder: (context, state) => const HomeScreen(),
+      ),
+      GoRoute(
+        path: '/subject/:subjectId',
+        builder: (context, state) {
+          final subjectId = state.pathParameters['subjectId']!;
+          return SubjectScreen(subjectId: subjectId);
+        },
       ),
       GoRoute(
         path: '/lesson/:subjectId/:lessonId',
@@ -44,6 +57,8 @@ class AppRouter {
           return CelebrationScreen(
             stars: extra?['stars'] ?? 1,
             persona: extra?['persona'] ?? 'achiever',
+            subjectId: extra?['subjectId'] as String?,
+            lessonId: extra?['lessonId'] as String?,
           );
         },
       ),

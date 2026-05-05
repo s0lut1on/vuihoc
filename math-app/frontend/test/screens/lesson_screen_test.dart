@@ -40,4 +40,29 @@ void main() {
 
     expect(find.text('Không tìm thấy bài học'), findsOneWidget);
   });
+
+  testWidgets('LessonScreen renders with known lesson id',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: const [Locale('en'), Locale('vi')],
+          locale: const Locale('vi'),
+          home: LessonScreen(subjectId: 'numbers', lessonId: 'lesson_n1'),
+        ),
+      ),
+    );
+
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+
+    // Should show either question text or close button (app is rendering)
+    expect(find.byType(LessonScreen), findsOneWidget);
+  });
 }

@@ -8,6 +8,7 @@ import '../models/lesson_model.dart';
 import '../providers/app_providers.dart';
 import '../services/content_api.dart';
 import '../services/progress_api.dart';
+import '../widgets/language_switcher.dart';
 
 class LessonScreen extends ConsumerStatefulWidget {
   final String subjectId;
@@ -24,7 +25,7 @@ class LessonScreen extends ConsumerStatefulWidget {
 }
 
 class _LessonScreenState extends ConsumerState<LessonScreen> {
-  final int _currentQuestion = 0;
+  int _currentQuestion = 0;
   int? _selectedAnswer;
   bool _isCorrect = false;
   bool _showHint = false;
@@ -106,9 +107,15 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
           const SizedBox(height: 8),
           Align(
             alignment: Alignment.topRight,
-            child: IconButton(
-              icon: const Icon(Icons.close, size: 24),
-              onPressed: () => context.go('/home'),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const LanguageSwitcher(),
+                IconButton(
+                  icon: const Icon(Icons.close, size: 24),
+                  onPressed: () => context.go('/home'),
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 8),
@@ -146,6 +153,27 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
                     ),
                   ),
                 ],
+              ),
+            ),
+          if (!_isCorrect && _selectedAnswer != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 16),
+              child: Center(
+                child: ElevatedButton.icon(
+                  onPressed: _resetQuestion,
+                  icon: const Icon(Icons.refresh),
+                  label: Text(
+                    AppLocalizations.of(context)!.lessonIncorrectFeedback,
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 12,
+                    ),
+                  ),
+                ),
               ),
             ),
           const Spacer(),
@@ -239,6 +267,28 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
                             ],
                           ),
                         ),
+                      if (!_isCorrect && _selectedAnswer != null)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 24),
+                          child: Center(
+                            child: ElevatedButton.icon(
+                              onPressed: _resetQuestion,
+                              icon: const Icon(Icons.refresh),
+                              label: Text(
+                                AppLocalizations.of(context)!
+                                    .lessonIncorrectFeedback,
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.orange,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 24,
+                                  vertical: 12,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
                       const SizedBox(height: 24),
                       GestureDetector(
                         onTap: _speakQuestion,
@@ -310,6 +360,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
           icon: const Icon(Icons.close, size: 24, color: AppColors.darkText),
           onPressed: () => context.go('/home'),
         ),
+        const LanguageSwitcher(),
       ],
     );
   }
@@ -334,8 +385,10 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
 
   Widget _buildOptions(ApiExercise question) {
     final isDesktop = MediaQuery.of(context).size.width > 900;
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+    return Wrap(
+      alignment: WrapAlignment.center,
+      spacing: 16,
+      runSpacing: 12,
       children: question.options.asMap().entries.map((entry) {
         final index = entry.key;
         final value = entry.value;
@@ -361,25 +414,31 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
           borderWidth = 2;
         }
 
-        final size = isDesktop ? 140.0 : 90.0;
-        final fontSize = isDesktop ? 48.0 : 32.0;
+        final minSize = isDesktop ? 140.0 : 110.0;
+        final fontSize = isDesktop ? 48.0 : 28.0;
 
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: GestureDetector(
-            onTap: () => _selectAnswer(index, question.correctIndex),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 150),
-              width: size,
-              height: size,
-              decoration: BoxDecoration(
-                color: bgColor,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: borderColor, width: borderWidth),
-              ),
-              child: Center(
+        return GestureDetector(
+          onTap: () => _selectAnswer(index, question.correctIndex),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            constraints: BoxConstraints(
+              minWidth: minSize,
+              minHeight: minSize,
+              maxWidth: minSize * 2.5,
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            decoration: BoxDecoration(
+              color: bgColor,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: borderColor, width: borderWidth),
+            ),
+            child: Center(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
                 child: Text(
                   value,
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
                   style: TextStyle(
                     fontSize: fontSize,
                     fontWeight: FontWeight.w700,
@@ -410,7 +469,29 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
     }
   }
 
-  void _showCorrectFeedback() async {
+  void _resetQuestion() {
+    setState(() {
+      _selectedAnswer = null;
+      _isCorrect = false;
+      _showHint = false;
+    });
+  }
+
+  void _advanceQuestion() {
+    if (_lesson == null) return;
+    if (_currentQuestion < _lesson!.exercises.length - 1) {
+      setState(() {
+        _currentQuestion += 1;
+        _selectedAnswer = null;
+        _isCorrect = false;
+        _showHint = false;
+      });
+    } else {
+      _finishLesson();
+    }
+  }
+
+  void _finishLesson() async {
     final userId = ref.read(userIdProvider) ?? '';
     if (userId.isNotEmpty) {
       await ProgressApi.updateProgress(
@@ -420,12 +501,20 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
         completed: true,
       );
     }
-    Future.delayed(const Duration(milliseconds: 500), () {
+    if (mounted) {
+      context.go('/celebration', extra: {
+        'stars': 3,
+        'persona': ref.read(personaProvider)?.name ?? 'achiever',
+        'subjectId': widget.subjectId,
+        'lessonId': widget.lessonId,
+      });
+    }
+  }
+
+  void _showCorrectFeedback() {
+    Future.delayed(const Duration(milliseconds: 800), () {
       if (mounted) {
-        context.go('/celebration', extra: {
-          'stars': 3,
-          'persona': ref.read(personaProvider)?.name ?? 'achiever',
-        });
+        _advanceQuestion();
       }
     });
   }
