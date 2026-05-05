@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
@@ -19,6 +20,9 @@ class AuthService {
           )
         : null,
   );
+
+  final StreamController<bool> _authState = StreamController<bool>.broadcast();
+  Stream<bool> get authStateChanges => _authState.stream;
 
   Future<bool> signInWithGoogle() async {
     try {
@@ -45,6 +49,7 @@ class AuthService {
       if (token != null) {
         ApiService().setToken(token);
         await _persistToken(token);
+        _authState.add(true);
         return true;
       }
       return false;
@@ -60,6 +65,7 @@ class AuthService {
       if (token != null) {
         ApiService().setToken(token);
         await _persistToken(token);
+        _authState.add(true);
         return true;
       }
       return false;
@@ -73,6 +79,16 @@ class AuthService {
     ApiService().clearToken();
     final box = await Hive.openBox('auth');
     await box.delete('token');
+    _authState.add(false);
+  }
+
+  Future<Map<String, dynamic>?> getCurrentUser() async {
+    try {
+      final response = await ApiService().get('/auth/me');
+      return response['data'] as Map<String, dynamic>?;
+    } catch (e) {
+      return null;
+    }
   }
 
   Future<bool> isSignedIn() async {
@@ -86,6 +102,7 @@ class AuthService {
       final storedToken = await _loadToken();
       if (storedToken != null) {
         ApiService().setToken(storedToken);
+        _authState.add(true);
         return true;
       }
 
@@ -102,6 +119,7 @@ class AuthService {
         if (token != null) {
           ApiService().setToken(token);
           await _persistToken(token);
+          _authState.add(true);
           return true;
         }
       }

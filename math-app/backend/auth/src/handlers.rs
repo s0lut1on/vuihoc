@@ -1,15 +1,25 @@
 use crate::models::{
-    AppState, AuthUser, Claims, GoogleLoginRequest, GoogleTokenInfo, GuestLoginRequest,
+    AppState, AuthUser, Claims, GoogleLoginRequest, GoogleTokenInfo, GuestLoginRequest, MeResponse,
     RegisterRequest, TokenResponse,
 };
-use axum::extract::{Json, State};
+use axum::{
+    extract::{Json, State},
+    http::header::AUTHORIZATION,
+    http::StatusCode,
+};
 use chrono::{Duration, Utc};
-use jsonwebtoken::{encode, EncodingKey, Header};
+use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, Validation};
 use shared::ApiResponse;
 use utoipa::OpenApi;
 
 #[derive(OpenApi)]
-#[openapi(components(schemas(GoogleLoginRequest, GuestLoginRequest, AuthUser, TokenResponse)))]
+#[openapi(components(schemas(
+    GoogleLoginRequest,
+    GuestLoginRequest,
+    AuthUser,
+    TokenResponse,
+    MeResponse
+)))]
 pub struct ApiDoc;
 
 pub async fn login_with_google(
@@ -78,6 +88,7 @@ pub async fn login_with_google(
         sub: info.sub,
         email: info.email,
         name,
+        picture: info.picture.clone().unwrap_or_default(),
         exp: (Utc::now() + Duration::hours(24)).timestamp() as usize,
     };
     let token = encode(
@@ -98,6 +109,7 @@ pub async fn register(Json(body): Json<RegisterRequest>) -> ApiResponse<TokenRes
         sub: uuid::Uuid::new_v4().to_string(),
         email: body.email,
         name: body.name,
+        picture: String::new(),
         exp: (Utc::now() + Duration::hours(24)).timestamp() as usize,
     };
     let token = encode(
@@ -113,16 +125,36 @@ pub async fn register(Json(body): Json<RegisterRequest>) -> ApiResponse<TokenRes
     })
 }
 
-pub async fn me() -> ApiResponse<AuthUser> {
-    ApiResponse::ok(AuthUser {
-        id: uuid::Uuid::new_v4(),
-        email: "be@example.com".to_string(),
-        name: "Be Minh Anh".to_string(),
-        persona: "achiever".to_string(),
-        avatar: Some("🐸".to_string()),
-        locale: "vi_VN".to_string(),
-        created_at: Utc::now(),
-    })
+pub async fn me(headers: axum::http::HeaderMap) -> Result<ApiResponse<MeResponse>, StatusCode> {
+    let auth_header = headers
+        .get(AUTHORIZATION)
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("");
+
+    let token = auth_header.strip_prefix("Bearer ").unwrap_or(auth_header);
+
+    if token.is_empty() {
+        return Ok(ApiResponse::err("Missing authorization token"));
+    }
+
+    let jwt_secret = std::env::var("JWT_SECRET").unwrap_or_else(|_| "secret".to_string());
+    let decoding_key = DecodingKey::from_secret(jwt_secret.as_ref());
+    let mut validation = Validation::default();
+    validation.validate_exp = false; // Allow expired tokens for simplicity in dev
+
+    let decoded = match decode::<Claims>(token, &decoding_key, &validation) {
+        Ok(data) => data,
+        Err(_) => return Ok(ApiResponse::err("Invalid token")),
+    };
+
+    let claims = decoded.claims;
+    Ok(ApiResponse::ok(MeResponse {
+        id: claims.sub,
+        email: claims.email.clone(),
+        name: claims.name.clone(),
+        picture: claims.picture,
+        given_name: claims.name,
+    }))
 }
 
 pub async fn health() -> ApiResponse<shared::HealthResponse> {
@@ -158,6 +190,7 @@ pub async fn login_as_guest(
         sub: user_id.to_string(),
         email: email.clone(),
         name: name.clone(),
+        picture: String::new(),
         exp: (Utc::now() + Duration::hours(24 * 365)).timestamp() as usize,
     };
 

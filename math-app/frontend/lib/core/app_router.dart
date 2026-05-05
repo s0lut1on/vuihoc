@@ -10,6 +10,7 @@ import '../screens/celebration_screen.dart';
 import '../screens/pin_gate_screen.dart';
 import '../screens/subject_screen.dart';
 import '../screens/parent_dashboard_screen.dart';
+import '../screens/profile_screen.dart';
 
 class AppRouter {
   final bool initialSignedIn;
@@ -69,6 +70,10 @@ class AppRouter {
       GoRoute(
         path: '/parent-dashboard/main',
         builder: (context, state) => const ParentDashboardScreen(),
+      ),
+      GoRoute(
+        path: '/profile',
+        builder: (context, state) => const ProfileScreen(),
       ),
     ],
   );

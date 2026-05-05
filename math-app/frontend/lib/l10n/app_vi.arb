@@ -101,5 +101,12 @@
   "parentDashboardNotifications": "Thông báo",
   "parentDashboardLogout": "Đăng xuất",
 
-  "languageSwitcherLabel": "Ngôn ngữ"
+  "languageSwitcherLabel": "Ngôn ngữ",
+
+  "profileTitle": "Hồ sơ",
+  "profile": "Hồ sơ",
+  "settings": "Cài đặt",
+  "logout": "Đăng xuất",
+  "guestUser": "Khách",
+  "comingSoon": "Sắp ra mắt"
 }

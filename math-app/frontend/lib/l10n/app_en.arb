@@ -101,5 +101,12 @@
   "parentDashboardNotifications": "Notifications",
   "parentDashboardLogout": "Logout",
 
-  "languageSwitcherLabel": "Language"
+  "languageSwitcherLabel": "Language",
+
+  "profileTitle": "Profile",
+  "profile": "Profile",
+  "settings": "Settings",
+  "logout": "Logout",
+  "guestUser": "Guest",
+  "comingSoon": "Coming soon"
 }

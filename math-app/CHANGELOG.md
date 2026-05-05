@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **Profile Widget replaces desktop nav Start button**
+  - Backend: `GET /api/auth/me` endpoint with JWT decoding; `MeResponse` model added to `backend/auth/src/models.rs`
+  - Frontend: `AuthService` — `getCurrentUser()` with `authStateChanges` broadcast stream; emits on sign-in/out
+  - Frontend: `ProfileWidget` (avatar + name + dropdown: Profile/Settings/Logout) in `widgets/profile_widget.dart`; null-safe `AppLocalizations` access for tests
+  - Frontend: `ProfileScreen` full profile page at `/profile` with stats, avatar, logout
+  - Frontend: Replaced desktop nav "Bắt đầu" button with `ProfileWidget` in `WelcomeScreen._buildDesktopNav()`
+  - Frontend: Added `/profile` route in `app_router.dart`
+  - Frontend: i18n strings added (`profile`, `settings`, `logout`, `guestUser`, `comingSoon`, `profileTitle`) to `app_en.arb` + `app_vi.arb`; regenerated via `flutter gen-l10n`
+  - Frontend: `app_providers.dart` — added `authUserProvider` (StreamProvider), `currentUserProvider` (FutureProvider)
+  - Tests: `auth_service_test.dart` — `getCurrentUser` success/failure tests; `profile_widget_test.dart` — 3 widget tests
 - **Login Screen as Initial Route**
   - `frontend/lib/screens/login_screen.dart` — new dedicated login page with Google Sign-In + "Tiếp tục không đăng nhập" + "Dành cho phụ huynh"
   - `frontend/lib/core/app_router.dart` — new `/login` route; `initialLocation` changed from `/` to `/login`; `WelcomeScreen` now at `/welcome`

@@ -47,6 +47,8 @@ pub struct Claims {
     pub sub: String,
     pub email: String,
     pub name: String,
+    #[serde(default)]
+    pub picture: String,
     pub exp: usize,
 }
 
@@ -57,6 +59,15 @@ pub struct GoogleTokenInfo {
     pub name: Option<String>,
     pub picture: Option<String>,
     pub given_name: Option<String>,
+}
+
+#[derive(Serialize, ToSchema)]
+pub struct MeResponse {
+    pub id: String,
+    pub email: String,
+    pub name: String,
+    pub picture: String,
+    pub given_name: String,
 }
 
 #[derive(Clone)]

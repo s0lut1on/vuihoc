@@ -236,4 +236,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get languageSwitcherLabel => 'Language';
+
+  @override
+  String get profileTitle => 'Profile';
+
+  @override
+  String get profile => 'Profile';
+
+  @override
+  String get settings => 'Settings';
+
+  @override
+  String get logout => 'Logout';
+
+  @override
+  String get guestUser => 'Guest';
+
+  @override
+  String get comingSoon => 'Coming soon';
 }

@@ -154,5 +154,48 @@ void main() {
       final result = await authService.silentSignIn();
       expect(result, false);
     });
+
+    test('getCurrentUser returns user data on success', () async {
+      final meResponse = {
+        'success': true,
+        'data': {
+          'id': 'user-123',
+          'email': 'test@example.com',
+          'name': 'Test User',
+          'picture': 'https://example.com/pic.jpg',
+          'given_name': 'Test',
+        }
+      };
+
+      when(() => mockAdapter.fetch(any(), any(), any())).thenAnswer(
+        (_) async => ResponseBody.fromString(
+          jsonEncode(meResponse),
+          200,
+          headers: {
+            Headers.contentTypeHeader: ['application/json'],
+          },
+        ),
+      );
+
+      final user = await authService.getCurrentUser();
+      expect(user, isNotNull);
+      expect(user?['name'], 'Test User');
+      expect(user?['email'], 'test@example.com');
+    });
+
+    test('getCurrentUser returns null on failure', () async {
+      when(() => mockAdapter.fetch(any(), any(), any())).thenAnswer(
+        (_) async => ResponseBody.fromString(
+          jsonEncode({'success': false, 'error': 'Unauthorized'}),
+          401,
+          headers: {
+            Headers.contentTypeHeader: ['application/json'],
+          },
+        ),
+      );
+
+      final user = await authService.getCurrentUser();
+      expect(user, isNull);
+    });
   });
 }

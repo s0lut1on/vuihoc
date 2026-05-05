@@ -102,11 +102,9 @@ Map<String, dynamic> mockAuthResponse() => {
           'data': {
             'id': 'u-test',
             'email': 'test@example.com',
-            'name': 'Be Test',
-            'persona': 'achiever',
-            'avatar': '🐸',
-            'locale': 'vi_VN',
-            'created_at': '2024-01-15T00:00:00Z',
+            'name': 'Bé Test',
+            'picture': '',
+            'given_name': 'Bé',
           }
         }
       }

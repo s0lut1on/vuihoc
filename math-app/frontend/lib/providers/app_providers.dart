@@ -4,6 +4,7 @@ import '../models/persona_model.dart';
 import '../models/user_model.dart';
 import '../models/lesson_model.dart';
 import '../services/api_service.dart';
+import '../services/auth_service.dart';
 import '../services/user_api.dart';
 import '../services/content_api.dart';
 import '../services/progress_api.dart';
@@ -19,6 +20,14 @@ final userIdProvider = StateProvider<String?>((ref) => null);
 
 final userProvider = StateNotifierProvider<UserNotifier, AsyncValue<User?>>(
     (ref) => UserNotifier(ref));
+
+final authUserProvider = StreamProvider<bool>((ref) {
+  return AuthService().authStateChanges;
+});
+
+final currentUserProvider = FutureProvider<Map<String, dynamic>?>((ref) async {
+  return AuthService().getCurrentUser();
+});
 
 final curriculumProvider =
     FutureProvider<List<ApiLesson>>((ref) => ContentApi.getCurriculum());

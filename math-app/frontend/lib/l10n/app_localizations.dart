@@ -535,6 +535,42 @@ abstract class AppLocalizations {
   /// In vi, this message translates to:
   /// **'Ngôn ngữ'**
   String get languageSwitcherLabel;
+
+  /// No description provided for @profileTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Hồ sơ'**
+  String get profileTitle;
+
+  /// No description provided for @profile.
+  ///
+  /// In vi, this message translates to:
+  /// **'Hồ sơ'**
+  String get profile;
+
+  /// No description provided for @settings.
+  ///
+  /// In vi, this message translates to:
+  /// **'Cài đặt'**
+  String get settings;
+
+  /// No description provided for @logout.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đăng xuất'**
+  String get logout;
+
+  /// No description provided for @guestUser.
+  ///
+  /// In vi, this message translates to:
+  /// **'Khách'**
+  String get guestUser;
+
+  /// No description provided for @comingSoon.
+  ///
+  /// In vi, this message translates to:
+  /// **'Sắp ra mắt'**
+  String get comingSoon;
 }
 
 class _AppLocalizationsDelegate

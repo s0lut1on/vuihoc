@@ -236,4 +236,22 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get languageSwitcherLabel => 'Ngôn ngữ';
+
+  @override
+  String get profileTitle => 'Hồ sơ';
+
+  @override
+  String get profile => 'Hồ sơ';
+
+  @override
+  String get settings => 'Cài đặt';
+
+  @override
+  String get logout => 'Đăng xuất';
+
+  @override
+  String get guestUser => 'Khách';
+
+  @override
+  String get comingSoon => 'Sắp ra mắt';
 }

@@ -7,6 +7,7 @@ import '../l10n/app_localizations.dart';
 import '../models/persona_model.dart';
 import '../providers/app_providers.dart';
 import '../widgets/language_switcher.dart';
+import '../widgets/profile_widget.dart';
 
 class WelcomeScreen extends ConsumerStatefulWidget {
   const WelcomeScreen({super.key});
@@ -239,22 +240,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
                 ),
               ),
               const SizedBox(width: 16),
-              ElevatedButton(
-                onPressed: _selectedPersona == null ? null : _onStart,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primaryPink,
-                  minimumSize: const Size(140, 44),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(22),
-                  ),
-                  textStyle: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                child: const Text('Bắt đầu',
-                    style: TextStyle(color: AppColors.white)),
-              ),
+              const ProfileWidget(),
             ],
           ),
         ],
