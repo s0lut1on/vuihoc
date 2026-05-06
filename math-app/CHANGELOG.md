@@ -85,6 +85,14 @@ All notable changes to this project will be documented in this file.
 - `CelebrationScreen` route now accepts `subjectId` + `lessonId` via extra data for accurate next-lesson navigation
 - `lesson_screen.dart`: `currentQuestion` is now mutable to support retry; lesson only completes after ALL exercises answered correctly
 
+### Added
+- **Route guards — protected routes require authentication**
+  - `app_router.dart` — `GoRouter` now has `redirect` + `refreshListenable` via `ValueNotifier`
+  - Public routes: `/login`, `/welcome`; all others redirect to `/login` when no token
+  - Authenticated users on `/login` are redirected to `/welcome`
+  - `main.dart` — restored token now also sets `AuthService().tokenNotifier.value`
+  - E2E tests updated — page-load tests now verify redirect to `/login` for protected routes
+
 ### Fixed
 - **Google user shows real avatar and name instead of "Khách"**
   - `currentUserProvider` now watches `authUserProvider` stream to auto-refetch after sign-in

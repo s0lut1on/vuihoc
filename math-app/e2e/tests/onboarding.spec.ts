@@ -11,29 +11,31 @@ test.describe('Page loads', () => {
     await page.goto('/welcome');
     await expect(page).toHaveURL(/welcome/);
   });
+});
 
-  test('home page loads', async ({ page }) => {
+test.describe('Route guards (unauthenticated)', () => {
+  test('home redirects to login', async ({ page }) => {
     await page.goto('/home');
-    await expect(page).toHaveURL(/home/);
+    await expect(page).toHaveURL(/login/);
   });
 
-  test('lesson page loads', async ({ page }) => {
+  test('lesson page redirects to login', async ({ page }) => {
     await page.goto('/lesson/numbers/lesson_n1');
-    await expect(page).toHaveURL(/lesson/);
+    await expect(page).toHaveURL(/login/);
   });
 
-  test('celebration page loads', async ({ page }) => {
+  test('celebration page redirects to login', async ({ page }) => {
     await page.goto('/celebration');
-    await expect(page).toHaveURL(/celebration/);
+    await expect(page).toHaveURL(/login/);
   });
 
-  test('parent dashboard loads', async ({ page }) => {
+  test('parent dashboard redirects to login', async ({ page }) => {
     await page.goto('/parent-dashboard');
-    await expect(page).toHaveURL(/parent-dashboard/);
+    await expect(page).toHaveURL(/login/);
   });
 
-  test('pin gate loads', async ({ page }) => {
-    await page.goto('/pin-gate');
-    await expect(page).toHaveURL(/pin-gate/);
+  test('profile page redirects to login', async ({ page }) => {
+    await page.goto('/profile');
+    await expect(page).toHaveURL(/login/);
   });
 });

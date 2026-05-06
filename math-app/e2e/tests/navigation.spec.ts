@@ -33,16 +33,10 @@ test.describe('Responsive layout', () => {
   });
 });
 
-test.describe('Subject page', () => {
-  test('deep links to subject page work', async ({ page }) => {
+test.describe('Subject page (unauthenticated redirects)', () => {
+  test('deep links to subject page redirect to login', async ({ page }) => {
     await page.goto('/subject/numbers');
-    await expect(page).toHaveURL(/subject\/numbers/);
-  });
-
-  test('subject page loads without error', async ({ page }) => {
-    const response = await page.goto('/subject/numbers');
-    expect(response?.status()).toBe(200);
-    await expect(page.locator('text=404')).toHaveCount(0);
+    await expect(page).toHaveURL(/login/);
   });
 });
 

@@ -20,6 +20,7 @@ void main() async {
   final token = await _loadToken();
   if (token != null) {
     ApiService().setToken(token);
+    AuthService().tokenNotifier.value = token;
   }
 
   final didAutoSignIn =
