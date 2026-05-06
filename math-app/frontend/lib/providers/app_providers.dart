@@ -21,13 +21,20 @@ final userIdProvider = StateProvider<String?>((ref) => null);
 final userProvider = StateNotifierProvider<UserNotifier, AsyncValue<User?>>(
     (ref) => UserNotifier(ref));
 
-final authUserProvider = StreamProvider<bool>((ref) {
-  return AuthService().authStateChanges;
+/// Rebuilds whenever token changes (login/logout).
+final authUserProvider = Provider<String?>((ref) {
+  final notifier = AuthService().tokenNotifier;
+  notifier.addListener(ref.notifyListeners);
+  ref.onDispose(() => notifier.removeListener(ref.notifyListeners));
+  return notifier.value;
 });
 
 final currentUserProvider = FutureProvider<Map<String, dynamic>?>((ref) async {
-  // Refetch whenever auth state changes (login/logout)
-  ref.watch(authUserProvider);
+  // Rebuild whenever token changes (login/logout)
+  final token = ref.watch(authUserProvider);
+  if (token != null) {
+    ApiService().setToken(token);
+  }
   return AuthService().getCurrentUser();
 });
 

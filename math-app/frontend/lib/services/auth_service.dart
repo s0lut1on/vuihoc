@@ -21,8 +21,8 @@ class AuthService {
         : null,
   );
 
-  final StreamController<bool> _authState = StreamController<bool>.broadcast();
-  Stream<bool> get authStateChanges => _authState.stream;
+  /// Notifies listeners whenever the auth token changes (login/logout).
+  final ValueNotifier<String?> tokenNotifier = ValueNotifier<String?>(null);
 
   Future<bool> signInWithGoogle() async {
     try {
@@ -49,7 +49,7 @@ class AuthService {
       if (token != null) {
         ApiService().setToken(token);
         await _persistToken(token);
-        _authState.add(true);
+        tokenNotifier.value = token;
         return true;
       }
       return false;
@@ -65,7 +65,7 @@ class AuthService {
       if (token != null) {
         ApiService().setToken(token);
         await _persistToken(token);
-        _authState.add(true);
+        tokenNotifier.value = token;
         return true;
       }
       return false;
@@ -79,7 +79,7 @@ class AuthService {
     ApiService().clearToken();
     final box = await Hive.openBox('auth');
     await box.delete('token');
-    _authState.add(false);
+    tokenNotifier.value = null;
   }
 
   Future<Map<String, dynamic>?> getCurrentUser() async {
@@ -102,7 +102,7 @@ class AuthService {
       final storedToken = await _loadToken();
       if (storedToken != null) {
         ApiService().setToken(storedToken);
-        _authState.add(true);
+        tokenNotifier.value = storedToken;
         return true;
       }
 
@@ -119,7 +119,7 @@ class AuthService {
         if (token != null) {
           ApiService().setToken(token);
           await _persistToken(token);
-          _authState.add(true);
+          tokenNotifier.value = token;
           return true;
         }
       }

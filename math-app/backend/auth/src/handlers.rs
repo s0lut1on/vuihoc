@@ -137,7 +137,10 @@ pub async fn me(headers: axum::http::HeaderMap) -> Result<ApiResponse<MeResponse
         return Ok(ApiResponse::err("Missing authorization token"));
     }
 
-    let jwt_secret = std::env::var("JWT_SECRET").unwrap_or_else(|_| "secret".to_string());
+    let jwt_secret = std::env::var("JWT_SECRET")
+        .ok()
+        .filter(|s| !s.is_empty())
+        .unwrap_or_else(|| "secret".to_string());
     let decoding_key = DecodingKey::from_secret(jwt_secret.as_ref());
     let mut validation = Validation::default();
     validation.validate_exp = false; // Allow expired tokens for simplicity in dev
