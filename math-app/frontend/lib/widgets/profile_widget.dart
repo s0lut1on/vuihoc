@@ -44,7 +44,8 @@ class ProfileWidget extends ConsumerWidget {
 
     return currentUserAsync.when(
       data: (userData) {
-        final name = userData?['name'] as String? ?? (l10n?.guestUser ?? 'Guest');
+        final name =
+            userData?['name'] as String? ?? (l10n?.guestUser ?? 'Guest');
         final picture = userData?['picture'] as String? ?? '';
         final isGuest = name == (l10n?.guestUser ?? 'Guest') ||
             (userData?['email'] as String? ?? '').startsWith('guest_');
@@ -126,7 +127,8 @@ class ProfileWidget extends ConsumerWidget {
                 children: [
                   const Icon(Icons.logout, size: 18, color: Colors.red),
                   const SizedBox(width: 8),
-                  Text(l10n?.logout ?? 'Logout', style: const TextStyle(color: Colors.red)),
+                  Text(l10n?.logout ?? 'Logout',
+                      style: const TextStyle(color: Colors.red)),
                 ],
               ),
             ),

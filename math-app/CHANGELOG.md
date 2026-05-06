@@ -86,6 +86,9 @@ All notable changes to this project will be documented in this file.
 - `lesson_screen.dart`: `currentQuestion` is now mutable to support retry; lesson only completes after ALL exercises answered correctly
 
 ### Fixed
+- **Google user shows real avatar and name instead of "Khách"**
+  - `currentUserProvider` now watches `authUserProvider` stream to auto-refetch after sign-in
+  - `ProfileScreen` made null-safe for `AppLocalizations` access
 - Answer box text overflow: `_buildOptions` in `lesson_screen.dart` changed from fixed-size `Row` to `Wrap` with `BoxConstraints(minWidth: 110, maxWidth: 275)`, `FittedBox(scaleDown)`, and `maxLines: 2`
 - Google Sign-In button was missing on desktop layout of `WelcomeScreen` — added "Đăng nhập" nav button and inline guest login
 - `backend/progress/src/handlers.rs`: `update_progress` now rejects invalid UUIDs (was silently generating random users)

@@ -26,6 +26,8 @@ final authUserProvider = StreamProvider<bool>((ref) {
 });
 
 final currentUserProvider = FutureProvider<Map<String, dynamic>?>((ref) async {
+  // Refetch whenever auth state changes (login/logout)
+  ref.watch(authUserProvider);
   return AuthService().getCurrentUser();
 });
 

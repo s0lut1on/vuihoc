@@ -39,11 +39,12 @@ class ProfileScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final currentUserAsync = ref.watch(currentUserProvider);
     final userAsync = ref.watch(userProvider);
 
-    final name = currentUserAsync.value?['name'] as String? ?? l10n.guestUser;
+    final name = currentUserAsync.value?['name'] as String? ??
+        (l10n?.guestUser ?? 'Guest');
     final email = currentUserAsync.value?['email'] as String? ?? '';
     final picture = currentUserAsync.value?['picture'] as String? ?? '';
     final isGuest = email.startsWith('guest_');
@@ -63,7 +64,7 @@ class ProfileScreen extends ConsumerWidget {
           onPressed: () => context.go('/home'),
         ),
         title: Text(
-          l10n.profileTitle,
+          l10n?.profileTitle ?? 'Profile',
           style: const TextStyle(
             color: AppColors.darkPurple,
             fontWeight: FontWeight.w700,
@@ -85,7 +86,9 @@ class ProfileScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              email.isNotEmpty ? email : (isGuest ? l10n.guestUser : ''),
+              email.isNotEmpty
+                  ? email
+                  : (isGuest ? (l10n?.guestUser ?? 'Guest') : ''),
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: AppColors.mutedPurple,
                   ),
@@ -95,16 +98,16 @@ class ProfileScreen extends ConsumerWidget {
             const SizedBox(height: 32),
             _buildMenuTile(
               icon: Icons.settings_outlined,
-              title: l10n.settings,
+              title: l10n?.settings ?? 'Settings',
               onTap: () {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(l10n.comingSoon)),
+                  SnackBar(content: Text(l10n?.comingSoon ?? 'Coming soon')),
                 );
               },
             ),
             _buildMenuTile(
               icon: Icons.logout,
-              title: l10n.logout,
+              title: l10n?.logout ?? 'Logout',
               iconColor: Colors.red,
               textColor: Colors.red,
               onTap: () => _handleLogout(context, ref),
