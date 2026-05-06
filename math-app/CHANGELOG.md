@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **Root README.md** — project overview, quick start, layout, features, tech stack
 - **Profile Widget replaces desktop nav Start button**
   - Backend: `GET /api/auth/me` endpoint with JWT decoding; `MeResponse` model added to `backend/auth/src/models.rs`
   - Frontend: `AuthService` — `getCurrentUser()` with `authStateChanges` broadcast stream; emits on sign-in/out
