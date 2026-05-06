@@ -89,6 +89,10 @@ All notable changes to this project will be documented in this file.
 - **Google user shows real avatar and name instead of "Khách"**
   - `currentUserProvider` now watches `authUserProvider` stream to auto-refetch after sign-in
   - `ProfileScreen` made null-safe for `AppLocalizations` access
+- **Google user avatar now loads correctly with error fallback**
+  - Replaced `CircleAvatar` with `NetworkImage` (which silently fails) with `Image.network` + `errorBuilder` in both `ProfileWidget` and `ProfileScreen`
+  - Avatar falls back to initial-letter avatar on image load error
+  - Added debug logging (`debugPrint`) for avatar URL and load errors in debug mode
 - Answer box text overflow: `_buildOptions` in `lesson_screen.dart` changed from fixed-size `Row` to `Wrap` with `BoxConstraints(minWidth: 110, maxWidth: 275)`, `FittedBox(scaleDown)`, and `maxLines: 2`
 - Google Sign-In button was missing on desktop layout of `WelcomeScreen` — added "Đăng nhập" nav button and inline guest login
 - `backend/progress/src/handlers.rs`: `update_progress` now rejects invalid UUIDs (was silently generating random users)

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -148,14 +149,29 @@ class ProfileWidget extends ConsumerWidget {
     if (picture.isNotEmpty) {
       return CircleAvatar(
         radius: 16,
-        backgroundImage: NetworkImage(picture),
-        onBackgroundImageError: (_, __) {},
+        child: ClipOval(
+          child: Image.network(
+            picture,
+            width: 32,
+            height: 32,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) {
+              if (kDebugMode) {
+                debugPrint('Avatar image error for $name: $error');
+              }
+              return _buildInitialAvatar(name, 16);
+            },
+          ),
+        ),
       );
     }
+    return _buildInitialAvatar(name, 16);
+  }
 
+  Widget _buildInitialAvatar(String name, double radius) {
     final color = _avatarColor(name);
     return CircleAvatar(
-      radius: 16,
+      radius: radius,
       backgroundColor: color,
       child: Text(
         name.isNotEmpty ? name[0].toUpperCase() : '?',
