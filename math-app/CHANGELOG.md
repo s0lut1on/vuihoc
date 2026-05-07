@@ -92,6 +92,7 @@ All notable changes to this project will be documented in this file.
   - Authenticated users on `/login` are redirected to `/welcome`
   - `main.dart` — restored token now also sets `AuthService().tokenNotifier.value`
   - E2E tests updated — page-load tests now verify redirect to `/login` for protected routes
+- **E2E auth tests** (`e2e/tests/auth.spec.ts`) — 11 tests: guest login API, auth/me with/without token, route guards for all protected pages, public route accessibility
 
 ### Fixed
 - **Google user shows real avatar and name instead of "Khách"**

@@ -274,6 +274,7 @@ class _LoginScreenState extends State<LoginScreen>
       ),
       child: const Text(
         'Tiếp tục không đăng nhập',
+        key: Key('guest-login-button'),
         style: TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w600,
