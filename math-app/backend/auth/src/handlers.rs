@@ -74,18 +74,34 @@ pub async fn login_with_google(
             .clone()
             .unwrap_or_else(|| "User".to_string())
     });
-    let user_id = uuid::Uuid::new_v4();
-    let _ = sqlx::query("INSERT INTO users (id, email, name, persona, avatar, locale) VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (email) DO UPDATE SET name = $3, avatar = COALESCE(users.avatar, $5)")
-        .bind(user_id)
+
+    let _ = sqlx::query(
+        "INSERT INTO users (id, email, name, persona, avatar, locale)
+         VALUES ($1, $2, $3, $4, $5, $6)
+         ON CONFLICT (email) DO UPDATE
+         SET name = $3, avatar = COALESCE(users.avatar, $5)",
+    )
+    .bind(uuid::Uuid::new_v4())
+    .bind(&info.email)
+    .bind(&name)
+    .bind("achiever")
+    .bind(info.picture.as_deref().unwrap_or("🐸"))
+    .bind("vi_VN")
+    .execute(&state.db)
+    .await;
+
+    let db_user = sqlx::query_as::<_, AuthUser>("SELECT * FROM users WHERE email = $1")
         .bind(&info.email)
-        .bind(&name)
-        .bind("achiever")
-        .bind(info.picture.as_deref().unwrap_or("🐸"))
-        .bind("vi_VN")
-        .execute(&state.db)
+        .fetch_one(&state.db)
         .await;
+
+    let user_uuid = match db_user {
+        Ok(u) => u.id,
+        Err(_) => uuid::Uuid::new_v4(),
+    };
+
     let claims = Claims {
-        sub: info.sub,
+        sub: user_uuid.to_string(),
         email: info.email,
         name,
         picture: info.picture.clone().unwrap_or_default(),

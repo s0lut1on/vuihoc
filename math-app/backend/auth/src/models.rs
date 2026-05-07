@@ -54,6 +54,7 @@ pub struct Claims {
 
 #[derive(Deserialize)]
 pub struct GoogleTokenInfo {
+    #[allow(dead_code)]
     pub sub: String,
     pub email: String,
     pub name: Option<String>,

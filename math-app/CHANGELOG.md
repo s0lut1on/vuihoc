@@ -95,6 +95,9 @@ All notable changes to this project will be documented in this file.
 - **E2E auth tests** (`e2e/tests/auth.spec.ts`) — 11 tests: guest login API, auth/me with/without token, route guards for all protected pages, public route accessibility
 
 ### Fixed
+- **Google users' lesson completions were silently lost** — JWT `sub` contained Google numeric `sub` (e.g., `117292929...`) instead of database UUID
+  - `backend/auth/src/handlers.rs` — `login_with_google` now INSERT/SELECT to get the actual `users.id` UUID and stores that in JWT `sub`
+  - `me()` endpoint now returns a valid UUID `id` compatible with `progress.user_id` (UUID type)
 - **Guest lesson completions were silently lost** — root cause was `userIdProvider` never set for guest users
   - `main.dart` — added `ref.listen(currentUserProvider, ...)` that auto-extracts `id` from `/auth/me` response and sets `userIdProvider`
   - `ProfileWidget._handleLogout()` now clears `userIdProvider` and invalidates `userProgressProvider` to prevent stale data
