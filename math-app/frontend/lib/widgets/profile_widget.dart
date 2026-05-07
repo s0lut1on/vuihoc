@@ -201,8 +201,10 @@ class ProfileWidget extends ConsumerWidget {
 
   void _handleLogout(BuildContext context, WidgetRef ref) {
     AuthService().signOut();
+    ref.read(userIdProvider.notifier).state = null;
     ref.invalidate(currentUserProvider);
     ref.invalidate(userProvider);
+    ref.invalidate(userProgressProvider);
     ref.invalidate(userIdProvider);
     if (context.mounted) {
       context.go('/login');

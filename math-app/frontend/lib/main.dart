@@ -61,6 +61,15 @@ class MathApp extends ConsumerWidget {
     final locale = ref.watch(localeProvider);
     final router = AppRouter(initialSignedIn: autoSignedIn);
 
+    // Auto-extract user_id from /auth/me so guest users also get a userId
+    ref.listen(currentUserProvider, (prev, next) {
+      final userData = next.valueOrNull;
+      final userId = userData?['id'] as String?;
+      if (userId != null && userId.isNotEmpty) {
+        ref.read(userIdProvider.notifier).state = userId;
+      }
+    });
+
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       title: 'Học Toán Vui',

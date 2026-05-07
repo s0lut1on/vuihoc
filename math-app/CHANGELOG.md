@@ -95,7 +95,10 @@ All notable changes to this project will be documented in this file.
 - **E2E auth tests** (`e2e/tests/auth.spec.ts`) — 11 tests: guest login API, auth/me with/without token, route guards for all protected pages, public route accessibility
 
 ### Fixed
-- **Google user shows real avatar and name instead of "Khách"**
+- **Guest lesson completions were silently lost** — root cause was `userIdProvider` never set for guest users
+  - `main.dart` — added `ref.listen(currentUserProvider, ...)` that auto-extracts `id` from `/auth/me` response and sets `userIdProvider`
+  - `ProfileWidget._handleLogout()` now clears `userIdProvider` and invalidates `userProgressProvider` to prevent stale data
+  - Flow: guest login → JWT `sub` UUID set → `/auth/me` returns `id` → `userIdProvider` set → `ProgressApi.updateProgress()` called → database row created
   - `currentUserProvider` now watches `authUserProvider` stream to auto-refetch after sign-in
   - `ProfileScreen` made null-safe for `AppLocalizations` access
 - **Google user avatar now loads correctly with error fallback**
