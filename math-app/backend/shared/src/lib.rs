@@ -48,6 +48,56 @@ impl<T: Serialize> IntoResponse for ApiResponse<T> {
     }
 }
 
+use axum::{extract::Request, http::header::AUTHORIZATION, http::StatusCode, middleware::Next};
+use jsonwebtoken::{decode, DecodingKey, Validation};
+use serde::Deserialize;
+
+#[derive(Debug, Deserialize, Clone)]
+pub struct Claims {
+    pub sub: String,
+    pub email: String,
+    pub name: String,
+    pub picture: String,
+    pub tier: String,
+    pub exp: usize,
+}
+
+pub async fn auth_middleware(request: Request, next: Next) -> axum::response::Response {
+    let auth_header = request
+        .headers()
+        .get(AUTHORIZATION)
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("");
+
+    let token = auth_header.strip_prefix("Bearer ").unwrap_or(auth_header);
+
+    if token.is_empty() {
+        return (
+            StatusCode::UNAUTHORIZED,
+            Json(ApiResponse::<()>::err("Missing authorization token")),
+        )
+            .into_response();
+    }
+
+    let jwt_secret = std::env::var("JWT_SECRET").unwrap_or_else(|_| "test-secret".to_string());
+    let decoding_key = DecodingKey::from_secret(jwt_secret.as_ref());
+    let mut validation = Validation::default();
+    validation.validate_exp = true;
+
+    match decode::<Claims>(token, &decoding_key, &validation) {
+        Ok(data) => {
+            let mut req = request;
+            req.extensions_mut().insert(data.claims);
+            next.run(req).await
+        }
+        Err(_) => (
+            StatusCode::UNAUTHORIZED,
+            Json(ApiResponse::<()>::err("Invalid or expired token")),
+        )
+            .into_response(),
+    }
+}
+
 #[derive(Serialize, ToSchema)]
 pub struct Pagination {
     pub page: u32,

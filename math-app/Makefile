@@ -98,7 +98,7 @@ build-rust:
 test-rust:
 	@echo ""
 	@echo "🦀 Running Rust tests..."
-	cd $(BACKEND) && cargo test
+	@JWT_SECRET=test-secret-for-unit-tests-only cd $(BACKEND) && cargo test
 
 check-rust:
 	@echo ""

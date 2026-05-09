@@ -6,11 +6,10 @@ use crate::models::{AppState, CreateUserRequest, User};
 pub async fn get_user(State(state): State<AppState>) -> shared::ApiResponse<User> {
     let user = sqlx::query_as::<_, User>("SELECT * FROM users LIMIT 1")
         .fetch_optional(&state.db)
-        .await
-        .unwrap();
+        .await;
     match user {
-        Some(u) => shared::ApiResponse::ok(u),
-        None => shared::ApiResponse::ok(User {
+        Ok(Some(u)) => shared::ApiResponse::ok(u),
+        Ok(None) => shared::ApiResponse::ok(User {
             id: uuid::Uuid::new_v4(),
             name: "Be Minh Anh".to_string(),
             persona: "achiever".to_string(),
@@ -21,6 +20,10 @@ pub async fn get_user(State(state): State<AppState>) -> shared::ApiResponse<User
             total_stars: 3,
             created_at: Utc::now(),
         }),
+        Err(e) => {
+            tracing::error!("Database error in get_user: {}", e);
+            shared::ApiResponse::err("Internal server error")
+        }
     }
 }
 
@@ -42,7 +45,10 @@ pub async fn create_user(
     .await;
     match user {
         Ok(u) => shared::ApiResponse::ok(u),
-        Err(_) => shared::ApiResponse::err("Failed to create user"),
+        Err(e) => {
+            tracing::error!("Database error in create_user: {}", e);
+            shared::ApiResponse::err("Failed to create user")
+        }
     }
 }
 

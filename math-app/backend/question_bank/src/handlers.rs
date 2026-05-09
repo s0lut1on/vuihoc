@@ -34,7 +34,10 @@ pub async fn submit_answer(
     {
         Ok(Some(q)) => q,
         Ok(None) => return ApiResponse::err("Question not found"),
-        Err(e) => return ApiResponse::err(&e.to_string()),
+        Err(e) => {
+            tracing::error!("DB error in submit_answer (question lookup): {}", e);
+            return ApiResponse::err("Internal server error");
+        }
     };
 
     let is_correct = (payload.answer_given - question.answer).abs() < 0.01;
@@ -54,7 +57,10 @@ pub async fn submit_answer(
             kc_id: payload.kc_id,
             ..Default::default()
         },
-        Err(e) => return ApiResponse::err(&e.to_string()),
+        Err(e) => {
+            tracing::error!("DB error in submit_answer (mastery lookup): {}", e);
+            return ApiResponse::err("Internal server error");
+        }
     };
 
     mastery = mastery.update(is_correct);
@@ -76,7 +82,8 @@ pub async fn submit_answer(
     .bind(mastery.attempt_count)
     .execute(state.db.pool())
     .await {
-        return ApiResponse::err(&e.to_string());
+        tracing::error!("DB error in submit_answer (mastery upsert): {}", e);
+        return ApiResponse::err("Internal server error");
     }
 
     if let Err(e) = sqlx::query(
@@ -90,7 +97,8 @@ pub async fn submit_answer(
     .bind(payload.time_taken_ms)
     .execute(state.db.pool())
     .await {
-        return ApiResponse::err(&e.to_string());
+        tracing::error!("DB error in submit_answer (response insert): {}", e);
+        return ApiResponse::err("Internal server error");
     }
 
     let feedback = if is_correct {
@@ -121,13 +129,19 @@ pub async fn generate_questions(
     .await {
         Ok(Some(t)) => t,
         Ok(None) => return ApiResponse::err("No active template found for this KC and difficulty"),
-        Err(e) => return ApiResponse::err(&e.to_string()),
+        Err(e) => {
+            tracing::error!("DB error in generate_questions: {}", e);
+            return ApiResponse::err("Internal server error")
+        }
     };
 
     let param_schema: std::collections::HashMap<String, ParamConstraint> =
         match serde_json::from_value(template.param_schema.clone()) {
             Ok(s) => s,
-            Err(e) => return ApiResponse::err(&e.to_string()),
+            Err(e) => {
+                tracing::error!("Failed to parse param_schema: {}", e);
+                return ApiResponse::err("Internal server error");
+            }
         };
 
     let mut questions = Vec::new();
@@ -135,20 +149,29 @@ pub async fn generate_questions(
     for _ in 0..req.count {
         let sampled = match crate::engine::sampler::sample_params(&param_schema, req.difficulty) {
             Ok(s) => s,
-            Err(e) => return ApiResponse::err(&e.to_string()),
+            Err(e) => {
+                tracing::error!("Sampler error in generate_questions: {}", e);
+                return ApiResponse::err("Internal server error");
+            }
         };
 
         let stem =
             match crate::engine::generator::render_stem(&template.stem_template, &sampled.params) {
                 Ok(s) => s,
-                Err(e) => return ApiResponse::err(&e.to_string()),
+                Err(e) => {
+                    tracing::error!("Render stem error in generate_questions: {}", e);
+                    return ApiResponse::err("Internal server error");
+                }
             };
 
         let answer =
             match crate::engine::generator::eval_solution(&template.solution_expr, &sampled.params)
             {
                 Ok(a) => a,
-                Err(e) => return ApiResponse::err(&e.to_string()),
+                Err(e) => {
+                    tracing::error!("Eval solution error in generate_questions: {}", e);
+                    return ApiResponse::err("Internal server error");
+                }
             };
 
         let error_taxonomy: Vec<String> =
@@ -198,6 +221,9 @@ pub async fn get_mastery(
             kc_id,
             ..Default::default()
         }),
-        Err(e) => ApiResponse::err(&e.to_string()),
+        Err(e) => {
+            tracing::error!("DB error in get_mastery: {}", e);
+            ApiResponse::err("Internal server error")
+        }
     }
 }

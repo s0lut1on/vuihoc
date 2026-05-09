@@ -8,9 +8,14 @@ pub async fn list_notifications(State(state): State<AppState>) -> ApiResponse<Ve
         "SELECT * FROM notifications ORDER BY created_at DESC LIMIT 20",
     )
     .fetch_all(&state.db)
-    .await
-    .unwrap_or_default();
-    ApiResponse::ok(rows)
+    .await;
+    match rows {
+        Ok(data) => ApiResponse::ok(data),
+        Err(e) => {
+            tracing::error!("Database error in list_notifications: {}", e);
+            ApiResponse::err("Internal server error")
+        }
+    }
 }
 
 pub async fn send_test_notification(

@@ -54,6 +54,7 @@ services:
       - PORT=3000
       - DATABASE_URL=postgres://user_user:user_pass@user-db:5432/user_db
       - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET}
     depends_on:
       - user-db
       - redis
@@ -72,6 +73,7 @@ services:
       - PORT=3000
       - DATABASE_URL=postgres://content_user:content_pass@content-db:5432/content_db
       - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET}
     depends_on:
       - content-db
       - redis
@@ -90,6 +92,7 @@ services:
       - PORT=3000
       - DATABASE_URL=postgres://progress_user:progress_pass@progress-db:5432/progress_db
       - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET}
     depends_on:
       - progress-db
       - redis
@@ -108,6 +111,7 @@ services:
       - PORT=3000
       - DATABASE_URL=postgres://postgres:postgres@notification-db:5432/notification_db
       - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET}
     depends_on:
       - notification-db
       - redis
@@ -126,6 +130,7 @@ services:
       - PORT=3000
       - DATABASE_URL=postgres://postgres:postgres@media-db:5432/media_db
       - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET}
     depends_on:
       - media-db
       - redis
@@ -223,6 +228,7 @@ services:
       - DATABASE_URL=postgres://qb_user:qb_pass@qb-db:5432/qb_db
       - REDIS_URL=redis://redis:6379
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - JWT_SECRET=${JWT_SECRET}
     depends_on:
       - qb-db
       - redis

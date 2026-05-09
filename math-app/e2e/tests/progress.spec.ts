@@ -19,7 +19,9 @@ test.describe('Progress API — daily limit', () => {
     const meBody = await meRes.json();
     const userId = meBody.data.id;
 
-    const res = await request.get(`${BASE}/api/progress/daily-limit/${userId}`);
+    const res = await request.get(`${BASE}/api/progress/daily-limit/${userId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
     expect(res.status()).toBe(200);
     const body = await res.json();
     expect(body.success).toBe(true);
@@ -36,6 +38,7 @@ test.describe('Progress API — daily limit', () => {
     const userId = (await meRes.json()).data.id;
 
     const res = await request.post(`${BASE}/api/progress`, {
+      headers: { Authorization: `Bearer ${token}` },
       data: { user_id: userId, lesson_id: 'lesson_test_001', stars: 3, completed: true },
     });
     expect(res.status()).toBe(200);
@@ -53,10 +56,14 @@ test.describe('Progress API — daily limit', () => {
     const userId = (await meRes.json()).data.id;
 
     await request.post(`${BASE}/api/progress`, {
+      headers: { Authorization: `Bearer ${token}` },
       data: { user_id: userId, lesson_id: `lesson_${Date.now()}`, stars: 3, completed: true },
     });
 
-    const res = await request.get(`${BASE}/api/progress/daily-limit/${userId}`);
+    const res = await request.get(`${BASE}/api/progress/daily-limit/${userId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    expect(res.status()).toBe(200);
     const body = await res.json();
     expect(body.data.count).toBeGreaterThanOrEqual(1);
   });
@@ -68,7 +75,9 @@ test.describe('Progress API — daily limit', () => {
     });
     const userId = (await meRes.json()).data.id;
 
-    const res = await request.get(`${BASE}/api/progress/streak/${userId}`);
+    const res = await request.get(`${BASE}/api/progress/streak/${userId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
     expect(res.status()).toBe(200);
     const body = await res.json();
     expect(body.success).toBe(true);
@@ -83,7 +92,9 @@ test.describe('Progress API — daily limit', () => {
     });
     const userId = (await meRes.json()).data.id;
 
-    const res = await request.get(`${BASE}/api/progress/${userId}`);
+    const res = await request.get(`${BASE}/api/progress/${userId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
     expect(res.status()).toBe(200);
     const body = await res.json();
     expect(body.success).toBe(true);

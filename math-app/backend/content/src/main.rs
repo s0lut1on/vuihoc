@@ -47,11 +47,15 @@ async fn main() {
 
     let state = AppState { db };
 
-    let app = Router::new()
-        .route("/api/content/health", get(handlers::health))
+    let protected = Router::new()
         .route("/api/content/curriculum", get(handlers::curriculum))
         .route("/api/content/subjects", get(handlers::subjects))
         .route("/api/content/lesson/:id", get(handlers::get_lesson))
+        .route_layer(axum::middleware::from_fn(shared::auth_middleware));
+
+    let app = Router::new()
+        .route("/api/content/health", get(handlers::health))
+        .merge(protected)
         .merge(
             SwaggerUi::new("/api/content/swagger-ui")
                 .url("/api/content/openapi.json", ApiDoc::openapi()),

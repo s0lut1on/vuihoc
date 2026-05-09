@@ -66,8 +66,7 @@ async fn main() {
     sqlx::migrate!("./migrations").run(&db).await.ok();
 
     let state = models::AppState { db };
-    let app = Router::new()
-        .route("/api/progress/health", get(handlers::health))
+    let protected = Router::new()
         .route("/api/progress/:user_id", get(handlers::get_user_progress))
         .route(
             "/api/progress/streak/:user_id",
@@ -78,6 +77,11 @@ async fn main() {
             get(handlers::get_daily_limit),
         )
         .route("/api/progress", post(handlers::update_progress))
+        .route_layer(axum::middleware::from_fn(shared::auth_middleware));
+
+    let app = Router::new()
+        .route("/api/progress/health", get(handlers::health))
+        .merge(protected)
         .merge(
             SwaggerUi::new("/api/progress/swagger-ui")
                 .url("/api/progress/openapi.json", ApiDoc::openapi()),

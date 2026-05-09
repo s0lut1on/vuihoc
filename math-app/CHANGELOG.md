@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Security
+- **JWT secret hardcoded vulnerability fixed** — removed hardcoded `"secret"` from `login_with_google`, `register`, and `login_as_guest` in `backend/auth/src/handlers.rs`; all JWT signing now requires `JWT_SECRET` environment variable via `std::env::var("JWT_SECRET").expect(...)`
+- **Token expiration validation enabled** — changed `validation.validate_exp = false` to `true` in `backend/auth/src/handlers.rs` (line ~163); expired tokens are now rejected
+- **JWT_SECRET added to `.env`** — `JWT_SECRET=change-this-to-a-random-256-bit-key-in-production` with generation instructions (`openssl rand -base64 32`)
+- **Error message leakage fixed across all services** — replaced `ApiResponse::err(&format!("Failed: {}", e))` and `ApiResponse::err(&e.to_string())` with generic `"Internal server error"` responses + `tracing::error!()` logging in:
+  - `backend/progress/src/handlers.rs` (4 endpoints)
+  - `backend/user/src/handlers.rs` (`get_user`, `create_user`)
+  - `backend/content/src/handlers.rs` (`get_lesson`)
+  - `backend/media/src/handlers.rs` (`list_media`)
+  - `backend/notification/src/handlers.rs` (`list_notifications`)
+  - `backend/question_bank/src/handlers.rs` (`submit_answer`, `generate_questions`, `get_mastery`)
+- **Auth middleware** — TODO: protect progress, user, content, media, notification, question_bank endpoints
+
 ### Added
 - **Documentation updated** — `README.md` (root + `math-app/`) now documents all new features: auth/profile, free/premium tiers, `ClockFace` widget, `ProfileScreen`/`SettingsScreen` routes, route guards, token validation, subscription tier management section with DB commands
 - **Subscription tier management docs** — added section in `math-app/README.md` explaining flag-based free/premium model, DB command to flip `subscription_tier`, and planned parent-dashboard UI path

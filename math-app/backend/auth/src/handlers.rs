@@ -100,6 +100,8 @@ pub async fn login_with_google(
         Err(_) => (uuid::Uuid::new_v4(), "free".to_string()),
     };
 
+    let jwt_secret =
+        std::env::var("JWT_SECRET").expect("JWT_SECRET environment variable must be set");
     let claims = Claims {
         sub: user_uuid.to_string(),
         email: info.email,
@@ -111,7 +113,7 @@ pub async fn login_with_google(
     let token = encode(
         &Header::default(),
         &claims,
-        &EncodingKey::from_secret("secret".as_ref()),
+        &EncodingKey::from_secret(jwt_secret.as_ref()),
     )
     .unwrap_or_default();
     ApiResponse::ok(TokenResponse {
@@ -122,6 +124,8 @@ pub async fn login_with_google(
 }
 
 pub async fn register(Json(body): Json<RegisterRequest>) -> ApiResponse<TokenResponse> {
+    let jwt_secret =
+        std::env::var("JWT_SECRET").expect("JWT_SECRET environment variable must be set");
     let claims = Claims {
         sub: uuid::Uuid::new_v4().to_string(),
         email: body.email,
@@ -133,7 +137,7 @@ pub async fn register(Json(body): Json<RegisterRequest>) -> ApiResponse<TokenRes
     let token = encode(
         &Header::default(),
         &claims,
-        &EncodingKey::from_secret("secret".as_ref()),
+        &EncodingKey::from_secret(jwt_secret.as_ref()),
     )
     .unwrap_or_default();
     ApiResponse::ok(TokenResponse {
@@ -155,13 +159,11 @@ pub async fn me(headers: axum::http::HeaderMap) -> Result<ApiResponse<MeResponse
         return Ok(ApiResponse::err("Missing authorization token"));
     }
 
-    let jwt_secret = std::env::var("JWT_SECRET")
-        .ok()
-        .filter(|s| !s.is_empty())
-        .unwrap_or_else(|| "secret".to_string());
+    let jwt_secret =
+        std::env::var("JWT_SECRET").expect("JWT_SECRET environment variable must be set");
     let decoding_key = DecodingKey::from_secret(jwt_secret.as_ref());
     let mut validation = Validation::default();
-    validation.validate_exp = false; // Allow expired tokens for simplicity in dev
+    validation.validate_exp = true;
 
     let decoded = match decode::<Claims>(token, &decoding_key, &validation) {
         Ok(data) => data,
@@ -188,6 +190,10 @@ mod tests {
     use super::*;
     use axum::extract::Json;
 
+    fn setup() {
+        std::env::set_var("JWT_SECRET", "test-secret-for-unit-tests-only");
+    }
+
     fn make_test_token() -> String {
         let claims = Claims {
             sub: "user-123".to_string(),
@@ -197,16 +203,18 @@ mod tests {
             tier: "free".to_string(),
             exp: (Utc::now() + Duration::days(1)).timestamp() as usize,
         };
+        let jwt_secret = std::env::var("JWT_SECRET").unwrap_or_else(|_| "test-secret".to_string());
         encode(
             &Header::default(),
             &claims,
-            &EncodingKey::from_secret("secret".as_ref()),
+            &EncodingKey::from_secret(jwt_secret.as_ref()),
         )
         .unwrap()
     }
 
     #[tokio::test]
     async fn register_returns_token_response() {
+        setup();
         let body = RegisterRequest {
             email: "test@test.com".to_string(),
             password: "123456".to_string(),
@@ -228,6 +236,7 @@ mod tests {
 
     #[tokio::test]
     async fn me_with_valid_token_returns_user() {
+        setup();
         let token = make_test_token();
         let mut headers = axum::http::HeaderMap::new();
         headers.insert(AUTHORIZATION, format!("Bearer {}", token).parse().unwrap());
@@ -249,6 +258,7 @@ mod tests {
 
     #[tokio::test]
     async fn me_with_invalid_token_returns_error() {
+        setup();
         let mut headers = axum::http::HeaderMap::new();
         headers.insert(AUTHORIZATION, "Bearer invalid-token".parse().unwrap());
         let resp = me(headers).await.unwrap();
@@ -291,10 +301,13 @@ pub async fn login_as_guest(
         exp: (Utc::now() + Duration::hours(24 * 365)).timestamp() as usize,
     };
 
+    let jwt_secret =
+        std::env::var("JWT_SECRET").expect("JWT_SECRET environment variable must be set");
+
     match encode(
         &Header::default(),
         &claims,
-        &EncodingKey::from_secret("secret".as_ref()),
+        &EncodingKey::from_secret(jwt_secret.as_ref()),
     ) {
         Ok(token) => ApiResponse::ok(TokenResponse {
             access_token: token,

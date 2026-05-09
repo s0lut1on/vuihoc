@@ -44,7 +44,10 @@ pub async fn get_lesson(
 ) -> ApiResponse<crate::models::ApiLesson> {
     match state.get_lesson(&lesson_id).await {
         Ok(Some(lesson)) => ApiResponse::ok(lesson),
-        Ok(None) => ApiResponse::err(&format!("Lesson {} not found", lesson_id)),
+        Ok(None) => {
+            tracing::warn!("Lesson {} not found in DB", lesson_id);
+            ApiResponse::err("Lesson not found")
+        }
         Err(e) => {
             tracing::warn!("DB query failed ({}), trying static fallback", e);
             let static_curriculum = get_curriculum_static();
@@ -53,7 +56,7 @@ pub async fn get_lesson(
                     return ApiResponse::ok(lesson);
                 }
             }
-            ApiResponse::err(&format!("Lesson {} not found", lesson_id))
+            ApiResponse::err("Lesson not found")
         }
     }
 }

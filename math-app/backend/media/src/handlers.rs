@@ -4,9 +4,14 @@ use axum::{extract::State, Json};
 pub async fn list_media(State(state): State<AppState>) -> shared::ApiResponse<Vec<MediaAsset>> {
     let rows = sqlx::query_as::<_, MediaAsset>("SELECT * FROM media_assets LIMIT 50")
         .fetch_all(&state.db)
-        .await
-        .unwrap_or_default();
-    shared::ApiResponse::ok(rows)
+        .await;
+    match rows {
+        Ok(data) => shared::ApiResponse::ok(data),
+        Err(e) => {
+            tracing::error!("Database error in list_media: {}", e);
+            shared::ApiResponse::err("Internal server error")
+        }
+    }
 }
 
 pub async fn upload_media_url(

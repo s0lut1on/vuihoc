@@ -60,12 +60,16 @@ async fn main() {
     sqlx::migrate!("./migrations").run(&db).await.ok();
 
     let state = AppState { db };
-    let app = Router::new()
-        .route("/api/notifications/health", get(handlers::health))
+    let protected = Router::new()
         .route(
             "/api/notifications",
             get(handlers::list_notifications).post(handlers::send_test_notification),
         )
+        .route_layer(axum::middleware::from_fn(shared::auth_middleware));
+
+    let app = Router::new()
+        .route("/api/notifications/health", get(handlers::health))
+        .merge(protected)
         .merge(
             SwaggerUi::new("/api/notifications/swagger-ui")
                 .url("/api/notifications/openapi.json", ApiDoc::openapi()),

@@ -25,12 +25,16 @@ async fn main() {
 
     let state = models::AppState { db };
 
-    let app = Router::new()
-        .route("/api/users/health", get(handlers::health))
+    let protected = Router::new()
         .route(
             "/api/users",
             get(handlers::get_user).post(handlers::create_user),
         )
+        .route_layer(axum::middleware::from_fn(shared::auth_middleware));
+
+    let app = Router::new()
+        .route("/api/users/health", get(handlers::health))
+        .merge(protected)
         .merge(
             SwaggerUi::new("/api/users/swagger-ui")
                 .url("/api/users/openapi.json", ApiDoc::openapi()),

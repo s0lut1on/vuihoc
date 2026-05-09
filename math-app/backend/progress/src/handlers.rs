@@ -19,7 +19,10 @@ pub async fn get_user_progress(
 
     match rows {
         Ok(data) => ApiResponse::ok(data),
-        Err(e) => ApiResponse::err(&format!("Failed: {}", e)),
+        Err(e) => {
+            tracing::error!("Database error in get_user_progress: {}", e);
+            ApiResponse::err("Internal server error")
+        }
     }
 }
 
@@ -45,7 +48,10 @@ pub async fn get_user_streak(
             best_streak: 0,
             last_activity: chrono::Utc::now(),
         }),
-        Err(e) => ApiResponse::err(&format!("Failed: {}", e)),
+        Err(e) => {
+            tracing::error!("Database error in get_user_streak: {}", e);
+            ApiResponse::err("Internal server error")
+        }
     }
 }
 
@@ -66,7 +72,10 @@ pub async fn get_daily_limit(
             limit: 50,
             tier: String::new(),
         }),
-        Err(e) => ApiResponse::err(&format!("Failed: {}", e)),
+        Err(e) => {
+            tracing::error!("Database error in get_daily_limit: {}", e);
+            ApiResponse::err("Internal server error")
+        }
     }
 }
 
@@ -97,7 +106,10 @@ pub async fn update_progress(
 
     match result {
         Ok(p) => ApiResponse::ok(p),
-        Err(e) => ApiResponse::err(&format!("Failed: {}", e)),
+        Err(e) => {
+            tracing::error!("Database error in update_progress: {}", e);
+            ApiResponse::err("Internal server error")
+        }
     }
 }
 

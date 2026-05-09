@@ -1,10 +1,21 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, APIRequestContext } from '@playwright/test';
 
 const BASE = 'http://localhost:8082';
 
+async function guestLoginApi(request: APIRequestContext): Promise<string> {
+  const res = await request.post(`${BASE}/api/auth/guest`, { data: {} });
+  expect(res.status()).toBe(200);
+  const body = await res.json();
+  expect(body.success).toBe(true);
+  return body.data.access_token;
+}
+
 test.describe('Content API', () => {
   test('get curriculum returns subjects', async ({ request }) => {
-    const res = await request.get(`${BASE}/api/content/curriculum`);
+    const token = await guestLoginApi(request);
+    const res = await request.get(`${BASE}/api/content/curriculum`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
     expect(res.status()).toBe(200);
     const body = await res.json();
     expect(body.success).toBe(true);
@@ -17,7 +28,10 @@ test.describe('Content API', () => {
   });
 
   test('get subjects returns summaries', async ({ request }) => {
-    const res = await request.get(`${BASE}/api/content/subjects`);
+    const token = await guestLoginApi(request);
+    const res = await request.get(`${BASE}/api/content/subjects`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
     expect(res.status()).toBe(200);
     const body = await res.json();
     expect(body.success).toBe(true);
@@ -31,7 +45,10 @@ test.describe('Content API', () => {
   });
 
   test('get lesson by id returns lesson data or 404', async ({ request }) => {
-    const res = await request.get(`${BASE}/api/content/lesson/lesson_001`);
+    const token = await guestLoginApi(request);
+    const res = await request.get(`${BASE}/api/content/lesson/lesson_001`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
     const body = await res.json();
     expect(body).toHaveProperty('success');
   });
