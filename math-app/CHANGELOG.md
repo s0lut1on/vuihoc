@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **Documentation updated** — `README.md` (root + `math-app/`) now documents all new features: auth/profile, free/premium tiers, `ClockFace` widget, `ProfileScreen`/`SettingsScreen` routes, route guards, token validation, subscription tier management section with DB commands
+- **Subscription tier management docs** — added section in `math-app/README.md` explaining flag-based free/premium model, DB command to flip `subscription_tier`, and planned parent-dashboard UI path
+
+### Added
+- **Comprehensive test coverage expansion** across all layers (Rust, Flutter, E2E)
+  - Rust backend: auth serde roundtrip tests (7), progress serde tests (5), shared tests (8), auth handler tests (5 including register/health/me/JWT), progress UUID parser tests (3), streak calculation tests (4). Refactored `parse_uuid` helper extracted in progress handlers; reused in streak update.
+  - Flutter frontend: `clock_face_test.dart` widget tests (8), `paywall_modal_test.dart` dialog tests (4), `user_model_test.dart` tier/premium tests (7), `progress_api_test.dart` API mocking tests (9)
+  - E2E Playwright: `progress.spec.ts` (5 tests for daily-limit/progress/streak), `lesson_flow.spec.ts` (3 API tests), extended `auth.spec.ts` with tier and unauthorized tests (2), extended `smoke.spec.ts` with individual health checks (2)
+  - E2E total: 44 tests (was 32)
+  - Backend: extracted `compute_new_streak` pure function from `update_streak` for testability
+
+### Added
+- **Free/Premium subscription tier** — minimal flag-based implementation without payment gateway
+  - Backend DB migrations: `backend/user/migrations/003_subscription_tier.sql`, `backend/auth/migrations/002_subscription_tier.sql`, `backend/progress/migrations/002_daily_lessons.sql`
+  - Backend auth models: `AuthUser.subscription_tier`, `Claims.tier`, `MeResponse.tier` fields added
+  - Backend auth handlers: all login methods include `tier: "free"` in JWT; `/auth/me` returns `tier`
+  - Backend progress: `DailyLessonCount`, `DailyLimitStatus` models; `GET /api/progress/daily-limit/:user_id` endpoint; `update_progress` increments daily count
+  - Frontend User model: `tier` field, `isPremium` getter, `copyWith` updated
+  - Frontend providers: `currentUserTierProvider` exposes tier
+  - Frontend ProgressApi: `getDailyLimit()` method
+  - Frontend LessonScreen: checks daily limit on init; `_finishLesson` blocks completion after 50 lessons/day with `PaywallModal`
+  - Frontend widget: `PaywallModal` shows "50 lessons/day reached" and upgrade prompt
+
+### Added
 - **Root README.md** — project overview, quick start, layout, features, tech stack
 - **Profile Widget replaces desktop nav Start button**
   - Backend: `GET /api/auth/me` endpoint with JWT decoding; `MeResponse` model added to `backend/auth/src/models.rs`
@@ -95,7 +119,7 @@ All notable changes to this project will be documented in this file.
 - **E2E auth tests** (`e2e/tests/auth.spec.ts`) — 11 tests: guest login API, auth/me with/without token, route guards for all protected pages, public route accessibility
 
 ### Fixed
-- **Google users' lesson completions were silently lost** — JWT `sub` contained Google numeric `sub` (e.g., `117292929...`) instead of database UUID
+- **E2E route guard tests flaked on repeated runs** — browser context carried localStorage JWT across tests. Fixed by adding `storageState: { cookies: [], origins: [] }` to Playwright config so each test starts with a completely clean browser context. Also added `test.beforeEach` with `localStorage.clear()` + `sessionStorage.clear()` + `page.goto('/login')` in `auth.spec.ts` and `onboarding.spec.ts` for extra isolation. All 44 E2E tests now pass reliably. — JWT `sub` contained Google numeric `sub` (e.g., `117292929...`) instead of database UUID
   - `backend/auth/src/handlers.rs` — `login_with_google` now INSERT/SELECT to get the actual `users.id` UUID and stores that in JWT `sub`
   - `me()` endpoint now returns a valid UUID `id` compatible with `progress.user_id` (UUID type)
 - **Guest lesson completions were silently lost** — root cause was `userIdProvider` never set for guest users

@@ -41,9 +41,12 @@ See [`math-app/README.md`](math-app/README.md) for detailed setup, architecture,
 - **Dynamic Progression** — Lessons unlock sequentially; retry on wrong answers
 - **Bilingual** — Vietnamese + English with toggle on every screen
 - **Adaptive Questions** — Parametric generation + Bayesian Knowledge Tracing (BKT)
+- **Time-Telling Visuals** — `ClockFace` CustomPaint widget renders analog clocks for `clock\|h\|m` exercises
 - **Parent Dashboard** — PIN-gated progress overview
-- **Google Sign-In + Guest Login** — Multiple auth methods
+- **Google Sign-In + Guest Login** — Multiple auth methods with reactive token state and route guards
 - **Profile Widget** — Avatar dropdown with settings/logout in desktop nav
+- **Free / Premium Tiers** — Flag-based subscription: free users limited to **50 lessons per day**; premium unlimited. Admin flips `subscription_tier` in DB
+- **Token Validation on Resume** — `silentSignIn()` validates cached JWT on app startup; clears stale tokens automatically
 
 ## Tech Stack
 
@@ -54,7 +57,7 @@ See [`math-app/README.md`](math-app/README.md) for detailed setup, architecture,
 | Databases | PostgreSQL (per service), Redis |
 | Storage | MinIO |
 | Proxy | Traefik |
-| Testing | Flutter tests, Rust tests, Playwright E2E |
+| Testing | Flutter tests (76), Rust tests (52), Playwright E2E (44) |
 
 ## License
 

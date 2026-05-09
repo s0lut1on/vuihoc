@@ -157,10 +157,6 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen> {
           const SizedBox(height: 32),
           _buildDesktopProgressBar(),
           const SizedBox(height: 40),
-          Align(
-            alignment: Alignment.centerRight,
-            child: const LanguageSwitcher(),
-          ),
           Container(
             constraints: const BoxConstraints(maxWidth: 800),
             padding: const EdgeInsets.all(24),

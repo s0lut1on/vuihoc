@@ -26,31 +26,59 @@ test.describe('Auth API', () => {
     expect(body.success).toBe(true);
     expect(body.data.email).toMatch(/^guest_/);
   });
+
+  test('guest user has tier=free in me response', async ({ request }) => {
+    const token = await guestLoginApi(request);
+    const res = await request.get(`${BASE}/api/auth/me`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const body = await res.json();
+    expect(body.success).toBe(true);
+    expect(body.data.tier).toBe('free');
+  });
+
+  test('auth/me without token returns error', async ({ request }) => {
+    const res = await request.get(`${BASE}/api/auth/me`);
+    const body = await res.json();
+    expect(body.success).toBe(false);
+    expect(body.error).toBeTruthy();
+  });
 });
 
 test.describe('Route guards — unauthenticated', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/login');
+    await page.evaluate(() => { localStorage.clear(); sessionStorage.clear(); });
+    await page.goto('/login');
+  });
+
   test('home redirects to login', async ({ page }) => {
     await page.goto('/home');
+    await page.waitForURL(/login/);
     await expect(page).toHaveURL(/login/);
   });
 
   test('lesson page redirects to login', async ({ page }) => {
     await page.goto('/lesson/numbers/lesson_n1');
+    await page.waitForURL(/login/);
     await expect(page).toHaveURL(/login/);
   });
 
   test('profile redirects to login', async ({ page }) => {
     await page.goto('/profile');
+    await page.waitForURL(/login/);
     await expect(page).toHaveURL(/login/);
   });
 
   test('subject redirects to login', async ({ page }) => {
     await page.goto('/subject/numbers');
+    await page.waitForURL(/login/);
     await expect(page).toHaveURL(/login/);
   });
 
   test('celebration redirects to login', async ({ page }) => {
     await page.goto('/celebration');
+    await page.waitForURL(/login/);
     await expect(page).toHaveURL(/login/);
   });
 });
@@ -83,3 +111,5 @@ test.describe('Route guards — authenticated user redirects', () => {
     expect(body.data.name).toBeTruthy();
   });
 });
+
+

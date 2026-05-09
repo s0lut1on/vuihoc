@@ -20,6 +20,22 @@ test.describe('API health checks', () => {
       expect(body.data.status).toBe('ok');
     }
   });
+
+  test('progress health returns ok', async ({ request }) => {
+    const res = await request.get('/api/progress/health');
+    expect(res.status()).toBe(200);
+    const body = await res.json();
+    expect(body.success).toBe(true);
+    expect(body.data.status).toBe('ok');
+  });
+
+  test('content health returns ok', async ({ request }) => {
+    const res = await request.get('/api/content/health');
+    expect(res.status()).toBe(200);
+    const body = await res.json();
+    expect(body.success).toBe(true);
+    expect(body.data.status).toBe('ok');
+  });
 });
 
 test.describe('Web smoke tests', () => {

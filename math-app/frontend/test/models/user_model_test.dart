@@ -78,5 +78,68 @@ void main() {
       final updated = user.copyWith(persona: Persona.silent);
       expect(updated.persona, Persona.silent);
     });
+    test('isPremium returns true for premium tier', () {
+      final user = User(
+        id: 'u1',
+        name: 'Be An',
+        tier: 'premium',
+        createdAt: DateTime.now(),
+      );
+      expect(user.isPremium, true);
+    });
+
+    test('isPremium returns false for free tier', () {
+      final user = User(
+        id: 'u1',
+        name: 'Be An',
+        tier: 'free',
+        createdAt: DateTime.now(),
+      );
+      expect(user.isPremium, false);
+    });
+
+    test('isPremium returns false for unknown tier', () {
+      final user = User(
+        id: 'u1',
+        name: 'Be An',
+        tier: 'abc',
+        createdAt: DateTime.now(),
+      );
+      expect(user.isPremium, false);
+    });
+
+    test('fromJson parses tier field', () {
+      final json = {
+        'id': 'u1',
+        'name': 'Be',
+        'tier': 'premium',
+        'created_at': '2024-01-01T00:00:00Z',
+      };
+      final user = User.fromJson(json);
+      expect(user.tier, 'premium');
+      expect(user.isPremium, true);
+    });
+
+    test('fromJson defaults tier to free', () {
+      final json = {
+        'id': 'u1',
+        'name': 'Be',
+        'created_at': '2024-01-01T00:00:00Z',
+      };
+      final user = User.fromJson(json);
+      expect(user.tier, 'free');
+      expect(user.isPremium, false);
+    });
+
+    test('copyWith updates tier', () {
+      final user = User(
+        id: 'u1',
+        name: 'Be',
+        createdAt: DateTime.now(),
+      );
+      final updated = user.copyWith(tier: 'premium');
+      expect(updated.tier, 'premium');
+      expect(updated.isPremium, true);
+    });
   });
 }

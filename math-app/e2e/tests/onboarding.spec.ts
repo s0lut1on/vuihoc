@@ -16,26 +16,31 @@ test.describe('Page loads', () => {
 test.describe('Route guards (unauthenticated)', () => {
   test('home redirects to login', async ({ page }) => {
     await page.goto('/home');
+    await page.waitForURL(/login/);
     await expect(page).toHaveURL(/login/);
   });
 
   test('lesson page redirects to login', async ({ page }) => {
     await page.goto('/lesson/numbers/lesson_n1');
+    await page.waitForURL(/login/);
     await expect(page).toHaveURL(/login/);
   });
 
   test('celebration page redirects to login', async ({ page }) => {
     await page.goto('/celebration');
+    await page.waitForURL(/login/);
     await expect(page).toHaveURL(/login/);
   });
 
   test('parent dashboard redirects to login', async ({ page }) => {
     await page.goto('/parent-dashboard');
+    await page.waitForURL(/login/);
     await expect(page).toHaveURL(/login/);
   });
 
   test('profile page redirects to login', async ({ page }) => {
     await page.goto('/profile');
+    await page.waitForURL(/login/);
     await expect(page).toHaveURL(/login/);
   });
 });

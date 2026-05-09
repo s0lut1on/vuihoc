@@ -10,6 +10,7 @@ class User {
   final int streakDays;
   final int gems;
   final String locale;
+  final String tier;
   final DateTime createdAt;
 
   const User({
@@ -22,6 +23,7 @@ class User {
     this.streakDays = 0,
     this.gems = 0,
     this.locale = 'vi_VN',
+    this.tier = 'free',
     required this.createdAt,
   });
 
@@ -36,9 +38,12 @@ class User {
       streakDays: json['streak_days'] ?? 0,
       gems: json['gems'] ?? 0,
       locale: json['locale'] ?? 'vi_VN',
+      tier: json['tier'] ?? 'free',
       createdAt: DateTime.tryParse(json['created_at'] ?? '') ?? DateTime.now(),
     );
   }
+
+  bool get isPremium => tier == 'premium';
 
   User copyWith({
     String? id,
@@ -50,6 +55,7 @@ class User {
     int? streakDays,
     int? gems,
     String? locale,
+    String? tier,
     DateTime? createdAt,
   }) {
     return User(
@@ -62,6 +68,7 @@ class User {
       streakDays: streakDays ?? this.streakDays,
       gems: gems ?? this.gems,
       locale: locale ?? this.locale,
+      tier: tier ?? this.tier,
       createdAt: createdAt ?? this.createdAt,
     );
   }

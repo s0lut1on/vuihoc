@@ -8,7 +8,9 @@ import '../models/lesson_model.dart';
 import '../providers/app_providers.dart';
 import '../services/content_api.dart';
 import '../services/progress_api.dart';
+import '../widgets/clock_face.dart';
 import '../widgets/language_switcher.dart';
+import '../widgets/paywall_modal.dart';
 
 class LessonScreen extends ConsumerStatefulWidget {
   final String subjectId;
@@ -31,11 +33,26 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
   bool _showHint = false;
   ApiLesson? _lesson;
   bool _loading = true;
+  int _dailyCount = 0;
+  String _userTier = 'free';
 
   @override
   void initState() {
     super.initState();
     _loadLesson();
+    _checkDailyLimit();
+  }
+
+  Future<void> _checkDailyLimit() async {
+    final userId = ref.read(userIdProvider);
+    if (userId == null || userId.isEmpty) return;
+    final limit = await ProgressApi.getDailyLimit(userId);
+    if (limit != null && mounted) {
+      setState(() {
+        _dailyCount = limit['count'] as int? ?? 0;
+        _userTier = limit['tier'] as String? ?? 'free';
+      });
+    }
   }
 
   Future<void> _loadLesson() async {
@@ -126,11 +143,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
           ),
           const SizedBox(height: 24),
           Center(
-            child: Text(
-              currentQ.visualAsset ?? '',
-              style: const TextStyle(fontSize: 56),
-              textAlign: TextAlign.center,
-            ),
+            child: _buildVisualAsset(currentQ),
           ),
           const SizedBox(height: 32),
           _buildOptions(currentQ),
@@ -229,11 +242,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 24),
-                        Text(
-                          currentQ.visualAsset ?? '',
-                          style: const TextStyle(fontSize: 64),
-                          textAlign: TextAlign.center,
-                        ),
+                        _buildVisualAsset(currentQ),
                       ],
                     ),
                   ),
@@ -383,6 +392,17 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
     );
   }
 
+  Widget _buildVisualAsset(ApiExercise question) {
+    final asset = question.visualAsset ?? '';
+    final clock = ClockFace.tryParse(asset);
+    if (clock != null) return clock;
+    return Text(
+      asset,
+      style: const TextStyle(fontSize: 64),
+      textAlign: TextAlign.center,
+    );
+  }
+
   Widget _buildOptions(ApiExercise question) {
     final isDesktop = MediaQuery.of(context).size.width > 900;
     return Wrap(
@@ -492,6 +512,15 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
   }
 
   void _finishLesson() async {
+    if (_userTier != 'premium' && _dailyCount >= 50) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (ctx) => PaywallModal(onClose: () => context.go('/home')),
+      );
+      return;
+    }
+
     final userId = ref.read(userIdProvider) ?? '';
     if (userId.isNotEmpty) {
       await ProgressApi.updateProgress(
@@ -500,7 +529,12 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
         stars: 3,
         completed: true,
       );
+      final updated = await ProgressApi.getDailyLimit(userId);
+      if (updated != null && mounted) {
+        setState(() => _dailyCount = updated['count'] as int? ?? 0);
+      }
     }
+
     if (mounted) {
       context.go('/celebration', extra: {
         'stars': 3,

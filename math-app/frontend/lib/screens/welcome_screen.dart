@@ -6,6 +6,7 @@ import '../core/app_colors.dart';
 import '../l10n/app_localizations.dart';
 import '../models/persona_model.dart';
 import '../providers/app_providers.dart';
+import '../services/local_storage_service.dart';
 import '../widgets/language_switcher.dart';
 import '../widgets/profile_widget.dart';
 
@@ -138,36 +139,6 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
                           style: const TextStyle(
                               color: AppColors.mutedPurple, fontSize: 14),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 48),
-                Container(
-                  width: 480,
-                  height: 480,
-                  decoration: BoxDecoration(
-                    color: AppColors.white,
-                    borderRadius: BorderRadius.circular(24),
-                    border: Border.all(color: AppColors.divider),
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: 200,
-                        height: 200,
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: AppColors.primaryPink,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      const Text('🐸', style: TextStyle(fontSize: 96)),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Mascot Preview',
-                        style: TextStyle(color: Colors.grey[600], fontSize: 14),
                       ),
                     ],
                   ),
@@ -440,7 +411,13 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
     }
 
     if (mounted) {
-      context.go('/assessment');
+      final onboardingComplete =
+          await LocalStorageService.isOnboardingComplete();
+      if (onboardingComplete) {
+        context.go('/home');
+      } else {
+        context.go('/assessment');
+      }
     }
   }
 

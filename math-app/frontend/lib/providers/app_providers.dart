@@ -38,6 +38,12 @@ final currentUserProvider = FutureProvider<Map<String, dynamic>?>((ref) async {
   return AuthService().getCurrentUser();
 });
 
+/// User subscription tier derived from /auth/me (free or premium).
+final currentUserTierProvider = Provider<String>((ref) {
+  final user = ref.watch(currentUserProvider);
+  return user.value?['tier'] as String? ?? 'free';
+});
+
 final curriculumProvider =
     FutureProvider<List<ApiLesson>>((ref) => ContentApi.getCurriculum());
 

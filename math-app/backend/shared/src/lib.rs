@@ -108,4 +108,36 @@ mod tests {
         assert_eq!(p.per_page, 10);
         assert_eq!(p.total, 55);
     }
+
+    #[test]
+    fn api_response_ok_with_vec() {
+        let resp: ApiResponse<Vec<String>> =
+            ApiResponse::ok(vec!["a".to_string(), "b".to_string()]);
+        assert!(resp.success);
+        assert_eq!(resp.data.unwrap().len(), 2);
+    }
+
+    #[test]
+    fn api_response_err_typed_string() {
+        let resp: ApiResponse<String> = ApiResponse::err("oops");
+        assert!(!resp.success);
+        assert!(resp.data.is_none());
+        assert_eq!(resp.error, Some("oops".to_string()));
+    }
+
+    #[test]
+    fn paginated_response_fields() {
+        let resp = PaginatedResponse {
+            data: vec!["a".to_string(), "b".to_string()],
+            pagination: Pagination {
+                page: 1,
+                per_page: 10,
+                total: 2,
+            },
+        };
+        let json = serde_json::to_string(&resp).unwrap();
+        assert!(json.contains("a"));
+        assert!(json.contains("page"));
+        assert!(json.contains("1"));
+    }
 }

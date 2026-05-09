@@ -156,10 +156,22 @@ make e2e-test
 | **Localized Content** | Every exercise has Vietnamese + English questions and hints |
 | **Progress Tracking** | Backend tracks completed lessons, stars earned (1-3), and attempt counts |
 | **Streak System** | Daily activity streaks with current/best streak tracking; resets if a day is missed |
-| **Parent Dashboard** | PIN-gated dashboard showing lessons learned, stars earned, study streak, and subject progress |
-| **Language Switcher** | 🇻🇳 Tiếng Việt / 🇬🇧 English toggle on every screen (desktop pill, mobile bottom sheet); persisted via Hive |
-| **Responsive Design** | Dedicated mobile and desktop layouts for all screens |
-| **Text-to-Speech** | 🔊 Speaker button reads question aloud |
+| **Free / Premium Tiers** | Flag-based subscription: free users limited to **50 lessons per day**; premium unlimited. Paywall modal shown at limit. Admin can flip `subscription_tier` in DB |
+| **Time-Telling Visuals** | `ClockFace` CustomPaint widget renders analog clocks for `clock\|h\|m` exercise format |
+| **Token Validation on Resume** | `silentSignIn()` validates cached JWT with `/auth/me` on app startup; clears stale tokens automatically |
+
+### Auth, Profile & Navigation
+
+| Feature | Description |
+|---------|-------------|
+| **Google Sign-In + Guest Login** | Login screen with Google OAuth (web: `access_token` flow) and guest anonymous login |
+| **Reactive Auth State** | `AuthService.tokenNotifier` + `ValueNotifier<String?>`; `GoRouter` `refreshListenable` for automatic route redirection |
+| **Route Guards** | Public routes: `/login`, `/welcome`, `/parent-dashboard`; all others require valid JWT |
+| **Profile Widget** | Avatar dropdown in desktop nav bar: Profile, Settings, Logout |
+| **Profile Screen** | User details, tier badge (Free/Premium), avatar, logout |
+| **Settings Screen** | Language switcher, tier info, sign-out |
+| **Assessment Persistence** | Skips assessment if `isOnboardingComplete()` is true (stored in DB `has_completed_assessment`) |
+| **Security** | Google `client_id` injected via `--dart-define` + `.env`; never hardcoded in source |
 
 ### Screens
 
@@ -173,15 +185,17 @@ make e2e-test
 | **CelebrationScreen** | `/celebration` | Reward screen with stars and next-lesson navigation |
 | **PinGateScreen** | `/parent-dashboard` | 4-digit PIN to access parent area |
 | **ParentDashboardScreen** | `/parent-dashboard/main` | Child progress overview and settings |
+| **ProfileScreen** | `/profile` | User profile, tier badge, avatar, sign-out |
+| **SettingsScreen** | `/settings` | Language toggle, tier info, account actions |
 
 ### Backend Services
 
 | Service | Tech | Purpose |
 |---------|------|---------|
-| **Auth** | Axum + JWT | Google OAuth login, token issuance |
-| **User** | Axum + sqlx | User profiles, personas, locale preferences |
+| **Auth** | Axum + JWT | Google OAuth login, guest login, token issuance, `/auth/me` user info |
+| **User** | Axum + sqlx | User profiles, personas, locale preferences, `subscription_tier` |
 | **Content** | Axum + sqlx | Curriculum (1,710 lessons + 1,730 exercises), subjects, single-query JOIN fetch |
-| **Progress** | Axum + sqlx | Lesson completion, stars, streak tracking, per-user progress API |
+| **Progress** | Axum + sqlx | Lesson completion, stars, streak tracking, per-user progress API, daily lesson limit (`GET /api/progress/daily-limit/:user_id`) |
 | **Question Bank** | Axum + MiniJinja + meval | Parametric math question generation, Bayesian Knowledge Tracing (BKT), distractor generation, error taxonomy |
 | **Notification** | Axum + sqlx | Push notification records |
 | **Media** | Axum + MinIO | Upload URLs, media asset management |
@@ -191,12 +205,27 @@ make e2e-test
 
 | Feature | Description |
 |---------|-------------|
-| **E2E Tests** | Playwright (18 tests): API health checks, page loads, navigation, responsive layout |
+| **E2E Tests** | Playwright (44 tests): API health, auth flow, progress API, lesson flow, daily limit, page loads, responsive layout |
+| **Flutter Tests** | 76 tests: widget tests (ClockFace, PaywallModal), model tests (User tier, Progress), service tests (Auth, Progress API) |
+| **Rust Tests** | 52 tests: auth serde roundtrip (9), auth handlers (5), progress serde (5), progress UUID/streak (7), shared (8). Pure helpers: `parse_uuid()`, `compute_new_streak()` |
 | **CI Pipeline** | `make deploy` = format → lint → changelog-check → Flutter tests → Rust tests → build web → build Rust → docker-dev → E2E tests |
 | **Swagger UI** | OpenAPI docs for all 7 backend services at `/api/{service}/swagger-ui` |
 | **Docker Compose** | All services + databases + Traefik + MinIO in one command |
 | **Traefik** | Reverse proxy with automatic service discovery |
 | **Nginx** | SPA routing (`try_files`) for Flutter web hash-based URLs |
+
+## Subscription Tier Management
+
+The project uses a **flag-based** free/premium model (no payment gateway yet). To upgrade or downgrade a user:
+
+1. **Via Database** (direct):
+   ```sql
+   UPDATE users SET subscription_tier = 'premium' WHERE email = 'user@example.com';
+   ```
+
+2. **Via Parent Dashboard** (planned UI for admin/parent tier control under `/parent-dashboard/settings`)
+
+The `subscription_tier` column defaults to `'free'` on registration. The frontend reads this from `GET /api/auth/me` and shows/hides the paywall accordingly.
 
 ## License
 

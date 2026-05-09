@@ -102,8 +102,12 @@ class AuthService {
       final storedToken = await _loadToken();
       if (storedToken != null) {
         ApiService().setToken(storedToken);
-        tokenNotifier.value = storedToken;
-        return true;
+        final user = await getCurrentUser();
+        if (user != null) {
+          tokenNotifier.value = storedToken;
+          return true;
+        }
+        await signOut();
       }
 
       final account = await _googleSignIn.signInSilently();

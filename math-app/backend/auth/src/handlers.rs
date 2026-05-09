@@ -95,9 +95,9 @@ pub async fn login_with_google(
         .fetch_one(&state.db)
         .await;
 
-    let user_uuid = match db_user {
-        Ok(u) => u.id,
-        Err(_) => uuid::Uuid::new_v4(),
+    let (user_uuid, tier) = match db_user {
+        Ok(u) => (u.id, u.subscription_tier),
+        Err(_) => (uuid::Uuid::new_v4(), "free".to_string()),
     };
 
     let claims = Claims {
@@ -105,6 +105,7 @@ pub async fn login_with_google(
         email: info.email,
         name,
         picture: info.picture.clone().unwrap_or_default(),
+        tier,
         exp: (Utc::now() + Duration::hours(24)).timestamp() as usize,
     };
     let token = encode(
@@ -126,6 +127,7 @@ pub async fn register(Json(body): Json<RegisterRequest>) -> ApiResponse<TokenRes
         email: body.email,
         name: body.name,
         picture: String::new(),
+        tier: "free".to_string(),
         exp: (Utc::now() + Duration::hours(24)).timestamp() as usize,
     };
     let token = encode(
@@ -173,11 +175,86 @@ pub async fn me(headers: axum::http::HeaderMap) -> Result<ApiResponse<MeResponse
         name: claims.name.clone(),
         picture: claims.picture,
         given_name: claims.name,
+        tier: claims.tier,
     }))
 }
 
 pub async fn health() -> ApiResponse<shared::HealthResponse> {
     ApiResponse::ok(shared::health("auth"))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use axum::extract::Json;
+
+    fn make_test_token() -> String {
+        let claims = Claims {
+            sub: "user-123".to_string(),
+            email: "test@test.com".to_string(),
+            name: "Test User".to_string(),
+            picture: "".to_string(),
+            tier: "free".to_string(),
+            exp: (Utc::now() + Duration::days(1)).timestamp() as usize,
+        };
+        encode(
+            &Header::default(),
+            &claims,
+            &EncodingKey::from_secret("secret".as_ref()),
+        )
+        .unwrap()
+    }
+
+    #[tokio::test]
+    async fn register_returns_token_response() {
+        let body = RegisterRequest {
+            email: "test@test.com".to_string(),
+            password: "123456".to_string(),
+            name: "Test".to_string(),
+            locale: Some("vi".to_string()),
+        };
+        let resp = register(Json(body)).await;
+        assert!(resp.success);
+        let token = resp.data.unwrap().access_token;
+        assert!(!token.is_empty());
+    }
+
+    #[tokio::test]
+    async fn health_returns_ok() {
+        let resp = health().await;
+        assert!(resp.success);
+        assert_eq!(resp.data.unwrap().status, "ok");
+    }
+
+    #[tokio::test]
+    async fn me_with_valid_token_returns_user() {
+        let token = make_test_token();
+        let mut headers = axum::http::HeaderMap::new();
+        headers.insert(AUTHORIZATION, format!("Bearer {}", token).parse().unwrap());
+        let resp = me(headers).await.unwrap();
+        assert!(resp.success);
+        let data = resp.data.unwrap();
+        assert_eq!(data.name, "Test User");
+        assert_eq!(data.tier, "free");
+        assert_eq!(data.id, "user-123");
+    }
+
+    #[tokio::test]
+    async fn me_without_token_returns_error() {
+        let headers = axum::http::HeaderMap::new();
+        let resp = me(headers).await.unwrap();
+        assert!(!resp.success);
+        assert!(resp.error.is_some());
+    }
+
+    #[tokio::test]
+    async fn me_with_invalid_token_returns_error() {
+        let mut headers = axum::http::HeaderMap::new();
+        headers.insert(AUTHORIZATION, "Bearer invalid-token".parse().unwrap());
+        let resp = me(headers).await.unwrap();
+        assert!(!resp.success);
+        assert!(resp.error.is_some());
+    }
 }
 
 pub async fn login_as_guest(
@@ -210,6 +287,7 @@ pub async fn login_as_guest(
         email: email.clone(),
         name: name.clone(),
         picture: String::new(),
+        tier: "free".to_string(),
         exp: (Utc::now() + Duration::hours(24 * 365)).timestamp() as usize,
     };
 

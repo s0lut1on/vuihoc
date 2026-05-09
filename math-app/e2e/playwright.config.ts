@@ -13,6 +13,7 @@ export default defineConfig({
     screenshot: 'only-on-failure',
     video: 'on-first-retry',
     viewport: { width: 1280, height: 720 },
+    storageState: { cookies: [], origins: [] },
   },
 
   projects: [

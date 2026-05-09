@@ -13,7 +13,13 @@ use utoipa_swagger_ui::SwaggerUi;
 pub use models::*;
 
 #[derive(OpenApi)]
-#[openapi(components(schemas(Progress, ProgressUpdate, Streak)))]
+#[openapi(components(schemas(
+    Progress,
+    ProgressUpdate,
+    Streak,
+    DailyLessonCount,
+    DailyLimitStatus
+)))]
 pub struct ApiDoc;
 
 #[cfg(test)]
@@ -66,6 +72,10 @@ async fn main() {
         .route(
             "/api/progress/streak/:user_id",
             get(handlers::get_user_streak),
+        )
+        .route(
+            "/api/progress/daily-limit/:user_id",
+            get(handlers::get_daily_limit),
         )
         .route("/api/progress", post(handlers::update_progress))
         .merge(

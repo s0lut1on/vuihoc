@@ -16,9 +16,9 @@ class ProgressApi {
   }
 
   /// Load streak info for a specific user.
-  static Future<Map<String, dynamic>?> getUserStreak(String userId) async {
+  static Future<Map<String, dynamic>?> getDailyLimit(String userId) async {
     try {
-      final response = await _api.get('/progress/streak/$userId');
+      final response = await _api.get('/progress/daily-limit/$userId');
       return response['data'] as Map<String, dynamic>?;
     } catch (_) {
       return null;
