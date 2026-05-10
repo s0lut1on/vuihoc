@@ -33,7 +33,7 @@ services:
         SERVICE_NAME: auth
     environment:
       - PORT=3000
-      - DATABASE_URL=postgres://auth_user:auth_pass@auth-db:5432/auth_db
+      - DATABASE_URL=${AUTH_DB_URL}
       - REDIS_URL=redis://redis:6379
       - JWT_SECRET=${JWT_SECRET}
     depends_on:
@@ -52,7 +52,7 @@ services:
         SERVICE_NAME: user
     environment:
       - PORT=3000
-      - DATABASE_URL=postgres://user_user:user_pass@user-db:5432/user_db
+      - DATABASE_URL=${USER_DB_URL}
       - REDIS_URL=redis://redis:6379
       - JWT_SECRET=${JWT_SECRET}
     depends_on:
@@ -71,7 +71,7 @@ services:
         SERVICE_NAME: content
     environment:
       - PORT=3000
-      - DATABASE_URL=postgres://content_user:content_pass@content-db:5432/content_db
+      - DATABASE_URL=${CONTENT_DB_URL}
       - REDIS_URL=redis://redis:6379
       - JWT_SECRET=${JWT_SECRET}
     depends_on:
@@ -90,7 +90,7 @@ services:
         SERVICE_NAME: progress
     environment:
       - PORT=3000
-      - DATABASE_URL=postgres://progress_user:progress_pass@progress-db:5432/progress_db
+      - DATABASE_URL=${PROGRESS_DB_URL}
       - REDIS_URL=redis://redis:6379
       - JWT_SECRET=${JWT_SECRET}
     depends_on:
@@ -109,7 +109,7 @@ services:
         SERVICE_NAME: notification
     environment:
       - PORT=3000
-      - DATABASE_URL=postgres://postgres:postgres@notification-db:5432/notification_db
+      - DATABASE_URL=${NOTIFICATION_DB_URL}
       - REDIS_URL=redis://redis:6379
       - JWT_SECRET=${JWT_SECRET}
     depends_on:
@@ -128,7 +128,7 @@ services:
         SERVICE_NAME: media
     environment:
       - PORT=3000
-      - DATABASE_URL=postgres://postgres:postgres@media-db:5432/media_db
+      - DATABASE_URL=${MEDIA_DB_URL}
       - REDIS_URL=redis://redis:6379
       - JWT_SECRET=${JWT_SECRET}
     depends_on:
@@ -143,9 +143,9 @@ services:
   auth-db:
     image: postgres:15-alpine
     environment:
-      POSTGRES_DB: auth_db
-      POSTGRES_USER: auth_user
-      POSTGRES_PASSWORD: auth_pass
+      POSTGRES_DB: ${AUTH_DB_NAME:-auth_db}
+      POSTGRES_USER: ${AUTH_DB_USER:-auth_user}
+      POSTGRES_PASSWORD: ${AUTH_DB_PASS:-auth_pass}
     volumes:
       - auth_db_data:/var/lib/postgresql/data
     restart: unless-stopped
@@ -153,9 +153,9 @@ services:
   user-db:
     image: postgres:15-alpine
     environment:
-      POSTGRES_DB: user_db
-      POSTGRES_USER: user_user
-      POSTGRES_PASSWORD: user_pass
+      POSTGRES_DB: ${USER_DB_NAME:-user_db}
+      POSTGRES_USER: ${USER_DB_USER:-user_user}
+      POSTGRES_PASSWORD: ${USER_DB_PASS:-user_pass}
     volumes:
       - user_db_data:/var/lib/postgresql/data
     restart: unless-stopped
@@ -163,9 +163,9 @@ services:
   content-db:
     image: postgres:15-alpine
     environment:
-      POSTGRES_DB: content_db
-      POSTGRES_USER: content_user
-      POSTGRES_PASSWORD: content_pass
+      POSTGRES_DB: ${CONTENT_DB_NAME:-content_db}
+      POSTGRES_USER: ${CONTENT_DB_USER:-content_user}
+      POSTGRES_PASSWORD: ${CONTENT_DB_PASS:-content_pass}
     volumes:
       - content_db_data:/var/lib/postgresql/data
     restart: unless-stopped
@@ -173,9 +173,9 @@ services:
   progress-db:
     image: postgres:15-alpine
     environment:
-      POSTGRES_DB: progress_db
-      POSTGRES_USER: progress_user
-      POSTGRES_PASSWORD: progress_pass
+      POSTGRES_DB: ${PROGRESS_DB_NAME:-progress_db}
+      POSTGRES_USER: ${PROGRESS_DB_USER:-progress_user}
+      POSTGRES_PASSWORD: ${PROGRESS_DB_PASS:-progress_pass}
     volumes:
       - progress_db_data:/var/lib/postgresql/data
     restart: unless-stopped
@@ -183,9 +183,9 @@ services:
   notification-db:
     image: postgres:15-alpine
     environment:
-      POSTGRES_DB: notification_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ${NOTIFICATION_DB_NAME:-notification_db}
+      POSTGRES_USER: ${NOTIFICATION_DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${NOTIFICATION_DB_PASS:-postgres}
     volumes:
       - notification_db_data:/var/lib/postgresql/data
     restart: unless-stopped
@@ -193,9 +193,9 @@ services:
   media-db:
     image: postgres:15-alpine
     environment:
-      POSTGRES_DB: media_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ${MEDIA_DB_NAME:-media_db}
+      POSTGRES_USER: ${MEDIA_DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${MEDIA_DB_PASS:-postgres}
     volumes:
       - media_db_data:/var/lib/postgresql/data
     restart: unless-stopped
@@ -214,7 +214,9 @@ services:
       - minio_data:/data
     ports:
       - "9002:9000"
-      - "9003:9001"
+    # Console port 9003 intentionally NOT exposed for security
+    # Use docker exec to access console if needed:
+    # docker exec -it math-app-minio-1 mc alias set local http://localhost:9000 ${MINIO_ACCESS_KEY} ${MINIO_SECRET_KEY}
     restart: unless-stopped
 
   question-bank-service:
@@ -225,7 +227,7 @@ services:
         SERVICE_NAME: question_bank
     environment:
       - PORT=3000
-      - DATABASE_URL=postgres://qb_user:qb_pass@qb-db:5432/qb_db
+      - DATABASE_URL=${QB_DB_URL}
       - REDIS_URL=redis://redis:6379
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
       - JWT_SECRET=${JWT_SECRET}
@@ -240,9 +242,9 @@ services:
   qb-db:
     image: postgres:15-alpine
     environment:
-      POSTGRES_DB: qb_db
-      POSTGRES_USER: qb_user
-      POSTGRES_PASSWORD: qb_pass
+      POSTGRES_DB: ${QB_DB_NAME:-qb_db}
+      POSTGRES_USER: ${QB_DB_USER:-qb_user}
+      POSTGRES_PASSWORD: ${QB_DB_PASS:-qb_pass}
     volumes:
       - qb_db_data:/var/lib/postgresql/data
     restart: unless-stopped

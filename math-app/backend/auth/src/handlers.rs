@@ -9,7 +9,9 @@ use axum::{
 };
 use chrono::{Duration, Utc};
 use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, Validation};
+use regex::Regex;
 use shared::ApiResponse;
+use std::sync::OnceLock;
 use utoipa::OpenApi;
 
 #[derive(OpenApi)]
@@ -109,13 +111,16 @@ pub async fn login_with_google(
         picture: info.picture.clone().unwrap_or_default(),
         tier,
         exp: (Utc::now() + Duration::hours(24)).timestamp() as usize,
+        aud: "math-app".to_string(),
     };
-    let token = encode(
+    let token = match encode(
         &Header::default(),
         &claims,
         &EncodingKey::from_secret(jwt_secret.as_ref()),
-    )
-    .unwrap_or_default();
+    ) {
+        Ok(t) => t,
+        Err(_) => return ApiResponse::err("Failed to generate token"),
+    };
     ApiResponse::ok(TokenResponse {
         access_token: token,
         token_type: "Bearer".to_string(),
@@ -124,6 +129,16 @@ pub async fn login_with_google(
 }
 
 pub async fn register(Json(body): Json<RegisterRequest>) -> ApiResponse<TokenResponse> {
+    static EMAIL_RE: OnceLock<Regex> = OnceLock::new();
+    let email_re = EMAIL_RE
+        .get_or_init(|| Regex::new(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$").unwrap());
+    if !email_re.is_match(&body.email) {
+        return ApiResponse::err("Invalid email format");
+    }
+    if body.password.len() < 6 {
+        return ApiResponse::err("Password must be at least 6 characters");
+    }
+
     let jwt_secret =
         std::env::var("JWT_SECRET").expect("JWT_SECRET environment variable must be set");
     let claims = Claims {
@@ -133,13 +148,16 @@ pub async fn register(Json(body): Json<RegisterRequest>) -> ApiResponse<TokenRes
         picture: String::new(),
         tier: "free".to_string(),
         exp: (Utc::now() + Duration::hours(24)).timestamp() as usize,
+        aud: "math-app".to_string(),
     };
-    let token = encode(
+    let token = match encode(
         &Header::default(),
         &claims,
         &EncodingKey::from_secret(jwt_secret.as_ref()),
-    )
-    .unwrap_or_default();
+    ) {
+        Ok(t) => t,
+        Err(_) => return ApiResponse::err("Failed to generate token"),
+    };
     ApiResponse::ok(TokenResponse {
         access_token: token,
         token_type: "Bearer".to_string(),
@@ -164,6 +182,7 @@ pub async fn me(headers: axum::http::HeaderMap) -> Result<ApiResponse<MeResponse
     let decoding_key = DecodingKey::from_secret(jwt_secret.as_ref());
     let mut validation = Validation::default();
     validation.validate_exp = true;
+    validation.aud = Some(std::collections::HashSet::from(["math-app".to_string()]));
 
     let decoded = match decode::<Claims>(token, &decoding_key, &validation) {
         Ok(data) => data,
@@ -202,6 +221,7 @@ mod tests {
             picture: "".to_string(),
             tier: "free".to_string(),
             exp: (Utc::now() + Duration::days(1)).timestamp() as usize,
+            aud: "math-app".to_string(),
         };
         let jwt_secret = std::env::var("JWT_SECRET").unwrap_or_else(|_| "test-secret".to_string());
         encode(
@@ -298,7 +318,8 @@ pub async fn login_as_guest(
         name: name.clone(),
         picture: String::new(),
         tier: "free".to_string(),
-        exp: (Utc::now() + Duration::hours(24 * 365)).timestamp() as usize,
+        exp: (Utc::now() + Duration::hours(24 * 30)).timestamp() as usize,
+        aud: "math-app".to_string(),
     };
 
     let jwt_secret =
@@ -312,7 +333,7 @@ pub async fn login_as_guest(
         Ok(token) => ApiResponse::ok(TokenResponse {
             access_token: token,
             token_type: "Bearer".to_string(),
-            expires_in: 86400 * 365,
+            expires_in: 86400 * 30,
         }),
         Err(_) => ApiResponse::err("Failed to generate token"),
     }

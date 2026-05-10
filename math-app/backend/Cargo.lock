@@ -90,6 +90,7 @@ dependencies = [
  "axum",
  "chrono",
  "jsonwebtoken",
+ "regex",
  "reqwest",
  "serde",
  "serde_json",

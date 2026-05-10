@@ -24,6 +24,7 @@ minijinja = "2"
 meval = "0.2"
 statrs = "0.16"
 rand = "0.8"
+regex = "1"
 
 [workspace.dev-dependencies]
 hyper = { version = "1", features = ["full"] }

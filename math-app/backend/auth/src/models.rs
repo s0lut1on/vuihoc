@@ -53,6 +53,12 @@ pub struct Claims {
     #[serde(default)]
     pub tier: String,
     pub exp: usize,
+    #[serde(default = "default_aud")]
+    pub aud: String,
+}
+
+fn default_aud() -> String {
+    "math-app".to_string()
 }
 
 #[derive(Deserialize)]
@@ -130,6 +136,7 @@ mod tests {
             picture: "https://pic.jpg".to_string(),
             tier: "free".to_string(),
             exp: 1234567890,
+            aud: "math-app".to_string(),
         };
         let json = serde_json::to_string(&claims).unwrap();
         let decoded: Claims = serde_json::from_str(&json).unwrap();

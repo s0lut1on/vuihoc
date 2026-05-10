@@ -60,6 +60,12 @@ pub struct Claims {
     pub picture: String,
     pub tier: String,
     pub exp: usize,
+    #[serde(default = "default_aud")]
+    pub aud: String,
+}
+
+fn default_aud() -> String {
+    "math-app".to_string()
 }
 
 pub async fn auth_middleware(request: Request, next: Next) -> axum::response::Response {
@@ -79,10 +85,12 @@ pub async fn auth_middleware(request: Request, next: Next) -> axum::response::Re
             .into_response();
     }
 
-    let jwt_secret = std::env::var("JWT_SECRET").unwrap_or_else(|_| "test-secret".to_string());
+    let jwt_secret =
+        std::env::var("JWT_SECRET").expect("JWT_SECRET environment variable must be set");
     let decoding_key = DecodingKey::from_secret(jwt_secret.as_ref());
     let mut validation = Validation::default();
     validation.validate_exp = true;
+    validation.aud = Some(std::collections::HashSet::from(["math-app".to_string()]));
 
     match decode::<Claims>(token, &decoding_key, &validation) {
         Ok(data) => {

@@ -1,0 +1,280 @@
+services:
+  traefik:
+    image: traefik:latest
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./letsencrypt:/letsencrypt
+    command:
+      - "--api.insecure=false"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.letsencrypt.acme.tlschallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.email=${LETSENCRYPT_EMAIL}"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+    restart: unless-stopped
+
+  flutter-web:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.flutter-web.rule=Host(`${DOMAIN}`) || Host(`www.${DOMAIN}`)"
+      - "traefik.http.routers.flutter-web.entrypoints=websecure"
+      - "traefik.http.routers.flutter-web.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.flutter-web.tls=true"
+      - "traefik.http.middlewares.flutter-coop.headers.customResponseHeaders.Cross-Origin-Opener-Policy=unsafe-none"
+      - "traefik.http.routers.flutter-web.middlewares=flutter-coop"
+    restart: unless-stopped
+
+  auth-service:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: auth
+    environment:
+      - PORT=3000
+      - DATABASE_URL=${AUTH_DB_URL}
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      - auth-db
+      - redis
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.auth.rule=Host(`${DOMAIN}`) & PathPrefix(`/api/auth`)"
+      - "traefik.http.routers.auth.entrypoints=websecure"
+      - "traefik.http.routers.auth.tls.certresolver=letsencrypt"
+    restart: unless-stopped
+
+  user-service:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: user
+    environment:
+      - PORT=3000
+      - DATABASE_URL=${USER_DB_URL}
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      - user-db
+      - redis
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.user.rule=Host(`${DOMAIN}`) & PathPrefix(`/api/users`)"
+      - "traefik.http.routers.user.entrypoints=websecure"
+      - "traefik.http.routers.user.tls.certresolver=letsencrypt"
+    restart: unless-stopped
+
+  content-service:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: content
+    environment:
+      - PORT=3000
+      - DATABASE_URL=${CONTENT_DB_URL}
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      - content-db
+      - redis
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.content.rule=Host(`${DOMAIN}`) & PathPrefix(`/api/content`)"
+      - "traefik.http.routers.content.entrypoints=websecure"
+      - "traefik.http.routers.content.tls.certresolver=letsencrypt"
+    restart: unless-stopped
+
+  progress-service:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: progress
+    environment:
+      - PORT=3000
+      - DATABASE_URL=${PROGRESS_DB_URL}
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      - progress-db
+      - redis
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.progress.rule=Host(`${DOMAIN}`) & PathPrefix(`/api/progress`)"
+      - "traefik.http.routers.progress.entrypoints=websecure"
+      - "traefik.http.routers.progress.tls.certresolver=letsencrypt"
+    restart: unless-stopped
+
+  notification-service:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: notification
+    environment:
+      - PORT=3000
+      - DATABASE_URL=${NOTIFICATION_DB_URL}
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      - notification-db
+      - redis
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.notification.rule=Host(`${DOMAIN}`) & PathPrefix(`/api/notifications`)"
+      - "traefik.http.routers.notification.entrypoints=websecure"
+      - "traefik.http.routers.notification.tls.certresolver=letsencrypt"
+    restart: unless-stopped
+
+  media-service:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: media
+    environment:
+      - PORT=3000
+      - DATABASE_URL=${MEDIA_DB_URL}
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      - media-db
+      - redis
+      - minio
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.media.rule=Host(`${DOMAIN}`) & PathPrefix(`/api/media`)"
+      - "traefik.http.routers.media.entrypoints=websecure"
+      - "traefik.http.routers.media.tls.certresolver=letsencrypt"
+    restart: unless-stopped
+
+  question-bank-service:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: question_bank
+    environment:
+      - PORT=3000
+      - DATABASE_URL=${QB_DB_URL}
+      - REDIS_URL=redis://redis:6379
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      - qb-db
+      - redis
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.question-bank.rule=Host(`${DOMAIN}`) & PathPrefix(`/api/questions`)"
+      - "traefik.http.routers.question-bank.entrypoints=websecure"
+      - "traefik.http.routers.question-bank.tls.certresolver=letsencrypt"
+    restart: unless-stopped
+
+  auth-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: ${AUTH_DB_NAME:-auth_db}
+      POSTGRES_USER: ${AUTH_DB_USER:-auth_user}
+      POSTGRES_PASSWORD: ${AUTH_DB_PASS}
+    volumes:
+      - auth_db_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  user-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: ${USER_DB_NAME:-user_db}
+      POSTGRES_USER: ${USER_DB_USER:-user_user}
+      POSTGRES_PASSWORD: ${USER_DB_PASS}
+    volumes:
+      - user_db_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  content-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: ${CONTENT_DB_NAME:-content_db}
+      POSTGRES_USER: ${CONTENT_DB_USER:-content_user}
+      POSTGRES_PASSWORD: ${CONTENT_DB_PASS}
+    volumes:
+      - content_db_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  progress-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: ${PROGRESS_DB_NAME:-progress_db}
+      POSTGRES_USER: ${PROGRESS_DB_USER:-progress_user}
+      POSTGRES_PASSWORD: ${PROGRESS_DB_PASS}
+    volumes:
+      - progress_db_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  notification-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: ${NOTIFICATION_DB_NAME:-notification_db}
+      POSTGRES_USER: ${NOTIFICATION_DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${NOTIFICATION_DB_PASS}
+    volumes:
+      - notification_db_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  media-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: ${MEDIA_DB_NAME:-media_db}
+      POSTGRES_USER: ${MEDIA_DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${MEDIA_DB_PASS}
+    volumes:
+      - media_db_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  qb-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: ${QB_DB_NAME:-qb_db}
+      POSTGRES_USER: ${QB_DB_USER:-qb_user}
+      POSTGRES_PASSWORD: ${QB_DB_PASS}
+    volumes:
+      - qb_db_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+
+  minio:
+    image: minio/minio:latest
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY}
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+    restart: unless-stopped
+
+volumes:
+  auth_db_data:
+  user_db_data:
+  content_db_data:
+  progress_db_data:
+  notification_db_data:
+  media_db_data:
+  qb_db_data:
+  minio_data:

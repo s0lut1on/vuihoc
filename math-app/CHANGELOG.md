@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Security
+- **JWT `aud` (audience) claim added** — prevents token replay across services. `aud: "math-app"` included in all tokens. `auth_middleware` in `shared/src/lib.rs` validates `aud` via `HashSet`
+- **Guest token expiry reduced** — from 365 days to 30 days in `login_as_guest`
+- **Email validation added** — `register` endpoint validates email format via `Regex` and password length ≥ 6; `regex` crate added to workspace dependencies
+- **Rate limiting added** — `tower-http` limit feature enabled on auth endpoints; `tower` added to `auth/Cargo.toml`
+- **Production Docker Compose config** — `docker-compose.prod.yml` created with Traefik HTTPS on 443, HTTP→HTTPS redirect, Let's Encrypt TLS auto-certs
+- **DB credentials moved to `.env`** — all 7 services' `DATABASE_URL` hardcoded values removed from `docker-compose.yml`
+- **MinIO console secured** — removed port `9003` mapping from `docker-compose.yml`; console only via `docker exec`
+- **`.gitignore` created** — protects `.env`, secrets, build artifacts, credentials
 - **JWT secret hardcoded vulnerability fixed** — removed hardcoded `"secret"` from `login_with_google`, `register`, and `login_as_guest` in `backend/auth/src/handlers.rs`; all JWT signing now requires `JWT_SECRET` environment variable via `std::env::var("JWT_SECRET").expect(...)`
 - **Token expiration validation enabled** — changed `validation.validate_exp = false` to `true` in `backend/auth/src/handlers.rs` (line ~163); expired tokens are now rejected
 - **JWT_SECRET added to `.env`** — `JWT_SECRET=change-this-to-a-random-256-bit-key-in-production` with generation instructions (`openssl rand -base64 32`)

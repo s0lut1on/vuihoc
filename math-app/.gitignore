@@ -1,0 +1,49 @@
+# Environment variables - NEVER commit secrets
+.env
+.env.local
+.env.production
+.env.*.local
+
+# Secrets
+*.key
+*.pem
+*.p12
+*.pfx
+credentials.json
+service-account.json
+
+# Flutter/Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+build/
+pubspec.lock
+
+# Rust
+/target/
+Cargo.lock
+*.rs.bk
+
+# Node.js
+node_modules/
+package-lock.json
+yarn.lock
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Docker
+letsencrypt/
+acme.json

@@ -18,6 +18,7 @@ chrono = { workspace = true }
 uuid = { workspace = true }
 anyhow = { workspace = true }
 thiserror = { workspace = true }
+regex = { workspace = true }
 jsonwebtoken = { workspace = true }
 reqwest = { workspace = true }
 shared = { path = "../shared" }
