@@ -48,7 +48,7 @@ Future<String?> _loadToken() async {
   return box.get('token') as String?;
 }
 
-class MathApp extends ConsumerWidget {
+class MathApp extends ConsumerStatefulWidget {
   final bool autoSignedIn;
 
   const MathApp({
@@ -57,9 +57,21 @@ class MathApp extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<MathApp> createState() => _MathAppState();
+}
+
+class _MathAppState extends ConsumerState<MathApp> {
+  late final AppRouter _router;
+
+  @override
+  void initState() {
+    super.initState();
+    _router = AppRouter(initialSignedIn: widget.autoSignedIn);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final locale = ref.watch(localeProvider);
-    final router = AppRouter(initialSignedIn: autoSignedIn);
 
     // Auto-extract user_id from /auth/me so guest users also get a userId
     ref.listen(currentUserProvider, (prev, next) {
@@ -84,9 +96,9 @@ class MathApp extends ConsumerWidget {
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: AppLocalizations.supportedLocales,
-      routerDelegate: router.routerDelegate,
-      routeInformationParser: router.routeInformationParser,
-      routeInformationProvider: router.routeInformationProvider,
+      routerDelegate: _router.routerDelegate,
+      routeInformationParser: _router.routeInformationParser,
+      routeInformationProvider: _router.routeInformationProvider,
     );
   }
 }
