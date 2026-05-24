@@ -26,7 +26,7 @@ All notable changes to this project will be documented in this file.
 - **Auth middleware** — TODO: protect progress, user, content, media, notification, question_bank endpoints
 
 ### Fixed
-- **Language switch no longer logs user out** — `MathApp` converted from `ConsumerWidget` to `ConsumerStatefulWidget`; `AppRouter` is now instantiated once in `initState()` instead of on every `build()`. Changing `localeProvider` caused a full `MaterialApp` rebuild, which recreated `GoRouter` with stale `initialSignedIn` and reset the route to `/login`. Now the router instance is cached and survives locale changes.
+- **Language switch no longer logs user out** — `MathApp` converted from `ConsumerWidget` to `ConsumerStatefulWidget`; `AppRouter` is now instantiated once in `initState()` instead of on every `build()`. Changing `localeProvider` caused a full `MaterialApp` rebuild, which recreated `GoRouter` with stale `initialSignedIn` and reset the route to `/login`. Now the router instance is cached and survives locale changes. Nginx cache control added for SPA entry files to prevent browsers from serving stale JS after rebuilds.
 
 ### Added
 - **Production deployment for existing reverse proxy** — `docker-compose.prod.existing-proxy.yml` created for deployments where Nginx/Apache/Caddy/Traefik already occupies port 80/443. All services bind to `127.0.0.1:PORT` only (no public exposure). `nginx-sample-existing-proxy.conf` provides a ready-to-use Nginx upstream config for all 8 services
