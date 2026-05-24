@@ -332,9 +332,9 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
           children: [
             const Text('🐸', style: TextStyle(fontSize: 32)),
             const SizedBox(width: 12),
-            const Text(
-              'Học Toán Vui',
-              style: TextStyle(
+            Text(
+              AppLocalizations.of(context)?.appTitle ?? 'Math Learning Fun',
+              style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w700,
                   color: AppColors.darkText),

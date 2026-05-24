@@ -152,6 +152,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
   }
 
   Widget _buildDesktopNav() {
+    final l10n = AppLocalizations.of(context);
     return Container(
       height: 72,
       padding: const EdgeInsets.symmetric(horizontal: 48),
@@ -163,9 +164,9 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
             children: [
               const Text('🐸', style: TextStyle(fontSize: 32)),
               const SizedBox(width: 12),
-              const Text(
-                'Học Toán Vui',
-                style: TextStyle(
+              Text(
+                l10n?.appTitle ?? 'Math Learning Fun',
+                style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w700,
                   color: AppColors.darkPurple,
@@ -179,9 +180,9 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
               const SizedBox(width: 16),
               TextButton(
                 onPressed: () {},
-                child: const Text(
-                  'Chủ đề',
-                  style: TextStyle(
+                child: Text(
+                  l10n?.homeNavSubjects ?? 'Subjects',
+                  style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: AppColors.darkPurple,
@@ -190,9 +191,9 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
               ),
               TextButton(
                 onPressed: () {},
-                child: const Text(
-                  'Bảng giá',
-                  style: TextStyle(
+                child: Text(
+                  l10n?.homeNavPricing ?? 'Pricing',
+                  style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: AppColors.darkPurple,
@@ -201,9 +202,9 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
               ),
               TextButton(
                 onPressed: () {},
-                child: const Text(
-                  'Liên hệ',
-                  style: TextStyle(
+                child: Text(
+                  l10n?.homeNavContact ?? 'Contact',
+                  style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: AppColors.darkPurple,
@@ -423,17 +424,19 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
   }
 
   void _onParentAccess() {
+    final l10n = AppLocalizations.of(context);
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Danh cho phu huynh'),
-        content: const Text(
-          'Vui long nhap nam sinh de truy cap khu vuc phu huynh.',
+        title: Text(l10n?.welcomeParentAccess ?? 'For parents'),
+        content: Text(
+          l10n?.loginParentDialogContent ??
+              'Please enter your birth year to access the parent area.',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Đóng'),
+            child: Text(l10n?.lessonClose ?? 'Close'),
           ),
         ],
       ),

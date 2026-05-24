@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../core/app_colors.dart';
+import '../l10n/app_localizations.dart';
 import '../services/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -154,18 +155,20 @@ class _LoginScreenState extends State<LoginScreen>
                     ),
                   ),
                   const SizedBox(height: 24),
-                  const Text(
-                    'Học Toán Vui',
-                    style: TextStyle(
+                  Text(
+                    AppLocalizations.of(context)?.appTitle ??
+                        'Math Learning Fun',
+                    style: const TextStyle(
                       fontSize: 32,
                       fontWeight: FontWeight.w700,
                       color: AppColors.darkPurple,
                     ),
                   ),
                   const SizedBox(height: 8),
-                  const Text(
-                    'Toán học thú vị cho mọi lứa tuổi',
-                    style: TextStyle(
+                  Text(
+                    AppLocalizations.of(context)?.welcomeSubtitle ??
+                        "Let's learn math together! Choose a learning style.",
+                    style: const TextStyle(
                       fontSize: 16,
                       color: AppColors.mutedPurple,
                     ),
@@ -194,10 +197,11 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   Widget _buildTitle({bool desktop = false}) {
+    final l10n = AppLocalizations.of(context);
     return Column(
       children: [
         Text(
-          'Chào mừng bạn!',
+          l10n?.loginWelcomeTitle ?? 'Welcome!',
           style: TextStyle(
             fontSize: desktop ? 40 : 28,
             fontWeight: FontWeight.w700,
@@ -207,7 +211,7 @@ class _LoginScreenState extends State<LoginScreen>
         ),
         const SizedBox(height: 8),
         Text(
-          'Hãy chọn cách để bắt đầu học toán nhé',
+          l10n?.loginWelcomeSubtitle ?? 'Choose a way to start learning math',
           style: TextStyle(
             fontSize: desktop ? 18 : 14,
             color: AppColors.mutedPurple,
@@ -248,7 +252,8 @@ class _LoginScreenState extends State<LoginScreen>
             const SizedBox(width: 8),
             Flexible(
               child: Text(
-                'Đăng nhập với Google',
+                AppLocalizations.of(context)?.loginGoogleSignIn ??
+                    'Sign in with Google',
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
                     fontSize: 14,
@@ -263,6 +268,7 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   Widget _buildGuestButton({double width = 260}) {
+    final l10n = AppLocalizations.of(context);
     return OutlinedButton(
       onPressed: _signInAsGuest,
       style: OutlinedButton.styleFrom(
@@ -272,10 +278,10 @@ class _LoginScreenState extends State<LoginScreen>
           borderRadius: BorderRadius.circular(24),
         ),
       ),
-      child: const Text(
-        'Tiếp tục không đăng nhập',
-        key: Key('guest-login-button'),
-        style: TextStyle(
+      child: Text(
+        l10n?.loginGuestSignIn ?? 'Continue without signing in',
+        key: const Key('guest-login-button'),
+        style: const TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w600,
           color: AppColors.primaryPink,
@@ -285,16 +291,17 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   Widget _buildDivider({double width = 260}) {
+    final l10n = AppLocalizations.of(context);
     return SizedBox(
       width: width,
       child: Row(
         children: [
           Expanded(child: Container(height: 1, color: AppColors.divider)),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 12),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Text(
-              'hoặc',
-              style: TextStyle(
+              l10n?.loginOrDivider ?? 'or',
+              style: const TextStyle(
                 fontSize: 12,
                 color: AppColors.mutedPurple,
               ),
@@ -307,11 +314,12 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   Widget _buildParentLink() {
+    final l10n = AppLocalizations.of(context);
     return TextButton(
       onPressed: _onParentAccess,
-      child: const Text(
-        'Dành cho phụ huynh',
-        style: TextStyle(
+      child: Text(
+        l10n?.loginParentAccess ?? 'For parents',
+        style: const TextStyle(
           color: AppColors.mutedPurple,
           fontSize: 14,
         ),
@@ -334,17 +342,19 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   void _onParentAccess() {
+    final l10n = AppLocalizations.of(context);
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Dành cho phụ huynh'),
-        content: const Text(
-          'Vui lòng nhập năm sinh để truy cập khu vực phụ huynh.',
+        title: Text(l10n?.loginParentDialogTitle ?? 'For parents'),
+        content: Text(
+          l10n?.loginParentDialogContent ??
+              'Please enter your birth year to access the parent area.',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Đóng'),
+            child: Text(l10n?.lessonClose ?? 'Close'),
           ),
         ],
       ),

@@ -254,4 +254,51 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get comingSoon => 'Coming soon';
+
+  @override
+  String get loginWelcomeTitle => 'Welcome!';
+
+  @override
+  String get loginWelcomeSubtitle => 'Choose a way to start learning math';
+
+  @override
+  String get loginGoogleSignIn => 'Sign in with Google';
+
+  @override
+  String get loginGuestSignIn => 'Continue without signing in';
+
+  @override
+  String get loginOrDivider => 'or';
+
+  @override
+  String get loginParentAccess => 'For parents';
+
+  @override
+  String get loginParentDialogTitle => 'For parents';
+
+  @override
+  String get loginParentDialogContent =>
+      'Please enter your birth year to access the parent area.';
+
+  @override
+  String get paywallTitle => 'You have reached today\'s limit';
+
+  @override
+  String get paywallBody =>
+      'Free accounts can study up to 50 lessons per day. Upgrade for unlimited access.';
+
+  @override
+  String get paywallGotIt => 'Got it';
+
+  @override
+  String get paywallClose => 'Close';
+
+  @override
+  String get profileStatLessons => 'Lessons';
+
+  @override
+  String get profileStatStars => 'Stars';
+
+  @override
+  String get profileStatStreak => 'Streak';
 }

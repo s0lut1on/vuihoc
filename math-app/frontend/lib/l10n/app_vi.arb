@@ -108,5 +108,23 @@
   "settings": "Cài đặt",
   "logout": "Đăng xuất",
   "guestUser": "Khách",
-  "comingSoon": "Sắp ra mắt"
+  "comingSoon": "Sắp ra mắt",
+
+  "loginWelcomeTitle": "Chào mừng bạn!",
+  "loginWelcomeSubtitle": "Hãy chọn cách để bắt đầu học toán nhé",
+  "loginGoogleSignIn": "Đăng nhập với Google",
+  "loginGuestSignIn": "Tiếp tục không đăng nhập",
+  "loginOrDivider": "hoặc",
+  "loginParentAccess": "Dành cho phụ huynh",
+  "loginParentDialogTitle": "Dành cho phụ huynh",
+  "loginParentDialogContent": "Vui lòng nhập năm sinh để truy cập khu vực phụ huynh.",
+
+  "paywallTitle": "Bạn đã học đủ bài hôm nay",
+  "paywallBody": "Tài khoản miễn phí được học tối đa 50 bài mỗi ngày. Nâng cấp để học không giới hạn.",
+  "paywallGotIt": "Đã hiểu",
+  "paywallClose": "Đóng",
+
+  "profileStatLessons": "Bài học",
+  "profileStatStars": "Sao",
+  "profileStatStreak": "Streak"
 }

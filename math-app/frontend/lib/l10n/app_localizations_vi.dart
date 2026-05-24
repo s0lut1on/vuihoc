@@ -254,4 +254,51 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get comingSoon => 'Sắp ra mắt';
+
+  @override
+  String get loginWelcomeTitle => 'Chào mừng bạn!';
+
+  @override
+  String get loginWelcomeSubtitle => 'Hãy chọn cách để bắt đầu học toán nhé';
+
+  @override
+  String get loginGoogleSignIn => 'Đăng nhập với Google';
+
+  @override
+  String get loginGuestSignIn => 'Tiếp tục không đăng nhập';
+
+  @override
+  String get loginOrDivider => 'hoặc';
+
+  @override
+  String get loginParentAccess => 'Dành cho phụ huynh';
+
+  @override
+  String get loginParentDialogTitle => 'Dành cho phụ huynh';
+
+  @override
+  String get loginParentDialogContent =>
+      'Vui lòng nhập năm sinh để truy cập khu vực phụ huynh.';
+
+  @override
+  String get paywallTitle => 'Bạn đã học đủ bài hôm nay';
+
+  @override
+  String get paywallBody =>
+      'Tài khoản miễn phí được học tối đa 50 bài mỗi ngày. Nâng cấp để học không giới hạn.';
+
+  @override
+  String get paywallGotIt => 'Đã hiểu';
+
+  @override
+  String get paywallClose => 'Đóng';
+
+  @override
+  String get profileStatLessons => 'Bài học';
+
+  @override
+  String get profileStatStars => 'Sao';
+
+  @override
+  String get profileStatStreak => 'Streak';
 }

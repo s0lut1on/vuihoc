@@ -95,7 +95,7 @@ class ProfileScreen extends ConsumerWidget {
                   ),
             ),
             const SizedBox(height: 24),
-            _buildStatsRow(lessons, stars, streak),
+            _buildStatsRow(context, lessons, stars, streak),
             const SizedBox(height: 32),
             _buildMenuTile(
               icon: Icons.settings_outlined,
@@ -163,7 +163,9 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildStatsRow(int lessons, int stars, int streak) {
+  Widget _buildStatsRow(
+      BuildContext context, int lessons, int stars, int streak) {
+    final l10n = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
       decoration: BoxDecoration(
@@ -174,11 +176,12 @@ class ProfileScreen extends ConsumerWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          _buildStatItem(
-              Icons.menu_book_outlined, lessons.toString(), 'Bài học'),
-          _buildStatItem(Icons.star_outline, stars.toString(), 'Sao'),
+          _buildStatItem(Icons.menu_book_outlined, lessons.toString(),
+              l10n?.profileStatLessons ?? 'Lessons'),
+          _buildStatItem(Icons.star_outline, stars.toString(),
+              l10n?.profileStatStars ?? 'Stars'),
           _buildStatItem(Icons.local_fire_department_outlined,
-              streak.toString(), 'Streak'),
+              streak.toString(), l10n?.profileStatStreak ?? 'Streak'),
         ],
       ),
     );

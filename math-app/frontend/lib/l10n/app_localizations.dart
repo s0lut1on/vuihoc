@@ -571,6 +571,96 @@ abstract class AppLocalizations {
   /// In vi, this message translates to:
   /// **'Sắp ra mắt'**
   String get comingSoon;
+
+  /// No description provided for @loginWelcomeTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Chào mừng bạn!'**
+  String get loginWelcomeTitle;
+
+  /// No description provided for @loginWelcomeSubtitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Hãy chọn cách để bắt đầu học toán nhé'**
+  String get loginWelcomeSubtitle;
+
+  /// No description provided for @loginGoogleSignIn.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đăng nhập với Google'**
+  String get loginGoogleSignIn;
+
+  /// No description provided for @loginGuestSignIn.
+  ///
+  /// In vi, this message translates to:
+  /// **'Tiếp tục không đăng nhập'**
+  String get loginGuestSignIn;
+
+  /// No description provided for @loginOrDivider.
+  ///
+  /// In vi, this message translates to:
+  /// **'hoặc'**
+  String get loginOrDivider;
+
+  /// No description provided for @loginParentAccess.
+  ///
+  /// In vi, this message translates to:
+  /// **'Dành cho phụ huynh'**
+  String get loginParentAccess;
+
+  /// No description provided for @loginParentDialogTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Dành cho phụ huynh'**
+  String get loginParentDialogTitle;
+
+  /// No description provided for @loginParentDialogContent.
+  ///
+  /// In vi, this message translates to:
+  /// **'Vui lòng nhập năm sinh để truy cập khu vực phụ huynh.'**
+  String get loginParentDialogContent;
+
+  /// No description provided for @paywallTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Bạn đã học đủ bài hôm nay'**
+  String get paywallTitle;
+
+  /// No description provided for @paywallBody.
+  ///
+  /// In vi, this message translates to:
+  /// **'Tài khoản miễn phí được học tối đa 50 bài mỗi ngày. Nâng cấp để học không giới hạn.'**
+  String get paywallBody;
+
+  /// No description provided for @paywallGotIt.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đã hiểu'**
+  String get paywallGotIt;
+
+  /// No description provided for @paywallClose.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đóng'**
+  String get paywallClose;
+
+  /// No description provided for @profileStatLessons.
+  ///
+  /// In vi, this message translates to:
+  /// **'Bài học'**
+  String get profileStatLessons;
+
+  /// No description provided for @profileStatStars.
+  ///
+  /// In vi, this message translates to:
+  /// **'Sao'**
+  String get profileStatStars;
+
+  /// No description provided for @profileStatStreak.
+  ///
+  /// In vi, this message translates to:
+  /// **'Streak'**
+  String get profileStatStreak;
 }
 
 class _AppLocalizationsDelegate

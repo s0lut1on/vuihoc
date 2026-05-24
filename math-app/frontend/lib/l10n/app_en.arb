@@ -108,5 +108,23 @@
   "settings": "Settings",
   "logout": "Logout",
   "guestUser": "Guest",
-  "comingSoon": "Coming soon"
+  "comingSoon": "Coming soon",
+
+  "loginWelcomeTitle": "Welcome!",
+  "loginWelcomeSubtitle": "Choose a way to start learning math",
+  "loginGoogleSignIn": "Sign in with Google",
+  "loginGuestSignIn": "Continue without signing in",
+  "loginOrDivider": "or",
+  "loginParentAccess": "For parents",
+  "loginParentDialogTitle": "For parents",
+  "loginParentDialogContent": "Please enter your birth year to access the parent area.",
+
+  "paywallTitle": "You have reached today's limit",
+  "paywallBody": "Free accounts can study up to 50 lessons per day. Upgrade for unlimited access.",
+  "paywallGotIt": "Got it",
+  "paywallClose": "Close",
+
+  "profileStatLessons": "Lessons",
+  "profileStatStars": "Stars",
+  "profileStatStreak": "Streak"
 }

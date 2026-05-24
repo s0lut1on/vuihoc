@@ -1,10 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:math_app/l10n/app_localizations.dart';
 import 'package:math_app/widgets/paywall_modal.dart';
 
 void main() {
   Widget buildModal({required VoidCallback onClose}) {
     return MaterialApp(
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [Locale('en'), Locale('vi')],
       home: Scaffold(
         body: Builder(
           builder: (context) => ElevatedButton(
@@ -25,8 +34,9 @@ void main() {
     await tester.tap(find.text('Open'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Bạn đã học đủ bài hôm nay'), findsOneWidget);
-    expect(find.textContaining('Tài khoản miễn phí'), findsOneWidget);
+    expect(find.text("You have reached today's limit"), findsOneWidget);
+    expect(
+        find.textContaining('Free accounts can study up to'), findsOneWidget);
   });
 
   testWidgets('PaywallModal has close and understand buttons',
@@ -35,28 +45,28 @@ void main() {
     await tester.tap(find.text('Open'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Đã hiểu'), findsOneWidget);
-    expect(find.text('Đóng'), findsOneWidget);
+    expect(find.text('Got it'), findsOneWidget);
+    expect(find.text('Close'), findsOneWidget);
   });
 
-  testWidgets('tapping Đóng calls onClose', (WidgetTester tester) async {
+  testWidgets('tapping Close calls onClose', (WidgetTester tester) async {
     int counter = 0;
     await tester.pumpWidget(buildModal(onClose: () => counter++));
     await tester.tap(find.text('Open'));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Đóng'));
+    await tester.tap(find.text('Close'));
     await tester.pumpAndSettle();
     expect(counter, 1);
   });
 
-  testWidgets('tapping Đã hiểu calls onClose', (WidgetTester tester) async {
+  testWidgets('tapping Got it calls onClose', (WidgetTester tester) async {
     int counter = 0;
     await tester.pumpWidget(buildModal(onClose: () => counter++));
     await tester.tap(find.text('Open'));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.widgetWithText(ElevatedButton, 'Đã hiểu'));
+    await tester.tap(find.widgetWithText(ElevatedButton, 'Got it'));
     await tester.pumpAndSettle();
     expect(counter, 1);
   });
