@@ -153,7 +153,7 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 24),
       child: Column(
         children: [
-          _buildDesktopNav(),
+          _buildDesktopNav(l10n),
           const SizedBox(height: 32),
           _buildDesktopProgressBar(),
           const SizedBox(height: 40),
@@ -205,7 +205,7 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen> {
     );
   }
 
-  Widget _buildDesktopNav() {
+  Widget _buildDesktopNav(AppLocalizations l10n) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -213,9 +213,9 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen> {
           children: [
             const Text('🐸', style: TextStyle(fontSize: 32)),
             const SizedBox(width: 12),
-            const Text(
-              'Học Toán Vui',
-              style: TextStyle(
+            Text(
+              l10n.appTitle,
+              style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w700,
                   color: AppColors.darkText),

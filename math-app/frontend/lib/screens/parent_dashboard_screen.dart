@@ -82,9 +82,9 @@ class ParentDashboardScreen extends StatelessWidget {
           children: [
             const Text('🐸', style: TextStyle(fontSize: 32)),
             const SizedBox(width: 12),
-            const Text(
-              'Học Toán Vui',
-              style: TextStyle(
+            Text(
+              l10n.appTitle,
+              style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w700,
                   color: AppColors.darkPurple),
