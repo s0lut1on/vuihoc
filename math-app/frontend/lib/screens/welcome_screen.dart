@@ -413,6 +413,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
     if (mounted) {
       final onboardingComplete =
           await LocalStorageService.isOnboardingComplete();
+      if (!mounted) return;
       if (onboardingComplete) {
         context.go('/home');
       } else {

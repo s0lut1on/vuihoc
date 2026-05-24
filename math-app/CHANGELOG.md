@@ -157,6 +157,8 @@ All notable changes to this project will be documented in this file.
 - Answer box text overflow: `_buildOptions` in `lesson_screen.dart` changed from fixed-size `Row` to `Wrap` with `BoxConstraints(minWidth: 110, maxWidth: 275)`, `FittedBox(scaleDown)`, and `maxLines: 2`
 - Google Sign-In button was missing on desktop layout of `WelcomeScreen` — added "Đăng nhập" nav button and inline guest login
 - `backend/progress/src/handlers.rs`: `update_progress` now rejects invalid UUIDs (was silently generating random users)
+- **Flutter `use_build_context_synchronously` lint fixed** — added `if (!mounted) return;` after `await` in `welcome_screen.dart` lines 417 and 419, preventing potential crashes from using `BuildContext` on a disposed widget
+- **Rust `workspace.dev-dependencies` warning fixed** — removed invalid `[workspace.dev-dependencies]` key from `backend/Cargo.toml`; dev-dependencies are managed per-crate
 - Removed duplicate `ProgressModel::update` method call in `progress/src/handlers.rs` (merged into single `upsert` call)
 - Fixed `ProgressModel::update` SQL to also update `updated_at` field
 - **Backend:** Fixed invalid `anyhow` macro usage in `user` service by replacing `bail!` with `return Err(...)` and using `map_err` for error handling.
