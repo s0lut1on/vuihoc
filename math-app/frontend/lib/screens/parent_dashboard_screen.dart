@@ -147,7 +147,7 @@ class ParentDashboardScreen extends StatelessWidget {
         const SizedBox(width: 16),
         Expanded(
           child: _statCard(
-              '🔥', '5 ngày', l10n.parentDashboardStudyStreak, Colors.orange),
+              '🔥', '5', l10n.parentDashboardStudyStreak, Colors.orange),
         ),
       ],
     );

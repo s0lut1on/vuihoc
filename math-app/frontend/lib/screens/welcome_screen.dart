@@ -245,7 +245,9 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
             Text(persona.emoji, style: const TextStyle(fontSize: 40)),
             const SizedBox(height: 8),
             Text(
-              persona.displayNameVi,
+              Localizations.localeOf(context).languageCode == 'vi'
+                  ? persona.displayNameVi
+                  : persona.displayNameEn,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,
@@ -375,7 +377,9 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
             Text(persona.emoji, style: const TextStyle(fontSize: 40)),
             const SizedBox(height: 8),
             Text(
-              persona.displayNameVi,
+              Localizations.localeOf(context).languageCode == 'vi'
+                  ? persona.displayNameVi
+                  : persona.displayNameEn,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 13,
