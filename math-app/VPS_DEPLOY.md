@@ -2,6 +2,13 @@
 
 A step-by-step guide to deploy the math learning app to a VPS and connect your domain.
 
+There are **two deployment paths**:
+
+- **Dedicated VPS** (Steps 1–5 below) — Traefik handles all traffic on ports 80/443. Best for a fresh or dedicated server.
+- **Existing reverse proxy** (see **Option A** at the bottom) — use when Nginx/Apache/Caddy/another Traefik already occupies port 80/443. Your existing proxy routes to the math-app containers on loopback ports.
+
+Choose **Option A** if you already have another website or reverse proxy running.
+
 ## Prerequisites
 
 - A VPS with Ubuntu 22.04/24.04 (2 vCPU, 4GB RAM minimum)
@@ -678,6 +685,73 @@ dig +short yourdomain.com
 | `frontend/lib/core/constants.dart` | Update `baseUrl` from `localhost:8082` to `yourdomain.com` |
 
 > ⚠️ **Critical**: Never commit real `.env` with secrets to Git. Use `.env.example` for templates.
+
+---
+
+## Option A: Deploying Alongside an Existing Reverse Proxy
+
+If your VPS already runs Nginx, Apache, Caddy, or another service on ports 80/443, **do not use** `docker-compose.prod.yml` (it includes its own Traefik that will conflict). Use this alternative instead.
+
+### Architecture
+
+```
+User → Nginx (existing, SSL termination) → Docker containers (loopback ports only)
+```
+
+### Files for Option A
+
+| File | Purpose |
+|------|---------|
+| `docker-compose.prod.existing-proxy.yml` | No Traefik; all services bind to `127.0.0.1:PORT` |
+| `nginx-sample-existing-proxy.conf` | Nginx upstream + location blocks for all services |
+
+### Step A1: Start the app containers
+
+On your VPS:
+
+```bash
+cd ~/math-app/math-app
+
+# Start containers (no Traefik — existing proxy handles routing)
+docker compose -f docker-compose.prod.existing-proxy.yml up --build -d
+```
+
+Containers bind **only to loopback** (`127.0.0.1`), not to public interfaces:
+
+| Service | Port (host loopback) |
+|---------|----------------------|
+| Flutter web (`/`) | `8082` |
+| Auth (`/api/auth`) | `3001` |
+| Users (`/api/users`) | `3002` |
+| Content (`/api/content`) | `3003` |
+| Progress (`/api/progress`) | `3004` |
+| Notifications (`/api/notifications`) | `3005` |
+| Media (`/api/media`) | `3006` |
+| Question Bank (`/api/questions`) | `3007` |
+
+### Step A2: Configure your existing Nginx
+
+Edit `nginx-sample-existing-proxy.conf`:
+1. Replace `yourdomain.com` with your actual domain
+2. Update `ssl_certificate` and `ssl_certificate_key` paths to your existing cert locations
+3. Place the file in `/etc/nginx/sites-available/math-app`
+4. Enable it:
+
+```bash
+sudo ln -s /etc/nginx/sites-available/math-app /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl reload nginx
+```
+
+### Why this works
+
+- **`127.0.0.1:8082:80`** — The container's port 80 is only reachable from the host itself. No external access.
+- **Nginx handles SSL** — If you already use Let’s Encrypt or Cloudflare, you don't need a second certificate manager.
+- **No port conflicts** — Nothing in this compose binds to `0.0.0.0:80` or `:443`.
+
+### If you use Apache or Caddy
+
+The same pattern applies: point your existing proxy to the loopback ports listed above. The compose file stays the same; only the frontend proxy config differs.
 
 ---
 

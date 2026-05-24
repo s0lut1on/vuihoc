@@ -26,6 +26,7 @@ All notable changes to this project will be documented in this file.
 - **Auth middleware** — TODO: protect progress, user, content, media, notification, question_bank endpoints
 
 ### Added
+- **Production deployment for existing reverse proxy** — `docker-compose.prod.existing-proxy.yml` created for deployments where Nginx/Apache/Caddy/Traefik already occupies port 80/443. All services bind to `127.0.0.1:PORT` only (no public exposure). `nginx-sample-existing-proxy.conf` provides a ready-to-use Nginx upstream config for all 8 services
 - **Documentation updated** — `README.md` (root + `math-app/`) now documents all new features: auth/profile, free/premium tiers, `ClockFace` widget, `ProfileScreen`/`SettingsScreen` routes, route guards, token validation, subscription tier management section with DB commands
 - **Subscription tier management docs** — added section in `math-app/README.md` explaining flag-based free/premium model, DB command to flip `subscription_tier`, and planned parent-dashboard UI path
 
