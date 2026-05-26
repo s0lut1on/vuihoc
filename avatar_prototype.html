@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #FFE8F0;
+    font-family: Inter, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+  .wrapper {
+    display: flex;
+    gap: 48px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .avatar-container {
+    width: 1080px;
+    height: 1080px;
+    border-radius: 8px;
+    border: 2px dashed #2D1B4E;
+    background: radial-gradient(circle at center, #FFFFFF 0%, #FFE8F0 70%);
+    position: relative;
+    overflow: hidden;
+  }
+  .avatar-container .ring {
+    width: 920px;
+    height: 920px;
+    border: 28px solid #FF6B9D;
+    border-radius: 50%;
+    position: absolute;
+    top: 80px;
+    left: 80px;
+  }
+  .avatar-container .shadow {
+    width: 600px;
+    height: 120px;
+    background: #2D1B4E;
+    opacity: 0.08;
+    border-radius: 50%;
+    position: absolute;
+    bottom: 120px;
+    left: 240px;
+    filter: blur(20px);
+  }
+  .avatar-container .frog {
+    font-size: 480px;
+    position: absolute;
+    top: 240px;
+    left: 300px;
+    line-height: 1;
+    z-index: 3;
+  }
+  .avatar-container .cap {
+    position: absolute;
+    top: 180px;
+    left: 430px;
+    width: 0; height: 0;
+    border-left: 60px solid transparent;
+    border-right: 60px solid transparent;
+    border-bottom: 80px solid #2D1B4E;
+    z-index: 4;
+  }
+  .avatar-container .cap-tassel {
+    position: absolute;
+    top: 260px;
+    left: 500px;
+    width: 4px;
+    height: 60px;
+    background: #FF6B9D;
+    z-index: 5;
+  }
+  .avatar-container .star {
+    position: absolute;
+    color: #FF6B9D;
+    font-size: 48px;
+    z-index: 6;
+  }
+  .avatar-container .note {
+    position: absolute;
+    bottom: 24px;
+    right: 24px;
+    font-size: 18px;
+    color: #6B5B95;
+  }
+  /* small preview */
+  .preview-circle {
+    width: 170px;
+    height: 170px;
+    border-radius: 50%;
+    border: 4px solid #FF6B9D;
+    background: radial-gradient(circle at center, #FFFFFF 0%, #FFE8F0 70%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .preview-circle .pfrog {
+    font-size: 80px;
+    z-index: 2;
+  }
+  .preview-circle .pstar {
+    position: absolute;
+    color: #FF6B9D;
+    font-size: 16px;
+  }
+
+  /* mobile safe zone overlay for cover */
+  .cover-wrapper {
+    position: relative;
+  }
+  .cover-container {
+    width: 1640px;
+    height: 624px;
+    border-radius: 8px;
+    border: 2px dashed #2D1B4E;
+    background: #FFE8F0;
+    position: relative;
+    overflow: hidden;
+  }
+  .cover-container .blob {
+    position: absolute;
+    border-radius: 50%;
+    background: #FFFFFF;
+    opacity: 0.25;
+  }
+  .cover-container .safe-zone {
+    position: absolute;
+    top: 147px;
+    left: 0;
+    width: 1640px;
+    height: 330px;
+    border: 4px dashed #FF6B9D;
+    background: rgba(255,107,157,0.05);
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .cover-container .safe-zone-label {
+    color: #FF6B9D;
+    font-size: 28px;
+    font-weight: 700;
+    background: #FFFFFF;
+    padding: 8px 20px;
+    border-radius: 8px;
+  }
+  .cover-container .shape {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.35;
+  }
+  .cover-container .shape-1 { width: 80px; height: 80px; background: #E65100; top: 80px; left: 200px; }
+  .cover-container .shape-2 { width: 60px; height: 60px; background: #2E7D32; top: 180px; left: 1400px; }
+  .cover-container .shape-3 { width: 100px; height: 100px; background: #1565C0; top: 380px; left: 100px; border-radius: 12px; opacity: 0.25; }
+  .cover-container .shape-4 { width: 50px; height: 50px; background: #7B1FA2; top: 100px; left: 1300px; }
+  .cover-container .number {
+    position: absolute;
+    font-size: 64px;
+    font-weight: 800;
+    color: #FFFFFF;
+    opacity: 0.35;
+    z-index: 1;
+  }
+  .cover-container .frog {
+    font-size: 280px;
+    position: absolute;
+    top: 120px;
+    left: 680px;
+    z-index: 3;
+  }
+  .cover-container .star {
+    position: absolute;
+    color: #FF6B9D;
+    font-size: 32px;
+    z-index: 6;
+  }
+  .cover-container .note {
+    position: absolute;
+    bottom: 16px;
+    right: 24px;
+    font-size: 16px;
+    color: #6B5B95;
+    background: #FFFFFF;
+    padding: 6px 12px;
+    border-radius: 6px;
+  }
+</style>
+</head>
+<body>
+  <div class="wrapper">
+    <!-- Avatar -->
+    <div>
+      <h2 style="color:#2D1B4E; margin-bottom:12px; font-size:24px;">Facebook Avatar (1080×1080)</h2>
+      <div class="avatar-container">
+        <div class="ring"></div>
+        <div class="shadow"></div>
+        <div class="cap"></div>
+        <div class="cap-tassel"></div>
+        <div class="frog">🐸</div>
+        <div class="star" style="top:160px; left:240px;">✨</div>
+        <div class="star" style="top:220px; left:780px; font-size:36px;">✨</div>
+        <div class="star" style="top:680px; left:180px; font-size:28px;">✨</div>
+        <div class="note">Text-free PNG export → add name in Canva</div>
+      </div>
+
+      <h3 style="color:#2D1B4E; margin-top:24px; margin-bottom:8px; font-size:18px;">Facebook preview (170×170 circle crop)</h3>
+      <div class="preview-circle">
+        <span class="pfrog">🐸</span>
+        <span class="pstar" style="top:20px; right:24px;">✨</span>
+        <span class="pstar" style="bottom:20px; left:24px; font-size:12px;">✨</span>
+      </div>
+    </div>
+
+    <!-- Cover -->
+    <div class="cover-wrapper">
+      <h2 style="color:#2D1B4E; margin-bottom:12px; font-size:24px;">Facebook Cover (1640×624 @2x)</h2>
+      <div class="cover-container">
+        <div class="blob" style="width:600px; height:600px; top:-80px; left:-80px;"></div>
+        <div class="blob" style="width:500px; height:500px; bottom:-60px; right:-60px;"></div>
+        <div class="blob" style="width:400px; height:400px; top:200px; left:1200px; opacity:0.15;"></div>
+
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+        <div class="shape shape-4"></div>
+
+        <div class="number" style="top:80px; left:300px;">1</div>
+        <div class="number" style="top:350px; left:1400px;">2</div>
+        <div class="number" style="top:200px; left:100px; font-size:48px;">3</div>
+        <div class="number" style="top:480px; left:900px;">+</div>
+        <div class="number" style="top:450px; left:1300px; font-size:52px;">=</div>
+
+        <div class="frog">🐸</div>
+
+        <div class="star" style="top:80px; left:1000px;">✨</div>
+        <div class="star" style="top:280px; left:540px; font-size:24px;">✨</div>
+        <div class="star" style="top:500px; left:400px; font-size:20px;">✨</div>
+        <div class="star" style="top:180px; left:1220px; font-size:28px;">✨</div>
+        <div class="star" style="top:380px; left:1500px; font-size:22px;">✨</div>
+
+        <div class="safe-zone">
+          <span class="safe-zone-label">Mobile Safe Zone (inside this box)</span>
+        </div>
+
+        <div class="note">Text-free PNG → add text in Canva</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    console.log("Open this file in a browser and use a screenshot tool (e.g. browser devtools screenshot, or system screenshot) to capture the avatar/cover areas at 100% zoom.");
+    console.log("Recommended: Chrome DevTools > Capture screenshot.");
+  </script>
+</body>
+</html>

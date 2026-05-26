@@ -27,6 +27,11 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 - **Language switch no longer logs user out** — `MathApp` converted from `ConsumerWidget` to `ConsumerStatefulWidget`; `AppRouter` is now instantiated once in `initState()` instead of on every `build()`. Changing `localeProvider` caused a full `MaterialApp` rebuild, which recreated `GoRouter` with stale `initialSignedIn` and reset the route to `/login`. Now the router instance is cached and survives locale changes. Nginx cache control added for SPA entry files to prevent browsers from serving stale JS after rebuilds.
+- **Redis hostname typo fixed** in `docker-compose.prod.existing-proxy.yml` — `content-service` had `REDIS_URL=redis://nginx:6379` instead of `redis://redis:6379`; this would have caused the content service to fail startup when deploying via Option A
+
+### Added
+- **Comprehensive `.env.example`** — replaces the minimal 5-line template with a fully documented production env file covering all 7 databases, MinIO, JWT_SECRET, GOOGLE_CLIENT_ID, ANTHROPIC_API_KEY, and optional DOMAIN variable. Includes inline instructions for Option A vs dedicated VPS deployments
+- **VPS_DEPLOY.md Option A overhaul** — added Step A2 (create `.env`), Step A3 (pre-deploy disk/cache checks), Step A4 (build with verification), Step A5 (nginx config safety with `nginx -t` before reload), Step A6 (health verification), Step A7 (redeploy script). Documents zero-downtime reload pattern and warns about testing nginx config before enabling
 
 ### Added
 - **Production deployment for existing reverse proxy** — `docker-compose.prod.existing-proxy.yml` created for deployments where Nginx/Apache/Caddy/Traefik already occupies port 80/443. All services bind to `127.0.0.1:PORT` only (no public exposure). `nginx-sample-existing-proxy.conf` provides a ready-to-use Nginx upstream config for all 8 services

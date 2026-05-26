@@ -729,18 +729,132 @@ Containers bind **only to loopback** (`127.0.0.1`), not to public interfaces:
 | Media (`/api/media`) | `3006` |
 | Question Bank (`/api/questions`) | `3007` |
 
-### Step A2: Configure your existing Nginx
+### Step A2: Create production `.env`
+
+Before building, create your production environment file:
+
+```bash
+cd ~/math-app/math-app
+
+# Copy the template
+cp .env.example .env
+
+# Edit with your real values
+nano .env
+```
+
+Required values to fill in:
+- `JWT_SECRET` — generate with `openssl rand -base64 32`
+- `GOOGLE_CLIENT_ID` — from Google Cloud Console
+- `MINIO_ACCESS_KEY` / `MINIO_SECRET_KEY` — strong random strings
+- All `*_DB_PASS` fields — or keep the defaults if you don't expose Postgres externally
+
+> ⚠️ `.env` is in `.gitignore` and will NOT be committed.
+
+### Step A3: Pre-deploy checks (optional but recommended)
+
+```bash
+# Free up Docker build cache before building (~5-30GB can accumulate)
+docker builder prune -f
+
+# Verify no port conflicts on loopback
+ss -tlnp | grep -E '127.0.0.1:(8082|300[1-7])' || echo "All loopback ports are free"
+
+# Check disk space — build needs ~10GB free
+df -h /
+```
+
+### Step A4: Build and start containers
+
+```bash
+# Start containers (no Traefik — existing proxy handles routing)
+docker compose -f docker-compose.prod.existing-proxy.yml up --build -d
+
+# Wait for DBs to initialize (15-30 seconds)
+sleep 20
+
+# Verify all containers are running
+docker compose -f docker-compose.prod.existing-proxy.yml ps
+```
+
+Expected output: all services show `healthy` or `Up`.
+
+### Step A5: Configure your existing Nginx
+
+**Important:** The sample Nginx config uses your existing SSL certificates. Make sure you have:
+- A valid SSL certificate for your domain (Let's Encrypt, Cloudflare, or purchased)
+- The certificate and key paths updated in the config
 
 Edit `nginx-sample-existing-proxy.conf`:
 1. Replace `yourdomain.com` with your actual domain
 2. Update `ssl_certificate` and `ssl_certificate_key` paths to your existing cert locations
 3. Place the file in `/etc/nginx/sites-available/math-app`
-4. Enable it:
+4. Test and enable:
 
 ```bash
-sudo ln -s /etc/nginx/sites-available/math-app /etc/nginx/sites-enabled/
+sudo cp nginx-sample-existing-proxy.conf /etc/nginx/sites-available/math-app
+
+# Edit domain and SSL paths
+sudo nano /etc/nginx/sites-available/math-app
+
+# Test nginx config BEFORE reloading
 sudo nginx -t
+
+# Enable site
+sudo ln -sf /etc/nginx/sites-available/math-app /etc/nginx/sites-enabled/
+
+# Reload gracefully (zero downtime)
 sudo systemctl reload nginx
+```
+
+> If `nginx -t` fails, fix the config error before reloading. A bad reload can take Nginx down.
+
+### Step A6: Verify deployment
+
+```bash
+# Check the Flutter web app responds on loopback
+curl -s http://127.0.0.1:8082 | head -20
+
+# Check auth service health
+curl -s http://127.0.0.1:3001/health
+
+# Check content service
+curl -s http://127.0.0.1:3003/health
+
+# Visit in browser
+# https://yourdomain.com
+```
+
+### Step A7: Update & redeploy (after code changes)
+
+```bash
+ssh deploy@YOUR_VPS_IP
+cd ~/math-app/math-app
+git pull origin main
+
+# Stop and rebuild (loopback-only, so no external downtime)
+docker compose -f docker-compose.prod.existing-proxy.yml down
+docker compose -f docker-compose.prod.existing-proxy.yml up --build -d
+
+# Verify
+sleep 20
+docker compose -f docker-compose.prod.existing-proxy.yml ps
+```
+
+Or create a deploy script:
+
+```bash
+cat > /home/deploy/deploy-math-app.sh << 'EOF'
+#!/bin/bash
+set -e
+cd ~/math-app/math-app
+git pull origin main
+docker compose -f docker-compose.prod.existing-proxy.yml down
+docker compose -f docker-compose.prod.existing-proxy.yml up --build -d
+sleep 20
+docker compose -f docker-compose.prod.existing-proxy.yml ps
+EOF
+chmod +x /home/deploy/deploy-math-app.sh
 ```
 
 ### Why this works
