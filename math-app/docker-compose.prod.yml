@@ -52,7 +52,7 @@ services:
       - redis
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.auth.rule=Host(`${DOMAIN}`) & PathPrefix(`/api/auth`)"
+      - "traefik.http.routers.auth.rule=Host(`${DOMAIN}`) && PathPrefix(`/api/auth`)"
       - "traefik.http.routers.auth.entrypoints=websecure"
       - "traefik.http.routers.auth.tls.certresolver=letsencrypt"
     restart: unless-stopped
@@ -73,7 +73,7 @@ services:
       - redis
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.user.rule=Host(`${DOMAIN}`) & PathPrefix(`/api/users`)"
+      - "traefik.http.routers.user.rule=Host(`${DOMAIN}`) && PathPrefix(`/api/users`)"
       - "traefik.http.routers.user.entrypoints=websecure"
       - "traefik.http.routers.user.tls.certresolver=letsencrypt"
     restart: unless-stopped
@@ -94,7 +94,7 @@ services:
       - redis
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.content.rule=Host(`${DOMAIN}`) & PathPrefix(`/api/content`)"
+      - "traefik.http.routers.content.rule=Host(`${DOMAIN}`) && PathPrefix(`/api/content`)"
       - "traefik.http.routers.content.entrypoints=websecure"
       - "traefik.http.routers.content.tls.certresolver=letsencrypt"
     restart: unless-stopped
@@ -115,7 +115,7 @@ services:
       - redis
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.progress.rule=Host(`${DOMAIN}`) & PathPrefix(`/api/progress`)"
+      - "traefik.http.routers.progress.rule=Host(`${DOMAIN}`) && PathPrefix(`/api/progress`)"
       - "traefik.http.routers.progress.entrypoints=websecure"
       - "traefik.http.routers.progress.tls.certresolver=letsencrypt"
     restart: unless-stopped
@@ -136,7 +136,7 @@ services:
       - redis
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.notification.rule=Host(`${DOMAIN}`) & PathPrefix(`/api/notifications`)"
+      - "traefik.http.routers.notification.rule=Host(`${DOMAIN}`) && PathPrefix(`/api/notifications`)"
       - "traefik.http.routers.notification.entrypoints=websecure"
       - "traefik.http.routers.notification.tls.certresolver=letsencrypt"
     restart: unless-stopped
@@ -158,7 +158,7 @@ services:
       - minio
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.media.rule=Host(`${DOMAIN}`) & PathPrefix(`/api/media`)"
+      - "traefik.http.routers.media.rule=Host(`${DOMAIN}`) && PathPrefix(`/api/media`)"
       - "traefik.http.routers.media.entrypoints=websecure"
       - "traefik.http.routers.media.tls.certresolver=letsencrypt"
     restart: unless-stopped
@@ -180,7 +180,7 @@ services:
       - redis
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.question-bank.rule=Host(`${DOMAIN}`) & PathPrefix(`/api/questions`)"
+      - "traefik.http.routers.question-bank.rule=Host(`${DOMAIN}`) && PathPrefix(`/api/questions`)"
       - "traefik.http.routers.question-bank.entrypoints=websecure"
       - "traefik.http.routers.question-bank.tls.certresolver=letsencrypt"
     restart: unless-stopped

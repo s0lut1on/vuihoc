@@ -28,9 +28,14 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 - **Language switch no longer logs user out** — `MathApp` converted from `ConsumerWidget` to `ConsumerStatefulWidget`; `AppRouter` is now instantiated once in `initState()` instead of on every `build()`. Changing `localeProvider` caused a full `MaterialApp` rebuild, which recreated `GoRouter` with stale `initialSignedIn` and reset the route to `/login`. Now the router instance is cached and survives locale changes. Nginx cache control added for SPA entry files to prevent browsers from serving stale JS after rebuilds.
 - **Redis hostname typo fixed** in `docker-compose.prod.existing-proxy.yml` — `content-service` had `REDIS_URL=redis://nginx:6379` instead of `redis://redis:6379`; this would have caused the content service to fail startup when deploying via Option A
+- **Traefik router rules fixed** in `docker-compose.prod.yml` — all 7 API service rules used single `&` (bitwise AND) instead of `&&` (logical AND). Traefik requires `&&` for compound Host+PathPrefix matching; without this fix, all API routes return 404 on a fresh dedicated VPS deployment
+
+### Changed
+- **`VPS_DEPLOY.md` dedicated VPS path streamlined** — Step 3.2 now instructs users to use the existing `docker-compose.prod.yml` directly (with `DOMAIN` and `LETSENCRYPT_EMAIL` in `.env`) instead of manually replacing inline YAML inside `docker-compose.yml`. Eliminates copy-paste errors and keeps the dedicated VPS compose file under version control
+- **`VPS_DEPLOY.md` deploy command corrected** — Step 4.3 now uses `docker compose -f docker-compose.prod.yml up --build -d` instead of `docker-compose.yml`, matching the actual file name in the repo
 
 ### Added
-- **Comprehensive `.env.example`** — replaces the minimal 5-line template with a fully documented production env file covering all 7 databases, MinIO, JWT_SECRET, GOOGLE_CLIENT_ID, ANTHROPIC_API_KEY, and optional DOMAIN variable. Includes inline instructions for Option A vs dedicated VPS deployments
+- **`LETSENCRYPT_EMAIL` added to `.env.example`** — required by Traefik for Let's Encrypt certificate notifications in dedicated VPS mode. Documented as optional (only needed for `docker-compose.prod.yml`)
 - **VPS_DEPLOY.md Option A overhaul** — added Step A2 (create `.env`), Step A3 (pre-deploy disk/cache checks), Step A4 (build with verification), Step A5 (nginx config safety with `nginx -t` before reload), Step A6 (health verification), Step A7 (redeploy script). Documents zero-downtime reload pattern and warns about testing nginx config before enabling
 
 ### Added

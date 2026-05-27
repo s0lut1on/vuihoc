@@ -146,280 +146,19 @@ ANTHROPIC_API_KEY=sk-ant-api03-...
 EOF
 ```
 
-### 3.2 Update docker-compose.yml for Production
+### 3.2 Use docker-compose.prod.yml (Dedicated VPS)
 
-Replace `docker-compose.yml` Traefik and routing configuration for production:
+The `docker-compose.prod.yml` file already contains the production-ready configuration with Traefik and TLS labels. Simply verify that `DOMAIN` and `LETSENCRYPT_EMAIL` in your `.env` file are set correctly. No manual editing is required.
 
-```yaml
-services:
-  traefik:
-    image: traefik:latest
-    ports:
-      - "80:80"
-      - "443:443"
-      # - "8083:8080"  # Dashboard (disable in production or protect it)
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - ./letsencrypt:/letsencrypt
-    command:
-      - "--api.insecure=false"              # Disable dashboard
-      - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
-      - "--entrypoints.web.address=:80"
-      - "--entrypoints.websecure.address=:443"
-      - "--certificatesresolvers.letsencrypt.acme.tlschallenge=true"
-      - "--certificatesresolvers.letsencrypt.acme.email=your-email@example.com"
-      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
-      # Redirect HTTP to HTTPS
-      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
-      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
-    restart: unless-stopped
+Check that these variables exist in your `.env`:
 
-  flutter-web:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-      args:
-        GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
-    labels:
-      - "traefik.enable=true"
-      # Main domain
-      - "traefik.http.routers.flutter-web.rule=Host(`yourdomain.com`) || Host(`www.yourdomain.com`)"
-      - "traefik.http.routers.flutter-web.entrypoints=websecure"
-      - "traefik.http.routers.flutter-web.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.flutter-web.tls=true"
-      # COOP header for Google Sign-In
-      - "traefik.http.middlewares.flutter-coop.headers.customResponseHeaders.Cross-Origin-Opener-Policy=unsafe-none"
-      - "traefik.http.routers.flutter-web.middlewares=flutter-coop"
-    restart: unless-stopped
-
-  auth-service:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-      args:
-        SERVICE_NAME: auth
-    environment:
-      - PORT=3000
-      - DATABASE_URL=postgres://auth_user:auth_pass@auth-db:5432/auth_db
-      - REDIS_URL=redis://redis:6379
-      - JWT_SECRET=${JWT_SECRET}
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.auth.rule=Host(`yourdomain.com`) && PathPrefix(`/api/auth`)"
-      - "traefik.http.routers.auth.entrypoints=websecure"
-      - "traefik.http.routers.auth.tls.certresolver=letsencrypt"
-    restart: unless-stopped
-
-  content-service:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-      args:
-        SERVICE_NAME: content
-    environment:
-      - PORT=3000
-      - DATABASE_URL=postgres://content_user:content_pass@content-db:5432/content_db
-      - REDIS_URL=redis://redis:6379
-      - JWT_SECRET=${JWT_SECRET}
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.content.rule=Host(`yourdomain.com`) && PathPrefix(`/api/content`)"
-      - "traefik.http.routers.content.entrypoints=websecure"
-      - "traefik.http.routers.content.tls.certresolver=letsencrypt"
-    restart: unless-stopped
-
-  progress-service:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-      args:
-        SERVICE_NAME: progress
-    environment:
-      - PORT=3000
-      - DATABASE_URL=postgres://progress_user:progress_pass@progress-db:5432/progress_db
-      - REDIS_URL=redis://redis:6379
-      - JWT_SECRET=${JWT_SECRET}
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.progress.rule=Host(`yourdomain.com`) && PathPrefix(`/api/progress`)"
-      - "traefik.http.routers.progress.entrypoints=websecure"
-      - "traefik.http.routers.progress.tls.certresolver=letsencrypt"
-    restart: unless-stopped
-
-  user-service:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-      args:
-        SERVICE_NAME: user
-    environment:
-      - PORT=3000
-      - DATABASE_URL=postgres://user_user:user_pass@user-db:5432/user_db
-      - REDIS_URL=redis://redis:6379
-      - JWT_SECRET=${JWT_SECRET}
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.user.rule=Host(`yourdomain.com`) && PathPrefix(`/api/users`)"
-      - "traefik.http.routers.user.entrypoints=websecure"
-      - "traefik.http.routers.user.tls.certresolver=letsencrypt"
-    restart: unless-stopped
-
-  notification-service:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-      args:
-        SERVICE_NAME: notification
-    environment:
-      - PORT=3000
-      - DATABASE_URL=postgres://postgres:postgres@notification-db:5432/notification_db
-      - REDIS_URL=redis://redis:6379
-      - JWT_SECRET=${JWT_SECRET}
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.notification.rule=Host(`yourdomain.com`) && PathPrefix(`/api/notifications`)"
-      - "traefik.http.routers.notification.entrypoints=websecure"
-      - "traefik.http.routers.notification.tls.certresolver=letsencrypt"
-    restart: unless-stopped
-
-  media-service:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-      args:
-        SERVICE_NAME: media
-    environment:
-      - PORT=3000
-      - DATABASE_URL=postgres://postgres:postgres@media-db:5432/media_db
-      - REDIS_URL=redis://redis:6379
-      - JWT_SECRET=${JWT_SECRET}
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.media.rule=Host(`yourdomain.com`) && PathPrefix(`/api/media`)"
-      - "traefik.http.routers.media.entrypoints=websecure"
-      - "traefik.http.routers.media.tls.certresolver=letsencrypt"
-    restart: unless-stopped
-
-  question-bank-service:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-      args:
-        SERVICE_NAME: question_bank
-    environment:
-      - PORT=3000
-      - DATABASE_URL=postgres://qb_user:qb_pass@qb-db:5432/qb_db
-      - REDIS_URL=redis://redis:6379
-      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
-      - JWT_SECRET=${JWT_SECRET}
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.question-bank.rule=Host(`yourdomain.com`) && PathPrefix(`/api/questions`)"
-      - "traefik.http.routers.question-bank.entrypoints=websecure"
-      - "traefik.http.routers.question-bank.tls.certresolver=letsencrypt"
-    restart: unless-stopped
-
-  # Databases (same as dev, but with persistent volumes)
-  auth-db:
-    image: postgres:15-alpine
-    environment:
-      POSTGRES_DB: auth_db
-      POSTGRES_USER: auth_user
-      POSTGRES_PASSWORD: auth_pass
-    volumes:
-      - auth_db_data:/var/lib/postgresql/data
-    restart: unless-stopped
-
-  user-db:
-    image: postgres:15-alpine
-    environment:
-      POSTGRES_DB: user_db
-      POSTGRES_USER: user_user
-      POSTGRES_PASSWORD: user_pass
-    volumes:
-      - user_db_data:/var/lib/postgresql/data
-    restart: unless-stopped
-
-  content-db:
-    image: postgres:15-alpine
-    environment:
-      POSTGRES_DB: content_db
-      POSTGRES_USER: content_user
-      POSTGRES_PASSWORD: content_pass
-    volumes:
-      - content_db_data:/var/lib/postgresql/data
-    restart: unless-stopped
-
-  progress-db:
-    image: postgres:15-alpine
-    environment:
-      POSTGRES_DB: progress_db
-      POSTGRES_USER: progress_user
-      POSTGRES_PASSWORD: progress_pass
-    volumes:
-      - progress_db_data:/var/lib/postgresql/data
-    restart: unless-stopped
-
-  notification-db:
-    image: postgres:15-alpine
-    environment:
-      POSTGRES_DB: notification_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-    volumes:
-      - notification_db_data:/var/lib/postgresql/data
-    restart: unless-stopped
-
-  media-db:
-    image: postgres:15-alpine
-    environment:
-      POSTGRES_DB: media_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-    volumes:
-      - media_db_data:/var/lib/postgresql/data
-    restart: unless-stopped
-
-  qb-db:
-    image: postgres:15-alpine
-    environment:
-      POSTGRES_DB: qb_db
-      POSTGRES_USER: qb_user
-      POSTGRES_PASSWORD: qb_pass
-    volumes:
-      - qb_db_data:/var/lib/postgresql/data
-    restart: unless-stopped
-
-  redis:
-    image: redis:7-alpine
-    restart: unless-stopped
-
-  minio:
-    image: minio/minio:latest
-    environment:
-      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY}
-      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY}
-    command: server /data --console-address ":9001"
-    volumes:
-      - minio_data:/data
-    ports:
-      - "9002:9000"
-      - "9003:9001"
-    restart: unless-stopped
-
-volumes:
-  auth_db_data:
-  user_db_data:
-  content_db_data:
-  progress_db_data:
-  notification_db_data:
-  media_db_data:
-  qb_db_data:
-  minio_data:
+```env
+# Required for Traefik labels inside docker-compose.prod.yml
+DOMAIN=yourdomain.com
+LETSENCRYPT_EMAIL=admin@yourdomain.com
 ```
 
-> Replace `yourdomain.com` and `your-email@example.com` with your actual values.
+> The `LETSENCRYPT_EMAIL` is required for Traefik to request Let's Encrypt certificates. Replace `yourdomain.com` and `admin@yourdomain.com` with your actual values.
 
 ---
 
@@ -471,7 +210,7 @@ ANTHROPIC_API_KEY=sk-ant-api03-...
 
 ```bash
 # Start all services
-docker compose -f docker-compose.yml up --build -d
+docker compose -f docker-compose.prod.yml up --build -d
 
 # Wait for DBs to be ready (30-60 seconds)
 sleep 30
@@ -632,7 +371,7 @@ dig +short yourdomain.com
 ### Issue: Services returning 401
 
 - Ensure `JWT_SECRET` is set identically across all services in `.env`
-- Ensure `JWT_SECRET` is passed to all containers in `docker-compose.yml`
+- Ensure `JWT_SECRET` is passed to all containers in `docker-compose.prod.yml`
 
 ### Issue: Google Sign-In not working on production
 
