@@ -35,6 +35,10 @@ All notable changes to this project will be documented in this file.
 - **`VPS_DEPLOY.md` deploy command corrected** — Step 4.3 now uses `docker compose -f docker-compose.prod.yml up --build -d` instead of `docker-compose.yml`, matching the actual file name in the repo
 
 ### Added
+- **CI/CD pipeline via GitHub Actions** (`.github/workflows/deploy.yml`) — on every push to `main`, GitHub Actions builds all 8 Docker images (`flutter-web` + 7 backend services) for `linux/amd64`, pushes them to GitHub Container Registry (`ghcr.io`) with tags `:latest` and `:<sha>`, then SSHs to the VPS, logs into GHCR, pulls new images, and restarts services. Includes post-deploy `./scripts/health-check.sh` verification of all 8 service endpoints
+- **`docker-compose.ghcr.yml`** — production compose file that pulls pre-built GHCR images instead of building on the VPS, cutting cold-start deploy time from 5–10 min to under 2 min. Uses `OWNER_REPO` and `IMAGE_TAG` env vars so the same file works across forks and image versions
+- **`scripts/health-check.sh`** — standalone VPS health checker that curls every `/health` endpoint (`auth`, `user`, `content`, `progress`, `notification`, `media`, `question-bank`) plus Traefik root, curriculum API, and auth behavior (401 without token, 405 on POST-only). Returns exit code 0 only if all pass
+- **`OWNER_REPO` added to `.env.example`** — used by `docker-compose.ghcr.yml` to construct the full GHCR image path (defaults to `your-username/math-app` for one-time setup)
 - **`LETSENCRYPT_EMAIL` added to `.env.example`** — required by Traefik for Let's Encrypt certificate notifications in dedicated VPS mode. Documented as optional (only needed for `docker-compose.prod.yml`)
 - **VPS_DEPLOY.md Option A overhaul** — added Step A2 (create `.env`), Step A3 (pre-deploy disk/cache checks), Step A4 (build with verification), Step A5 (nginx config safety with `nginx -t` before reload), Step A6 (health verification), Step A7 (redeploy script). Documents zero-downtime reload pattern and warns about testing nginx config before enabling
 

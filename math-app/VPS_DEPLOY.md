@@ -162,6 +162,78 @@ LETSENCRYPT_EMAIL=admin@yourdomain.com
 
 ---
 
+---
+
+## Step 3.3: Enable CI/CD via GitHub Actions (Optional)
+
+By default, the VPS would need to `git clone` the source code and build Docker images locally. Rust builds can take 5–10 minutes. If you want faster, repeatable deploys, you can let GitHub Actions build the images and push them to GitHub Container Registry (GHCR). The VPS then pulls pre-built images in seconds.
+
+### 3.3.1 GitHub Secrets Required
+
+In your GitHub repo, go to **Settings → Secrets and variables → Actions → New repository secret** and add:
+
+| Secret Name | Purpose | How to obtain |
+|---|---|---|
+| `VPS_HOST` | IP or hostname of your VPS | Your VPS provider dashboard |
+| `VPS_USER` | SSH user on VPS (e.g. `deploy` or `root`) | Your VPS username |
+| `VPS_SSH_PRIVATE_KEY` | SSH private key for that user | Generate with `ssh-keygen -t ed25519`; add public key to `~/.ssh/authorized_keys` on VPS |
+| `GHCR_USERNAME` | Your GitHub username or organization name | e.g. `namvphn` |
+| `GHCR_READ_PAT` | Fine-grained PAT with **read:packages** scope | Developer Settings → Personal access tokens → Fine-grained tokens → Scope to this repo, grant `read:packages` |
+
+> **Why GHCR_READ_PAT exists**: The repo is private, so GHCR packages are private too. `GITHUB_TOKEN` (auto-generated in Actions) is only valid inside the runner. The VPS needs its own token to pull images. Do **not** make packages public.
+
+### 3.3.2 Workflow Already Included
+
+The file `.github/workflows/deploy.yml` is already in this repo and triggers on every push to `main`:
+
+1. Builds and pushes all 8 images (`flutter-web` + 7 backend services) with tags `:latest` and `:sha`
+2. SSHs to your VPS
+3. Logs Docker into GHCR using `GHCR_READ_PAT`
+4. Runs `docker compose -f docker-compose.ghcr.yml pull && up -d`
+5. Runs `./scripts/health-check.sh` against `https://$DOMAIN`
+
+### 3.3.3 Files You Need on the VPS (GHCR Path)
+
+No need to clone the entire repository. Create this minimal structure on the VPS:
+
+```
+~/math-app/math-app/
+├── docker-compose.ghcr.yml
+├── .env
+├── scripts/
+│   └── health-check.sh
+└── letsencrypt/          # created by Traefik on first run
+```
+
+Copy from local:
+
+```bash
+rsync -avz docker-compose.ghcr.yml .env scripts/ deploy@YOUR_VPS_IP:~/math-app/math-app/
+```
+
+Then on the VPS:
+
+```bash
+cd ~/math-app/math-app
+chmod +x scripts/health-check.sh
+
+# Pre-pull images (optional, or wait for first CI push)
+IMAGE_TAG=latest OWNER_REPO=your-username/math-app docker compose -f docker-compose.ghcr.yml up -d
+```
+
+Replace `your-username/math-app` with your actual GitHub `OWNER/REPO`.
+
+### 3.3.4 Authenticating GHCR on the VPS (Manual)
+
+If you need to pull manually (not via CI/CD):
+
+```bash
+echo $GHCR_READ_PAT | docker login ghcr.io -u YOUR_GITHUB_USERNAME --password-stdin
+IMAGE_TAG=latest OWNER_REPO=YOUR_USERNAME/math-app docker compose -f docker-compose.ghcr.yml up -d
+```
+
+---
+
 ## Step 4: Deploy to VPS
 
 ### 4.1 Copy Code to VPS
