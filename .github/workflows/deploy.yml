@@ -31,7 +31,7 @@ jobs:
       - name: Build and push Flutter Web
         uses: docker/build-push-action@v5
         with:
-          context: ./frontend
+          context: ./math-app/frontend
           platforms: linux/amd64
           push: true
           tags: |
@@ -44,10 +44,10 @@ jobs:
             docker buildx build \
               --platform linux/amd64 \
               --build-arg SERVICE_NAME="${svc}" \
-              --file backend/Dockerfile \
+              --file math-app/backend/Dockerfile \
               --tag "${{ env.IMAGE_PREFIX }}/${svc}:${{ github.sha }}" \
               --tag "${{ env.IMAGE_PREFIX }}/${svc}:latest" \
-              --push ./backend
+              --push ./math-app/backend
           done
 
       - name: Deploy to VPS via SSH
@@ -60,7 +60,7 @@ jobs:
           script: |
             cd ~/math-app/math-app
             # Pull new images via compose, then restart services
-            docker compose -f docker-compose.ghcr.yml pull
+            IMAGE_TAG="${{ github.sha }}" docker compose -f docker-compose.ghcr.yml pull
             IMAGE_TAG="${{ github.sha }}" docker compose -f docker-compose.ghcr.yml up -d
             # Wait for DBs and health-check
             sleep 20
