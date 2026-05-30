@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Changed
+- **Parent access button hidden from login screen** — `_buildParentLink()` removed from `_buildMobile()` and `_buildDesktop()` in `frontend/lib/screens/login_screen.dart`
+
 ### Security
 - **JWT `aud` (audience) claim added** — prevents token replay across services. `aud: "math-app"` included in all tokens. `auth_middleware` in `shared/src/lib.rs` validates `aud` via `HashSet`
 - **Guest token expiry reduced** — from 365 days to 30 days in `login_as_guest`

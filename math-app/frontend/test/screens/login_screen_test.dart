@@ -77,36 +77,10 @@ void main() {
     expect(find.text('Tiếp tục không đăng nhập'), findsOneWidget);
   });
 
-  testWidgets('LoginScreen shows parent access link',
-      (WidgetTester tester) async {
-    await tester.pumpWidget(localizedApp(const LoginScreen()));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Dành cho phụ huynh'), findsOneWidget);
-  });
-
   testWidgets('LoginScreen shows divider text', (WidgetTester tester) async {
     await tester.pumpWidget(localizedApp(const LoginScreen()));
     await tester.pumpAndSettle();
 
     expect(find.text('hoặc'), findsOneWidget);
-  });
-
-  testWidgets('LoginScreen parent access shows dialog on tap',
-      (WidgetTester tester) async {
-    await tester.pumpWidget(localizedApp(const LoginScreen()));
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.text('Dành cho phụ huynh'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Dành cho phụ huynh'),
-        findsNWidgets(2)); // link + dialog title
-    expect(find.text('Đóng'), findsOneWidget);
-
-    // Close dialog
-    await tester.tap(find.text('Đóng'));
-    await tester.pumpAndSettle();
-    expect(find.text('Đóng'), findsNothing);
   });
 }

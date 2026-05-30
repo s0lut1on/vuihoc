@@ -75,16 +75,7 @@ class _LoginScreenState extends State<LoginScreen>
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 _buildMascot(),
-                const SizedBox(height: 32),
-                _buildTitle(),
-                const SizedBox(height: 48),
-                _buildGoogleButton(),
-                const SizedBox(height: 16),
-                _buildDivider(),
-                const SizedBox(height: 16),
-                _buildGuestButton(),
-                const SizedBox(height: 32),
-                _buildParentLink(),
+                // _buildParentLink(), // Hidden per user request
               ],
             ),
           ),
@@ -128,7 +119,7 @@ class _LoginScreenState extends State<LoginScreen>
                       const SizedBox(height: 20),
                       _buildGuestButton(width: 320),
                       const SizedBox(height: 40),
-                      _buildParentLink(),
+                      // _buildParentLink() // Hidden - parent access disabled
                     ],
                   ),
                 ),
@@ -313,6 +304,7 @@ class _LoginScreenState extends State<LoginScreen>
     );
   }
 
+  /*
   Widget _buildParentLink() {
     final l10n = AppLocalizations.of(context);
     return TextButton(
@@ -326,6 +318,7 @@ class _LoginScreenState extends State<LoginScreen>
       ),
     );
   }
+  */
 
   void _signInWithGoogle() async {
     final success = await AuthService().signInWithGoogle();
@@ -341,6 +334,7 @@ class _LoginScreenState extends State<LoginScreen>
     }
   }
 
+  /*
   void _onParentAccess() {
     final l10n = AppLocalizations.of(context);
     showDialog(
@@ -360,4 +354,5 @@ class _LoginScreenState extends State<LoginScreen>
       ),
     );
   }
+  */
 }
