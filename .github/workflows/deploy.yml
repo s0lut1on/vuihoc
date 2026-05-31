@@ -58,9 +58,12 @@ jobs:
           key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
           script: |
             cd ~/math-app/math-app
-            # Pull new images via compose, then restart services
+            # Log in to GHCR so we can pull private images
+            echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            # Pull new images via compose
             IMAGE_TAG="${{ github.sha }}" docker compose -f docker-compose.ghcr.yml pull
-            IMAGE_TAG="${{ github.sha }}" docker compose -f docker-compose.ghcr.yml up -d
+            # Start services
+            IMAGE_TAG="${{ github.sha }}" docker compose -f docker-compose.ghcr.yml up -d --no-build
             # Wait for DBs and health-check
             sleep 20
             ./scripts/health-check.sh
