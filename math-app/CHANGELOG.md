@@ -11,6 +11,8 @@ All notable changes to this project will be documented in this file.
 - **Invalid `script_stop` input removed** from `appleboy/ssh-action` step to eliminate workflow warnings
 - **E2E workflow paths fixed** — `cd e2e` → `cd math-app/e2e`, `make docker-dev` → `cd math-app && make docker-dev`, artifact path `e2e/playwright-report/` → `math-app/e2e/playwright-report/` to match repo structure after moving workflows to root
 - **CI workflow paths fixed** — `./frontend` → `./math-app/frontend`, `backend/Dockerfile` → `math-app/backend/Dockerfile` in `ci.yml`
+- **Login screen mobile layout fixed** — title, Google button, divider, and guest button were missing from `_buildMobile()`; added them so the login screen is usable on phones
+- **Flutter SDK version fixed** — downgraded `intl` constraint from `^0.20.2` to `^0.19.0` to match `flutter_localizations` SDK pin; regenerated `pubspec.lock`
 
 ### Security
 - **JWT `aud` (audience) claim added** — prevents token replay across services. `aud: "math-app"` included in all tokens. `auth_middleware` in `shared/src/lib.rs` validates `aud` via `HashSet`
