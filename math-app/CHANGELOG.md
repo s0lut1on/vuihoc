@@ -13,7 +13,7 @@ All notable changes to this project will be documented in this file.
 - **CI workflow paths fixed** — `./frontend` → `./math-app/frontend`, `backend/Dockerfile` → `math-app/backend/Dockerfile` in `ci.yml`
 - **Login screen mobile layout fixed** — title, Google button, divider, and guest button were missing from `_buildMobile()`; added them so the login screen is usable on phones
 - **Flutter SDK version fixed** — downgraded `intl` constraint from `^0.20.2` to `^0.19.0` to match `flutter_localizations` SDK pin; regenerated `pubspec.lock`
-- **Makefile `DART_CMD` fixed** — changed fallback from system `dart` to `$(dirname $(which flutter))/dart` so `make format` works when local Flutter SDK is absent but system `flutter` is in `PATH`
+- **Makefile `DART_CMD` fixed** — replaced `$(shell dirname $(shell which flutter))/dart` with `$(dir $(FLUTTER_CMD))dart` to correctly resolve `dart` from the same directory as `flutter` when local SDK is absent
 
 ### Security
 - **JWT `aud` (audience) claim added** — prevents token replay across services. `aud: "math-app"` included in all tokens. `auth_middleware` in `shared/src/lib.rs` validates `aud` via `HashSet`

@@ -3,8 +3,8 @@ BACKEND = ./backend
 FLUTTER_ROOT = $(CURDIR)/$(FRONTEND)/flutter_sdk
 
 # Use local Flutter SDK if present, otherwise fall back to system flutter
-FLUTTER_CMD = $(if $(wildcard $(FLUTTER_ROOT)),$(FLUTTER_ROOT)/bin/flutter,flutter)
-DART_CMD    = $(if $(wildcard $(FLUTTER_ROOT)),$(FLUTTER_ROOT)/bin/dart,$(shell dirname $(shell which flutter))/dart)
+FLUTTER_CMD = $(if $(wildcard $(FLUTTER_ROOT)),$(FLUTTER_ROOT)/bin/flutter,$(shell which flutter 2>/dev/null || echo flutter))
+DART_CMD    = $(if $(findstring /,$(FLUTTER_CMD)),$(dir $(FLUTTER_CMD))dart,dart)
 
 .PHONY: help setup test test-cov watch format lint changelog-check build-apk build-web build-rust test-rust check-rust test-all clean deploy docker-test docker-dev docker-stop e2e-setup e2e-test
 
