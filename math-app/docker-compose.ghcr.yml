@@ -46,6 +46,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.auth.rule=Host(`${DOMAIN}`) \u0026\u0026 PathPrefix(`/api/auth`)"
       - "traefik.http.routers.auth.entrypoints=websecure"
+      - "traefik.http.routers.auth.priority=100"
       - "traefik.http.routers.auth.tls.certresolver=letsencrypt"
     restart: unless-stopped
 
@@ -63,6 +64,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.user.rule=Host(`${DOMAIN}`) \u0026\u0026 PathPrefix(`/api/users`)"
       - "traefik.http.routers.user.entrypoints=websecure"
+      - "traefik.http.routers.user.priority=100"
       - "traefik.http.routers.user.tls.certresolver=letsencrypt"
     restart: unless-stopped
 
@@ -80,6 +82,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.content.rule=Host(`${DOMAIN}`) \u0026\u0026 PathPrefix(`/api/content`)"
       - "traefik.http.routers.content.entrypoints=websecure"
+      - "traefik.http.routers.content.priority=100"
       - "traefik.http.routers.content.tls.certresolver=letsencrypt"
     restart: unless-stopped
 
@@ -97,6 +100,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.progress.rule=Host(`${DOMAIN}`) \u0026\u0026 PathPrefix(`/api/progress`)"
       - "traefik.http.routers.progress.entrypoints=websecure"
+      - "traefik.http.routers.progress.priority=100"
       - "traefik.http.routers.progress.tls.certresolver=letsencrypt"
     restart: unless-stopped
 
@@ -114,6 +118,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.notification.rule=Host(`${DOMAIN}`) \u0026\u0026 PathPrefix(`/api/notifications`)"
       - "traefik.http.routers.notification.entrypoints=websecure"
+      - "traefik.http.routers.notification.priority=100"
       - "traefik.http.routers.notification.tls.certresolver=letsencrypt"
     restart: unless-stopped
 
@@ -132,6 +137,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.media.rule=Host(`${DOMAIN}`) \u0026\u0026 PathPrefix(`/api/media`)"
       - "traefik.http.routers.media.entrypoints=websecure"
+      - "traefik.http.routers.media.priority=100"
       - "traefik.http.routers.media.tls.certresolver=letsencrypt"
     restart: unless-stopped
 
@@ -150,6 +156,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.question-bank.rule=Host(`${DOMAIN}`) \u0026\u0026 PathPrefix(`/api/questions`)"
       - "traefik.http.routers.question-bank.entrypoints=websecure"
+      - "traefik.http.routers.question-bank.priority=100"
       - "traefik.http.routers.question-bank.tls.certresolver=letsencrypt"
     restart: unless-stopped
 
