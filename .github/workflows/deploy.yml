@@ -34,6 +34,8 @@ jobs:
           context: ./math-app/frontend
           platforms: linux/amd64
           push: true
+          build-args: |
+            GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
           tags: |
             ${{ env.IMAGE_PREFIX }}/flutter-web:${{ github.sha }}
             ${{ env.IMAGE_PREFIX }}/flutter-web:latest
