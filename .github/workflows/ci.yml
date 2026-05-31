@@ -22,7 +22,7 @@ jobs:
 
       - name: Build and push Flutter Web
         run: |
-          docker build -t ghcr.io/${{ github.repository }}/flutter-web:${{ github.sha }} ./frontend
+          docker build -t ghcr.io/${{ github.repository }}/flutter-web:${{ github.sha }} ./math-app/frontend
           docker push ghcr.io/${{ github.repository }}/flutter-web:${{ github.sha }}
 
       - name: Build and push Rust backend services
@@ -31,6 +31,6 @@ jobs:
             docker build \
               --build-arg SERVICE_NAME=$svc \
               -t ghcr.io/${{ github.repository }}/$svc:${{ github.sha }} \
-              -f backend/Dockerfile backend
+              -f math-app/backend/Dockerfile math-app/backend
             docker push ghcr.io/${{ github.repository }}/$svc:${{ github.sha }}
           done
