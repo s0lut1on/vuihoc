@@ -75,6 +75,14 @@ class _LoginScreenState extends State<LoginScreen>
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 _buildMascot(),
+                const SizedBox(height: 32),
+                _buildTitle(),
+                const SizedBox(height: 40),
+                _buildGoogleButton(),
+                const SizedBox(height: 16),
+                _buildDivider(),
+                const SizedBox(height: 16),
+                _buildGuestButton(),
                 // _buildParentLink(), // Hidden per user request
               ],
             ),
@@ -139,7 +147,7 @@ class _LoginScreenState extends State<LoginScreen>
                     height: 320,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: AppColors.primaryPink.withValues(alpha: 26),
+                      color: AppColors.primaryPink.withValues(alpha: 0.1),
                     ),
                     child: const Center(
                       child: Text('🐸', style: TextStyle(fontSize: 120)),
