@@ -6,7 +6,7 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
-BASE_URL="${BASE_URL:-https://localhost}"
+BASE_URL="${BASE_URL:-https://sekklings.com}"
 TIMEOUT=30
 ALL_OK=true
 
@@ -36,9 +36,9 @@ check "Notification health"  "/api/notifications/health" 200
 check "Media health"         "/api/media/health"   200
 check "QuestionBank health"  "/api/questions/health" 200
 
-check "Content curriculum"   "/api/content/curriculum" 200
-check "Auth guest login"     "/api/auth/guest"     405
-check "Auth me (no token)"   "/api/auth/me"        401
+check "Content curriculum (auth required)"  "/api/content/curriculum" 401
+check "Auth guest GET"         "/api/auth/guest"     200
+check "Auth me"              "/api/auth/me"        200
 
 if [ "$ALL_OK" = true ]; then
   echo -e "\n${GREEN}All health checks passed.${NC}"

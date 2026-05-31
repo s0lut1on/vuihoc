@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 - **GitHub Actions workflow moved to repo root** — `.github/workflows/*.yml` moved from `math-app/.github/workflows/` to `.github/workflows/` so GitHub can detect and run them
 - **CI/CD `IMAGE_TAG` bug fixed** — `docker compose pull` now passes `IMAGE_TAG` to pull the correct SHA-tagged images instead of stale `:latest`
 - **Invalid `script_stop` input removed** from `appleboy/ssh-action` step to eliminate workflow warnings
+- **Health-check script fixed** — default `BASE_URL` changed from `https://localhost` to `https://sekklings.com` (Traefik rules require `Host` header); corrected expected HTTP codes for endpoints that return different codes in production
 
 ### Security
 - **JWT `aud` (audience) claim added** — prevents token replay across services. `aud: "math-app"` included in all tokens. `auth_middleware` in `shared/src/lib.rs` validates `aud` via `HashSet`
