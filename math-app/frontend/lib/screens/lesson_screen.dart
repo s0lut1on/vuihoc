@@ -116,6 +116,9 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
   }
 
   Widget _buildMobileLayout(ApiExercise currentQ, int totalQuestions) {
+    final locale = ref.watch(localeProvider);
+    final questionText =
+        locale.languageCode == 'en' ? currentQ.questionEn : currentQ.questionVi;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       child: Column(
@@ -138,7 +141,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            '🍎 ${currentQ.questionVi}',
+            '🍎 $questionText',
             style: Theme.of(context).textTheme.titleLarge,
             textAlign: TextAlign.center,
           ),
@@ -149,7 +152,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
           const SizedBox(height: 32),
           _buildOptions(currentQ),
           const SizedBox(height: 16),
-          if (_showHint)
+              if (_showHint)
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
@@ -161,7 +164,9 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      currentQ.hintEn ?? '',
+                      locale.languageCode == 'en'
+                          ? currentQ.hintEn ?? ''
+                          : currentQ.hintVi ?? '',
                       style: const TextStyle(
                           fontSize: 14, color: AppColors.primaryPink),
                     ),
@@ -211,6 +216,9 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
   }
 
   Widget _buildDesktopLayout(ApiExercise currentQ, int totalQuestions) {
+    final locale = ref.watch(localeProvider);
+    final questionText =
+        locale.languageCode == 'en' ? currentQ.questionEn : currentQ.questionVi;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 24),
       child: Column(
@@ -235,7 +243,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          '🍎 ${currentQ.questionVi}',
+                          '🍎 $questionText',
                           style: const TextStyle(
                               fontSize: 28,
                               fontWeight: FontWeight.w700,
@@ -268,7 +276,9 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
-                                  currentQ.hintEn ?? '',
+                                  locale.languageCode == 'en'
+                                      ? currentQ.hintEn ?? ''
+                                      : currentQ.hintVi ?? '',
                                   style: const TextStyle(
                                       fontSize: 14,
                                       color: AppColors.primaryPink),
