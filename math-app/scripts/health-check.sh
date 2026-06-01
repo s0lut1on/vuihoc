@@ -25,6 +25,22 @@ check() {
   fi
 }
 
+check_post() {
+  local name=$1
+  local path=$2
+  local exp=${3:-200}
+  local data=${4:-'{}'}
+  local url="${BASE_URL}${path}"
+  local code
+  code=$(curl -s -o /dev/null -w "%{http_code}" -X POST -H 'Content-Type: application/json' -d "$data" --max-time "$TIMEOUT" "$url" || echo 000)
+  if [ "$code" = "$exp" ]; then
+    echo -e "${GREEN}✅${NC} $name ($url)"
+  else
+    echo -e "${RED}❌${NC} $name ($url) — expected $exp, got $code"
+    ALL_OK=false
+  fi
+}
+
 echo "Health-checking services at $BASE_URL ..."
 
 check "Traefik (root)"       "/"         200
@@ -37,7 +53,7 @@ check "Media health"         "/api/media/health"   200
 check "QuestionBank health"  "/api/questions/health" 200
 
 check "Content curriculum (auth required)"  "/api/content/curriculum" 401
-check "Auth guest GET"         "/api/auth/guest"     200
+check_post "Auth guest (POST)"   "/api/auth/guest"     200 '{}'
 check "Auth me"              "/api/auth/me"        200
 
 if [ "$ALL_OK" = true ]; then

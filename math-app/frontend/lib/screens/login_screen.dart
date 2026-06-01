@@ -16,6 +16,7 @@ class _LoginScreenState extends State<LoginScreen>
   late final AnimationController _animController;
   late final Animation<double> _fadeAnimation;
   late final Animation<double> _slideAnimation;
+  bool _isSigningIn = false;
 
   @override
   void initState() {
@@ -224,7 +225,7 @@ class _LoginScreenState extends State<LoginScreen>
 
   Widget _buildGoogleButton({double width = 260}) {
     return GestureDetector(
-      onTap: _signInWithGoogle,
+      onTap: _isSigningIn ? null : _signInWithGoogle,
       child: Container(
         width: width,
         height: 48,
@@ -242,25 +243,48 @@ class _LoginScreenState extends State<LoginScreen>
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text('G',
-                style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.red)),
-            const SizedBox(width: 8),
-            Flexible(
-              child: Text(
-                AppLocalizations.of(context)?.loginGoogleSignIn ??
-                    'Sign in with Google',
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF333333)),
-              ),
-            ),
-          ],
+          children: _isSigningIn
+              ? [
+                  const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: AppColors.primaryPink,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Text(
+                      AppLocalizations.of(context)?.loginGoogleSignIn ??
+                          'Sign in with Google',
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF333333)),
+                    ),
+                  ),
+                ]
+              : [
+                  const Text('G',
+                      style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.red)),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Text(
+                      AppLocalizations.of(context)?.loginGoogleSignIn ??
+                          'Sign in with Google',
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF333333)),
+                    ),
+                  ),
+                ],
         ),
       ),
     );
@@ -329,9 +353,17 @@ class _LoginScreenState extends State<LoginScreen>
   */
 
   void _signInWithGoogle() async {
-    final success = await AuthService().signInWithGoogle();
-    if (success && mounted) {
-      context.go('/welcome');
+    if (_isSigningIn) return;
+    setState(() => _isSigningIn = true);
+    try {
+      final success = await AuthService().signInWithGoogle();
+      if (success && mounted) {
+        context.go('/welcome');
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isSigningIn = false);
+      }
     }
   }
 

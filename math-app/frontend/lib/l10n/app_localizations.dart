@@ -554,6 +554,18 @@ abstract class AppLocalizations {
   /// **'Cài đặt'**
   String get settings;
 
+  /// No description provided for @settingsTtsTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đọc câu hỏi'**
+  String get settingsTtsTitle;
+
+  /// No description provided for @settingsTtsSubtitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Tự động đọc câu hỏi khi học'**
+  String get settingsTtsSubtitle;
+
   /// No description provided for @logout.
   ///
   /// In vi, this message translates to:

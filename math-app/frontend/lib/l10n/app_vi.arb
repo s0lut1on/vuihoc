@@ -106,6 +106,8 @@
   "profileTitle": "Hồ sơ",
   "profile": "Hồ sơ",
   "settings": "Cài đặt",
+  "settingsTtsTitle": "Đọc câu hỏi",
+  "settingsTtsSubtitle": "Tự động đọc câu hỏi khi học",
   "logout": "Đăng xuất",
   "guestUser": "Khách",
   "comingSoon": "Sắp ra mắt",

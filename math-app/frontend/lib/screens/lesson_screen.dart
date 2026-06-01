@@ -8,6 +8,7 @@ import '../models/lesson_model.dart';
 import '../providers/app_providers.dart';
 import '../services/content_api.dart';
 import '../services/progress_api.dart';
+import '../services/tts_service.dart';
 import '../widgets/clock_face.dart';
 import '../widgets/language_switcher.dart';
 import '../widgets/paywall_modal.dart';
@@ -557,5 +558,14 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
     setState(() => _showHint = true);
   }
 
-  void _speakQuestion() {}
+  void _speakQuestion() {
+    final isEnabled = ref.read(ttsEnabledProvider);
+    if (!isEnabled) return;
+
+    final currentQ = _lesson!.exercises[_currentQuestion];
+    final locale = ref.read(localeProvider);
+    final text =
+        locale.languageCode == 'en' ? currentQ.questionEn : currentQ.questionVi;
+    TtsService().speak(text, languageCode: locale.languageCode);
+  }
 }

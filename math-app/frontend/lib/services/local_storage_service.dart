@@ -56,6 +56,16 @@ class LocalStorageService {
     return box.get('onboardingComplete', defaultValue: false);
   }
 
+  static Future<void> saveTtsEnabled(bool enabled) async {
+    final box = await Hive.openBox(_settingsBox);
+    await box.put('ttsEnabled', enabled);
+  }
+
+  static Future<bool> getTtsEnabled() async {
+    final box = await Hive.openBox(_settingsBox);
+    return box.get('ttsEnabled', defaultValue: true);
+  }
+
   static Future<void> saveLocale(String locale) async {
     final box = await Hive.openBox(_settingsBox);
     await box.put('locale', locale);

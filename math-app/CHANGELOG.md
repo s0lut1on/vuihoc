@@ -4,7 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
-### Changed
+### Added
+- **Voice Hints / Text-to-Speech (TTS)** — kids ages 5–7 can tap the 🔊 speaker icon on `LessonScreen` to hear the question read aloud in Vietnamese or English via the Web Speech API (`window.speechSynthesis`). The speech rate is slowed to `0.9×` to make it easier for young learners. TTS is enabled by default and can be toggled off in `ProfileScreen` settings (`/profile`). The toggle is persisted to Hive (`settings/ttsEnabled`).
 - **Parent access button hidden from login screen** — `_buildParentLink()` removed from `_buildMobile()` and `_buildDesktop()` in `frontend/lib/screens/login_screen.dart`
 - **GitHub Actions workflow moved to repo root** — `.github/workflows/*.yml` moved from `math-app/.github/workflows/` to `.github/workflows/` so GitHub can detect and run them
 - **CI/CD `IMAGE_TAG` bug fixed** — `docker compose pull` now passes `IMAGE_TAG` to pull the correct SHA-tagged images instead of stale `:latest`

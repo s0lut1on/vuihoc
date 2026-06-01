@@ -14,6 +14,8 @@ final apiServiceProvider =
 
 final localeProvider = StateProvider<Locale>((ref) => const Locale('vi', 'VN'));
 
+final ttsEnabledProvider = StateProvider<bool>((ref) => true);
+
 final personaProvider = StateProvider<Persona?>((ref) => null);
 
 final userIdProvider = StateProvider<String?>((ref) => null);

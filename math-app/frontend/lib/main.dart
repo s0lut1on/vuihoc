@@ -17,6 +17,7 @@ void main() async {
   ApiService().initialize();
 
   final storedLocale = await _loadLocale();
+  final ttsEnabled = await _loadTtsEnabled();
   final token = await _loadToken();
   if (token != null) {
     ApiService().setToken(token);
@@ -30,6 +31,7 @@ void main() async {
     ProviderScope(
       overrides: [
         localeProvider.overrideWith((ref) => storedLocale),
+        ttsEnabledProvider.overrideWith((ref) => ttsEnabled),
       ],
       child: MathApp(autoSignedIn: didAutoSignIn),
     ),
@@ -46,6 +48,11 @@ Future<Locale> _loadLocale() async {
 Future<String?> _loadToken() async {
   final box = await Hive.openBox('auth');
   return box.get('token') as String?;
+}
+
+Future<bool> _loadTtsEnabled() async {
+  final box = await Hive.openBox('settings');
+  return box.get('ttsEnabled', defaultValue: true) as bool;
 }
 
 class MathApp extends ConsumerStatefulWidget {

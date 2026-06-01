@@ -6,6 +6,7 @@ import '../core/app_colors.dart';
 import '../l10n/app_localizations.dart';
 import '../providers/app_providers.dart';
 import '../services/auth_service.dart';
+import '../services/local_storage_service.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -106,6 +107,8 @@ class ProfileScreen extends ConsumerWidget {
                 );
               },
             ),
+            _buildTtsTile(context, ref),
+            const SizedBox(height: 8),
             _buildMenuTile(
               icon: Icons.logout,
               title: l10n?.logout ?? 'Logout',
@@ -208,6 +211,39 @@ class ProfileScreen extends ConsumerWidget {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildTtsTile(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final isEnabled = ref.watch(ttsEnabledProvider);
+    return ListTile(
+      leading: Icon(
+        isEnabled ? Icons.volume_up_outlined : Icons.volume_off_outlined,
+        color: AppColors.darkPurple,
+      ),
+      title: Text(
+        l10n?.settingsTtsTitle ?? 'Read question aloud',
+        style: const TextStyle(
+          color: AppColors.darkPurple,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      subtitle: Text(
+        l10n?.settingsTtsSubtitle ?? 'Auto-read questions during lessons',
+        style: TextStyle(
+          fontSize: 12,
+          color: AppColors.mutedPurple,
+        ),
+      ),
+      trailing: Switch(
+        value: isEnabled,
+        activeThumbColor: AppColors.primaryPink,
+        onChanged: (value) {
+          ref.read(ttsEnabledProvider.notifier).state = value;
+          LocalStorageService.saveTtsEnabled(value);
+        },
+      ),
     );
   }
 

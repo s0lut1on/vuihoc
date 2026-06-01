@@ -106,6 +106,8 @@
   "profileTitle": "Profile",
   "profile": "Profile",
   "settings": "Settings",
+  "settingsTtsTitle": "Read question aloud",
+  "settingsTtsSubtitle": "Auto-read questions during lessons",
   "logout": "Logout",
   "guestUser": "Guest",
   "comingSoon": "Coming soon",

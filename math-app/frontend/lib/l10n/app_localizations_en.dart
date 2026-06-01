@@ -247,6 +247,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settings => 'Settings';
 
   @override
+  String get settingsTtsTitle => 'Read question aloud';
+
+  @override
+  String get settingsTtsSubtitle => 'Auto-read questions during lessons';
+
+  @override
   String get logout => 'Logout';
 
   @override

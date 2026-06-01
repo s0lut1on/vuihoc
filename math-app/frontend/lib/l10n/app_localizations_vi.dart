@@ -247,6 +247,12 @@ class AppLocalizationsVi extends AppLocalizations {
   String get settings => 'Cài đặt';
 
   @override
+  String get settingsTtsTitle => 'Đọc câu hỏi';
+
+  @override
+  String get settingsTtsSubtitle => 'Tự động đọc câu hỏi khi học';
+
+  @override
   String get logout => 'Đăng xuất';
 
   @override
