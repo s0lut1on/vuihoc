@@ -253,6 +253,23 @@ class AppLocalizationsVi extends AppLocalizations {
   String get settingsTtsSubtitle => 'Tự động đọc câu hỏi khi học';
 
   @override
+  String get reviewScreenTitle => 'Ôn tập lỗi';
+
+  @override
+  String get reviewCardLabel => 'Ôn tập lỗi';
+
+  @override
+  String get reviewCardTopic => 'Sửa những câu đã làm sai';
+
+  @override
+  String get reviewAllClear => 'Bé đã làm đúng hết rồi! 🎉';
+
+  @override
+  String reviewWrongCount(Object count) {
+    return 'Đã sai $count lần';
+  }
+
+  @override
   String get logout => 'Đăng xuất';
 
   @override

@@ -11,6 +11,7 @@ import '../screens/pin_gate_screen.dart';
 import '../screens/subject_screen.dart';
 import '../screens/parent_dashboard_screen.dart';
 import '../screens/profile_screen.dart';
+import '../screens/review_screen.dart';
 
 /// Public routes that do NOT require authentication.
 const _publicRoutes = {
@@ -92,6 +93,10 @@ class AppRouter {
       GoRoute(
         path: '/profile',
         builder: (context, state) => const ProfileScreen(),
+      ),
+      GoRoute(
+        path: '/review',
+        builder: (context, state) => const ReviewScreen(),
       ),
     ],
   );

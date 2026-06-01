@@ -9,6 +9,8 @@ import '../providers/app_providers.dart';
 import '../services/content_api.dart';
 import '../services/progress_api.dart';
 import '../services/tts_service.dart';
+import '../services/wrong_answer_storage.dart';
+import '../models/wrong_answer_model.dart';
 import '../widgets/clock_face.dart';
 import '../widgets/language_switcher.dart';
 import '../widgets/paywall_modal.dart';
@@ -152,7 +154,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
           const SizedBox(height: 32),
           _buildOptions(currentQ),
           const SizedBox(height: 16),
-              if (_showHint)
+          if (_showHint)
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
@@ -492,6 +494,23 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
     HapticFeedback.lightImpact();
     setState(() => _selectedAnswer = index);
     _isCorrect = index == correctIndex;
+
+    if (!_isCorrect) {
+      final currentQ = _lesson!.exercises[_currentQuestion];
+      WrongAnswerStorage.record(WrongAnswer(
+        exerciseId: currentQ.id,
+        lessonId: widget.lessonId,
+        subjectId: widget.subjectId,
+        questionVi: currentQ.questionVi,
+        questionEn: currentQ.questionEn,
+        hintVi: currentQ.hintVi,
+        hintEn: currentQ.hintEn,
+        options: currentQ.options,
+        correctIndex: currentQ.correctIndex,
+        wrongCount: 1,
+        lastWrongAt: DateTime.now(),
+      ));
+    }
 
     if (_isCorrect) {
       _showCorrectFeedback();

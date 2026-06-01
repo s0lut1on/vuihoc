@@ -6,6 +6,7 @@ import '../models/persona_model.dart';
 import '../providers/app_providers.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/language_switcher.dart';
+import '../services/wrong_answer_storage.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -84,6 +85,8 @@ class HomeScreen extends ConsumerWidget {
           _buildMobileHeader(context, ref, user),
           const SizedBox(height: 24),
           _buildContinueCard(context, ref, persona),
+          const SizedBox(height: 16),
+          _buildReviewCard(context, ref),
           const SizedBox(height: 32),
           Text(
             l10n.homeSubjects,
@@ -116,6 +119,8 @@ class HomeScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 24),
           _buildDesktopStatsRow(context, ref, persona, user),
+          const SizedBox(height: 24),
+          _buildReviewCard(context, ref),
           const SizedBox(height: 32),
           Text(
             l10n.homeSubjects,
@@ -528,6 +533,69 @@ class HomeScreen extends ConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildReviewCard(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
+    return FutureBuilder<int>(
+      future: WrongAnswerStorage.getCount(),
+      builder: (context, snapshot) {
+        final count = snapshot.data ?? 0;
+        if (count == 0) return const SizedBox.shrink();
+        return GestureDetector(
+          onTap: () => context.go('/review'),
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFF3E0),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: const Color(0xFFFF9800)),
+            ),
+            child: Row(
+              children: [
+                const Text('🔥', style: TextStyle(fontSize: 32)),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.reviewCardLabel,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.darkPurple.withValues(alpha: 0.8),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        l10n.reviewCardTopic,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.darkPurple,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Chip(
+                  label: Text(
+                    '$count',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                  ),
+                  backgroundColor: const Color(0xFFFF9800),
+                  padding: EdgeInsets.zero,
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 

@@ -566,6 +566,36 @@ abstract class AppLocalizations {
   /// **'Tự động đọc câu hỏi khi học'**
   String get settingsTtsSubtitle;
 
+  /// No description provided for @reviewScreenTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Ôn tập lỗi'**
+  String get reviewScreenTitle;
+
+  /// No description provided for @reviewCardLabel.
+  ///
+  /// In vi, this message translates to:
+  /// **'Ôn tập lỗi'**
+  String get reviewCardLabel;
+
+  /// No description provided for @reviewCardTopic.
+  ///
+  /// In vi, this message translates to:
+  /// **'Sửa những câu đã làm sai'**
+  String get reviewCardTopic;
+
+  /// No description provided for @reviewAllClear.
+  ///
+  /// In vi, this message translates to:
+  /// **'Bé đã làm đúng hết rồi! 🎉'**
+  String get reviewAllClear;
+
+  /// No description provided for @reviewWrongCount.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đã sai {count} lần'**
+  String reviewWrongCount(Object count);
+
   /// No description provided for @logout.
   ///
   /// In vi, this message translates to:

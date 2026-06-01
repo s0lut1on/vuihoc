@@ -5,7 +5,18 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **Wrong Answer Review (Practice Mistakes)** — kids can now practice questions they previously got wrong
+  - `WrongAnswerStorage` (Hive) records every incorrect answer in `settingsBox`
+  - New `ReviewScreen` (`/review`) pulls wrong answers from local storage, shows them in order of most-wrong-first, and removes them when answered correctly
+  - New orange review card on `HomeScreen` — only appears when wrong answers exist, shows count badge
+  - `LessonScreen._selectAnswer` now auto-records wrong answers to storage
+  - New i18n strings: `reviewScreenTitle`, `reviewCardLabel`, `reviewCardTopic`, `reviewAllClear`, `reviewWrongCount`
+
+### Added
 - **Voice Hints / Text-to-Speech (TTS)** — kids ages 5–7 can tap the 🔊 speaker icon on `LessonScreen` to hear the question read aloud in Vietnamese or English via the Web Speech API (`window.speechSynthesis`). The speech rate is slowed to `0.9×` to make it easier for young learners. TTS is enabled by default and can be toggled off in `ProfileScreen` settings (`/profile`). The toggle is persisted to Hive (`settings/ttsEnabled`).
+
+### Fixed
+- **TTS always speaking English regardless of locale** — `_speakQuestion` now passes correct language code from localeProvider; `_buildMobileLayout`/`_buildDesktopLayout` now switch displayed text between questionEn/questionVi and hintEn/hintVi based on localeProvider; TTS service retries up to 1s for browser voices to load before speaking.
 - **Parent access button hidden from login screen** — `_buildParentLink()` removed from `_buildMobile()` and `_buildDesktop()` in `frontend/lib/screens/login_screen.dart`
 - **GitHub Actions workflow moved to repo root** — `.github/workflows/*.yml` moved from `math-app/.github/workflows/` to `.github/workflows/` so GitHub can detect and run them
 - **CI/CD `IMAGE_TAG` bug fixed** — `docker compose pull` now passes `IMAGE_TAG` to pull the correct SHA-tagged images instead of stale `:latest`

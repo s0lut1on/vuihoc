@@ -253,6 +253,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsTtsSubtitle => 'Auto-read questions during lessons';
 
   @override
+  String get reviewScreenTitle => 'Review mistakes';
+
+  @override
+  String get reviewCardLabel => 'Review mistakes';
+
+  @override
+  String get reviewCardTopic => 'Fix questions you got wrong';
+
+  @override
+  String get reviewAllClear => 'Great job — no mistakes! 🎉';
+
+  @override
+  String reviewWrongCount(Object count) {
+    return 'Wrong $count times';
+  }
+
+  @override
   String get logout => 'Logout';
 
   @override
