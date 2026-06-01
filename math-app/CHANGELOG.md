@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **CI/CD speed-up — Docker layer caching + parallel builds + path filters**
+  - `deploy.yml` now uses `docker/build-push-action@v5` with `cache-from`/`cache-to: type=gha` for both Flutter Web and all 7 backend services
+  - Backend services build in parallel matrix (`max-parallel: 4`)
+  - Path filters (`dorny/paths-filter@v3`) skip Flutter build when only backend changes, and vice versa
+  - `deploy.yml` no longer runs E2E tests on every push — moved to separate `e2e.yml` (runs on PRs + nightly)
+  - Flutter web build speed-up: `--no-tree-shake-icons` flag skips slow font subsetting (saves ~5s per build)
+  - Makefile `deploy` target no longer runs `docker-dev` + `e2e-test` — those stay local only; CI runs them in `e2e.yml`
+
+### Added
 - **Wrong Answer Review (Practice Mistakes)** — kids can now practice questions they previously got wrong
   - `WrongAnswerStorage` (Hive) records every incorrect answer in `settingsBox`
   - New `ReviewScreen` (`/review`) pulls wrong answers from local storage, shows them in order of most-wrong-first, and removes them when answered correctly

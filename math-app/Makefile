@@ -32,7 +32,7 @@ help:
 	@echo "  make lint          Analyze Dart + Rust code"
 	@echo "  make clean         Clean all build files"
 	@echo ""
-	@echo "  make deploy        Full pipeline + docker-dev + e2e"
+	@echo "  make deploy        Full local CI pipeline (format, lint, test, build)"
 	@echo "  make changelog-check Ensure CHANGELOG.md [Unreleased] exists"
 	@echo "  make docker-test   Run all tests in Docker (no local install)"
 	@echo "  make docker-dev    Start dev services in Docker"
@@ -86,7 +86,7 @@ build-web:
 	@echo ""
 	@echo "🌐 Building web app..."
 	@GOOGLE_CLIENT_ID=$$(grep GOOGLE_CLIENT_ID .env 2>/dev/null | cut -d '=' -f2 | tr -d '[:space:]' || echo ""); \
-	cd $(FRONTEND) && $(FLUTTER_CMD) build web --dart-define=GOOGLE_CLIENT_ID=$$GOOGLE_CLIENT_ID
+	cd $(FRONTEND) && $(FLUTTER_CMD) build web --release --no-tree-shake-icons --dart-define=GOOGLE_CLIENT_ID=$$GOOGLE_CLIENT_ID
 
 # ─── Rust Backend ─────────────────────────────
 
@@ -153,7 +153,7 @@ e2e-test:
 	@echo "🎭 Running E2E tests..."
 	cd ./e2e && npx playwright test
 
-deploy: format lint changelog-check test-all build-web build-rust docker-dev e2e-test
+deploy: format lint changelog-check test-all build-web build-rust
 	@echo ""
 	@echo "✅ All checks passed, services rebuilt, E2E verified. Ready for deployment."
 

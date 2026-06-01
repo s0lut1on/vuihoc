@@ -3,14 +3,39 @@ name: Build & Deploy to VPS
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
 
 env:
   REGISTRY: ghcr.io
   IMAGE_PREFIX: ghcr.io/${{ github.repository }}
 
 jobs:
-  build-and-push:
-    name: Build images & push to GHCR
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      frontend: ${{ steps.filter.outputs.frontend }}
+      backend: ${{ steps.filter.outputs.backend }}
+      infra: ${{ steps.filter.outputs.infra }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            frontend:
+              - 'math-app/frontend/**'
+            backend:
+              - 'math-app/backend/**'
+            infra:
+              - 'math-app/docker-compose*.yml'
+              - '.github/workflows/deploy.yml'
+
+  build-flutter:
+    name: Build Flutter Web
+    needs: changes
+    if: needs.changes.outputs.frontend == 'true' || github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -39,19 +64,59 @@ jobs:
           tags: |
             ${{ env.IMAGE_PREFIX }}/flutter-web:${{ github.sha }}
             ${{ env.IMAGE_PREFIX }}/flutter-web:latest
+          cache-from: type=gha,scope=flutter-web
+          cache-to: type=gha,mode=max,scope=flutter-web
 
-      - name: Build and push backend services
-        run: |
-          for svc in auth user content progress notification media question_bank; do
-            docker buildx build \
-              --platform linux/amd64 \
-              --build-arg SERVICE_NAME="${svc}" \
-              --file math-app/backend/Dockerfile \
-              --tag "${{ env.IMAGE_PREFIX }}/${svc}:${{ github.sha }}" \
-              --tag "${{ env.IMAGE_PREFIX }}/${svc}:latest" \
-              --push ./math-app/backend
-          done
+  build-backend:
+    name: Build Backend Services
+    needs: changes
+    if: needs.changes.outputs.backend == 'true' || github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      matrix:
+        service: [auth, user, content, progress, notification, media, question_bank]
+      max-parallel: 4
+    steps:
+      - uses: actions/checkout@v4
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push ${{ matrix.service }}
+        uses: docker/build-push-action@v5
+        with:
+          context: ./math-app/backend
+          file: ./math-app/backend/Dockerfile
+          platforms: linux/amd64
+          push: true
+          build-args: |
+            SERVICE_NAME=${{ matrix.service }}
+          tags: |
+            ${{ env.IMAGE_PREFIX }}/${{ matrix.service }}:${{ github.sha }}
+            ${{ env.IMAGE_PREFIX }}/${{ matrix.service }}:latest
+          cache-from: type=gha,scope=${{ matrix.service }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.service }}
+
+  deploy:
+    name: Deploy to VPS
+    needs: [build-flutter, build-backend]
+    if: |
+      github.ref == 'refs/heads/main' && 
+      always() && 
+      (needs.build-flutter.result == 'success' || needs.build-flutter.result == 'skipped') &&
+      (needs.build-backend.result == 'success' || needs.build-backend.result == 'skipped')
+    runs-on: ubuntu-latest
+    steps:
       - name: Deploy to VPS via SSH
         uses: appleboy/ssh-action@v1.2.2
         with:
@@ -60,12 +125,8 @@ jobs:
           key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
           script: |
             cd ~/math-app/math-app
-            # Log in to GHCR so we can pull private images
             echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-            # Pull new images via compose
             IMAGE_TAG="${{ github.sha }}" docker compose -f docker-compose.ghcr.yml pull
-            # Start services
             IMAGE_TAG="${{ github.sha }}" docker compose -f docker-compose.ghcr.yml up -d --no-build
-            # Wait for DBs and health-check
-            sleep 20
+            sleep 15
             ./scripts/health-check.sh
