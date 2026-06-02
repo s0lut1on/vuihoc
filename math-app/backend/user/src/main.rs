@@ -1,4 +1,7 @@
-use axum::{routing::{get, post}, Router};
+use axum::{
+    routing::{get, post},
+    Router,
+};
 use std::net::SocketAddr;
 use tower_http::cors::CorsLayer;
 use utoipa::OpenApi;
@@ -31,8 +34,14 @@ async fn main() {
             get(handlers::get_user).post(handlers::create_user),
         )
         .route("/api/users/classroom/join", post(handlers::join_classroom))
-        .route("/api/users/classroom/leave", post(handlers::leave_classroom))
-        .route("/api/users/classroom/leaderboard", get(handlers::get_leaderboard))
+        .route(
+            "/api/users/classroom/leave",
+            post(handlers::leave_classroom),
+        )
+        .route(
+            "/api/users/classroom/leaderboard",
+            get(handlers::get_leaderboard),
+        )
         .route_layer(axum::middleware::from_fn(shared::auth_middleware));
 
     let app = Router::new()

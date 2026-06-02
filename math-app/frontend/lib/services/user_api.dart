@@ -32,4 +32,32 @@ class UserApi {
       return false;
     }
   }
+
+  static Future<bool> joinClassroom(String code) async {
+    try {
+      await _api.post('/users/classroom/join', data: {'classroom_code': code});
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  static Future<bool> leaveClassroom() async {
+    try {
+      await _api.post('/users/classroom/leave');
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  static Future<List<Map<String, dynamic>>> getLeaderboard() async {
+    try {
+      final response = await _api.get('/users/classroom/leaderboard');
+      final data = response['data'] as List<dynamic>? ?? [];
+      return data.map((e) => e as Map<String, dynamic>).toList();
+    } catch (_) {
+      return [];
+    }
+  }
 }

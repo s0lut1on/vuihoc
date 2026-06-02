@@ -133,5 +133,18 @@
 
   "profileStatLessons": "Lessons",
   "profileStatStars": "Stars",
-  "profileStatStreak": "Streak"
+  "profileStatStreak": "Streak",
+
+  "achievementsTitle": "Achievements",
+  "achievementsEmpty": "No achievements yet — complete a lesson to start earning!",
+  "achievementsNewBadge": "New",
+
+  "leaderboardTitle": "Leaderboard",
+  "leaderboardEmpty": "No leaderboard data — join a classroom!",
+  "leaderboardJoinCodeLabel": "Classroom code",
+  "leaderboardJoinCodeHint": "Enter 6-character code",
+  "leaderboardJoinButton": "Join",
+  "leaderboardLeaveButton": "Leave",
+  "leaderboardWeeklyStars": "{count} ⭐ this week",
+  "leaderboardRank": "#{rank}"
 }

@@ -133,5 +133,18 @@
 
   "profileStatLessons": "Bài học",
   "profileStatStars": "Sao",
-  "profileStatStreak": "Streak"
+  "profileStatStreak": "Streak",
+
+  "achievementsTitle": "Huy chương",
+  "achievementsEmpty": "Chưa có huy chương nào — hoàn thành một bài học để bắt đầu!",
+  "achievementsNewBadge": "Mới",
+
+  "leaderboardTitle": "Bảng xếp hạng",
+  "leaderboardEmpty": "Chưa có dữ liệu bảng xếp hạng — tham gia lớp học!",
+  "leaderboardJoinCodeLabel": "Mã lớp học",
+  "leaderboardJoinCodeHint": "Nhập mã 6 ký tự",
+  "leaderboardJoinButton": "Tham gia",
+  "leaderboardLeaveButton": "Rời lớp",
+  "leaderboardWeeklyStars": "{count} ⭐ tuần này",
+  "leaderboardRank": "Hạng {rank}"
 }

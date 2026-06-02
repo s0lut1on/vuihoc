@@ -324,4 +324,43 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get profileStatStreak => 'Streak';
+
+  @override
+  String get achievementsTitle => 'Huy chương';
+
+  @override
+  String get achievementsEmpty =>
+      'Chưa có huy chương nào — hoàn thành một bài học để bắt đầu!';
+
+  @override
+  String get achievementsNewBadge => 'Mới';
+
+  @override
+  String get leaderboardTitle => 'Bảng xếp hạng';
+
+  @override
+  String get leaderboardEmpty =>
+      'Chưa có dữ liệu bảng xếp hạng — tham gia lớp học!';
+
+  @override
+  String get leaderboardJoinCodeLabel => 'Mã lớp học';
+
+  @override
+  String get leaderboardJoinCodeHint => 'Nhập mã 6 ký tự';
+
+  @override
+  String get leaderboardJoinButton => 'Tham gia';
+
+  @override
+  String get leaderboardLeaveButton => 'Rời lớp';
+
+  @override
+  String leaderboardWeeklyStars(Object count) {
+    return '$count ⭐ tuần này';
+  }
+
+  @override
+  String leaderboardRank(Object rank) {
+    return 'Hạng $rank';
+  }
 }

@@ -240,7 +240,7 @@ pub async fn mark_achievement_read(
     };
 
     let result = sqlx::query(
-        "UPDATE achievements SET is_new = false WHERE user_id = $1 AND badge_type = $2"
+        "UPDATE achievements SET is_new = false WHERE user_id = $1 AND badge_type = $2",
     )
     .bind(user_uuid)
     .bind(&badge_type)
@@ -256,23 +256,26 @@ pub async fn mark_achievement_read(
     }
 }
 
-async fn check_and_award_achievements(db: &sqlx::PgPool, user_id: uuid::Uuid) -> Result<(), sqlx::Error> {
+async fn check_and_award_achievements(
+    db: &sqlx::PgPool,
+    user_id: uuid::Uuid,
+) -> Result<(), sqlx::Error> {
     let total_stars: i64 = sqlx::query_scalar::<_, i64>(
-        "SELECT COALESCE(SUM(stars), 0) FROM progress WHERE user_id = $1 AND completed = true"
+        "SELECT COALESCE(SUM(stars), 0) FROM progress WHERE user_id = $1 AND completed = true",
     )
     .bind(user_id)
     .fetch_one(db)
     .await?;
 
     let total_lessons: i64 = sqlx::query_scalar::<_, i64>(
-        "SELECT COUNT(*) FROM progress WHERE user_id = $1 AND completed = true"
+        "SELECT COUNT(*) FROM progress WHERE user_id = $1 AND completed = true",
     )
     .bind(user_id)
     .fetch_one(db)
     .await?;
 
     let best_streak: i32 = sqlx::query_scalar::<_, i32>(
-        "SELECT COALESCE(best_streak, 0) FROM streaks WHERE user_id = $1"
+        "SELECT COALESCE(best_streak, 0) FROM streaks WHERE user_id = $1",
     )
     .bind(user_id)
     .fetch_optional(db)
@@ -281,9 +284,9 @@ async fn check_and_award_achievements(db: &sqlx::PgPool, user_id: uuid::Uuid) ->
 
     let thresholds: [(String, i32); 6] = [
         ("first_lesson".to_string(), total_lessons as i32),
-        ("streak_3".to_string(),       best_streak),
-        ("streak_7".to_string(),       best_streak),
-        ("streak_30".to_string(),      best_streak),
+        ("streak_3".to_string(), best_streak),
+        ("streak_7".to_string(), best_streak),
+        ("streak_30".to_string(), best_streak),
         ("star_collector_10".to_string(), total_stars as i32),
         ("star_collector_50".to_string(), total_stars as i32),
     ];
@@ -292,20 +295,20 @@ async fn check_and_award_achievements(db: &sqlx::PgPool, user_id: uuid::Uuid) ->
 
     for (badge, value) in thresholds.iter() {
         let req: i32 = match badge.as_str() {
-            "first_lesson"        => 1,
-            "streak_3"            => 3,
-            "streak_7"            => 7,
-            "streak_30"           => 30,
-            "star_collector_10"   => 10,
-            "star_collector_50"   => 50,
-            _                     => continue,
+            "first_lesson" => 1,
+            "streak_3" => 3,
+            "streak_7" => 7,
+            "streak_30" => 30,
+            "star_collector_10" => 10,
+            "star_collector_50" => 50,
+            _ => continue,
         };
 
         if *value >= req {
             let _ = sqlx::query(
                 "INSERT INTO achievements (user_id, badge_type, earned_at, is_new) \
                  VALUES ($1, $2, NOW(), true) \
-                 ON CONFLICT (user_id, badge_type) DO NOTHING"
+                 ON CONFLICT (user_id, badge_type) DO NOTHING",
             )
             .bind(user_id)
             .bind(badge)

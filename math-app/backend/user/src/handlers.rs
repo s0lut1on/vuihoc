@@ -70,13 +70,11 @@ pub async fn join_classroom(
         Err(_) => return shared::ApiResponse::err("Invalid user_id"),
     };
 
-    let result = sqlx::query(
-        "UPDATE users SET classroom_code = $1 WHERE id = $2 RETURNING id"
-    )
-    .bind(&body.classroom_code)
-    .bind(user_id)
-    .fetch_one(&state.db)
-    .await;
+    let result = sqlx::query("UPDATE users SET classroom_code = $1 WHERE id = $2 RETURNING id")
+        .bind(&body.classroom_code)
+        .bind(user_id)
+        .fetch_one(&state.db)
+        .await;
 
     match result {
         Ok(_) => shared::ApiResponse::ok(serde_json::json!({"joined": true})),
@@ -96,12 +94,10 @@ pub async fn leave_classroom(
         Err(_) => return shared::ApiResponse::err("Invalid user_id"),
     };
 
-    let result = sqlx::query(
-        "UPDATE users SET classroom_code = NULL WHERE id = $1"
-    )
-    .bind(user_id)
-    .execute(&state.db)
-    .await;
+    let result = sqlx::query("UPDATE users SET classroom_code = NULL WHERE id = $1")
+        .bind(user_id)
+        .execute(&state.db)
+        .await;
 
     match result {
         Ok(_) => shared::ApiResponse::ok(serde_json::json!({"left": true})),
@@ -122,11 +118,12 @@ pub async fn get_leaderboard(
     };
 
     let code: Option<String> = match sqlx::query_scalar::<_, Option<String>>(
-        "SELECT classroom_code FROM users WHERE id = $1"
+        "SELECT classroom_code FROM users WHERE id = $1",
     )
     .bind(user_id)
     .fetch_one(&state.db)
-    .await {
+    .await
+    {
         Ok(c) => c,
         Err(e) => {
             tracing::error!("Database error in get_leaderboard: {}", e);
@@ -147,7 +144,7 @@ pub async fn get_leaderboard(
          WHERE u.classroom_code = $1 \
          GROUP BY u.id \
          ORDER BY weekly_stars DESC \
-         LIMIT 10"
+         LIMIT 10",
     )
     .bind(&code)
     .fetch_all(&state.db)

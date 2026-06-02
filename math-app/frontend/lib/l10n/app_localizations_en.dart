@@ -324,4 +324,42 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get profileStatStreak => 'Streak';
+
+  @override
+  String get achievementsTitle => 'Achievements';
+
+  @override
+  String get achievementsEmpty =>
+      'No achievements yet — complete a lesson to start earning!';
+
+  @override
+  String get achievementsNewBadge => 'New';
+
+  @override
+  String get leaderboardTitle => 'Leaderboard';
+
+  @override
+  String get leaderboardEmpty => 'No leaderboard data — join a classroom!';
+
+  @override
+  String get leaderboardJoinCodeLabel => 'Classroom code';
+
+  @override
+  String get leaderboardJoinCodeHint => 'Enter 6-character code';
+
+  @override
+  String get leaderboardJoinButton => 'Join';
+
+  @override
+  String get leaderboardLeaveButton => 'Leave';
+
+  @override
+  String leaderboardWeeklyStars(Object count) {
+    return '$count ⭐ this week';
+  }
+
+  @override
+  String leaderboardRank(Object rank) {
+    return '#$rank';
+  }
 }

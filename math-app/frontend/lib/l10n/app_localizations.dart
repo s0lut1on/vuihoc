@@ -703,6 +703,72 @@ abstract class AppLocalizations {
   /// In vi, this message translates to:
   /// **'Streak'**
   String get profileStatStreak;
+
+  /// No description provided for @achievementsTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Huy chương'**
+  String get achievementsTitle;
+
+  /// No description provided for @achievementsEmpty.
+  ///
+  /// In vi, this message translates to:
+  /// **'Chưa có huy chương nào — hoàn thành một bài học để bắt đầu!'**
+  String get achievementsEmpty;
+
+  /// No description provided for @achievementsNewBadge.
+  ///
+  /// In vi, this message translates to:
+  /// **'Mới'**
+  String get achievementsNewBadge;
+
+  /// No description provided for @leaderboardTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Bảng xếp hạng'**
+  String get leaderboardTitle;
+
+  /// No description provided for @leaderboardEmpty.
+  ///
+  /// In vi, this message translates to:
+  /// **'Chưa có dữ liệu bảng xếp hạng — tham gia lớp học!'**
+  String get leaderboardEmpty;
+
+  /// No description provided for @leaderboardJoinCodeLabel.
+  ///
+  /// In vi, this message translates to:
+  /// **'Mã lớp học'**
+  String get leaderboardJoinCodeLabel;
+
+  /// No description provided for @leaderboardJoinCodeHint.
+  ///
+  /// In vi, this message translates to:
+  /// **'Nhập mã 6 ký tự'**
+  String get leaderboardJoinCodeHint;
+
+  /// No description provided for @leaderboardJoinButton.
+  ///
+  /// In vi, this message translates to:
+  /// **'Tham gia'**
+  String get leaderboardJoinButton;
+
+  /// No description provided for @leaderboardLeaveButton.
+  ///
+  /// In vi, this message translates to:
+  /// **'Rời lớp'**
+  String get leaderboardLeaveButton;
+
+  /// No description provided for @leaderboardWeeklyStars.
+  ///
+  /// In vi, this message translates to:
+  /// **'{count} ⭐ tuần này'**
+  String leaderboardWeeklyStars(Object count);
+
+  /// No description provided for @leaderboardRank.
+  ///
+  /// In vi, this message translates to:
+  /// **'Hạng {rank}'**
+  String leaderboardRank(Object rank);
 }
 
 class _AppLocalizationsDelegate

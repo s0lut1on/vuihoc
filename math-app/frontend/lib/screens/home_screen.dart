@@ -87,6 +87,10 @@ class HomeScreen extends ConsumerWidget {
           _buildContinueCard(context, ref, persona),
           const SizedBox(height: 16),
           _buildReviewCard(context, ref),
+          const SizedBox(height: 16),
+          _buildAchievementsCard(context, ref),
+          const SizedBox(height: 16),
+          _buildLeaderboardCard(context, ref),
           const SizedBox(height: 32),
           Text(
             l10n.homeSubjects,
@@ -121,6 +125,10 @@ class HomeScreen extends ConsumerWidget {
           _buildDesktopStatsRow(context, ref, persona, user),
           const SizedBox(height: 24),
           _buildReviewCard(context, ref),
+          const SizedBox(height: 16),
+          _buildAchievementsCard(context, ref),
+          const SizedBox(height: 16),
+          _buildLeaderboardCard(context, ref),
           const SizedBox(height: 32),
           Text(
             l10n.homeSubjects,
@@ -642,6 +650,94 @@ class HomeScreen extends ConsumerWidget {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildAchievementsCard(BuildContext context, WidgetRef ref) {
+    return GestureDetector(
+      onTap: () => context.push('/achievements'),
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF3E5F5),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: const Color(0xFF9C27B0)),
+        ),
+        child: Row(
+          children: [
+            const Text('🏅', style: TextStyle(fontSize: 32)),
+            const SizedBox(width: 16),
+            const Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Huy chương',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.darkPurple,
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    'Xem huy chương của bạn',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.darkPurple,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right, color: AppColors.darkPurple),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLeaderboardCard(BuildContext context, WidgetRef ref) {
+    return GestureDetector(
+      onTap: () => context.push('/leaderboard'),
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: const Color(0xFFE8F5E9),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: const Color(0xFF4CAF50)),
+        ),
+        child: Row(
+          children: [
+            const Text('🏆', style: TextStyle(fontSize: 32)),
+            const SizedBox(width: 16),
+            const Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Bảng xếp hạng',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.darkPurple,
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    'Top bạn bè tuần này',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.darkPurple,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right, color: AppColors.darkPurple),
+          ],
+        ),
+      ),
     );
   }
 }
