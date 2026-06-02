@@ -1,6 +1,20 @@
 ## [Unreleased]
 
 ### Added
+- **Language Subjects — Vietnamese & English** — new `language-service` backend + frontend widgets
+  - New Python FastAPI service (`backend/language/`) with PostgreSQL `language_db`
+  - Curriculum endpoints: `GET /api/language/curriculum`, `GET /api/language/lesson/:id`
+  - Text validation endpoint: `POST /api/language/validate` — diacritic-aware (`exact`/`contains`/`levenshtein`)
+  - TTS pipeline: `POST /api/language/audio/tts` — gTTS → MinIO bucket `audio-files` → public URL
+  - Seed data: `seed_vietnamese.sql` (40 lessons) + `seed_english.sql` (40 lessons), exercise types `typing` + `audio_mcq`
+  - Speech evaluation (`POST /api/language/speech/evaluate`) returns **501** — deferred to Phase 2 per user request
+  - Frontend: `AudioPlayerWidget` (network audio + TTS fallback), `TextInputWidget` (typing with validation), `ExerciseDispatcherWidget` (routes `mcq`/`audio_mcq`/`typing`)
+  - New screen: `LanguageLessonScreen` — progress bar, hint, celebration navigation
+  - New subjects added to `HomeScreen` (`🇻🇳 Vietnamese`, `🇬🇧 English`) and `SubjectScreen` with routing
+  - New route: `/language-lesson/:subjectId/:lessonId` in `AppRouter`
+  - i18n: `parentDashboardSubjectVietnamese`, `parentDashboardSubjectEnglish` (vi + en)
+  - `ApiService` supports `withBaseUrl('/api/language')` for multi-service auth sharing
+
 - **Achievement/Badge System (#2)** — gamification with 6 badges earned automatically
   - New DB tables: `badge_definitions` (seeded with 6 badges), `achievements` (user badges earned)
   - New `GET /api/progress/achievements/:user_id` endpoint — returns all definitions with earned status

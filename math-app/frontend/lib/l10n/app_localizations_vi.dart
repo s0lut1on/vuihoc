@@ -214,6 +214,12 @@ class AppLocalizationsVi extends AppLocalizations {
   String get parentDashboardSubjectLogic => 'Tư duy';
 
   @override
+  String get parentDashboardSubjectVietnamese => 'Tiếng Việt';
+
+  @override
+  String get parentDashboardSubjectEnglish => 'Tiếng Anh';
+
+  @override
   String get parentDashboardSettings => 'Cài đặt';
 
   @override

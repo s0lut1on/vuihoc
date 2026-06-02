@@ -13,6 +13,7 @@ import '../screens/parent_dashboard_screen.dart';
 import '../screens/profile_screen.dart';
 import '../screens/review_screen.dart';
 import '../screens/achievement_screen.dart';
+import '../screens/language_lesson_screen.dart';
 import '../screens/leaderboard_screen.dart';
 
 /// Public routes that do NOT require authentication.
@@ -70,6 +71,14 @@ class AppRouter {
           final subjectId = state.pathParameters['subjectId']!;
           final lessonId = state.pathParameters['lessonId']!;
           return LessonScreen(subjectId: subjectId, lessonId: lessonId);
+        },
+      ),
+      GoRoute(
+        path: '/language-lesson/:subjectId/:lessonId',
+        builder: (context, state) {
+          final subjectId = state.pathParameters['subjectId']!;
+          final lessonId = state.pathParameters['lessonId']!;
+          return LanguageLessonScreen(subjectId: subjectId, lessonId: lessonId);
         },
       ),
       GoRoute(

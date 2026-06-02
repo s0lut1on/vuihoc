@@ -214,6 +214,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get parentDashboardSubjectLogic => 'Logic';
 
   @override
+  String get parentDashboardSubjectVietnamese => 'Vietnamese';
+
+  @override
+  String get parentDashboardSubjectEnglish => 'English';
+
+  @override
   String get parentDashboardSettings => 'Settings';
 
   @override

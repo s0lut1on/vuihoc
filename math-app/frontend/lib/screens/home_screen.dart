@@ -11,11 +11,32 @@ import '../services/wrong_answer_storage.dart';
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
+  String _resolveSubjectTitle(AppLocalizations l10n, String subjectId) {
+    switch (subjectId) {
+      case 'numbers':
+        return l10n.parentDashboardSubjectNumbers;
+      case 'geometry':
+        return l10n.parentDashboardSubjectGeometry;
+      case 'measurement':
+        return l10n.parentDashboardSubjectMeasurement;
+      case 'logic':
+        return l10n.parentDashboardSubjectLogic;
+      case 'vietnamese':
+        return l10n.parentDashboardSubjectVietnamese;
+      case 'english':
+        return l10n.parentDashboardSubjectEnglish;
+      default:
+        return subjectId;
+    }
+  }
+
   static const List<String> _subjectIds = [
     'numbers',
     'geometry',
     'measurement',
-    'logic'
+    'logic',
+    'vietnamese',
+    'english'
   ];
 
   static const List<Map<String, dynamic>> _subjects = [
@@ -38,6 +59,18 @@ class HomeScreen extends ConsumerWidget {
       'color': 0xFFFFF3E0
     },
     {'icon': '🧩', 'nameVi': 'Tu duy', 'nameEn': 'Logic', 'color': 0xFFE3F2FD},
+    {
+      'icon': '🇻🇳',
+      'nameVi': 'Tiếng Việt',
+      'nameEn': 'Vietnamese',
+      'color': 0xFFFFEBEE
+    },
+    {
+      'icon': '🇬🇧',
+      'nameVi': 'Tiếng Anh',
+      'nameEn': 'English',
+      'color': 0xFFE8EAF6
+    },
   ];
 
   @override
@@ -309,25 +342,27 @@ class HomeScreen extends ConsumerWidget {
   Widget _buildDesktopSubjectRow(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
     return Row(
-      children: [
-        Expanded(
+      children: List.generate(_subjects.length, (index) {
+        final subject = _subjects[index];
+        final subjectId = _subjectIds[index];
+        return Expanded(
           child: GestureDetector(
-            onTap: () => context.push('/subject/${_subjectIds[0]}'),
+            onTap: () => context.push('/subject/$subjectId'),
             child: Container(
               height: 220,
               margin: const EdgeInsets.symmetric(horizontal: 8),
               decoration: BoxDecoration(
-                color: Color(_subjects[0]['color'] as int),
+                color: Color(subject['color'] as int),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(_subjects[0]['icon'] as String,
+                  Text(subject['icon'] as String,
                       style: const TextStyle(fontSize: 48)),
                   const SizedBox(height: 8),
                   Text(
-                    l10n.parentDashboardSubjectNumbers,
+                    _resolveSubjectTitle(l10n, subjectId),
                     style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
@@ -337,92 +372,8 @@ class HomeScreen extends ConsumerWidget {
               ),
             ),
           ),
-        ),
-        Expanded(
-          child: GestureDetector(
-            onTap: () => context.push('/subject/${_subjectIds[1]}'),
-            child: Container(
-              height: 220,
-              margin: const EdgeInsets.symmetric(horizontal: 8),
-              decoration: BoxDecoration(
-                color: Color(_subjects[1]['color'] as int),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(_subjects[1]['icon'] as String,
-                      style: const TextStyle(fontSize: 48)),
-                  const SizedBox(height: 8),
-                  Text(
-                    l10n.parentDashboardSubjectGeometry,
-                    style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.darkPurple),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-        Expanded(
-          child: GestureDetector(
-            onTap: () => context.push('/subject/${_subjectIds[2]}'),
-            child: Container(
-              height: 220,
-              margin: const EdgeInsets.symmetric(horizontal: 8),
-              decoration: BoxDecoration(
-                color: Color(_subjects[2]['color'] as int),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(_subjects[2]['icon'] as String,
-                      style: const TextStyle(fontSize: 48)),
-                  const SizedBox(height: 8),
-                  Text(
-                    l10n.parentDashboardSubjectMeasurement,
-                    style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.darkPurple),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-        Expanded(
-          child: GestureDetector(
-            onTap: () => context.push('/subject/${_subjectIds[3]}'),
-            child: Container(
-              height: 220,
-              margin: const EdgeInsets.symmetric(horizontal: 8),
-              decoration: BoxDecoration(
-                color: Color(_subjects[3]['color'] as int),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(_subjects[3]['icon'] as String,
-                      style: const TextStyle(fontSize: 48)),
-                  const SizedBox(height: 8),
-                  Text(
-                    l10n.parentDashboardSubjectLogic,
-                    style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.darkPurple),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
+        );
+      }),
     );
   }
 
@@ -609,12 +560,6 @@ class HomeScreen extends ConsumerWidget {
 
   Widget _buildSubjectGrid(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
-    final subjectLabels = [
-      l10n.parentDashboardSubjectNumbers,
-      l10n.parentDashboardSubjectGeometry,
-      l10n.parentDashboardSubjectMeasurement,
-      l10n.parentDashboardSubjectLogic,
-    ];
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -627,8 +572,9 @@ class HomeScreen extends ConsumerWidget {
       ),
       itemBuilder: (context, index) {
         final subject = _subjects[index];
+        final subjectId = _subjectIds[index];
         return GestureDetector(
-          onTap: () => context.push('/subject/${_subjectIds[index]}'),
+          onTap: () => context.push('/subject/$subjectId'),
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -641,7 +587,7 @@ class HomeScreen extends ConsumerWidget {
                     style: const TextStyle(fontSize: 36)),
                 const SizedBox(height: 8),
                 Text(
-                  subjectLabels[index],
+                  _resolveSubjectTitle(l10n, subjectId),
                   style: const TextStyle(
                       fontSize: 14, color: AppColors.darkPurple),
                 ),

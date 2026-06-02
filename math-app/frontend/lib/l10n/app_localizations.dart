@@ -488,6 +488,18 @@ abstract class AppLocalizations {
   /// **'Tư duy'**
   String get parentDashboardSubjectLogic;
 
+  /// No description provided for @parentDashboardSubjectVietnamese.
+  ///
+  /// In vi, this message translates to:
+  /// **'Tiếng Việt'**
+  String get parentDashboardSubjectVietnamese;
+
+  /// No description provided for @parentDashboardSubjectEnglish.
+  ///
+  /// In vi, this message translates to:
+  /// **'Tiếng Anh'**
+  String get parentDashboardSubjectEnglish;
+
   /// No description provided for @parentDashboardSettings.
   ///
   /// In vi, this message translates to:

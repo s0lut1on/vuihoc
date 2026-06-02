@@ -4,19 +4,18 @@ import 'package:flutter/foundation.dart';
 class ApiService {
   static final ApiService _instance = ApiService._internal();
   factory ApiService() => _instance;
-  ApiService._internal();
 
+  final String baseUrl;
   late Dio _dio;
-  String? _token;
+  static String? _token;
 
-  void initialize({Dio? dio}) {
-    final baseUrl = kIsWeb ? '/api' : 'http://localhost/api';
-    _dio = dio ??
-        Dio(BaseOptions(
-          baseUrl: baseUrl,
-          connectTimeout: const Duration(seconds: 10),
-          receiveTimeout: const Duration(seconds: 15),
-        ));
+  ApiService._internal({this.baseUrl = '/api'}) {
+    final resolvedBase = kIsWeb ? baseUrl : 'http://localhost$baseUrl';
+    _dio = Dio(BaseOptions(
+      baseUrl: resolvedBase,
+      connectTimeout: const Duration(seconds: 10),
+      receiveTimeout: const Duration(seconds: 15),
+    ));
 
     _dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) {
@@ -33,6 +32,16 @@ class ApiService {
         return handler.next(error);
       },
     ));
+  }
+
+  void initialize({Dio? dio}) {
+    if (dio != null) {
+      _dio = dio;
+    }
+  }
+
+  factory ApiService.withBaseUrl(String baseUrl) {
+    return ApiService._internal(baseUrl: baseUrl);
   }
 
   void setToken(String token) {

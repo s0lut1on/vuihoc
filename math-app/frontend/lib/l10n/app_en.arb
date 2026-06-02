@@ -93,6 +93,8 @@
   "parentDashboardSubjectGeometry": "Geometry",
   "parentDashboardSubjectMeasurement": "Measurement",
   "parentDashboardSubjectLogic": "Logic",
+  "parentDashboardSubjectVietnamese": "Vietnamese",
+  "parentDashboardSubjectEnglish": "English",
   "parentDashboardSettings": "Settings",
   "parentDashboardLanguage": "Language",
   "parentDashboardLanguageValue": "English",

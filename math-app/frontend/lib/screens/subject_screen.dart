@@ -26,6 +26,8 @@ class _SubjectScreenState extends ConsumerState<SubjectScreen> {
     'geometry': {'icon': '📐', 'color': 0xFFE8F5E9},
     'measurement': {'icon': '📏', 'color': 0xFFFFF3E0},
     'logic': {'icon': '🧩', 'color': 0xFFE3F2FD},
+    'vietnamese': {'icon': '🇻🇳', 'color': 0xFFFFEBEE},
+    'english': {'icon': '🇬🇧', 'color': 0xFFE8EAF6},
   };
 
   @override
@@ -61,6 +63,10 @@ class _SubjectScreenState extends ConsumerState<SubjectScreen> {
         return l10n.parentDashboardSubjectMeasurement;
       case 'logic':
         return l10n.parentDashboardSubjectLogic;
+      case 'vietnamese':
+        return l10n.parentDashboardSubjectVietnamese;
+      case 'english':
+        return l10n.parentDashboardSubjectEnglish;
       default:
         return widget.subjectId;
     }
@@ -156,9 +162,14 @@ class _SubjectScreenState extends ConsumerState<SubjectScreen> {
                               isCompleted: isCompleted,
                               isUnlocked: isUnlocked,
                               onTap: isUnlocked
-                                  ? () => context.go(
-                                        '/lesson/${widget.subjectId}/${lesson.id}',
-                                      )
+                                  ? () {
+                                      final route = widget.subjectId ==
+                                                  'vietnamese' ||
+                                              widget.subjectId == 'english'
+                                          ? '/language-lesson/${widget.subjectId}/${lesson.id}'
+                                          : '/lesson/${widget.subjectId}/${lesson.id}';
+                                      context.go(route);
+                                    }
                                   : null,
                             );
                           },
