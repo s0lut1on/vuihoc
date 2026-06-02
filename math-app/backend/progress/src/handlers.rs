@@ -101,6 +101,7 @@ pub async fn update_progress(
         if progress.completed {
             let _ = update_streak(&state.db, user_uuid).await;
             let _ = increment_daily_count(&state.db, user_uuid).await;
+            let _ = check_and_award_achievements(&state.db, user_uuid).await;
         }
     }
 
@@ -199,6 +200,122 @@ async fn increment_daily_count(db: &sqlx::PgPool, user_id: uuid::Uuid) -> Result
 
 pub async fn health() -> ApiResponse<shared::HealthResponse> {
     ApiResponse::ok(shared::health("progress"))
+}
+
+pub async fn get_user_achievements(
+    State(state): State<AppState>,
+    Path(user_id): Path<String>,
+) -> ApiResponse<Vec<AchievementWithDefinition>> {
+    let user_uuid = match parse_uuid(&user_id) {
+        Ok(u) => u,
+        Err(e) => return ApiResponse::err(e),
+    };
+
+    let rows = sqlx::query_as::<_, AchievementWithDefinition>(
+        "SELECT bd.badge_type, a.earned_at, COALESCE(a.is_new, false) as is_new, bd.name, bd.description, bd.icon, bd.threshold \
+         FROM badge_definitions bd \
+         LEFT JOIN achievements a ON bd.badge_type = a.badge_type AND a.user_id = $1 \
+         ORDER BY bd.threshold ASC"
+    )
+    .bind(user_uuid)
+    .fetch_all(&state.db)
+    .await;
+
+    match rows {
+        Ok(data) => ApiResponse::ok(data),
+        Err(e) => {
+            tracing::error!("Database error in get_user_achievements: {}", e);
+            ApiResponse::err("Internal server error")
+        }
+    }
+}
+
+pub async fn mark_achievement_read(
+    State(state): State<AppState>,
+    Path((user_id, badge_type)): Path<(String, String)>,
+) -> ApiResponse<String> {
+    let user_uuid = match parse_uuid(&user_id) {
+        Ok(u) => u,
+        Err(e) => return ApiResponse::err(e),
+    };
+
+    let result = sqlx::query(
+        "UPDATE achievements SET is_new = false WHERE user_id = $1 AND badge_type = $2"
+    )
+    .bind(user_uuid)
+    .bind(&badge_type)
+    .execute(&state.db)
+    .await;
+
+    match result {
+        Ok(_) => ApiResponse::ok("marked".to_string()),
+        Err(e) => {
+            tracing::error!("Database error in mark_achievement_read: {}", e);
+            ApiResponse::err("Internal server error")
+        }
+    }
+}
+
+async fn check_and_award_achievements(db: &sqlx::PgPool, user_id: uuid::Uuid) -> Result<(), sqlx::Error> {
+    let total_stars: i64 = sqlx::query_scalar::<_, i64>(
+        "SELECT COALESCE(SUM(stars), 0) FROM progress WHERE user_id = $1 AND completed = true"
+    )
+    .bind(user_id)
+    .fetch_one(db)
+    .await?;
+
+    let total_lessons: i64 = sqlx::query_scalar::<_, i64>(
+        "SELECT COUNT(*) FROM progress WHERE user_id = $1 AND completed = true"
+    )
+    .bind(user_id)
+    .fetch_one(db)
+    .await?;
+
+    let best_streak: i32 = sqlx::query_scalar::<_, i32>(
+        "SELECT COALESCE(best_streak, 0) FROM streaks WHERE user_id = $1"
+    )
+    .bind(user_id)
+    .fetch_optional(db)
+    .await?
+    .unwrap_or(0);
+
+    let thresholds: [(String, i32); 6] = [
+        ("first_lesson".to_string(), total_lessons as i32),
+        ("streak_3".to_string(),       best_streak),
+        ("streak_7".to_string(),       best_streak),
+        ("streak_30".to_string(),      best_streak),
+        ("star_collector_10".to_string(), total_stars as i32),
+        ("star_collector_50".to_string(), total_stars as i32),
+    ];
+
+    sqlx::query("BEGIN").execute(db).await?;
+
+    for (badge, value) in thresholds.iter() {
+        let req: i32 = match badge.as_str() {
+            "first_lesson"        => 1,
+            "streak_3"            => 3,
+            "streak_7"            => 7,
+            "streak_30"           => 30,
+            "star_collector_10"   => 10,
+            "star_collector_50"   => 50,
+            _                     => continue,
+        };
+
+        if *value >= req {
+            let _ = sqlx::query(
+                "INSERT INTO achievements (user_id, badge_type, earned_at, is_new) \
+                 VALUES ($1, $2, NOW(), true) \
+                 ON CONFLICT (user_id, badge_type) DO NOTHING"
+            )
+            .bind(user_id)
+            .bind(badge)
+            .execute(db)
+            .await;
+        }
+    }
+
+    sqlx::query("COMMIT").execute(db).await?;
+    Ok(())
 }
 
 fn parse_uuid(user_id: &str) -> Result<uuid::Uuid, &'static str> {

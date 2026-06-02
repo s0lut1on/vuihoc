@@ -43,6 +43,41 @@ pub struct DailyLimitStatus {
     pub tier: String,
 }
 
+#[derive(Serialize, sqlx::FromRow, ToSchema, Clone)]
+pub struct Achievement {
+    pub id: uuid::Uuid,
+    pub user_id: uuid::Uuid,
+    pub badge_type: String,
+    pub earned_at: DateTime<Utc>,
+    pub is_new: bool,
+}
+
+#[derive(Serialize, sqlx::FromRow, ToSchema, Clone)]
+pub struct BadgeDefinition {
+    pub id: uuid::Uuid,
+    pub badge_type: String,
+    pub name: String,
+    pub description: String,
+    pub icon: String,
+    pub threshold: i32,
+}
+
+#[derive(Serialize, Deserialize, ToSchema)]
+pub struct AchievementList {
+    pub badges: Vec<AchievementWithDefinition>,
+}
+
+#[derive(Serialize, Deserialize, sqlx::FromRow, ToSchema, Clone)]
+pub struct AchievementWithDefinition {
+    pub badge_type: String,
+    pub earned_at: Option<DateTime<Utc>>,
+    pub is_new: bool,
+    pub name: String,
+    pub description: String,
+    pub icon: String,
+    pub threshold: i32,
+}
+
 #[derive(Clone)]
 pub struct AppState {
     pub db: sqlx::PgPool,

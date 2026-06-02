@@ -18,7 +18,11 @@ pub use models::*;
     ProgressUpdate,
     Streak,
     DailyLessonCount,
-    DailyLimitStatus
+    DailyLimitStatus,
+    Achievement,
+    BadgeDefinition,
+    AchievementWithDefinition,
+    AchievementList
 )))]
 pub struct ApiDoc;
 
@@ -75,6 +79,14 @@ async fn main() {
         .route(
             "/api/progress/daily-limit/:user_id",
             get(handlers::get_daily_limit),
+        )
+        .route(
+            "/api/progress/achievements/:user_id",
+            get(handlers::get_user_achievements),
+        )
+        .route(
+            "/api/progress/achievements/:user_id/:badge_type/mark-read",
+            post(handlers::mark_achievement_read),
         )
         .route("/api/progress", post(handlers::update_progress))
         .route_layer(axum::middleware::from_fn(shared::auth_middleware));

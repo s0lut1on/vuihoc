@@ -6,6 +6,7 @@ use uuid::Uuid;
 #[derive(Serialize, sqlx::FromRow, Clone, utoipa::ToSchema)]
 pub struct User {
     pub id: Uuid,
+    pub email: Option<String>,
     pub name: String,
     pub persona: String,
     pub avatar: String,
@@ -13,6 +14,9 @@ pub struct User {
     pub gems: i32,
     pub total_lessons: i32,
     pub total_stars: i32,
+    pub locale: String,
+    pub subscription_tier: String,
+    pub classroom_code: Option<String>,
     pub created_at: DateTime<Utc>,
 }
 
@@ -21,6 +25,19 @@ pub struct CreateUserRequest {
     pub name: String,
     pub persona: String,
     pub locale: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, utoipa::ToSchema)]
+pub struct JoinClassroomRequest {
+    pub classroom_code: String,
+}
+
+#[derive(Serialize, sqlx::FromRow, Clone, utoipa::ToSchema)]
+pub struct LeaderboardEntry {
+    pub id: Uuid,
+    pub name: String,
+    pub avatar: String,
+    pub weekly_stars: i64,
 }
 
 #[derive(Clone)]

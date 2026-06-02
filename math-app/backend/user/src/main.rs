@@ -1,4 +1,4 @@
-use axum::{routing::get, Router};
+use axum::{routing::{get, post}, Router};
 use std::net::SocketAddr;
 use tower_http::cors::CorsLayer;
 use utoipa::OpenApi;
@@ -30,6 +30,9 @@ async fn main() {
             "/api/users",
             get(handlers::get_user).post(handlers::create_user),
         )
+        .route("/api/users/classroom/join", post(handlers::join_classroom))
+        .route("/api/users/classroom/leave", post(handlers::leave_classroom))
+        .route("/api/users/classroom/leaderboard", get(handlers::get_leaderboard))
         .route_layer(axum::middleware::from_fn(shared::auth_middleware));
 
     let app = Router::new()
@@ -59,6 +62,7 @@ mod tests {
     fn user_fields_present() {
         let u = models::User {
             id: uuid::Uuid::new_v4(),
+            email: None,
             name: "Be An".to_string(),
             persona: "achiever".to_string(),
             avatar: "🐸".to_string(),
@@ -66,6 +70,9 @@ mod tests {
             gems: 100,
             total_lessons: 10,
             total_stars: 2,
+            locale: "vi_VN".to_string(),
+            subscription_tier: "free".to_string(),
+            classroom_code: None,
             created_at: chrono::Utc::now(),
         };
         assert_eq!(u.name, "Be An");
