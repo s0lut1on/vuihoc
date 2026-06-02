@@ -37,7 +37,7 @@ class AppRouter {
       final isPublic = _publicRoutes.contains(path);
 
       if (!isLoggedIn && !isPublic) return '/login';
-      if (isLoggedIn && path == '/login') return '/welcome';
+      if (isLoggedIn && path == '/login') return '/home';
       return null;
     },
     refreshListenable: _GoRouterRefreshStream(AuthService().tokenNotifier),

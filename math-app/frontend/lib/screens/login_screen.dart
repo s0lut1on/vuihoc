@@ -358,7 +358,7 @@ class _LoginScreenState extends State<LoginScreen>
     try {
       final success = await AuthService().signInWithGoogle();
       if (success && mounted) {
-        context.go('/welcome');
+        context.go('/home');
       }
     } finally {
       if (mounted) {
@@ -370,7 +370,7 @@ class _LoginScreenState extends State<LoginScreen>
   void _signInAsGuest() async {
     final success = await AuthService().signInAsGuest();
     if (success && mounted) {
-      context.go('/welcome');
+      context.go('/home');
     }
   }
 
