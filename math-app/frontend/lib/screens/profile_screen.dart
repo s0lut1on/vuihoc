@@ -7,6 +7,7 @@ import '../l10n/app_localizations.dart';
 import '../providers/app_providers.dart';
 import '../services/auth_service.dart';
 import '../services/local_storage_service.dart';
+import '../services/user_api.dart';
 
 class ProfileScreen extends ConsumerWidget {
   final VoidCallback? onBack;
@@ -115,6 +116,8 @@ class ProfileScreen extends ConsumerWidget {
               },
             ),
             _buildTtsTile(context, ref),
+            const SizedBox(height: 8),
+            _buildGradeTile(context, ref),
             const SizedBox(height: 8),
             _buildMenuTile(
               icon: Icons.logout,
@@ -250,6 +253,77 @@ class ProfileScreen extends ConsumerWidget {
           ref.read(ttsEnabledProvider.notifier).state = value;
           LocalStorageService.saveTtsEnabled(value);
         },
+      ),
+    );
+  }
+
+  Widget _buildGradeTile(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final user = ref.watch(userProvider).valueOrNull;
+    final grade = user?.grade ?? 1;
+    final isVi = l10n != null && Localizations.localeOf(context).languageCode == 'vi';
+
+    return ListTile(
+      leading: const Icon(Icons.school_outlined, color: AppColors.darkPurple),
+      title: Text(
+        isVi ? 'Lớp học' : 'Grade',
+        style: const TextStyle(
+          color: AppColors.darkPurple,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      trailing: SizedBox(
+        width: 140,
+        child: DropdownButtonHideUnderline(
+          child: DropdownButton<int>(
+            value: grade,
+            isDense: true,
+            icon: const Icon(Icons.chevron_right, color: AppColors.mutedPurple),
+            items: [
+              DropdownMenuItem(
+                value: 1,
+                child: Text(isVi ? 'Lớp 1' : 'Grade 1'),
+              ),
+              DropdownMenuItem(
+                value: 2,
+                child: Text(isVi ? 'Lớp 2' : 'Grade 2'),
+              ),
+              DropdownMenuItem(
+                value: 3,
+                child: Text(isVi ? 'Lớp 3' : 'Grade 3'),
+              ),
+            ],
+            onChanged: (newGrade) async {
+              if (newGrade == null || newGrade == grade) return;
+              try {
+                await UserApi.updateGrade(newGrade);
+                if (context.mounted) {
+                  ref.invalidate(userProvider);
+                  ref.invalidate(curriculumProvider(newGrade));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        isVi
+                            ? 'Đã chuyển sang lớp $newGrade'
+                            : 'Switched to Grade $newGrade',
+                      ),
+                    ),
+                  );
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        isVi ? 'Chuyển lớp thất bại' : 'Failed to switch grade',
+                      ),
+                    ),
+                  );
+                }
+              }
+            },
+          ),
+        ),
       ),
     );
   }

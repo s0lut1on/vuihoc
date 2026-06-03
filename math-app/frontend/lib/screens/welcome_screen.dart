@@ -20,6 +20,7 @@ class WelcomeScreen extends ConsumerStatefulWidget {
 class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
     with SingleTickerProviderStateMixin {
   Persona? _selectedPersona;
+  int _selectedGrade = 1;
   late final AnimationController _mascotController;
   late final Animation<double> _mascotAnimation;
 
@@ -115,6 +116,8 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
                           _personaCardDesktop(Persona.silent),
                         ],
                       ),
+                      const SizedBox(height: 24),
+                      _buildGradeSelector(),
                       const SizedBox(height: 32),
                       ElevatedButton(
                         onPressed: _selectedPersona == null ? null : _onStart,
@@ -291,6 +294,8 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
             const SizedBox(height: 16),
             _buildPersonaGrid(),
             const SizedBox(height: 24),
+            _buildGradeSelector(),
+            const SizedBox(height: 24),
             _buildLanguageToggle(),
             const SizedBox(height: 24),
             ElevatedButton(
@@ -393,6 +398,63 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
     );
   }
 
+  Widget _buildGradeSelector() {
+    final l10n = AppLocalizations.of(context);
+    final isVi = Localizations.localeOf(context).languageCode == 'vi';
+    final grades = [
+      (1, isVi ? 'Lớp 1 (5-7 tuổi)' : 'Grade 1 (Ages 5-7)'),
+      (2, isVi ? 'Lớp 2 (7-8 tuổi)' : 'Grade 2 (Ages 7-8)'),
+      (3, isVi ? 'Lớp 3 (8-9 tuổi)' : 'Grade 3 (Ages 8-9)'),
+    ];
+    return Column(
+      children: [
+        Text(
+          isVi ? 'Bé học lớp mấy?' : 'Which grade is your child in?',
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF4A4A6A),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 12,
+          runSpacing: 12,
+          alignment: WrapAlignment.center,
+          children: grades.map((g) {
+            final isSelected = _selectedGrade == g.$1;
+            return GestureDetector(
+              onTap: () {
+                HapticFeedback.lightImpact();
+                setState(() => _selectedGrade = g.$1);
+              },
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                decoration: BoxDecoration(
+                  color: isSelected ? AppColors.primaryPink : AppColors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: isSelected ? AppColors.primaryPink : AppColors.divider,
+                    width: 2,
+                  ),
+                ),
+                child: Text(
+                  g.$2,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: isSelected ? AppColors.white : AppColors.darkPurple,
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
+
   Widget _buildLanguageToggle() {
     return const LanguageSwitcher();
   }
@@ -410,6 +472,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
         name: l10n.homeDefaultName,
         persona: _selectedPersona!,
         locale: locale.toString(),
+        grade: _selectedGrade,
       );
     } catch (_) {
       // Silently ignore user creation failure; app works offline
