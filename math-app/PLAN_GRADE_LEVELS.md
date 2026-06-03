@@ -6,7 +6,14 @@ Add **Grade 2** (ages 7–8) and **Grade 3** (ages 8–9) to the existing **6 su
 - **Math**: `numbers`, `geometry`, `measurement`, `logic` (in `content-service`)
 - **Language**: `vietnamese`, `english` (in `language-service`)
 
-**Architecture**: Same subjects, higher difficulty. Each subject contains lessons organized by grade level. Users see lessons filtered by their assigned grade.
+**Architecture**: Same subjects, higher difficulty. The **6 subject cards on HomeScreen are always visible** regardless of grade. Only the lessons inside each subject change based on the user's grade.
+
+**Example**: A Grade 2 user taps "Numbers" and sees 50 harder lessons (2-digit addition, multiplication). A Grade 1 user taps "Numbers" and sees the original 40 basic lessons. The subject card itself never changes.
+
+**Lesson ID Convention**: All lesson IDs must include grade prefix to avoid primary key collisions:
+- Grade 1: `g1_lesson_n01`, `g1_lesson_n02`... (existing IDs can remain as-is for backward compatibility)
+- Grade 2: `g2_lesson_n01`, `g2_lesson_n02`...
+- Grade 3: `g3_lesson_n01`, `g3_lesson_n02`...
 
 ---
 
@@ -56,11 +63,11 @@ Add **Grade 2** (ages 7–8) and **Grade 3** (ages 8–9) to the existing **6 su
 **File:** `backend/content/migrations/005_grade_levels.sql`
 
 ```sql
--- Add grade column to existing subjects table
+-- Add grade range to subjects table (controls which grades see this subject card)
 ALTER TABLE subjects ADD COLUMN IF NOT EXISTS grade_min INT NOT NULL DEFAULT 1;
 ALTER TABLE subjects ADD COLUMN IF NOT EXISTS grade_max INT NOT NULL DEFAULT 1;
 
--- Add grade column to lessons
+-- Add grade column to lessons (controls which lessons load for this grade)
 ALTER TABLE lessons ADD COLUMN IF NOT EXISTS grade INT NOT NULL DEFAULT 1;
 
 -- Create index for grade filtering
@@ -69,6 +76,10 @@ CREATE INDEX IF NOT EXISTS idx_lessons_grade ON lessons(grade);
 -- Backfill existing data
 UPDATE subjects SET grade_min = 1, grade_max = 3 WHERE id IN ('numbers', 'geometry', 'measurement', 'logic');
 UPDATE lessons SET grade = 1;
+
+-- IMPORTANT: lesson_order must be filtered by grade
+-- Without WHERE grade = X, ORDER BY lesson_order mixes all grades!
+-- Example query: SELECT * FROM lessons WHERE subject_id = 'numbers' AND grade = 2 ORDER BY lesson_order
 ```
 
 **File:** `backend/content/migrations/006_grade2_curriculum.sql`
@@ -224,7 +235,30 @@ Column(
 
 Store selected grade in `createUser()` call.
 
-### 4.2 Dynamic Subject Loading (RECOMMENDED)
+### 4.2 l10n Strings
+
+Add to `app_en.arb` and `app_vi.arb`:
+```arb
+"grade1Label": "Grade 1 (Ages 5-7)",
+"grade2Label": "Grade 2 (Ages 7-8)",
+"grade3Label": "Grade 3 (Ages 8-9)",
+"gradeSelectTitle": "Which grade is your child in?",
+"gradeSwitchButton": "Switch Grade",
+"gradeLocked": "Complete {percent}% of Grade 1 to unlock",
+"gradeProgressTitle": "Grade {grade} Progress"
+```
+
+```arb
+"grade1Label": "Lớp 1 (5-7 tuổi)",
+"grade2Label": "Lớp 2 (7-8 tuổi)",
+"grade3Label": "Lớp 3 (8-9 tuổi)",
+"gradeSelectTitle": "Bé học lớp mấy?",
+"gradeSwitchButton": "Chuyển lớp",
+"gradeLocked": "Hoàn thành {percent}% bài lớp 1 để mở khóa",
+"gradeProgressTitle": "Tiến độ lớp {grade}"
+```
+
+### 4.3 Dynamic Subject Loading (RECOMMENDED)
 
 Replace hardcoded `_subjects` list with grade-aware fetching:
 
@@ -261,7 +295,7 @@ static const List<Map<String, dynamic>> _subjects = [
 ];
 ```
 
-### 4.3 SubjectScreen Grade Filter
+### 4.4 SubjectScreen Grade Filter
 
 ```dart
 // subject_screen.dart
@@ -301,9 +335,12 @@ ListTile(
 
 ### 4.5 Locking Lower Grades (Optional)
 
-If user selects Grade 3 but hasn't completed Grade 2:
+**Existing users behavior**: All existing users default to `grade = 1`. They can freely switch grades via Settings. No lock mechanism required unless specified.
+
+If implementing grade lock:
 - Show warning: "Bé nên hoàn thành 80% lớp 2 trước khi học lớp 3"
 - OR: Allow switching but show "recommended grade" indicator
+- Decision: **Free switching** (no lock) for maximum flexibility
 
 ---
 
