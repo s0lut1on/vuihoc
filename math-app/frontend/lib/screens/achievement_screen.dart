@@ -5,7 +5,8 @@ import '../services/achievement_service.dart';
 import '../providers/app_providers.dart';
 
 class AchievementScreen extends ConsumerStatefulWidget {
-  const AchievementScreen({super.key});
+  final VoidCallback? onBack;
+  const AchievementScreen({super.key, this.onBack});
 
   @override
   ConsumerState<AchievementScreen> createState() => _AchievementScreenState();
@@ -57,7 +58,19 @@ class _AchievementScreenState extends ConsumerState<AchievementScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Huy chương')),
+      appBar: AppBar(
+        title: const Text('Huy chương'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            if (widget.onBack != null) {
+              widget.onBack!();
+            } else {
+              Navigator.pop(context);
+            }
+          },
+        ),
+      ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _badges.isEmpty

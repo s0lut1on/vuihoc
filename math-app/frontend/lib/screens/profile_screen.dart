@@ -9,7 +9,8 @@ import '../services/auth_service.dart';
 import '../services/local_storage_service.dart';
 
 class ProfileScreen extends ConsumerWidget {
-  const ProfileScreen({super.key});
+  final VoidCallback? onBack;
+  const ProfileScreen({super.key, this.onBack});
 
   Color _avatarColor(String name) {
     final colors = [
@@ -63,7 +64,13 @@ class ProfileScreen extends ConsumerWidget {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: AppColors.darkPurple),
-          onPressed: () => context.go('/home'),
+          onPressed: () {
+            if (onBack != null) {
+              onBack!();
+            } else {
+              context.go('/home');
+            }
+          },
         ),
         title: Text(
           l10n?.profileTitle ?? 'Profile',

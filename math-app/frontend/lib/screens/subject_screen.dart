@@ -6,6 +6,7 @@ import '../l10n/app_localizations.dart';
 import '../models/lesson_model.dart';
 import '../providers/app_providers.dart';
 import '../services/content_api.dart';
+import '../services/language_api.dart';
 
 class SubjectScreen extends ConsumerStatefulWidget {
   final String subjectId;
@@ -38,12 +39,26 @@ class _SubjectScreenState extends ConsumerState<SubjectScreen> {
 
   Future<void> _loadLessons() async {
     try {
-      final lessons = await ContentApi.getCurriculum();
-      final filtered =
-          lessons.where((l) => l.subjectId == widget.subjectId).toList();
-      filtered.sort((a, b) => a.order.compareTo(b.order));
+      List<ApiLesson> lessons;
+      if (widget.subjectId == 'vietnamese' || widget.subjectId == 'english') {
+        final curriculum = await LanguageApi.getCurriculum();
+        final subject = curriculum.firstWhere(
+          (s) => s['subject_id'] == widget.subjectId,
+          orElse: () => {},
+        );
+        final rawLessons = (subject['lessons'] as List<dynamic>?) ?? [];
+        lessons = rawLessons.map((l) {
+          final lesson = l as Map<String, dynamic>;
+          lesson['subject_id'] = widget.subjectId;
+          return ApiLesson.fromJson(lesson);
+        }).toList();
+      } else {
+        lessons = await ContentApi.getCurriculum();
+        lessons = lessons.where((l) => l.subjectId == widget.subjectId).toList();
+      }
+      lessons.sort((a, b) => a.order.compareTo(b.order));
       setState(() {
-        _lessons = filtered;
+        _lessons = lessons;
         _loading = false;
         final l10n = AppLocalizations.of(context)!;
         _subjectTitle = _resolveTitle(l10n);

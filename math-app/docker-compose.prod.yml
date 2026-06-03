@@ -20,6 +20,40 @@ services:
       - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
     restart: unless-stopped
 
+  language-service:
+    build:
+      context: ./backend/language
+      dockerfile: Dockerfile
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://lang_user:lang_pass@language-db:5432/language_db
+      - JWT_SECRET=${JWT_SECRET}
+      - MINIO_ENDPOINT=minio:9000
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY:-minioadmin}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY:-minioadmin}
+      - MINIO_SECURE=false
+      - BASE_URL=https://${DOMAIN}
+    depends_on:
+      - language-db
+      - minio
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.language.rule=Host(`${DOMAIN}`) && PathPrefix(`/api/language`)"
+      - "traefik.http.routers.language.entrypoints=websecure"
+      - "traefik.http.routers.language.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.language.priority=100"
+      - "traefik.http.services.language.loadbalancer.server.port=3000"
+    restart: unless-stopped
+
+  language-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: language_db
+      POSTGRES_USER: lang_user
+      POSTGRES_PASSWORD: lang_pass
+    volumes:
+      - language_db_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
   flutter-web:
     build:
       context: ./frontend
@@ -284,4 +318,5 @@ volumes:
   notification_db_data:
   media_db_data:
   qb_db_data:
+  language_db_data:
   minio_data:

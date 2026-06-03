@@ -179,7 +179,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
               const LanguageSwitcher(),
               const SizedBox(width: 16),
               TextButton(
-                onPressed: () {},
+                onPressed: () => context.go('/home'),
                 child: Text(
                   l10n?.homeNavSubjects ?? 'Subjects',
                   style: const TextStyle(
@@ -190,7 +190,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
                 ),
               ),
               TextButton(
-                onPressed: () {},
+                onPressed: () => context.go('/home'),
                 child: Text(
                   l10n?.homeNavPricing ?? 'Pricing',
                   style: const TextStyle(
@@ -201,7 +201,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
                 ),
               ),
               TextButton(
-                onPressed: () {},
+                onPressed: () => context.go('/home'),
                 child: Text(
                   l10n?.homeNavContact ?? 'Contact',
                   style: const TextStyle(

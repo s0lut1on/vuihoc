@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
 from db import engine, Base
-from router import curriculum, audio, validate, progress
+from router import curriculum, audio, validate, progress, speech
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -22,10 +22,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(curriculum.router, prefix="/api/language")
-app.include_router(audio.router, prefix="/api/language")
-app.include_router(validate.router, prefix="/api/language")
-app.include_router(progress.router, prefix="/api/language")
+app.include_router(curriculum, prefix="/api/language")
+app.include_router(audio, prefix="/api/language")
+app.include_router(validate, prefix="/api/language")
+app.include_router(progress, prefix="/api/language")
+app.include_router(speech, prefix="/api/language")
 
 @app.get("/api/language/health")
 async def health():

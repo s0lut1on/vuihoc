@@ -7,9 +7,19 @@ import '../providers/app_providers.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/language_switcher.dart';
 import '../services/wrong_answer_storage.dart';
+import 'achievement_screen.dart';
+import 'leaderboard_screen.dart';
+import 'profile_screen.dart';
 
-class HomeScreen extends ConsumerWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  int _selectedIndex = 0;
 
   String _resolveSubjectTitle(AppLocalizations l10n, String subjectId) {
     switch (subjectId) {
@@ -74,7 +84,7 @@ class HomeScreen extends ConsumerWidget {
   ];
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final persona = ref.watch(personaProvider) ?? Persona.achiever;
     final userAsync = ref.watch(userProvider);
 
@@ -95,19 +105,129 @@ class HomeScreen extends ConsumerWidget {
       BuildContext context, WidgetRef ref, Persona persona, dynamic user) {
     final screenWidth = MediaQuery.of(context).size.width;
     final isDesktop = screenWidth > 900;
+    final l10n = AppLocalizations.of(context)!;
+
+    final List<Widget> pages = [
+      isDesktop
+          ? _buildDesktopHomePage(context, ref, persona, user)
+          : _buildMobileHomePage(context, ref, persona, user),
+      AchievementScreen(onBack: () { setState(() => _selectedIndex = 0); }),
+      LeaderboardScreen(onBack: () { setState(() => _selectedIndex = 0); }),
+      ProfileScreen(onBack: () { setState(() => _selectedIndex = 0); }),
+    ];
 
     return Scaffold(
       backgroundColor: AppColors.grayBg,
-      body: SafeArea(
-        child: isDesktop
-            ? _buildDesktopLayout(context, ref, persona, user)
-            : _buildMobileLayout(context, ref, persona, user),
-      ),
+      appBar: isDesktop
+          ? AppBar(
+              backgroundColor: AppColors.white,
+              elevation: 0,
+              automaticallyImplyLeading: false,
+              title: _buildDesktopNavBar(context, ref, user, l10n),
+            )
+          : null,
+      body: SafeArea(child: pages[_selectedIndex]),
+      bottomNavigationBar: isDesktop
+          ? null
+          : BottomNavigationBar(
+              currentIndex: _selectedIndex,
+              onTap: (index) => setState(() => _selectedIndex = index),
+              selectedItemColor: AppColors.primaryPink,
+              unselectedItemColor: AppColors.mutedPurple,
+              type: BottomNavigationBarType.fixed,
+              items: [
+                BottomNavigationBarItem(
+                  icon: const Icon(Icons.home_outlined),
+                  activeIcon: const Icon(Icons.home),
+                  label: l10n.homeNavSubjects,
+                ),
+                BottomNavigationBarItem(
+                  icon: const Icon(Icons.emoji_events_outlined),
+                  activeIcon: const Icon(Icons.emoji_events),
+                  label: l10n.achievementsTitle,
+                ),
+                BottomNavigationBarItem(
+                  icon: const Icon(Icons.leaderboard_outlined),
+                  activeIcon: const Icon(Icons.leaderboard),
+                  label: l10n.leaderboardTitle,
+                ),
+                BottomNavigationBarItem(
+                  icon: const Icon(Icons.person_outline),
+                  activeIcon: const Icon(Icons.person),
+                  label: l10n.profile,
+                ),
+              ],
+            ),
     );
   }
 
-  // ==================== MOBILE ====================
-  Widget _buildMobileLayout(
+  Widget _buildDesktopNavBar(
+      BuildContext context, WidgetRef ref, dynamic user, AppLocalizations l10n) {
+    final gems = user?.gems ?? 0;
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Row(
+          children: [
+            const Text('🐸', style: TextStyle(fontSize: 28)),
+            const SizedBox(width: 8),
+            Text(
+              l10n.appTitle,
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                color: AppColors.darkPurple,
+              ),
+            ),
+          ],
+        ),
+        Row(
+          children: [
+            TextButton(
+              onPressed: () => setState(() => _selectedIndex = 1),
+              child: Text(l10n.achievementsTitle,
+                  style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.darkPurple)),
+            ),
+            TextButton(
+              onPressed: () => setState(() => _selectedIndex = 2),
+              child: Text(l10n.leaderboardTitle,
+                  style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.darkPurple)),
+            ),
+            TextButton(
+              onPressed: () => setState(() => _selectedIndex = 3),
+              child: Text(l10n.profile,
+                  style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.darkPurple)),
+            ),
+            const SizedBox(width: 16),
+            Text('💎 $gems',
+                style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.primaryPink)),
+            const SizedBox(width: 16),
+            GestureDetector(
+              onTap: () => context.push('/parent-dashboard'),
+              child: const Icon(Icons.admin_panel_settings,
+                  color: AppColors.mutedPurple, size: 28),
+            ),
+            const SizedBox(width: 12),
+            const LanguageSwitcher(),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMobileHomePage(
       BuildContext context, WidgetRef ref, Persona persona, dynamic user) {
     final l10n = AppLocalizations.of(context)!;
     return SingleChildScrollView(
@@ -136,8 +256,7 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  // ==================== DESKTOP ====================
-  Widget _buildDesktopLayout(
+  Widget _buildDesktopHomePage(
       BuildContext context, WidgetRef ref, Persona persona, dynamic user) {
     final l10n = AppLocalizations.of(context)!;
     return SingleChildScrollView(
@@ -145,8 +264,6 @@ class HomeScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildDesktopNav(context, ref, user),
-          const SizedBox(height: 32),
           Text(
             l10n.homeContinueStrugglerLabel,
             style: const TextStyle(
@@ -177,7 +294,8 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildDesktopNav(BuildContext context, WidgetRef ref, dynamic user) {
+  Widget _buildDesktopNav(
+      BuildContext context, WidgetRef ref, dynamic user) {
     final gems = user?.gems ?? 0;
 
     return Row(

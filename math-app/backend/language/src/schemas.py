@@ -24,7 +24,7 @@ class ApiExercise(BaseModel):
     correct_index: int = 0
     expected_text: Optional[str] = None
     validation_mode: str = "exact"
-    max_edit_distance: int = 0
+    max_edit_distance: Optional[int] = 0
     case_sensitive: bool = False
     diacritic_sensitive: bool = True
     audio_url: Optional[str] = None
@@ -42,7 +42,7 @@ class ApiLesson(BaseModel):
     description_en: Optional[str] = None
     lesson_order: int
     difficulty: int
-    is_premium: bool = False
+    is_premium: Optional[bool] = False
     exercises: List[ApiExercise] = []
 
 class CurriculumSubject(BaseModel):
