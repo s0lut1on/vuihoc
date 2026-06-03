@@ -14,12 +14,20 @@ class UserApi {
     required String name,
     required String persona,
     String locale = 'vi_VN',
+    int grade = 1,
   }) async {
     final response = await _api.post('/users', data: {
       'name': name,
       'persona': persona,
       'locale': locale,
+      'grade': grade,
     });
+    final data = response['data'] as Map<String, dynamic>;
+    return User.fromJson(data);
+  }
+
+  static Future<User> updateGrade(int grade) async {
+    final response = await _api.post('/users/grade', data: {'grade': grade});
     final data = response['data'] as Map<String, dynamic>;
     return User.fromJson(data);
   }

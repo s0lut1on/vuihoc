@@ -11,6 +11,7 @@ class User {
   final int gems;
   final String locale;
   final String tier;
+  final int grade;
   final DateTime createdAt;
 
   const User({
@@ -24,6 +25,7 @@ class User {
     this.gems = 0,
     this.locale = 'vi_VN',
     this.tier = 'free',
+    this.grade = 1,
     required this.createdAt,
   });
 
@@ -39,6 +41,7 @@ class User {
       gems: json['gems'] ?? 0,
       locale: json['locale'] ?? 'vi_VN',
       tier: json['tier'] ?? 'free',
+      grade: json['grade'] ?? 1,
       createdAt: DateTime.tryParse(json['created_at'] ?? '') ?? DateTime.now(),
     );
   }
@@ -56,6 +59,7 @@ class User {
     int? gems,
     String? locale,
     String? tier,
+    int? grade,
     DateTime? createdAt,
   }) {
     return User(
@@ -69,6 +73,7 @@ class User {
       gems: gems ?? this.gems,
       locale: locale ?? this.locale,
       tier: tier ?? this.tier,
+      grade: grade ?? this.grade,
       createdAt: createdAt ?? this.createdAt,
     );
   }
