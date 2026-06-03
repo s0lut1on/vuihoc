@@ -17,6 +17,7 @@ pub struct User {
     pub locale: String,
     pub subscription_tier: String,
     pub classroom_code: Option<String>,
+    pub grade: i32,
     pub created_at: DateTime<Utc>,
 }
 
@@ -25,6 +26,12 @@ pub struct CreateUserRequest {
     pub name: String,
     pub persona: String,
     pub locale: Option<String>,
+    pub grade: Option<i32>,
+}
+
+#[derive(Serialize, Deserialize, utoipa::ToSchema)]
+pub struct UpdateGradeRequest {
+    pub grade: i32,
 }
 
 #[derive(Serialize, Deserialize, utoipa::ToSchema)]

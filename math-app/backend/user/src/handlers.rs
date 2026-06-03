@@ -22,6 +22,7 @@ pub async fn get_user(State(state): State<AppState>) -> shared::ApiResponse<User
             locale: "vi_VN".to_string(),
             subscription_tier: "free".to_string(),
             classroom_code: None,
+            grade: 1,
             created_at: Utc::now(),
         }),
         Err(e) => {
@@ -35,8 +36,9 @@ pub async fn create_user(
     State(state): State<AppState>,
     Json(body): Json<CreateUserRequest>,
 ) -> shared::ApiResponse<User> {
+    let grade = body.grade.unwrap_or(1);
     let user = sqlx::query_as::<_, User>(
-        "INSERT INTO users (name, persona, avatar, streak_days, gems, total_lessons, total_stars) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *",
+        "INSERT INTO users (name, persona, avatar, streak_days, gems, total_lessons, total_stars, grade) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *",
     )
     .bind(&body.name)
     .bind(&body.persona)
@@ -45,6 +47,7 @@ pub async fn create_user(
     .bind(0i32)
     .bind(0i32)
     .bind(0i32)
+    .bind(grade)
     .fetch_one(&state.db)
     .await;
     match user {
@@ -154,6 +157,31 @@ pub async fn get_leaderboard(
         Ok(data) => shared::ApiResponse::ok(data),
         Err(e) => {
             tracing::error!("Database error in get_leaderboard: {}", e);
+            shared::ApiResponse::err("Internal server error")
+        }
+    }
+}
+
+pub async fn update_grade(
+    State(state): State<AppState>,
+    Extension(claims): Extension<shared::Claims>,
+    Json(body): Json<crate::models::UpdateGradeRequest>,
+) -> shared::ApiResponse<serde_json::Value> {
+    let user_id = match uuid::Uuid::try_parse(&claims.sub) {
+        Ok(u) => u,
+        Err(_) => return shared::ApiResponse::err("Invalid user_id"),
+    };
+
+    let result = sqlx::query("UPDATE users SET grade = $1 WHERE id = $2 RETURNING id")
+        .bind(body.grade)
+        .bind(user_id)
+        .fetch_one(&state.db)
+        .await;
+
+    match result {
+        Ok(_) => shared::ApiResponse::ok(serde_json::json!({"grade": body.grade})),
+        Err(e) => {
+            tracing::error!("Database error in update_grade: {}", e);
             shared::ApiResponse::err("Internal server error")
         }
     }

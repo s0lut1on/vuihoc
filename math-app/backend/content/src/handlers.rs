@@ -1,11 +1,19 @@
 use crate::models::{get_curriculum_static, AppState};
-use axum::extract::{Path, State};
+use axum::extract::{Path, Query, State};
+use serde::Deserialize;
 use shared::ApiResponse;
+
+#[derive(Deserialize, Debug)]
+pub struct GradeQuery {
+    pub grade: Option<i32>,
+}
 
 pub async fn curriculum(
     State(state): State<AppState>,
+    Query(query): Query<GradeQuery>,
 ) -> ApiResponse<Vec<crate::models::CurriculumSubject>> {
-    match state.get_curriculum().await {
+    let grade = query.grade.unwrap_or(1);
+    match state.get_curriculum(grade).await {
         Ok(data) => ApiResponse::ok(data),
         Err(e) => {
             tracing::warn!("DB query failed ({}), falling back to static curriculum", e);
@@ -16,8 +24,10 @@ pub async fn curriculum(
 
 pub async fn subjects(
     State(state): State<AppState>,
+    Query(query): Query<GradeQuery>,
 ) -> ApiResponse<Vec<crate::models::SubjectSummary>> {
-    match state.get_subjects().await {
+    let grade = query.grade.unwrap_or(1);
+    match state.get_subjects(grade).await {
         Ok(data) => ApiResponse::ok(data),
         Err(e) => {
             tracing::warn!("DB query failed ({}), falling back to static subjects", e);

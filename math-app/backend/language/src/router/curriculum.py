@@ -1,7 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
-from typing import List
+from typing import List, Optional
 from db import get_db
 from models import LanguageSubject, LanguageLesson, LanguageExercise
 from schemas import ApiResponse, CurriculumSubject, ApiLesson, ApiExercise, SubjectSummary
@@ -10,7 +10,7 @@ from auth import require_user
 router = APIRouter()
 
 @router.get("/subjects", response_model=ApiResponse)
-async def get_subjects(db: AsyncSession = Depends(get_db)):
+async def get_subjects(grade: Optional[int] = Query(default=1), db: AsyncSession = Depends(get_db)):
     result = await db.execute(
         select(
             LanguageSubject.id,
@@ -20,7 +20,14 @@ async def get_subjects(db: AsyncSession = Depends(get_db)):
             LanguageSubject.color,
             func.count(LanguageLesson.id).label("lesson_count"),
         )
-        .outerjoin(LanguageLesson, LanguageLesson.subject_id == LanguageSubject.id)
+        .outerjoin(LanguageLesson, 
+            (LanguageLesson.subject_id == LanguageSubject.id) & 
+            (LanguageLesson.grade == grade)
+        )
+        .where(
+            (LanguageSubject.grade_min <= grade) &
+            (LanguageSubject.grade_max >= grade)
+        )
         .group_by(LanguageSubject.id)
         .order_by(LanguageSubject.display_order)
     )
@@ -39,11 +46,18 @@ async def get_subjects(db: AsyncSession = Depends(get_db)):
     return ApiResponse(data={"subjects": data})
 
 @router.get("/curriculum", response_model=ApiResponse)
-async def get_curriculum(db: AsyncSession = Depends(get_db)):
+async def get_curriculum(grade: Optional[int] = Query(default=1), db: AsyncSession = Depends(get_db)):
     result = await db.execute(
         select(LanguageSubject, LanguageLesson, LanguageExercise)
-        .outerjoin(LanguageLesson, LanguageLesson.subject_id == LanguageSubject.id)
+        .outerjoin(LanguageLesson, 
+            (LanguageLesson.subject_id == LanguageSubject.id) & 
+            (LanguageLesson.grade == grade)
+        )
         .outerjoin(LanguageExercise, LanguageExercise.lesson_id == LanguageLesson.id)
+        .where(
+            (LanguageSubject.grade_min <= grade) &
+            (LanguageSubject.grade_max >= grade)
+        )
         .order_by(LanguageSubject.display_order, LanguageLesson.lesson_order, LanguageExercise.exercise_order)
     )
     rows = result.all()

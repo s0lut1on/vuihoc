@@ -11,7 +11,7 @@ mod handlers;
 mod models;
 
 #[derive(OpenApi)]
-#[openapi(components(schemas(models::User, models::CreateUserRequest)))]
+#[openapi(components(schemas(models::User, models::CreateUserRequest, models::UpdateGradeRequest)))]
 pub struct ApiDoc;
 
 #[tokio::main]
@@ -42,6 +42,7 @@ async fn main() {
             "/api/users/classroom/leaderboard",
             get(handlers::get_leaderboard),
         )
+        .route("/api/users/grade", post(handlers::update_grade))
         .route_layer(axum::middleware::from_fn(shared::auth_middleware));
 
     let app = Router::new()
@@ -82,6 +83,7 @@ mod tests {
             locale: "vi_VN".to_string(),
             subscription_tier: "free".to_string(),
             classroom_code: None,
+            grade: 1,
             created_at: chrono::Utc::now(),
         };
         assert_eq!(u.name, "Be An");
@@ -94,6 +96,7 @@ mod tests {
             name: "An".into(),
             persona: "achiever".into(),
             locale: Some("vi".into()),
+            grade: None,
         };
         let json = serde_json::to_string(&req).unwrap();
         assert!(json.contains("achiever"));

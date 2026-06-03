@@ -13,6 +13,8 @@ class LanguageSubject(Base):
     color = Column(String(50), default='#FFEBEE')
     display_order = Column(Integer, default=0)
     target_language = Column(String(10), nullable=False)
+    grade_min = Column(Integer, default=1)
+    grade_max = Column(Integer, default=3)
     created_at = Column(DateTime, default=datetime.utcnow)
 
 class LanguageLesson(Base):
@@ -26,6 +28,7 @@ class LanguageLesson(Base):
     lesson_order = Column(Integer, nullable=False, default=1)
     difficulty = Column(Integer, nullable=False, default=1)
     is_premium = Column(Boolean, default=False)
+    grade = Column(Integer, default=1)
     created_at = Column(DateTime, default=datetime.utcnow)
 
 class LanguageExercise(Base):

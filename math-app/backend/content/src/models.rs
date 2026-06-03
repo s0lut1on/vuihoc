@@ -32,6 +32,7 @@ pub struct Lesson {
     pub lesson_order: i32,
     pub difficulty: i32,
     pub is_premium: bool,
+    pub grade: i32,
     pub created_at: DateTime<Utc>,
 }
 
@@ -142,7 +143,7 @@ pub struct AppState {
 // ============================================================================
 
 impl AppState {
-    pub async fn get_subjects(&self) -> Result<Vec<SubjectSummary>, sqlx::Error> {
+    pub async fn get_subjects(&self, grade: i32) -> Result<Vec<SubjectSummary>, sqlx::Error> {
         let rows: Vec<(String, String, String, String, String, i64)> = sqlx::query_as(
             r#"
             SELECT
@@ -153,11 +154,13 @@ impl AppState {
                 s.color,
                 COUNT(l.id)::bigint AS lesson_count
             FROM subjects s
-            LEFT JOIN lessons l ON l.subject_id = s.id
+            LEFT JOIN lessons l ON l.subject_id = s.id AND l.grade = $1
+            WHERE s.grade_min <= $1 AND s.grade_max >= $1
             GROUP BY s.id, s.name_vi, s.name_en, s.icon, s.color, s.display_order
             ORDER BY s.display_order
             "#,
         )
+        .bind(grade)
         .fetch_all(&self.db)
         .await?;
 
@@ -176,7 +179,9 @@ impl AppState {
             .collect())
     }
 
-    pub async fn get_curriculum(&self) -> Result<Vec<CurriculumSubject>, sqlx::Error> {
+    pub async fn get_curriculum(&self,
+        grade: i32,
+    ) -> Result<Vec<CurriculumSubject>, sqlx::Error> {
         let rows = sqlx::query_as::<_, CurriculumRow>(
             r#"SELECT
                 s.id as subject_id,
@@ -200,10 +205,12 @@ impl AppState {
                 e.hint_en as ex_hint_en,
                 e.exercise_order as ex_exercise_order
             FROM subjects s
-            LEFT JOIN lessons l ON l.subject_id = s.id
+            LEFT JOIN lessons l ON l.subject_id = s.id AND l.grade = $1
             LEFT JOIN exercises e ON e.lesson_id = l.id
+            WHERE s.grade_min <= $1 AND s.grade_max >= $1
             ORDER BY s.display_order, l.lesson_order, e.exercise_order"#,
         )
+        .bind(grade)
         .fetch_all(&self.db)
         .await?;
 
