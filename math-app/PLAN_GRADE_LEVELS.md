@@ -450,9 +450,9 @@ After completing 80% of a subject in a grade, show:
 |------|--------|------------|
 | 585 new lessons = massive SQL files | Build time, review difficulty | Use generator script; split into per-subject SQL files |
 | Grade migration breaks existing users | High | `DEFAULT 1` ensures backward compatibility; test with existing user data |
-| Frontend subject list grows large | UX | Implement dynamic fetching; add horizontal scroll or category tabs |
 | Two services to update (content + language) | Double work | Same pattern in both; copy-paste with table name changes |
 | Question Bank templates for G2/G3 are complex | Quality | Start with G2 templates, validate with teachers before G3 |
+| Grade column not indexed = slow queries | Performance | Ensure `idx_lessons_grade` exists on both content and language DBs |
 
 ---
 
@@ -467,6 +467,133 @@ After completing 80% of a subject in a grade, show:
 - Grade 4–5 (ages 9–11): Multiplication/division mastery, fractions, geometry angles
 - Adaptive difficulty within a grade (BKT already exists in question_bank)
 - Grade-specific achievements and certificates
+
+---
+
+## VPS Deployment Guide
+
+After all migrations and code changes are complete, deploy to production VPS (194.233.94.167):
+
+### Step 1: Run Migrations in Docker Containers
+
+```bash
+# Content Service DB
+ssh root@194.233.94.167
+docker exec -i math-app-content-db-1 psql -U content_user -d content_db \
+  < /home/deploy/math-app/math-app/backend/content/migrations/005_grade_levels.sql
+docker exec -i math-app-content-db-1 psql -U content_user -d content_db \
+  < /home/deploy/math-app/math-app/backend/content/migrations/006_grade2_curriculum.sql
+docker exec -i math-app-content-db-1 psql -U content_user -d content_db \
+  < /home/deploy/math-app/math-app/backend/content/migrations/007_grade3_curriculum.sql
+
+# Language Service DB
+docker exec -i math-app-language-db-1 psql -U language_user -d language_db \
+  < /home/deploy/math-app/math-app/backend/language/migrations/002_grade_levels.sql
+docker exec -i math-app-language-db-1 psql -U language_user -d language_db \
+  < /home/deploy/math-app/math-app/backend/language/migrations/003_grade2_curriculum.sql
+docker exec -i math-app-language-db-1 psql -U language_user -d language_db \
+  < /home/deploy/math-app/math-app/backend/language/migrations/004_grade3_curriculum.sql
+
+# User Service DB
+docker exec -i math-app-user-db-1 psql -U user_user -d user_db \
+  < /home/deploy/math-app/math-app/backend/user/migrations/xxx_user_grade.sql
+```
+
+### Step 2: Rebuild and Restart Services
+
+```bash
+cd /home/deploy/math-app/math-app
+
+# Rebuild content-service with new API changes
+docker compose -f docker-compose.prod.yml stop content-service
+docker rm -f math-app-content-service-1
+docker compose -f docker-compose.prod.yml build --no-cache content-service
+docker compose -f docker-compose.prod.yml up -d content-service
+
+# Rebuild language-service with new API changes
+docker compose -f docker-compose.prod.yml stop language-service
+docker rm -f math-app-language-service-1
+docker compose -f docker-compose.prod.yml build --no-cache language-service
+docker compose -f docker-compose.prod.yml up -d language-service
+
+# Rebuild user-service with new API changes
+docker compose -f docker-compose.prod.yml stop user-service
+docker rm -f math-app-user-service-1
+docker compose -f docker-compose.prod.yml build --no-cache user-service
+docker compose -f docker-compose.prod.yml up -d user-service
+
+# Rebuild flutter-web with new frontend changes
+docker compose -f docker-compose.prod.yml stop flutter-web
+docker rm -f math-app-flutter-web-1
+docker compose -f docker-compose.prod.yml build --no-cache flutter-web
+docker compose -f docker-compose.prod.yml up -d flutter-web
+```
+
+### Step 3: Verify Health
+
+```bash
+# Check all containers
+docker ps --format "table {{.Names}}\t{{.Status}}"
+
+# Test API endpoints
+curl -s -k https://sekklings.com/api/content/health
+curl -s -k https://sekklings.com/api/language/health
+curl -s -k https://sekklings.com/api/users/health
+```
+
+---
+
+## API Verification Examples
+
+### Content Service — Grade 2 Curriculum
+```bash
+# Get Grade 2 Numbers curriculum
+TOKEN=$(curl -s -k -X POST "https://sekklings.com/api/auth/guest" \
+  -H "Content-Type: application/json" -d "{}" | jq -r ".data.access_token")
+
+curl -s -k -H "Authorization: Bearer $TOKEN" \
+  "https://sekklings.com/api/content/curriculum?subject=numbers&grade=2" | \
+  jq -c ".data.lessons[] | {id, title_vi, grade}"
+
+# Expected: Only Grade 2 lessons with IDs like "g2_lesson_n01", "g2_lesson_n02"...
+```
+
+### Language Service — Grade 2 Vietnamese
+```bash
+# Get Grade 2 Vietnamese curriculum
+curl -s -k -H "Authorization: Bearer $TOKEN" \
+  "https://sekklings.com/api/language/curriculum?subject=vietnamese&grade=2" | \
+  jq -c ".data.lessons[] | {id, title_vi, grade}"
+
+# Expected: Grade 2 Vietnamese lessons
+```
+
+### User Service — Grade Field
+```bash
+# Check user profile includes grade
+curl -s -k -H "Authorization: Bearer $TOKEN" \
+  "https://sekklings.com/api/users/me" | \
+  jq ".data | {name, grade}"
+
+# Expected: {"name": "...", "grade": 2}
+```
+
+### Grade Filter Validation
+```bash
+# Verify Grade 1 still works (backward compatibility)
+curl -s -k -H "Authorization: Bearer $TOKEN" \
+  "https://sekklings.com/api/content/curriculum?subject=numbers&grade=1" | \
+  jq ".data.lessons | length"
+
+# Expected: 40 (original Grade 1 lessons)
+
+# Verify default grade = 1 when no grade param
+curl -s -k -H "Authorization: Bearer $TOKEN" \
+  "https://sekklings.com/api/content/curriculum?subject=numbers" | \
+  jq ".data.lessons | length"
+
+# Expected: 40 (same as grade=1)
+```
 
 ---
 
