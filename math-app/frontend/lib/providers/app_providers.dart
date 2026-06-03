@@ -47,10 +47,10 @@ final currentUserTierProvider = Provider<String>((ref) {
 });
 
 final curriculumProvider =
-    FutureProvider<List<ApiLesson>>((ref) => ContentApi.getCurriculum());
+    FutureProvider.family<List<ApiLesson>, int>((ref, grade) => ContentApi.getCurriculum(grade: grade));
 
-final subjectsProvider = FutureProvider<List<Map<String, dynamic>>>(
-    (ref) => ContentApi.getSubjects());
+final subjectsProvider = FutureProvider.family<List<Map<String, dynamic>>, int>(
+    (ref, grade) => ContentApi.getSubjects(grade: grade));
 
 /// Loads the user's progress (completed lesson IDs) from the backend.
 /// Auto-refreshes when userId changes.
@@ -85,6 +85,7 @@ class UserNotifier extends StateNotifier<AsyncValue<User?>> {
     required String name,
     required Persona persona,
     String locale = 'vi_VN',
+    int grade = 1,
   }) async {
     state = const AsyncValue.loading();
     try {
@@ -92,6 +93,7 @@ class UserNotifier extends StateNotifier<AsyncValue<User?>> {
         name: name,
         persona: persona.name,
         locale: locale,
+        grade: grade,
       );
       _ref.read(personaProvider.notifier).state = user.persona;
       _ref.read(userIdProvider.notifier).state = user.id;
@@ -105,7 +107,9 @@ class UserNotifier extends StateNotifier<AsyncValue<User?>> {
 /// Computes the next lesson the child should play.
 /// Returns {subjectId, lessonId} for the first unlocked-but-uncompleted lesson.
 final nextLessonProvider = FutureProvider<Map<String, String>?>((ref) async {
-  final lessons = await ref.watch(curriculumProvider.future);
+  final user = ref.watch(userProvider).value;
+  final grade = user?.grade ?? 1;
+  final lessons = await ref.watch(curriculumProvider(grade).future);
   final completed = await ref.watch(userProgressProvider.future);
 
   const subjectOrder = ['numbers', 'geometry', 'measurement', 'logic'];

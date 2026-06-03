@@ -60,7 +60,8 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
 
   Future<void> _loadLesson() async {
     try {
-      final lessons = await ContentApi.getCurriculum();
+      final userGrade = ref.read(userProvider).value?.grade ?? 1;
+      final lessons = await ContentApi.getCurriculum(grade: userGrade);
       final lesson = lessons.firstWhere(
         (l) => l.subjectId == widget.subjectId && l.id == widget.lessonId,
         orElse: () => const ApiLesson(

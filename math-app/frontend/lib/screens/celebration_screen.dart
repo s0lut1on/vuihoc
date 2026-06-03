@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../core/app_colors.dart';
 import '../l10n/app_localizations.dart';
 import '../models/persona_model.dart';
+import '../providers/app_providers.dart';
 import '../services/content_api.dart';
 import '../widgets/language_switcher.dart';
 
@@ -161,7 +162,8 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
 
   Future<String?> _resolveNextLesson() async {
     if (widget.subjectId == null || widget.lessonId == null) return null;
-    final lessons = await ContentApi.getCurriculum();
+    final userGrade = ref.read(userProvider).value?.grade ?? 1;
+    final lessons = await ContentApi.getCurriculum(grade: userGrade);
     final subjectLessons = lessons
         .where((l) => l.subjectId == widget.subjectId)
         .toList()

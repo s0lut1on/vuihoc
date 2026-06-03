@@ -40,8 +40,9 @@ class _SubjectScreenState extends ConsumerState<SubjectScreen> {
   Future<void> _loadLessons() async {
     try {
       List<ApiLesson> lessons;
+      final userGrade = ref.read(userProvider).value?.grade ?? 1;
       if (widget.subjectId == 'vietnamese' || widget.subjectId == 'english') {
-        final curriculum = await LanguageApi.getCurriculum();
+        final curriculum = await LanguageApi.getCurriculum(grade: userGrade);
         final subject = curriculum.firstWhere(
           (s) => s['subject_id'] == widget.subjectId,
           orElse: () => {},
@@ -53,7 +54,7 @@ class _SubjectScreenState extends ConsumerState<SubjectScreen> {
           return ApiLesson.fromJson(lesson);
         }).toList();
       } else {
-        lessons = await ContentApi.getCurriculum();
+        lessons = await ContentApi.getCurriculum(grade: userGrade);
         lessons = lessons.where((l) => l.subjectId == widget.subjectId).toList();
       }
       lessons.sort((a, b) => a.order.compareTo(b.order));

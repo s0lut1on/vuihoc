@@ -3,9 +3,9 @@ import 'api_service.dart';
 class LanguageApi {
   static final _api = ApiService.withBaseUrl('/api/language');
 
-  static Future<List<Map<String, dynamic>>> getCurriculum() async {
+  static Future<List<Map<String, dynamic>>> getCurriculum({int grade = 1}) async {
     try {
-      final response = await _api.get('/curriculum');
+      final response = await _api.get('/curriculum?grade=$grade');
       final data = response['data'] as Map<String, dynamic>?;
       final curriculum = data?['curriculum'] as List<dynamic>? ?? [];
       return curriculum.map((e) => e as Map<String, dynamic>).toList();
