@@ -258,7 +258,7 @@ class _LanguageLessonScreenState extends ConsumerState<LanguageLessonScreen> {
             const Text('🐸', style: TextStyle(fontSize: 32)),
             const SizedBox(width: 12),
             Text(
-              AppLocalizations.of(context)?.appTitle ?? 'Math Learning Fun',
+              AppLocalizations.of(context)?.appTitle ?? 'Learning Fun',
               style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.w700,

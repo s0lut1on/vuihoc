@@ -168,7 +168,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
               const Text('🐸', style: TextStyle(fontSize: 32)),
               const SizedBox(width: 12),
               Text(
-                l10n?.appTitle ?? 'Math Learning Fun',
+                l10n?.appTitle ?? 'Learning Fun',
                 style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w700,

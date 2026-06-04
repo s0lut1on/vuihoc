@@ -6,6 +6,7 @@ import '../core/app_colors.dart';
 import '../l10n/app_localizations.dart';
 import '../models/wrong_answer_model.dart';
 import '../providers/app_providers.dart';
+import '../services/review_api.dart';
 import '../services/tts_service.dart';
 import '../services/wrong_answer_storage.dart';
 import '../widgets/language_switcher.dart';
@@ -32,9 +33,58 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
   }
 
   Future<void> _loadItems() async {
-    final all = await WrongAnswerStorage.load();
+    final local = await WrongAnswerStorage.load();
+    final userId = ref.read(userIdProvider) ?? '';
+    List<WrongAnswer> merged = List.from(local);
+
+    if (userId.isNotEmpty) {
+      try {
+        final remote = await ReviewApi.getReview(userId);
+        for (final entry in remote) {
+          final existing = merged.indexWhere((e) => e.exerciseId == entry['exercise_id']);
+          final wrongCount = (entry['wrong_count'] as int?) ?? 1;
+          final remoteLastWrong = DateTime.tryParse(entry['last_wrong_at'] as String? ?? '') ?? DateTime.now();
+          if (existing >= 0) {
+            // Keep whichever has higher wrong_count or more recent
+            if (wrongCount > merged[existing].wrongCount ||
+                remoteLastWrong.isAfter(merged[existing].lastWrongAt)) {
+              merged[existing] = WrongAnswer(
+                exerciseId: entry['exercise_id'] as String,
+                lessonId: entry['lesson_id'] as String,
+                subjectId: entry['subject_id'] as String,
+                questionVi: entry['question_vi'] as String,
+                questionEn: entry['question_en'] as String,
+                hintVi: entry['hint_vi'] as String?,
+                hintEn: entry['hint_en'] as String?,
+                options: (entry['options'] as List<dynamic>).cast<String>(),
+                correctIndex: entry['correct_index'] as int,
+                wrongCount: wrongCount,
+                lastWrongAt: remoteLastWrong,
+              );
+            }
+          } else {
+            merged.add(WrongAnswer(
+              exerciseId: entry['exercise_id'] as String,
+              lessonId: entry['lesson_id'] as String,
+              subjectId: entry['subject_id'] as String,
+              questionVi: entry['question_vi'] as String,
+              questionEn: entry['question_en'] as String,
+              hintVi: entry['hint_vi'] as String?,
+              hintEn: entry['hint_en'] as String?,
+              options: (entry['options'] as List<dynamic>).cast<String>(),
+              correctIndex: entry['correct_index'] as int,
+              wrongCount: wrongCount,
+              lastWrongAt: remoteLastWrong,
+            ));
+          }
+        }
+      } catch (_) {
+        // offline: show local only
+      }
+    }
+
     setState(() {
-      _items = all..sort((a, b) => b.wrongCount.compareTo(a.wrongCount));
+      _items = merged..sort((a, b) => b.wrongCount.compareTo(a.wrongCount));
       _loading = false;
     });
   }
@@ -312,6 +362,13 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
     if (_isCorrect) {
       // User finally got it right — remove from wrong-answer pool.
       WrongAnswerStorage.remove(question.exerciseId);
+      final userId = ref.read(userIdProvider) ?? '';
+      if (userId.isNotEmpty) {
+        ReviewApi.clearWrong(
+          userId: userId,
+          exerciseId: question.exerciseId,
+        );
+      }
       _showCorrectFeedback();
     } else {
       WrongAnswerStorage.record(question);

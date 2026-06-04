@@ -8,6 +8,7 @@ import '../models/lesson_model.dart';
 import '../providers/app_providers.dart';
 import '../services/content_api.dart';
 import '../services/progress_api.dart';
+import '../services/review_api.dart';
 import '../services/tts_service.dart';
 import '../services/wrong_answer_storage.dart';
 import '../models/wrong_answer_model.dart';
@@ -347,7 +348,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
             const Text('🐸', style: TextStyle(fontSize: 32)),
             const SizedBox(width: 12),
             Text(
-              AppLocalizations.of(context)?.appTitle ?? 'Math Learning Fun',
+              AppLocalizations.of(context)?.appTitle ?? 'Learning Fun',
               style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w700,
@@ -498,6 +499,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
 
     if (!_isCorrect) {
       final currentQ = _lesson!.exercises[_currentQuestion];
+      final userId = ref.read(userIdProvider) ?? '';
       WrongAnswerStorage.record(WrongAnswer(
         exerciseId: currentQ.id,
         lessonId: widget.lessonId,
@@ -511,6 +513,20 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
         wrongCount: 1,
         lastWrongAt: DateTime.now(),
       ));
+      if (userId.isNotEmpty) {
+        ReviewApi.recordWrong(
+          userId: userId,
+          exerciseId: currentQ.id,
+          lessonId: widget.lessonId,
+          subjectId: widget.subjectId,
+          questionVi: currentQ.questionVi,
+          questionEn: currentQ.questionEn,
+          hintVi: currentQ.hintVi,
+          hintEn: currentQ.hintEn,
+          options: currentQ.options,
+          correctIndex: currentQ.correctIndex,
+        );
+      }
     }
 
     if (_isCorrect) {

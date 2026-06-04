@@ -21,8 +21,8 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen> {
 
   final List<Map<String, dynamic>> _questions = [
     {
-      'vi': 'Bé đã đếm được đến số mấy rồi?',
-      'en': 'How far can you count?',
+      'vi': 'Bé đã đếm và đọc được đến đâu rồi?',
+      'en': 'How far can your child count and read?',
       'options': [
         {'vi': 'Đếm đến 10', 'en': 'Up to 10', 'value': 10},
         {'vi': 'Đếm đến 50', 'en': 'Up to 50', 'value': 50},
@@ -30,8 +30,8 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen> {
       ],
     },
     {
-      'vi': 'Bé đã biết cộng trừ chưa?',
-      'en': 'Do you know addition and subtraction?',
+      'vi': 'Bé đã biết chữ cái và số chưa?',
+      'en': 'Does your child know letters and numbers?',
       'options': [
         {'vi': 'Chưa biết', 'en': 'Not yet', 'value': 0},
         {'vi': 'Biết một chút', 'en': 'A little', 'value': 1},

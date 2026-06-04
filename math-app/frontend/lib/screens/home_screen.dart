@@ -6,6 +6,7 @@ import '../models/persona_model.dart';
 import '../providers/app_providers.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/language_switcher.dart';
+import '../services/review_api.dart';
 import '../services/wrong_answer_storage.dart';
 import 'achievement_screen.dart';
 import 'leaderboard_screen.dart';
@@ -616,7 +617,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget _buildReviewCard(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
     return FutureBuilder<int>(
-      future: WrongAnswerStorage.getCount(),
+      future: _reviewCount(ref),
       builder: (context, snapshot) {
         final count = snapshot.data ?? 0;
         if (count == 0) return const SizedBox.shrink();
@@ -674,6 +675,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         );
       },
     );
+  }
+
+  Future<int> _reviewCount(WidgetRef ref) async {
+    final local = await WrongAnswerStorage.getCount();
+    final userId = ref.read(userIdProvider) ?? '';
+    if (userId.isEmpty) return local;
+    try {
+      final remote = await ReviewApi.getReview(userId);
+      return remote.length > local ? remote.length : local;
+    } catch (_) {
+      return local;
+    }
   }
 
   Widget _buildSubjectGrid(BuildContext context, WidgetRef ref) {

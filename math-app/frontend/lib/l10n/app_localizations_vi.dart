@@ -9,7 +9,7 @@ class AppLocalizationsVi extends AppLocalizations {
   AppLocalizationsVi([String locale = 'vi']) : super(locale);
 
   @override
-  String get appTitle => 'Học Toán Vui';
+  String get appTitle => 'Học Vui';
 
   @override
   String get welcomeGreeting => 'Xin chào, bé yêu!';
@@ -22,7 +22,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get welcomeSubtitle =>
-      'Hãy cùng học Toán vui nhé! Chọn cách học của bé.';
+      'Hãy cùng học vui nhé! Chọn cách học của bé.';
 
   @override
   String get welcomeLanguageVi => 'Tiếng Việt';
@@ -42,10 +42,10 @@ class AppLocalizationsVi extends AppLocalizations {
   }
 
   @override
-  String get assessmentQuestion1 => 'Bé đã đếm được đến số mấy rồi?';
+  String get assessmentQuestion1 => 'Bé đã đếm và đọc được đến đâu rồi?';
 
   @override
-  String get assessmentQuestion2 => 'Bé đã biết cộng trừ chưa?';
+  String get assessmentQuestion2 => 'Bé đã biết chữ cái và số chưa?';
 
   @override
   String get assessmentQuestion3 => 'Bé học nhanh hay chậm?';
@@ -88,19 +88,19 @@ class AppLocalizationsVi extends AppLocalizations {
   String get homeContinueAchieverLabel => 'Tiếp tục giành 3 sao!';
 
   @override
-  String get homeContinueAchieverTopic => 'Phép cộng 1 – 10';
+  String get homeContinueAchieverTopic => 'Cộng trừ & Đọc chữ';
 
   @override
   String get homeContinueGamerLabel => 'Kiếm thêm 50 điểm!';
 
   @override
-  String get homeContinueGamerTopic => 'Đếm vui – Cấp độ 2';
+  String get homeContinueGamerTopic => 'Học vui – Cấp độ 2';
 
   @override
   String get homeContinueStrugglerLabel => 'Hôm nay mình học gì?';
 
   @override
-  String get homeContinueStrugglerTopic => 'Nhận biết số 1 – 5';
+  String get homeContinueStrugglerTopic => 'Chữ cái & Số';
 
   @override
   String get homeContinueSilentLabel => 'Bé sẵn sàng chưa?';
@@ -156,7 +156,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get celebrationGamerSubtitle => 'Bé nhận được +15 điểm!';
 
   @override
-  String get celebrationGamerUnlock => 'Mở khóa: Phép cộng cấp độ 2!';
+  String get celebrationGamerUnlock => 'Mở khóa: Cấp độ học tiếp theo!';
 
   @override
   String get celebrationStrugglerTitle => 'Bé làm rất cố gắng!';
@@ -288,7 +288,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get loginWelcomeTitle => 'Chào mừng bạn!';
 
   @override
-  String get loginWelcomeSubtitle => 'Hãy chọn cách để bắt đầu học toán nhé';
+  String get loginWelcomeSubtitle => 'Hãy chọn cách để bắt đầu học nhé';
 
   @override
   String get loginGoogleSignIn => 'Đăng nhập với Google';

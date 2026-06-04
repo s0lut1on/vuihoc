@@ -156,8 +156,8 @@ class _LoginScreenState extends State<LoginScreen>
                   ),
                   const SizedBox(height: 24),
                   Text(
-                    AppLocalizations.of(context)?.appTitle ??
-                        'Math Learning Fun',
+                     AppLocalizations.of(context)?.appTitle ??
+                         'Learning Fun',
                     style: const TextStyle(
                       fontSize: 32,
                       fontWeight: FontWeight.w700,
@@ -167,7 +167,7 @@ class _LoginScreenState extends State<LoginScreen>
                   const SizedBox(height: 8),
                   Text(
                     AppLocalizations.of(context)?.welcomeSubtitle ??
-                        "Let's learn math together! Choose a learning style.",
+                        "Let's learn together! Choose a learning style.",
                     style: const TextStyle(
                       fontSize: 16,
                       color: AppColors.mutedPurple,
@@ -211,7 +211,7 @@ class _LoginScreenState extends State<LoginScreen>
         ),
         const SizedBox(height: 8),
         Text(
-          l10n?.loginWelcomeSubtitle ?? 'Choose a way to start learning math',
+          l10n?.loginWelcomeSubtitle ?? 'Choose a way to start learning',
           style: TextStyle(
             fontSize: desktop ? 18 : 14,
             color: AppColors.mutedPurple,

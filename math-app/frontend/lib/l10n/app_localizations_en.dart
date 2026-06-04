@@ -9,7 +9,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appTitle => 'Math Learning Fun';
+  String get appTitle => 'Learning Fun';
 
   @override
   String get welcomeGreeting => 'Hello, little friend!';
@@ -22,7 +22,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get welcomeSubtitle =>
-      'Let\'s learn math together! Choose a learning style.';
+      'Let\'s learn together! Choose a learning style.';
 
   @override
   String get welcomeLanguageVi => 'English';
@@ -42,10 +42,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get assessmentQuestion1 => 'How far can you count?';
+  String get assessmentQuestion1 => 'How far can your child count and read?';
 
   @override
-  String get assessmentQuestion2 => 'Do you know addition and subtraction?';
+  String get assessmentQuestion2 => 'Does your child know letters and numbers?';
 
   @override
   String get assessmentQuestion3 => 'How fast do you learn?';
@@ -88,19 +88,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeContinueAchieverLabel => 'Grab 3 stars!';
 
   @override
-  String get homeContinueAchieverTopic => 'Addition 1–10';
+  String get homeContinueAchieverTopic => 'Addition & Reading';
 
   @override
   String get homeContinueGamerLabel => 'Earn 50 points!';
 
   @override
-  String get homeContinueGamerTopic => 'Fun counting – Level 2';
+  String get homeContinueGamerTopic => 'Fun learning – Level 2';
 
   @override
   String get homeContinueStrugglerLabel => 'What today?';
 
   @override
-  String get homeContinueStrugglerTopic => 'Numbers 1–5';
+  String get homeContinueStrugglerTopic => 'Letters & Numbers';
 
   @override
   String get homeContinueSilentLabel => 'Ready?';
@@ -156,7 +156,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get celebrationGamerSubtitle => 'You earned +15 points!';
 
   @override
-  String get celebrationGamerUnlock => 'Unlock: Addition Level 2!';
+  String get celebrationGamerUnlock => 'Unlock: Next learning level!';
 
   @override
   String get celebrationStrugglerTitle => 'Great effort!';
@@ -288,7 +288,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginWelcomeTitle => 'Welcome!';
 
   @override
-  String get loginWelcomeSubtitle => 'Choose a way to start learning math';
+  String get loginWelcomeSubtitle => 'Choose a way to start learning';
 
   @override
   String get loginGoogleSignIn => 'Sign in with Google';

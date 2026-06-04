@@ -64,6 +64,11 @@ class ApiService {
     return _parseResponse(response);
   }
 
+  Future<Map<String, dynamic>> delete(String path) async {
+    final response = await _dio.delete(path);
+    return _parseResponse(response);
+  }
+
   Map<String, dynamic> _parseResponse(Response response) {
     if (response.statusCode == 200 || response.statusCode == 201) {
       if (response.data is Map) {

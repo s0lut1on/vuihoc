@@ -1,11 +1,11 @@
 {
   "@@locale": "en",
-  "appTitle": "Math Learning Fun",
+  "appTitle": "Learning Fun",
 
   "welcomeGreeting": "Hello, little friend!",
   "welcomeTitle": "Start Learning!",
   "welcomeParentAccess": "Parent access",
-  "welcomeSubtitle": "Let's learn math together! Choose a learning style.",
+  "welcomeSubtitle": "Let's learn together! Choose a learning style.",
   "welcomeLanguageVi": "English",
   "welcomeGoogleSignIn": "Sign in with Google",
   "welcomeSelectPersona": "Choose character",
@@ -18,8 +18,8 @@
       "total": {"type": "int"}
     }
   },
-  "assessmentQuestion1": "How far can you count?",
-  "assessmentQuestion2": "Do you know addition and subtraction?",
+  "assessmentQuestion1": "How far can your child count and read?",
+  "assessmentQuestion2": "Does your child know letters and numbers?",
   "assessmentQuestion3": "How fast do you learn?",
   "assessmentQuestion4": "What do you like most?",
   "assessmentSkip": "Skip: answered {count}/4",
@@ -43,11 +43,11 @@
     }
   },
   "homeContinueAchieverLabel": "Grab 3 stars!",
-  "homeContinueAchieverTopic": "Addition 1–10",
+  "homeContinueAchieverTopic": "Addition & Reading",
   "homeContinueGamerLabel": "Earn 50 points!",
-  "homeContinueGamerTopic": "Fun counting – Level 2",
+  "homeContinueGamerTopic": "Fun learning – Level 2",
   "homeContinueStrugglerLabel": "What today?",
-  "homeContinueStrugglerTopic": "Numbers 1–5",
+  "homeContinueStrugglerTopic": "Letters & Numbers",
   "homeContinueSilentLabel": "Ready?",
   "homeContinueSilentTopic": "Start gently",
   "homeDefaultName": "Little friend",
@@ -72,7 +72,7 @@
   "celebrationAchieverSubtitle": "Great job! Keep going!",
   "celebrationGamerTitle": "Victory!",
   "celebrationGamerSubtitle": "You earned +15 points!",
-  "celebrationGamerUnlock": "Unlock: Addition Level 2!",
+  "celebrationGamerUnlock": "Unlock: Next learning level!",
   "celebrationStrugglerTitle": "Great effort!",
   "celebrationStrugglerSubtitle": "Don't give up, let's try another!",
   "celebrationSilentTitle": "Well done!",
@@ -120,7 +120,7 @@
   "comingSoon": "Coming soon",
 
   "loginWelcomeTitle": "Welcome!",
-  "loginWelcomeSubtitle": "Choose a way to start learning math",
+  "loginWelcomeSubtitle": "Choose a way to start learning",
   "loginGoogleSignIn": "Sign in with Google",
   "loginGuestSignIn": "Continue without signing in",
   "loginOrDivider": "or",

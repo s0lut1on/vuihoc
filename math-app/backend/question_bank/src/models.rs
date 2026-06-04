@@ -169,6 +169,62 @@ pub struct GenerateRequest {
     pub domain: Option<String>,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize, FromRow, ToSchema)]
+pub struct WrongAnswer {
+    pub id: Option<Uuid>,
+    pub user_id: Uuid,
+    pub exercise_id: String,
+    pub lesson_id: String,
+    pub subject_id: String,
+    pub question_vi: String,
+    pub question_en: String,
+    pub hint_vi: Option<String>,
+    pub hint_en: Option<String>,
+    pub options: Vec<String>,
+    pub correct_index: i32,
+    pub wrong_count: i32,
+    pub last_wrong_at: Option<DateTime<Utc>>,
+    pub created_at: Option<DateTime<Utc>>,
+}
+
+#[derive(Debug, Serialize, ToSchema)]
+pub struct ReviewEntry {
+    pub exercise_id: String,
+    pub lesson_id: String,
+    pub subject_id: String,
+    pub question_vi: String,
+    pub question_en: String,
+    pub hint_vi: Option<String>,
+    pub hint_en: Option<String>,
+    pub options: Vec<String>,
+    pub correct_index: i32,
+    pub wrong_count: i32,
+}
+
+#[derive(Debug, Serialize, ToSchema)]
+pub struct ReviewList {
+    pub entries: Vec<ReviewEntry>,
+}
+
+#[derive(Debug, Deserialize, ToSchema)]
+pub struct RecordWrongPayload {
+    pub exercise_id: String,
+    pub lesson_id: String,
+    pub subject_id: String,
+    pub question_vi: String,
+    pub question_en: String,
+    pub hint_vi: Option<String>,
+    pub hint_en: Option<String>,
+    pub options: Vec<String>,
+    pub correct_index: i32,
+}
+
+#[derive(Debug, Serialize, ToSchema)]
+pub struct RecordWrongResult {
+    pub recorded: bool,
+    pub wrong_count: i32,
+}
+
 #[derive(Debug, Clone)]
 #[allow(dead_code)]
 pub struct SampledParams {

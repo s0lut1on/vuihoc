@@ -1,11 +1,11 @@
 {
   "@@locale": "vi",
-  "appTitle": "Học Toán Vui",
+  "appTitle": "Học Vui",
 
   "welcomeGreeting": "Xin chào, bé yêu!",
   "welcomeTitle": "Bắt đầu học!",
   "welcomeParentAccess": "Bố mẹ nhấn vào đây",
-  "welcomeSubtitle": "Hãy cùng học Toán vui nhé! Chọn cách học của bé.",
+  "welcomeSubtitle": "Hãy cùng học vui nhé! Chọn cách học của bé.",
   "welcomeLanguageVi": "Tiếng Việt",
   "welcomeGoogleSignIn": "Đăng nhập bằng Google",
   "welcomeSelectPersona": "Chọn nhân vật",
@@ -18,8 +18,8 @@
       "total": {"type": "int"}
     }
   },
-  "assessmentQuestion1": "Bé đã đếm được đến số mấy rồi?",
-  "assessmentQuestion2": "Bé đã biết cộng trừ chưa?",
+  "assessmentQuestion1": "Bé đã đếm và đọc được đến đâu rồi?",
+  "assessmentQuestion2": "Bé đã biết chữ cái và số chưa?",
   "assessmentQuestion3": "Bé học nhanh hay chậm?",
   "assessmentQuestion4": "Bé thích điều gì nhất?",
   "assessmentSkip": "Bỏ qua: đã trả lời {count}/4",
@@ -43,11 +43,11 @@
     }
   },
   "homeContinueAchieverLabel": "Tiếp tục giành 3 sao!",
-  "homeContinueAchieverTopic": "Phép cộng 1 – 10",
+  "homeContinueAchieverTopic": "Cộng trừ & Đọc chữ",
   "homeContinueGamerLabel": "Kiếm thêm 50 điểm!",
-  "homeContinueGamerTopic": "Đếm vui – Cấp độ 2",
+  "homeContinueGamerTopic": "Học vui – Cấp độ 2",
   "homeContinueStrugglerLabel": "Hôm nay mình học gì?",
-  "homeContinueStrugglerTopic": "Nhận biết số 1 – 5",
+  "homeContinueStrugglerTopic": "Chữ cái & Số",
   "homeContinueSilentLabel": "Bé sẵn sàng chưa?",
   "homeContinueSilentTopic": "Bắt đầu nhé",
   "homeDefaultName": "bé yêu",
@@ -72,7 +72,7 @@
   "celebrationAchieverSubtitle": "Bé giỏi quá! Tiếp tục nào!",
   "celebrationGamerTitle": "Chiến thắng!",
   "celebrationGamerSubtitle": "Bé nhận được +15 điểm!",
-  "celebrationGamerUnlock": "Mở khóa: Phép cộng cấp độ 2!",
+  "celebrationGamerUnlock": "Mở khóa: Cấp độ học tiếp theo!",
   "celebrationStrugglerTitle": "Bé làm rất cố gắng!",
   "celebrationStrugglerSubtitle": "Đừng bỏ cuộc, mình làm tiếp bài khác nhé!",
   "celebrationSilentTitle": "Làm tốt lắm!",
@@ -120,7 +120,7 @@
   "comingSoon": "Sắp ra mắt",
 
   "loginWelcomeTitle": "Chào mừng bạn!",
-  "loginWelcomeSubtitle": "Hãy chọn cách để bắt đầu học toán nhé",
+  "loginWelcomeSubtitle": "Hãy chọn cách để bắt đầu học nhé",
   "loginGoogleSignIn": "Đăng nhập với Google",
   "loginGuestSignIn": "Tiếp tục không đăng nhập",
   "loginOrDivider": "hoặc",

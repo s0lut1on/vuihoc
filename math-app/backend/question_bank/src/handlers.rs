@@ -227,3 +227,111 @@ pub async fn get_mastery(
         }
     }
 }
+
+pub async fn record_wrong(
+    Path(user_id): Path<Uuid>,
+    State(state): State<Arc<AppState>>,
+    Json(payload): Json<RecordWrongPayload>,
+) -> ApiResponse<RecordWrongResult> {
+    let result = sqlx::query_as::<_, WrongAnswer>(
+        r#"
+        INSERT INTO wrong_answers (
+            user_id, exercise_id, lesson_id, subject_id,
+            question_vi, question_en, hint_vi, hint_en,
+            options, correct_index, wrong_count, last_wrong_at
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 1, now())
+        ON CONFLICT (user_id, exercise_id)
+        DO UPDATE SET
+            wrong_count = wrong_answers.wrong_count + 1,
+            last_wrong_at = now(),
+            question_vi = EXCLUDED.question_vi,
+            question_en = EXCLUDED.question_en,
+            hint_vi = EXCLUDED.hint_vi,
+            hint_en = EXCLUDED.hint_en,
+            options = EXCLUDED.options,
+            correct_index = EXCLUDED.correct_index,
+            lesson_id = EXCLUDED.lesson_id,
+            subject_id = EXCLUDED.subject_id
+        RETURNING *
+        "#
+    )
+    .bind(user_id)
+    .bind(&payload.exercise_id)
+    .bind(&payload.lesson_id)
+    .bind(&payload.subject_id)
+    .bind(&payload.question_vi)
+    .bind(&payload.question_en)
+    .bind(&payload.hint_vi)
+    .bind(&payload.hint_en)
+    .bind(&payload.options)
+    .bind(payload.correct_index)
+    .fetch_one(state.db.pool())
+    .await;
+
+    match result {
+        Ok(wa) => ApiResponse::ok(RecordWrongResult {
+            recorded: true,
+            wrong_count: wa.wrong_count,
+        }),
+        Err(e) => {
+            tracing::error!("DB error in record_wrong: {}", e);
+            ApiResponse::err("Internal server error")
+        }
+    }
+}
+
+pub async fn get_review(
+    Path(user_id): Path<Uuid>,
+    State(state): State<Arc<AppState>>,
+) -> ApiResponse<ReviewList> {
+    let rows = sqlx::query_as::<_, WrongAnswer>(
+        "SELECT * FROM wrong_answers WHERE user_id = $1 ORDER BY wrong_count DESC, last_wrong_at DESC"
+    )
+    .bind(user_id)
+    .fetch_all(state.db.pool())
+    .await;
+
+    match rows {
+        Ok(list) => {
+            let entries: Vec<ReviewEntry> = list.into_iter().map(|wa| ReviewEntry {
+                exercise_id: wa.exercise_id,
+                lesson_id: wa.lesson_id,
+                subject_id: wa.subject_id,
+                question_vi: wa.question_vi,
+                question_en: wa.question_en,
+                hint_vi: wa.hint_vi,
+                hint_en: wa.hint_en,
+                options: wa.options,
+                correct_index: wa.correct_index,
+                wrong_count: wa.wrong_count,
+            }).collect();
+            ApiResponse::ok(ReviewList { entries })
+        }
+        Err(e) => {
+            tracing::error!("DB error in get_review: {}", e);
+            ApiResponse::err("Internal server error")
+        }
+    }
+}
+
+pub async fn clear_wrong(
+    Path((user_id, exercise_id)): Path<(Uuid, String)>,
+    State(state): State<Arc<AppState>>,
+) -> ApiResponse<shared::HealthResponse> {
+    let result = sqlx::query(
+        "DELETE FROM wrong_answers WHERE user_id = $1 AND exercise_id = $2"
+    )
+    .bind(user_id)
+    .bind(&exercise_id)
+    .execute(state.db.pool())
+    .await;
+
+    match result {
+        Ok(_) => ApiResponse::ok(shared::health("question_bank")),
+        Err(e) => {
+            tracing::error!("DB error in clear_wrong: {}", e);
+            ApiResponse::err("Internal server error")
+        }
+    }
+}

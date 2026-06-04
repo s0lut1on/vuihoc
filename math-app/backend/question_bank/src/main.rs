@@ -14,6 +14,7 @@ use utoipa_swagger_ui::SwaggerUi;
 use handlers::AppState;
 use models::{
     AnswerPayload, AnswerResult, BktState, GenerateRequest, Kc, Question, QuestionTemplate,
+    RecordWrongPayload, RecordWrongResult, ReviewList, ReviewEntry,
 };
 
 #[derive(OpenApi)]
@@ -25,6 +26,10 @@ use models::{
     GenerateRequest,
     AnswerPayload,
     AnswerResult,
+    RecordWrongPayload,
+    RecordWrongResult,
+    ReviewList,
+    ReviewEntry,
 )))]
 pub struct ApiDoc;
 
@@ -68,6 +73,18 @@ async fn main() {
         .route(
             "/api/questions/mastery/:student_id/:kc_id",
             get(handlers::get_mastery),
+        )
+        .route(
+            "/api/questions/review/:user_id",
+            axum::routing::get(handlers::get_review),
+        )
+        .route(
+            "/api/questions/review/:user_id",
+            axum::routing::post(handlers::record_wrong),
+        )
+        .route(
+            "/api/questions/review/:user_id/:exercise_id",
+            axum::routing::delete(handlers::clear_wrong),
         )
         .merge(
             SwaggerUi::new("/api/questions/swagger-ui")

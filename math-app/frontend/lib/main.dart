@@ -91,7 +91,7 @@ class _MathAppState extends ConsumerState<MathApp> {
 
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
-      title: 'Math Learning Fun',
+      title: 'Learning Fun',
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.light,

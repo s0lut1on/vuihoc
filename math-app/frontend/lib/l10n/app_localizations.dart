@@ -101,7 +101,7 @@ abstract class AppLocalizations {
   /// No description provided for @appTitle.
   ///
   /// In vi, this message translates to:
-  /// **'Học Toán Vui'**
+  /// **'Học Vui'**
   String get appTitle;
 
   /// No description provided for @welcomeGreeting.
@@ -125,7 +125,7 @@ abstract class AppLocalizations {
   /// No description provided for @welcomeSubtitle.
   ///
   /// In vi, this message translates to:
-  /// **'Hãy cùng học Toán vui nhé! Chọn cách học của bé.'**
+  /// **'Hãy cùng học vui nhé! Chọn cách học của bé.'**
   String get welcomeSubtitle;
 
   /// No description provided for @welcomeLanguageVi.
@@ -161,13 +161,13 @@ abstract class AppLocalizations {
   /// No description provided for @assessmentQuestion1.
   ///
   /// In vi, this message translates to:
-  /// **'Bé đã đếm được đến số mấy rồi?'**
+  /// **'Bé đã đếm và đọc được đến đâu rồi?'**
   String get assessmentQuestion1;
 
   /// No description provided for @assessmentQuestion2.
   ///
   /// In vi, this message translates to:
-  /// **'Bé đã biết cộng trừ chưa?'**
+  /// **'Bé đã biết chữ cái và số chưa?'**
   String get assessmentQuestion2;
 
   /// No description provided for @assessmentQuestion3.
@@ -245,7 +245,7 @@ abstract class AppLocalizations {
   /// No description provided for @homeContinueAchieverTopic.
   ///
   /// In vi, this message translates to:
-  /// **'Phép cộng 1 – 10'**
+  /// **'Cộng trừ & Đọc chữ'**
   String get homeContinueAchieverTopic;
 
   /// No description provided for @homeContinueGamerLabel.
@@ -257,7 +257,7 @@ abstract class AppLocalizations {
   /// No description provided for @homeContinueGamerTopic.
   ///
   /// In vi, this message translates to:
-  /// **'Đếm vui – Cấp độ 2'**
+  /// **'Học vui – Cấp độ 2'**
   String get homeContinueGamerTopic;
 
   /// No description provided for @homeContinueStrugglerLabel.
@@ -269,7 +269,7 @@ abstract class AppLocalizations {
   /// No description provided for @homeContinueStrugglerTopic.
   ///
   /// In vi, this message translates to:
-  /// **'Nhận biết số 1 – 5'**
+  /// **'Chữ cái & Số'**
   String get homeContinueStrugglerTopic;
 
   /// No description provided for @homeContinueSilentLabel.
@@ -377,7 +377,7 @@ abstract class AppLocalizations {
   /// No description provided for @celebrationGamerUnlock.
   ///
   /// In vi, this message translates to:
-  /// **'Mở khóa: Phép cộng cấp độ 2!'**
+  /// **'Mở khóa: Cấp độ học tiếp theo!'**
   String get celebrationGamerUnlock;
 
   /// No description provided for @celebrationStrugglerTitle.
@@ -635,7 +635,7 @@ abstract class AppLocalizations {
   /// No description provided for @loginWelcomeSubtitle.
   ///
   /// In vi, this message translates to:
-  /// **'Hãy chọn cách để bắt đầu học toán nhé'**
+  /// **'Hãy chọn cách để bắt đầu học nhé'**
   String get loginWelcomeSubtitle;
 
   /// No description provided for @loginGoogleSignIn.
