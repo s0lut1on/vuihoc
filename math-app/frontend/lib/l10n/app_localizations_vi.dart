@@ -202,6 +202,9 @@ class AppLocalizationsVi extends AppLocalizations {
   String get parentDashboardProgress => 'Tiến độ học tập';
 
   @override
+  String get parentDashboardSubjectMath => 'Toán học';
+
+  @override
   String get parentDashboardSubjectNumbers => 'Số học';
 
   @override

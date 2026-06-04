@@ -112,7 +112,7 @@ final nextLessonProvider = FutureProvider<Map<String, String>?>((ref) async {
   final lessons = await ref.watch(curriculumProvider(grade).future);
   final completed = await ref.watch(userProgressProvider.future);
 
-  const subjectOrder = ['numbers', 'geometry', 'measurement', 'logic'];
+  const subjectOrder = ['numbers', 'geometry', 'measurement', 'logic', 'vietnamese', 'english'];
   for (final subjectId in subjectOrder) {
     final subjectLessons = lessons
         .where((l) => l.subjectId == subjectId)

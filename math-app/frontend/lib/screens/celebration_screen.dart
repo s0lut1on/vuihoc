@@ -176,6 +176,9 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
     }
 
     final next = subjectLessons[currentIndex + 1];
+    if (widget.subjectId == 'vietnamese' || widget.subjectId == 'english') {
+      return '/language-lesson/${widget.subjectId}/${next.id}';
+    }
     return '/lesson/${widget.subjectId}/${next.id}';
   }
 

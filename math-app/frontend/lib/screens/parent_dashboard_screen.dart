@@ -202,14 +202,11 @@ class ParentDashboardScreen extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           _progressRow(
-              l10n.parentDashboardSubjectNumbers, 0.75, AppColors.primaryPink),
+              l10n.parentDashboardSubjectMath, 0.36, AppColors.primaryPink),
           const SizedBox(height: 12),
-          _progressRow(l10n.parentDashboardSubjectGeometry, 0.40, Colors.green),
+          _progressRow(l10n.parentDashboardSubjectVietnamese, 0.55, Colors.red),
           const SizedBox(height: 12),
-          _progressRow(
-              l10n.parentDashboardSubjectMeasurement, 0.20, Colors.orange),
-          const SizedBox(height: 12),
-          _progressRow(l10n.parentDashboardSubjectLogic, 0.10, Colors.blue),
+          _progressRow(l10n.parentDashboardSubjectEnglish, 0.30, Colors.indigo),
         ],
       ),
     );

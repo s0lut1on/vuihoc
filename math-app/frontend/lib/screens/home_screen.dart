@@ -24,6 +24,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   String _resolveSubjectTitle(AppLocalizations l10n, String subjectId) {
     switch (subjectId) {
+      case 'math':
+        return l10n.parentDashboardSubjectMath;
       case 'numbers':
         return l10n.parentDashboardSubjectNumbers;
       case 'geometry':
@@ -42,10 +44,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   static const List<String> _subjectIds = [
-    'numbers',
-    'geometry',
-    'measurement',
-    'logic',
+    'math',
     'vietnamese',
     'english'
   ];
@@ -53,23 +52,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   static const List<Map<String, dynamic>> _subjects = [
     {
       'icon': '🔢',
-      'nameVi': 'So hoc',
-      'nameEn': 'Numbers',
+      'nameVi': 'Toán học',
+      'nameEn': 'Math',
       'color': 0xFFFFE8F0
     },
-    {
-      'icon': '📐',
-      'nameVi': 'Hinh hoc',
-      'nameEn': 'Geometry',
-      'color': 0xFFE8F5E9
-    },
-    {
-      'icon': '📏',
-      'nameVi': 'Do luong',
-      'nameEn': 'Measurement',
-      'color': 0xFFFFF3E0
-    },
-    {'icon': '🧩', 'nameVi': 'Tu duy', 'nameEn': 'Logic', 'color': 0xFFE3F2FD},
     {
       'icon': '🇻🇳',
       'nameVi': 'Tiếng Việt',

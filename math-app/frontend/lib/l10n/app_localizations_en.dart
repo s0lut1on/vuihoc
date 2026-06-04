@@ -202,6 +202,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get parentDashboardProgress => 'Learning Progress';
 
   @override
+  String get parentDashboardSubjectMath => 'Math';
+
+  @override
   String get parentDashboardSubjectNumbers => 'Numbers';
 
   @override

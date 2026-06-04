@@ -464,6 +464,12 @@ abstract class AppLocalizations {
   /// **'Tiến độ học tập'**
   String get parentDashboardProgress;
 
+  /// No description provided for @parentDashboardSubjectMath.
+  ///
+  /// In vi, this message translates to:
+  /// **'Toán học'**
+  String get parentDashboardSubjectMath;
+
   /// No description provided for @parentDashboardSubjectNumbers.
   ///
   /// In vi, this message translates to:

@@ -23,6 +23,7 @@ class _SubjectScreenState extends ConsumerState<SubjectScreen> {
   String? _subjectTitle;
 
   static const Map<String, Map<String, dynamic>> _subjectMeta = {
+    'math': {'icon': '🔢', 'color': 0xFFFFE8F0},
     'numbers': {'icon': '🔢', 'color': 0xFFFFE8F0},
     'geometry': {'icon': '📐', 'color': 0xFFE8F5E9},
     'measurement': {'icon': '📏', 'color': 0xFFFFF3E0},
@@ -30,6 +31,13 @@ class _SubjectScreenState extends ConsumerState<SubjectScreen> {
     'vietnamese': {'icon': '🇻🇳', 'color': 0xFFFFEBEE},
     'english': {'icon': '🇬🇧', 'color': 0xFFE8EAF6},
   };
+
+  static const List<Map<String, dynamic>> _mathSubSubjects = [
+    {'id': 'numbers', 'icon': '🔢', 'nameVi': 'Số học', 'nameEn': 'Numbers', 'color': 0xFFFFE8F0},
+    {'id': 'geometry', 'icon': '📐', 'nameVi': 'Hình học', 'nameEn': 'Geometry', 'color': 0xFFE8F5E9},
+    {'id': 'measurement', 'icon': '📏', 'nameVi': 'Đo lường', 'nameEn': 'Measurement', 'color': 0xFFFFF3E0},
+    {'id': 'logic', 'icon': '🧩', 'nameVi': 'Tư duy', 'nameEn': 'Logic', 'color': 0xFFE3F2FD},
+  ];
 
   @override
   void initState() {
@@ -41,6 +49,16 @@ class _SubjectScreenState extends ConsumerState<SubjectScreen> {
     try {
       List<ApiLesson> lessons;
       final userGrade = ref.read(userProvider).value?.grade ?? 1;
+      if (widget.subjectId == 'math') {
+        // Math is a grouping subject — no lessons directly under it
+        setState(() {
+          _lessons = [];
+          _loading = false;
+          final l10n = AppLocalizations.of(context)!;
+          _subjectTitle = _resolveTitle(l10n);
+        });
+        return;
+      }
       if (widget.subjectId == 'vietnamese' || widget.subjectId == 'english') {
         final curriculum = await LanguageApi.getCurriculum(grade: userGrade);
         final subject = curriculum.firstWhere(
@@ -71,6 +89,8 @@ class _SubjectScreenState extends ConsumerState<SubjectScreen> {
 
   String _resolveTitle(AppLocalizations l10n) {
     switch (widget.subjectId) {
+      case 'math':
+        return l10n.parentDashboardSubjectMath;
       case 'numbers':
         return l10n.parentDashboardSubjectNumbers;
       case 'geometry':
@@ -154,46 +174,93 @@ class _SubjectScreenState extends ConsumerState<SubjectScreen> {
                   ? const Center(
                       child: CircularProgressIndicator(
                           color: AppColors.primaryPink))
-                  : _lessons.isEmpty
-                      ? Center(
-                          child: Text(
-                            l10n.lessonNotFound,
-                            style: const TextStyle(
-                                fontSize: 18, color: AppColors.primaryPink),
-                          ),
-                        )
-                      : ListView.builder(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 24, vertical: 8),
-                          itemCount: _lessons.length,
-                          itemBuilder: (context, index) {
-                            final lesson = _lessons[index];
-                            final isCompleted =
-                                completedSet.contains(lesson.id);
-                            final isUnlocked = index == 0 ||
-                                completedSet.contains(_lessons[index - 1].id);
-                            return _LessonCard(
-                              lesson: lesson,
-                              subjectId: widget.subjectId,
-                              isCompleted: isCompleted,
-                              isUnlocked: isUnlocked,
-                              onTap: isUnlocked
-                                  ? () {
-                                      final route = widget.subjectId ==
-                                                  'vietnamese' ||
-                                              widget.subjectId == 'english'
-                                          ? '/language-lesson/${widget.subjectId}/${lesson.id}'
-                                          : '/lesson/${widget.subjectId}/${lesson.id}';
-                                      context.go(route);
-                                    }
-                                  : null,
-                            );
-                          },
-                        ),
+                  : widget.subjectId == 'math'
+                      ? _buildSubSubjectGrid(context, l10n)
+                      : _lessons.isEmpty
+                          ? Center(
+                              child: Text(
+                                l10n.lessonNotFound,
+                                style: const TextStyle(
+                                    fontSize: 18, color: AppColors.primaryPink),
+                              ),
+                            )
+                          : ListView.builder(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 24, vertical: 8),
+                              itemCount: _lessons.length,
+                              itemBuilder: (context, index) {
+                                final lesson = _lessons[index];
+                                final isCompleted =
+                                    completedSet.contains(lesson.id);
+                                final isUnlocked = index == 0 ||
+                                    completedSet.contains(_lessons[index - 1].id);
+                                return _LessonCard(
+                                  lesson: lesson,
+                                  subjectId: widget.subjectId,
+                                  isCompleted: isCompleted,
+                                  isUnlocked: isUnlocked,
+                                  onTap: isUnlocked
+                                      ? () {
+                                          final route = widget.subjectId ==
+                                                      'vietnamese' ||
+                                                  widget.subjectId == 'english'
+                                              ? '/language-lesson/${widget.subjectId}/${lesson.id}'
+                                              : '/lesson/${widget.subjectId}/${lesson.id}';
+                                          context.go(route);
+                                        }
+                                      : null,
+                                );
+                              },
+                            ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildSubSubjectGrid(BuildContext context, AppLocalizations l10n) {
+    final locale = Localizations.localeOf(context);
+    final isVi = locale.languageCode == 'vi';
+    return GridView.builder(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+      itemCount: _mathSubSubjects.length,
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
+        childAspectRatio: 1.1,
+      ),
+      itemBuilder: (context, index) {
+        final sub = _mathSubSubjects[index];
+        final title = isVi ? sub['nameVi'] as String : sub['nameEn'] as String;
+        return GestureDetector(
+          onTap: () => context.push('/subject/${sub['id']}'),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Color(sub['color'] as int),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(sub['icon'] as String,
+                    style: const TextStyle(fontSize: 36)),
+                const SizedBox(height: 8),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.darkPurple,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }
