@@ -21,8 +21,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get welcomeParentAccess => 'Bố mẹ nhấn vào đây';
 
   @override
-  String get welcomeSubtitle =>
-      'Hãy cùng học vui nhé! Chọn cách học của bé.';
+  String get welcomeSubtitle => 'Hãy cùng học vui nhé! Chọn cách học của bé.';
 
   @override
   String get welcomeLanguageVi => 'Tiếng Việt';

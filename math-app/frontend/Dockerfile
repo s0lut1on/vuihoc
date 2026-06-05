@@ -13,6 +13,12 @@ RUN flutter build web --release --no-tree-shake-icons \
 
 RUN rm -rf /app/build/web/canvaskit
 
+# Cache-bust main.dart.js by appending build timestamp as query param.
+# Cloudflare caches static assets for 1 year; without a versioned URL
+# the old JS bundle continues being served after deploy.
+RUN BUILD_TS=$(date +%s) && \
+    sed -i "s/\"main.dart.js\"/\"main.dart.js?v=${BUILD_TS}\"/g" /app/build/web/flutter_bootstrap.js
+
 FROM nginx:alpine
 COPY --from=builder /app/build/web /usr/share/nginx/html
 COPY --from=builder /app/nginx.conf /etc/nginx/conf.d/default.conf
