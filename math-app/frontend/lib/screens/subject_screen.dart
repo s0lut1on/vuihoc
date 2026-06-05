@@ -224,47 +224,52 @@ class _SubjectScreenState extends ConsumerState<SubjectScreen> {
   Widget _buildSubSubjectGrid(BuildContext context, AppLocalizations l10n) {
     final locale = Localizations.localeOf(context);
     final isVi = locale.languageCode == 'vi';
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      itemCount: _mathSubSubjects.length,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
-        childAspectRatio: 1.1,
-      ),
-      itemBuilder: (context, index) {
-        final sub = _mathSubSubjects[index];
-        final title = isVi ? sub['nameVi'] as String : sub['nameEn'] as String;
-        return GestureDetector(
-          onTap: () => context.push('/subject/${sub['id']}'),
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Color(sub['color'] as int),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(sub['icon'] as String,
-                    style: const TextStyle(fontSize: 36)),
-                const SizedBox(height: 8),
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.darkPurple,
-                  ),
-                ),
-              ],
-            ),
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 600),
+        child: GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          itemCount: _mathSubSubjects.length,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+            childAspectRatio: 1.1,
           ),
-        );
-      },
+          itemBuilder: (context, index) {
+            final sub = _mathSubSubjects[index];
+            final title = isVi ? sub['nameVi'] as String : sub['nameEn'] as String;
+            return GestureDetector(
+              onTap: () => context.push('/subject/${sub['id']}'),
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Color(sub['color'] as int),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(sub['icon'] as String,
+                        style: const TextStyle(fontSize: 48)),
+                    const SizedBox(height: 8),
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.darkPurple,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      ),
     );
   }
 }
