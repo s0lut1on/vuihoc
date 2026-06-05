@@ -128,7 +128,7 @@ class _SubjectScreenState extends ConsumerState<SubjectScreen> {
           children: [
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               decoration: BoxDecoration(
                 color: Color(meta['color'] as int),
                 borderRadius:
@@ -147,13 +147,15 @@ class _SubjectScreenState extends ConsumerState<SubjectScreen> {
                       const Spacer(),
                     ],
                   ),
-                  Text(meta['icon'] as String,
-                      style: const TextStyle(fontSize: 48)),
-                  const SizedBox(height: 8),
+                  if (widget.subjectId != 'math') ...[
+                    Text(meta['icon'] as String,
+                        style: const TextStyle(fontSize: 32)),
+                    const SizedBox(height: 4),
+                  ],
                   Text(
                     _subjectTitle ?? _resolveTitle(l10n),
                     style: const TextStyle(
-                      fontSize: 28,
+                      fontSize: 24,
                       fontWeight: FontWeight.w700,
                       color: AppColors.darkPurple,
                     ),
@@ -165,7 +167,7 @@ class _SubjectScreenState extends ConsumerState<SubjectScreen> {
                             ? l10n.lessonNotFound
                             : '${_lessons.length} ${l10n.homeDayStreak(0).contains('ng') ? 'bai hoc' : 'lessons'}',
                     style: const TextStyle(
-                        fontSize: 16, color: AppColors.darkText),
+                        fontSize: 14, color: AppColors.darkText),
                   ),
                 ],
               ),
