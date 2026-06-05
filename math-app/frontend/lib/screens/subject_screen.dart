@@ -232,9 +232,9 @@ class _SubjectScreenState extends ConsumerState<SubjectScreen> {
           itemCount: _mathSubSubjects.length,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
-            crossAxisSpacing: 8,
-            mainAxisSpacing: 8,
-            childAspectRatio: 1.6,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+            childAspectRatio: 1.1,
           ),
           itemBuilder: (context, index) {
             final sub = _mathSubSubjects[index];
@@ -242,21 +242,21 @@ class _SubjectScreenState extends ConsumerState<SubjectScreen> {
             return GestureDetector(
               onTap: () => context.push('/subject/${sub['id']}'),
               child: Container(
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: Color(sub['color'] as int),
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(16),
                 ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(sub['icon'] as String,
-                        style: const TextStyle(fontSize: 22)),
-                    const SizedBox(height: 4),
+                        style: const TextStyle(fontSize: 36)),
+                    const SizedBox(height: 8),
                     Text(
                       title,
                       style: const TextStyle(
-                        fontSize: 11,
+                        fontSize: 14,
                         fontWeight: FontWeight.w700,
                         color: AppColors.darkPurple,
                       ),
