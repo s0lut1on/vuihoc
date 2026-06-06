@@ -3,7 +3,7 @@ from jose import jwt, JWTError
 from fastapi import HTTPException, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
-JWT_SECRET = os.environ.get("JWT_SECRET", "fallback-secret-do-not-use")
+JWT_SECRET = os.environ["JWT_SECRET"]
 security = HTTPBearer()
 
 async def require_user(credentials: HTTPAuthorizationCredentials = Depends(security)) -> str:

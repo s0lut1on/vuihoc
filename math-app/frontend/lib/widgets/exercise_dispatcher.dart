@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import '../core/app_colors.dart';
 import 'audio_player_widget.dart';
 import 'text_input_widget.dart';
+import 'matching_exercise.dart';
+import 'ordering_exercise.dart';
 
 class ExerciseDispatcher extends StatefulWidget {
   final Map<String, dynamic> exercise;
@@ -29,8 +31,14 @@ class _ExerciseDispatcherState extends State<ExerciseDispatcher> {
     switch (exerciseType) {
       case 'audio_mcq':
         return _buildAudioMcqExercise();
+      case 'listen_select':
+        return _buildListenSelectExercise();
       case 'typing':
         return _buildTypingExercise();
+      case 'matching':
+        return MatchingExercise(exercise: widget.exercise, onAnswered: widget.onAnswered);
+      case 'ordering':
+        return OrderingExercise(exercise: widget.exercise, onAnswered: widget.onAnswered);
       case 'mcq':
       default:
         return _buildMcqExercise();
@@ -39,23 +47,33 @@ class _ExerciseDispatcherState extends State<ExerciseDispatcher> {
 
   Widget _buildAudioMcqExercise() {
     final audioUrl = widget.exercise['audio_url'] as String?;
-    final questionVi = widget.exercise['question_vi'] as String? ?? '';
-    final questionEn = widget.exercise['question_en'] as String? ?? '';
-
-    final locale = Localizations.localeOf(context);
-    final isVietnamese = locale.languageCode == 'vi';
-    final questionText = isVietnamese ? questionVi : questionEn;
-
     return Column(
       children: [
         Center(
           child: AudioPlayerWidget(
             audioUrl: audioUrl,
-            fallbackText: questionText,
-            languageCode: locale.languageCode,
+            fallbackText: _resolveQuestion(),
+            languageCode: Localizations.localeOf(context).languageCode,
           ),
         ),
         const SizedBox(height: 24),
+        _buildMcqOptions(),
+      ],
+    );
+  }
+
+  Widget _buildListenSelectExercise() {
+    final audioUrl = widget.exercise['audio_url'] as String?;
+    return Column(
+      children: [
+        Center(
+          child: AudioPlayerWidget(
+            audioUrl: audioUrl,
+            fallbackText: _resolveQuestion(),
+            languageCode: Localizations.localeOf(context).languageCode,
+          ),
+        ),
+        const SizedBox(height: 32),
         _buildMcqOptions(),
       ],
     );
@@ -179,5 +197,12 @@ class _ExerciseDispatcherState extends State<ExerciseDispatcher> {
         }
       });
     }
+  }
+
+  String _resolveQuestion() {
+    final locale = Localizations.localeOf(context);
+    final vi = widget.exercise['question_vi'] as String? ?? '';
+    final en = widget.exercise['question_en'] as String? ?? '';
+    return locale.languageCode == 'vi' ? vi : en;
   }
 }

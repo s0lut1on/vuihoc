@@ -1,11 +1,51 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../core/app_colors.dart';
 import '../l10n/app_localizations.dart';
+import '../providers/app_providers.dart';
+import '../services/language_api.dart';
 import '../widgets/language_switcher.dart';
 
-class ParentDashboardScreen extends StatelessWidget {
+class ParentDashboardScreen extends ConsumerStatefulWidget {
   const ParentDashboardScreen({super.key});
+
+  @override
+  ConsumerState<ParentDashboardScreen> createState() =>
+      _ParentDashboardScreenState();
+}
+
+class _ParentDashboardScreenState extends ConsumerState<ParentDashboardScreen> {
+  List<Map<String, dynamic>> _subjects = [];
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProgress();
+  }
+
+  Future<void> _loadProgress() async {
+    final user = ref.read(userProvider).value;
+    if (user == null) {
+      setState(() => _loading = false);
+      return;
+    }
+    try {
+      final data = await LanguageApi.getDetailedProgress(userId: user.id);
+      if (data != null) {
+        final subjects = data['subjects'] as List<dynamic>? ?? [];
+        setState(() {
+          _subjects = subjects.cast<Map<String, dynamic>>();
+          _loading = false;
+        });
+      } else {
+        setState(() => _loading = false);
+      }
+    } catch (_) {
+      setState(() => _loading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -133,16 +173,26 @@ class ParentDashboardScreen extends StatelessWidget {
   }
 
   Widget _buildStatsCards(AppLocalizations l10n) {
+    // Calculate real totals from subjects data
+    int totalLessons = 0;
+    int totalCompleted = 0;
+    int totalStars = 0;
+    for (final s in _subjects) {
+      totalLessons += s['total_lessons'] as int? ?? 0;
+      totalCompleted += s['completed_lessons'] as int? ?? 0;
+      totalStars += s['stars_earned'] as int? ?? 0;
+    }
+
     return Row(
       children: [
         Expanded(
           child: _statCard(
-              '📚', '12', l10n.parentDashboardLessonsLearned, Colors.blue),
+              '📚', '$totalCompleted', l10n.parentDashboardLessonsLearned, Colors.blue),
         ),
         const SizedBox(width: 16),
         Expanded(
           child: _statCard(
-              '⭐', '36', l10n.parentDashboardStarsEarned, Colors.amber),
+              '⭐', '$totalStars', l10n.parentDashboardStarsEarned, Colors.amber),
         ),
         const SizedBox(width: 16),
         Expanded(
@@ -184,6 +234,47 @@ class ParentDashboardScreen extends StatelessWidget {
   }
 
   Widget _buildChildProgress(AppLocalizations l10n) {
+    if (_loading) {
+      return Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: AppColors.white,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: const Center(
+          child: CircularProgressIndicator(color: AppColors.primaryPink),
+        ),
+      );
+    }
+
+    if (_subjects.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: AppColors.white,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              l10n.parentDashboardProgress,
+              style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.darkPurple),
+            ),
+            const SizedBox(height: 16),
+            _progressRow(l10n.parentDashboardSubjectMath, 0.0, AppColors.primaryPink),
+            const SizedBox(height: 12),
+            _progressRow(l10n.parentDashboardSubjectVietnamese, 0.0, Colors.red),
+            const SizedBox(height: 12),
+            _progressRow(l10n.parentDashboardSubjectEnglish, 0.0, Colors.indigo),
+          ],
+        ),
+      );
+    }
+
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -201,18 +292,50 @@ class ParentDashboardScreen extends StatelessWidget {
                 color: AppColors.darkPurple),
           ),
           const SizedBox(height: 16),
-          _progressRow(
-              l10n.parentDashboardSubjectMath, 0.36, AppColors.primaryPink),
-          const SizedBox(height: 12),
-          _progressRow(l10n.parentDashboardSubjectVietnamese, 0.55, Colors.red),
-          const SizedBox(height: 12),
-          _progressRow(l10n.parentDashboardSubjectEnglish, 0.30, Colors.indigo),
+          ..._subjects.map((subject) {
+            final isVi = Localizations.localeOf(context).languageCode == 'vi';
+            final label = isVi
+                ? (subject['subject_vi'] as String? ?? '')
+                : (subject['subject_en'] as String? ?? '');
+            final color = _parseColor(subject['color'] as String? ?? '#FFEBEE');
+            final pct = subject['completion_pct'] as double? ?? 0.0;
+            return Column(
+              children: [
+                _progressRow(label, pct, color),
+                const SizedBox(height: 12),
+                // Sub-subject breakdown
+                ...((subject['sub_subjects'] as List<dynamic>? ?? [])
+                    .cast<Map<String, dynamic>>()
+                    .map((ss) {
+                  final ssLabel = isVi
+                      ? (ss['name_vi'] as String? ?? '')
+                      : (ss['name_en'] as String? ?? '');
+                  final ssColor = _parseColor(ss['color'] as String? ?? '#FFEBEE');
+                  final ssPct = ss['completion_pct'] as double? ?? 0.0;
+                  return Padding(
+                    padding: const EdgeInsets.only(left: 16, bottom: 8),
+                    child: _progressRow(ssLabel, ssPct, ssColor, isSub: true),
+                  );
+                })),
+                const SizedBox(height: 8),
+              ],
+            );
+          }).toList(),
         ],
       ),
     );
   }
 
-  Widget _progressRow(String label, double progress, Color color) {
+  Color _parseColor(String hex) {
+    try {
+      return Color(int.parse(hex.replaceFirst('#', '0xFF')));
+    } catch (_) {
+      return AppColors.primaryPink;
+    }
+  }
+
+  Widget _progressRow(String label, double progress, Color color,
+      {bool isSub = false}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -220,11 +343,15 @@ class ParentDashboardScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(label,
-                style:
-                    const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                style: TextStyle(
+                    fontSize: isSub ? 13 : 14,
+                    fontWeight: isSub ? FontWeight.w500 : FontWeight.w600,
+                    color: isSub ? AppColors.darkText : AppColors.darkPurple)),
             Text('${(progress * 100).toInt()}%',
                 style: TextStyle(
-                    fontSize: 14, fontWeight: FontWeight.w700, color: color)),
+                    fontSize: isSub ? 12 : 14,
+                    fontWeight: FontWeight.w700,
+                    color: color)),
           ],
         ),
         const SizedBox(height: 8),
@@ -232,7 +359,7 @@ class ParentDashboardScreen extends StatelessWidget {
           borderRadius: BorderRadius.circular(8),
           child: LinearProgressIndicator(
             value: progress,
-            minHeight: 8,
+            minHeight: isSub ? 6 : 8,
             backgroundColor: color.withValues(alpha: 0.2),
             valueColor: AlwaysStoppedAnimation<Color>(color),
           ),

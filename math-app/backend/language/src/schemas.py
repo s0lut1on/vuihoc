@@ -45,13 +45,32 @@ class ApiLesson(BaseModel):
     is_premium: Optional[bool] = False
     exercises: List[ApiExercise] = []
 
+class CurriculumSubSubject(BaseModel):
+    sub_subject_id: str
+    sub_subject_vi: str
+    sub_subject_en: str
+    sub_subject_icon: str
+    sub_subject_color: str
+    lessons: List[ApiLesson] = []
+
 class CurriculumSubject(BaseModel):
     subject_id: str
     subject_vi: str
     subject_en: str
     subject_icon: str
     subject_color: str
+    sub_subjects: List[CurriculumSubSubject] = []
     lessons: List[ApiLesson] = []
+
+class SubSubjectSummary(BaseModel):
+    id: str
+    subject_id: str
+    name_vi: str
+    name_en: str
+    icon: str
+    color: str
+    display_order: int
+    lesson_count: int
 
 class TtsRequest(BaseModel):
     text: str
@@ -83,6 +102,32 @@ class LanguageProgressOut(BaseModel):
     completed: bool
     stars: int
     attempts: int
+
+class SubSubjectProgress(BaseModel):
+    id: str
+    name_vi: str
+    name_en: str
+    color: str
+    icon: str
+    total_lessons: int
+    completed_lessons: int
+    stars_earned: int
+    max_stars: int
+    completion_pct: float
+    is_unlocked: bool
+
+class SubjectProgress(BaseModel):
+    subject_id: str
+    subject_vi: str
+    subject_en: str
+    icon: str
+    color: str
+    total_lessons: int
+    completed_lessons: int
+    stars_earned: int
+    max_stars: int
+    completion_pct: float
+    sub_subjects: List[SubSubjectProgress] = []
 
 class SpeechEvaluateResult(BaseModel):
     transcribed_text: str

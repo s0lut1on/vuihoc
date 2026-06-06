@@ -10,8 +10,9 @@ import '../services/language_api.dart';
 
 class SubjectScreen extends ConsumerStatefulWidget {
   final String subjectId;
+  final String? subSubjectId;
 
-  const SubjectScreen({super.key, required this.subjectId});
+  const SubjectScreen({super.key, required this.subjectId, this.subSubjectId});
 
   @override
   ConsumerState<SubjectScreen> createState() => _SubjectScreenState();
@@ -19,8 +20,11 @@ class SubjectScreen extends ConsumerStatefulWidget {
 
 class _SubjectScreenState extends ConsumerState<SubjectScreen> {
   List<ApiLesson> _lessons = [];
+  List<Map<String, dynamic>> _subSubjects = [];
   bool _loading = true;
   String? _subjectTitle;
+  int _lessonCount = 0;
+  bool _hasDetailedProgress = false;
 
   static const Map<String, Map<String, dynamic>> _subjectMeta = {
     'math': {'icon': '🔢', 'color': 0xFFFFE8F0},
@@ -42,45 +46,96 @@ class _SubjectScreenState extends ConsumerState<SubjectScreen> {
   @override
   void initState() {
     super.initState();
-    _loadLessons();
+    _loadData();
   }
 
-  Future<void> _loadLessons() async {
+  Future<void> _loadData() async {
     try {
-      List<ApiLesson> lessons;
+      List<ApiLesson> lessons = [];
+      List<Map<String, dynamic>> subSubjects = [];
+      int lessonCount = 0;
       final userGrade = ref.read(userProvider).value?.grade ?? 1;
+      final l10n = AppLocalizations.of(context)!;
+
       if (widget.subjectId == 'math') {
-        // Math is a grouping subject — no lessons directly under it
-        setState(() {
-          _lessons = [];
-          _loading = false;
-          final l10n = AppLocalizations.of(context)!;
-          _subjectTitle = _resolveTitle(l10n);
-        });
-        return;
-      }
-      if (widget.subjectId == 'vietnamese' || widget.subjectId == 'english') {
-        final curriculum = await LanguageApi.getCurriculum(grade: userGrade);
-        final subject = curriculum.firstWhere(
-          (s) => s['subject_id'] == widget.subjectId,
-          orElse: () => {},
-        );
-        final rawLessons = (subject['lessons'] as List<dynamic>?) ?? [];
-        lessons = rawLessons.map((l) {
-          final lesson = l as Map<String, dynamic>;
-          lesson['subject_id'] = widget.subjectId;
-          return ApiLesson.fromJson(lesson);
-        }).toList();
+        subSubjects = _mathSubSubjects;
+        lessonCount = subSubjects.length;
+      } else if (widget.subjectId == 'vietnamese' || widget.subjectId == 'english') {
+        if (widget.subSubjectId != null) {
+          // Show lessons within a sub-subject
+          final curriculum = await LanguageApi.getCurriculum(grade: userGrade, subjectId: widget.subjectId);
+          final subject = curriculum.firstWhere(
+            (s) => s['subject_id'] == widget.subjectId,
+            orElse: () => {},
+          );
+          // Find sub-subject and its lessons
+          final subSubjectsList = (subject['sub_subjects'] as List<dynamic>?) ?? [];
+          final subSubject = subSubjectsList.firstWhere(
+            (ss) => ss['sub_subject_id'] == widget.subSubjectId,
+            orElse: () => {},
+          );
+          final rawLessons = (subSubject['lessons'] as List<dynamic>?) ?? [];
+          lessons = rawLessons.map((l) {
+            final lesson = l as Map<String, dynamic>;
+            lesson['subject_id'] = widget.subjectId;
+            return ApiLesson.fromJson(lesson);
+          }).toList();
+          lessonCount = lessons.length;
+        } else {
+          // Show sub-subjects list — fetch unlock status from detailed progress
+          final apiSubSubjects = await LanguageApi.getSubSubjects(subjectId: widget.subjectId, grade: userGrade);
+          Map<String, bool> unlockMap = {};
+          Map<String, int> completedMap = {};
+          Map<String, int> totalMap = {};
+          
+          final userId = ref.read(userProvider).value?.id;
+          if (userId != null) {
+            final detailed = await LanguageApi.getDetailedProgress(userId: userId, subjectId: widget.subjectId);
+            if (detailed != null) {
+              final subjects = detailed['subjects'] as List<dynamic>? ?? [];
+              for (final s in subjects) {
+                final ssList = s['sub_subjects'] as List<dynamic>? ?? [];
+                for (final ss in ssList) {
+                  final id = ss['id'] as String? ?? '';
+                  unlockMap[id] = ss['is_unlocked'] == true;
+                  completedMap[id] = ss['completed_lessons'] as int? ?? 0;
+                  totalMap[id] = ss['total_lessons'] as int? ?? 0;
+                }
+              }
+            }
+          }
+          
+          subSubjects = apiSubSubjects.map((ss) {
+            final id = ss['id'] as String;
+            final isUnlocked = unlockMap[id] ?? true; // Default unlocked if no progress data
+            final completed = completedMap[id] ?? 0;
+            final total = totalMap[id] ?? 0;
+            return {
+              'id': id,
+              'icon': ss['icon'] as String? ?? '📚',
+              'nameVi': ss['name_vi'] as String,
+              'nameEn': ss['name_en'] as String,
+              'color': int.parse((ss['color'] as String? ?? '#FFE0E0').replaceFirst('#', '0xFF')),
+              'isUnlocked': isUnlocked,
+              'completed': completed,
+              'total': total,
+            };
+          }).toList();
+          lessonCount = subSubjects.length;
+        }
       } else {
         lessons = await ContentApi.getCurriculum(grade: userGrade);
         lessons = lessons.where((l) => l.subjectId == widget.subjectId).toList();
+        lessonCount = lessons.length;
       }
+
       lessons.sort((a, b) => a.order.compareTo(b.order));
       setState(() {
         _lessons = lessons;
+        _subSubjects = subSubjects;
         _loading = false;
-        final l10n = AppLocalizations.of(context)!;
         _subjectTitle = _resolveTitle(l10n);
+        _lessonCount = lessonCount;
       });
     } catch (_) {
       setState(() => _loading = false);
@@ -108,11 +163,13 @@ class _SubjectScreenState extends ConsumerState<SubjectScreen> {
     }
   }
 
+  bool _isGroupingSubject() => widget.subjectId == 'math' || 
+    ((widget.subjectId == 'vietnamese' || widget.subjectId == 'english') && widget.subSubjectId == null);
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final meta =
-        _subjectMeta[widget.subjectId] ?? {'icon': '📚', 'color': 0xFFE0E0E0};
+    final meta = _subjectMeta[widget.subjectId] ?? {'icon': '📚', 'color': 0xFFE0E0E0};
     final completedAsync = ref.watch(userProgressProvider);
 
     final completedSet = completedAsync.when(
@@ -120,6 +177,8 @@ class _SubjectScreenState extends ConsumerState<SubjectScreen> {
       loading: () => <String>{},
       error: (_, __) => <String>{},
     );
+
+    final isGrouping = _isGroupingSubject();
 
     return Scaffold(
       backgroundColor: AppColors.grayBg,
@@ -131,8 +190,7 @@ class _SubjectScreenState extends ConsumerState<SubjectScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               decoration: BoxDecoration(
                 color: Color(meta['color'] as int),
-                borderRadius:
-                    const BorderRadius.vertical(bottom: Radius.circular(24)),
+                borderRadius: const BorderRadius.vertical(bottom: Radius.circular(24)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -140,16 +198,16 @@ class _SubjectScreenState extends ConsumerState<SubjectScreen> {
                   Row(
                     children: [
                       IconButton(
-                        icon: const Icon(Icons.arrow_back,
-                            color: AppColors.darkPurple),
-                        onPressed: () => context.go('/home'),
+                        icon: const Icon(Icons.arrow_back, color: AppColors.darkPurple),
+                        onPressed: () => widget.subSubjectId != null 
+                          ? context.go('/subject/${widget.subjectId}')
+                          : context.go('/home'),
                       ),
                       const Spacer(),
                     ],
                   ),
-                  if (widget.subjectId != 'math') ...[
-                    Text(meta['icon'] as String,
-                        style: const TextStyle(fontSize: 32)),
+                  if (!isGrouping) ...[
+                    Text(meta['icon'] as String, style: const TextStyle(fontSize: 32)),
                     const SizedBox(height: 4),
                   ],
                   Text(
@@ -161,43 +219,36 @@ class _SubjectScreenState extends ConsumerState<SubjectScreen> {
                     ),
                   ),
                   Text(
-                    widget.subjectId == 'math'
-                        ? '${_mathSubSubjects.length} ${_mathSubSubjects.length == 1 ? (l10n.homeDayStreak(0).contains('ng') ? 'chủ đề' : 'subjects') : (l10n.homeDayStreak(0).contains('ng') ? 'chủ đề' : 'subjects')}'
+                    isGrouping
+                        ? '$_lessonCount ${l10n.homeDayStreak(0).contains('ng') ? 'chủ đề' : 'subjects'}'
                         : _lessons.isEmpty
                             ? l10n.lessonNotFound
-                            : '${_lessons.length} ${l10n.homeDayStreak(0).contains('ng') ? 'bai hoc' : 'lessons'}',
-                    style: const TextStyle(
-                        fontSize: 14, color: AppColors.darkText),
+                            : '$_lessonCount ${l10n.homeDayStreak(0).contains('ng') ? 'bai hoc' : 'lessons'}',
+                    style: const TextStyle(fontSize: 14, color: AppColors.darkText),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 16),
-            widget.subjectId == 'math'
-                ? _buildSubSubjectGrid(context, l10n)
+            isGrouping
+                ? _buildSubSubjectList(context, l10n)
                 : Expanded(
                     child: _loading
-                        ? const Center(
-                            child: CircularProgressIndicator(
-                                color: AppColors.primaryPink))
+                        ? const Center(child: CircularProgressIndicator(color: AppColors.primaryPink))
                         : _lessons.isEmpty
                             ? Center(
                                 child: Text(
                                   l10n.lessonNotFound,
-                                  style: const TextStyle(
-                                      fontSize: 18, color: AppColors.primaryPink),
+                                  style: const TextStyle(fontSize: 18, color: AppColors.primaryPink),
                                 ),
                               )
                             : ListView.builder(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 24, vertical: 8),
+                                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
                                 itemCount: _lessons.length,
                                 itemBuilder: (context, index) {
                                   final lesson = _lessons[index];
-                                  final isCompleted =
-                                      completedSet.contains(lesson.id);
-                                  final isUnlocked = index == 0 ||
-                                      completedSet.contains(_lessons[index - 1].id);
+                                  final isCompleted = completedSet.contains(lesson.id);
+                                  final isUnlocked = index == 0 || completedSet.contains(_lessons[index - 1].id);
                                   return _LessonCard(
                                     lesson: lesson,
                                     subjectId: widget.subjectId,
@@ -205,9 +256,7 @@ class _SubjectScreenState extends ConsumerState<SubjectScreen> {
                                     isUnlocked: isUnlocked,
                                     onTap: isUnlocked
                                         ? () {
-                                            final route = widget.subjectId ==
-                                                        'vietnamese' ||
-                                                    widget.subjectId == 'english'
+                                            final route = widget.subjectId == 'vietnamese' || widget.subjectId == 'english'
                                                 ? '/language-lesson/${widget.subjectId}/${lesson.id}'
                                                 : '/lesson/${widget.subjectId}/${lesson.id}';
                                             context.go(route);
@@ -223,53 +272,101 @@ class _SubjectScreenState extends ConsumerState<SubjectScreen> {
     );
   }
 
-  Widget _buildSubSubjectGrid(BuildContext context, AppLocalizations l10n) {
+  Widget _buildSubSubjectList(BuildContext context, AppLocalizations l10n) {
     final locale = Localizations.localeOf(context);
     final isVi = locale.languageCode == 'vi';
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Column(
-        children: _mathSubSubjects.map((sub) {
+        children: _subSubjects.map((sub) {
           final title = isVi ? sub['nameVi'] as String : sub['nameEn'] as String;
+          final isUnlocked = sub['isUnlocked'] as bool? ?? true;
+          final completed = sub['completed'] as int? ?? 0;
+          final total = sub['total'] as int? ?? 0;
+          final completionPct = total > 0 ? (completed / total) : 0.0;
+          final targetRoute = widget.subjectId == 'math'
+              ? '/subject/${sub['id']}'
+              : '/subject/${widget.subjectId}/${sub['id']}';
           return GestureDetector(
-            onTap: () => context.push('/subject/${sub['id']}'),
-            child: Container(
-              margin: const EdgeInsets.only(bottom: 12),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              decoration: BoxDecoration(
-                color: Color(sub['color'] as int),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      color: AppColors.white,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Center(
-                      child: Text(
-                        sub['icon'] as String,
-                        style: const TextStyle(fontSize: 24),
+            onTap: isUnlocked ? () => context.push(targetRoute) : null,
+            child: Opacity(
+              opacity: isUnlocked ? 1.0 : 0.55,
+              child: Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                decoration: BoxDecoration(
+                  color: Color(sub['color'] as int),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        color: AppColors.white,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Center(
+                        child: isUnlocked
+                            ? Text(
+                                sub['icon'] as String,
+                                style: const TextStyle(fontSize: 24),
+                              )
+                            : const Icon(Icons.lock, color: AppColors.darkText, size: 22),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      title,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.darkPurple,
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            title,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.darkPurple,
+                            ),
+                          ),
+                          if (isUnlocked && total > 0) ...[
+                            const SizedBox(height: 6),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(4),
+                                    child: LinearProgressIndicator(
+                                      value: completionPct.toDouble(),
+                                      minHeight: 6,
+                                      backgroundColor: AppColors.white.withValues(alpha: 0.5),
+                                      valueColor: AlwaysStoppedAnimation<Color>(AppColors.darkPurple),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  '$completed/$total',
+                                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.darkPurple),
+                                ),
+                              ],
+                            ),
+                          ] else if (!isUnlocked) ...[
+                            const SizedBox(height: 2),
+                            Text(
+                              isVi ? 'Hoàn thành chủ đề trước để mở khóa' : 'Complete previous topic to unlock',
+                              style: const TextStyle(fontSize: 12, color: AppColors.darkText),
+                            ),
+                          ],
+                        ],
                       ),
                     ),
-                  ),
-                  const Icon(Icons.chevron_right,
-                      color: AppColors.darkPurple, size: 20),
-                ],
+                    if (isUnlocked)
+                      const Icon(Icons.chevron_right, color: AppColors.darkPurple, size: 20)
+                    else
+                      const Icon(Icons.lock, color: AppColors.darkText, size: 20),
+                  ],
+                ),
               ),
             ),
           );
@@ -305,8 +402,7 @@ class _LessonCard extends StatelessWidget {
             ? (isVi ? 'Vua' : 'Medium')
             : (isVi ? 'Kho' : 'Hard');
 
-    final Color bgColor =
-        isUnlocked ? AppColors.white : const Color(0xFFF5F5F5);
+    final Color bgColor = isUnlocked ? AppColors.white : const Color(0xFFF5F5F5);
     final Color borderColor = isUnlocked
         ? (isCompleted ? AppColors.successGreen : AppColors.divider)
         : AppColors.divider;
@@ -336,11 +432,9 @@ class _LessonCard extends StatelessWidget {
                 ),
                 child: Center(
                   child: isCompleted
-                      ? const Icon(Icons.check_circle,
-                          color: AppColors.successGreen, size: 24)
+                      ? const Icon(Icons.check_circle, color: AppColors.successGreen, size: 24)
                       : !isUnlocked
-                          ? const Icon(Icons.lock,
-                              color: AppColors.darkText, size: 24)
+                          ? const Icon(Icons.lock, color: AppColors.darkText, size: 24)
                           : Text(
                               '${lesson.order}',
                               style: const TextStyle(
@@ -361,17 +455,14 @@ class _LessonCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
-                        color: isUnlocked
-                            ? AppColors.darkPurple
-                            : AppColors.darkText,
+                        color: isUnlocked ? AppColors.darkPurple : AppColors.darkText,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Row(
                       children: [
                         Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 2),
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                           decoration: BoxDecoration(
                             color: lesson.difficulty == 1
                                 ? Colors.green.shade50

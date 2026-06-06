@@ -17,10 +17,22 @@ class LanguageSubject(Base):
     grade_max = Column(Integer, default=3)
     created_at = Column(DateTime, default=datetime.utcnow)
 
+class LanguageSubSubject(Base):
+    __tablename__ = "language_sub_subjects"
+    id = Column(String(50), primary_key=True)
+    subject_id = Column(String(50), ForeignKey("language_subjects.id", ondelete="CASCADE"), nullable=False)
+    name_vi = Column(String(255), nullable=False)
+    name_en = Column(String(255), nullable=False)
+    icon = Column(String(10), default='📚')
+    color = Column(String(50), default='#FFEBEE')
+    display_order = Column(Integer, default=0)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
 class LanguageLesson(Base):
     __tablename__ = "language_lessons"
     id = Column(String(50), primary_key=True)
     subject_id = Column(String(50), ForeignKey("language_subjects.id", ondelete="CASCADE"), nullable=False)
+    sub_subject_id = Column(String(50), ForeignKey("language_sub_subjects.id", ondelete="SET NULL"), nullable=True)
     title_vi = Column(String(255), nullable=False)
     title_en = Column(String(255), nullable=False)
     description_vi = Column(Text)

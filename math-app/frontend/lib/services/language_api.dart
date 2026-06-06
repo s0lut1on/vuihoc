@@ -3,12 +3,24 @@ import 'api_service.dart';
 class LanguageApi {
   static final _api = ApiService.withBaseUrl('/api/language');
 
-  static Future<List<Map<String, dynamic>>> getCurriculum({int grade = 1}) async {
+  static Future<List<Map<String, dynamic>>> getCurriculum({int grade = 1, String? subjectId}) async {
     try {
-      final response = await _api.get('/curriculum?grade=$grade');
+      final queryParams = 'grade=$grade${subjectId != null ? '&subject_id=$subjectId' : ''}';
+      final response = await _api.get('/curriculum?$queryParams');
       final data = response['data'] as Map<String, dynamic>?;
       final curriculum = data?['curriculum'] as List<dynamic>? ?? [];
       return curriculum.map((e) => e as Map<String, dynamic>).toList();
+    } catch (_) {
+      return [];
+    }
+  }
+
+  static Future<List<Map<String, dynamic>>> getSubSubjects({required String subjectId, int grade = 1}) async {
+    try {
+      final response = await _api.get('/sub-subjects?subject_id=$subjectId&grade=$grade');
+      final data = response['data'] as Map<String, dynamic>?;
+      final subSubjects = data?['sub_subjects'] as List<dynamic>? ?? [];
+      return subSubjects.map((e) => e as Map<String, dynamic>).toList();
     } catch (_) {
       return [];
     }
@@ -52,6 +64,16 @@ class LanguageApi {
       return true;
     } catch (_) {
       return false;
+    }
+  }
+
+  static Future<Map<String, dynamic>?> getDetailedProgress({required String userId, String? subjectId}) async {
+    try {
+      final query = subjectId != null ? '?subject_id=$subjectId' : '';
+      final response = await _api.get('/progress/detailed/$userId$query');
+      return response['data'] as Map<String, dynamic>?;
+    } catch (_) {
+      return null;
     }
   }
 

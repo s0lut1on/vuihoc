@@ -12,7 +12,6 @@ welcome.png
 # AI workspace directories
 .omo/
 .slim/
-AGENTS.md
 
 # Codemap files (auto-generated)
 **/codemap.md

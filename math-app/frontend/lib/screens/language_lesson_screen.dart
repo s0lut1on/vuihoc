@@ -124,6 +124,18 @@ class _LanguageLessonScreenState extends ConsumerState<LanguageLessonScreen> {
             style: Theme.of(context).textTheme.titleLarge,
             textAlign: TextAlign.center,
           ),
+          const SizedBox(height: 4),
+          Text(
+            locale.languageCode == 'en'
+                ? 'Exercise ${_currentExercise + 1}/$totalExercises'
+                : 'Bài tập ${_currentExercise + 1}/$totalExercises',
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: AppColors.darkText,
+            ),
+            textAlign: TextAlign.center,
+          ),
           const SizedBox(height: 24),
           Expanded(
             child: ExerciseDispatcher(

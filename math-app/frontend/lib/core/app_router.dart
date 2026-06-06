@@ -66,6 +66,14 @@ class AppRouter {
         },
       ),
       GoRoute(
+        path: '/subject/:subjectId/:subSubjectId',
+        builder: (context, state) {
+          final subjectId = state.pathParameters['subjectId']!;
+          final subSubjectId = state.pathParameters['subSubjectId']!;
+          return SubjectScreen(subjectId: subjectId, subSubjectId: subSubjectId);
+        },
+      ),
+      GoRoute(
         path: '/lesson/:subjectId/:lessonId',
         builder: (context, state) {
           final subjectId = state.pathParameters['subjectId']!;
