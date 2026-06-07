@@ -6,6 +6,8 @@ import '../core/app_colors.dart';
 import '../l10n/app_localizations.dart';
 import '../providers/app_providers.dart';
 import '../services/language_api.dart';
+import '../services/progress_api.dart';
+import '../services/tts_service.dart';
 import '../widgets/exercise_dispatcher.dart';
 import '../widgets/language_switcher.dart';
 
@@ -332,6 +334,19 @@ class _LanguageLessonScreenState extends ConsumerState<LanguageLessonScreen> {
   }
 
   void _onAnswered(bool isCorrect) {
+    final exercises = _lesson!['exercises'] as List<dynamic>;
+    final currentEx = exercises[_currentExercise] as Map<String, dynamic>;
+    final exerciseId = currentEx['id'] as String? ?? '';
+    final userId = ref.read(userIdProvider);
+    if (userId != null && userId.isNotEmpty && exerciseId.isNotEmpty) {
+      ProgressApi.submitExerciseResult(
+        userId: userId,
+        exerciseId: exerciseId,
+        lessonId: widget.lessonId,
+        isCorrect: isCorrect,
+      );
+    }
+
     if (isCorrect) {
       HapticFeedback.lightImpact();
       setState(() {
@@ -368,6 +383,16 @@ class _LanguageLessonScreenState extends ConsumerState<LanguageLessonScreen> {
         _currentExercise++;
         _showHint = false;
       });
+      if (ref.read(ttsEnabledProvider)) {
+        final nextEx = exercises[_currentExercise] as Map<String, dynamic>;
+        final locale = ref.read(localeProvider);
+        final vi = nextEx['question_vi'] as String? ?? '';
+        final en = nextEx['question_en'] as String? ?? '';
+        final question = locale.languageCode == 'vi' ? vi : en;
+        if (question.isNotEmpty) {
+          TtsService().speak(question, languageCode: locale.languageCode);
+        }
+      }
     } else {
       _finishLesson();
     }
@@ -394,6 +419,9 @@ class _LanguageLessonScreenState extends ConsumerState<LanguageLessonScreen> {
         stars: stars,
         completed: true,
       );
+      ref.invalidate(streakProvider);
+      ref.invalidate(userProgressProvider);
+      ref.invalidate(totalStarsProvider);
 
       if (mounted) {
         context.go('/celebration', extra: {

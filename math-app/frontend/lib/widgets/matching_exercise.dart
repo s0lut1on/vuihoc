@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/app_colors.dart';
+import '../providers/app_providers.dart';
+import '../services/tts_service.dart';
 
 /// Matching exercise: tap one card from left column then one from right to form a pair.
 /// When all pairs are matched, calls onAnswered(true).
-class MatchingExercise extends StatefulWidget {
+class MatchingExercise extends ConsumerStatefulWidget {
   final Map<String, dynamic> exercise;
   final Function(bool isCorrect) onAnswered;
 
@@ -15,10 +18,10 @@ class MatchingExercise extends StatefulWidget {
   });
 
   @override
-  State<MatchingExercise> createState() => _MatchingExerciseState();
+  ConsumerState<MatchingExercise> createState() => _MatchingExerciseState();
 }
 
-class _MatchingExerciseState extends State<MatchingExercise> {
+class _MatchingExerciseState extends ConsumerState<MatchingExercise> {
   final List<(int left, int right)> _pairs = [];
   int? _selectedLeft; // index in left options
   List<int>? _shuffledRightIndices;
@@ -37,11 +40,29 @@ class _MatchingExerciseState extends State<MatchingExercise> {
     // Shuffle right side on first build
     _shuffledRightIndices ??= List<int>.generate(half, (i) => i)..shuffle();
 
+    final locale = Localizations.localeOf(context);
+    final question = _resolveQuestion(widget.exercise);
+    final ttsEnabled = ref.watch(ttsEnabledProvider);
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
+        if (question.isNotEmpty && ttsEnabled && TtsService().isSupported)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: ElevatedButton.icon(
+              onPressed: () => TtsService().speak(question, languageCode: locale.languageCode),
+              icon: const Icon(Icons.volume_up, size: 18),
+              label: Text(locale.languageCode == 'en' ? 'Listen' : 'Nghe'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primaryPink,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              ),
+            ),
+          ),
         Text(
-          _resolveQuestion(widget.exercise),
+          question,
           style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w600, color: AppColors.darkPurple),
         ),
         const SizedBox(height: 24),

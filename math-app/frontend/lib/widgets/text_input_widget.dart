@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/app_colors.dart';
+import '../providers/app_providers.dart';
 import '../services/language_api.dart';
+import '../services/tts_service.dart';
 import '../l10n/app_localizations.dart';
 
-class TextInputWidget extends StatefulWidget {
+class TextInputWidget extends ConsumerStatefulWidget {
   final String exerciseId;
   final String expectedText;
   final String hintVi;
@@ -25,10 +28,10 @@ class TextInputWidget extends StatefulWidget {
   });
 
   @override
-  State<TextInputWidget> createState() => _TextInputWidgetState();
+  ConsumerState<TextInputWidget> createState() => _TextInputWidgetState();
 }
 
-class _TextInputWidgetState extends State<TextInputWidget> {
+class _TextInputWidgetState extends ConsumerState<TextInputWidget> {
   final TextEditingController _textController = TextEditingController();
   bool _isCorrect = false;
   bool _showResult = false;
@@ -90,10 +93,26 @@ class _TextInputWidgetState extends State<TextInputWidget> {
     final isVietnamese = locale.languageCode == 'vi';
     final hintText = isVietnamese ? widget.hintVi : widget.hintEn;
     final l10n = AppLocalizations.of(context)!;
+    final ttsEnabled = ref.watch(ttsEnabledProvider);
+    final prompt = isVietnamese ? widget.hintVi : widget.hintEn;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        if (prompt.isNotEmpty && ttsEnabled && TtsService().isSupported)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: ElevatedButton.icon(
+              onPressed: () => TtsService().speak(prompt, languageCode: locale.languageCode),
+              icon: const Icon(Icons.volume_up, size: 18),
+              label: Text(locale.languageCode == 'en' ? 'Listen' : 'Nghe'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primaryPink,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              ),
+            ),
+          ),
         TextField(
           controller: _textController,
           enabled: !_showResult,

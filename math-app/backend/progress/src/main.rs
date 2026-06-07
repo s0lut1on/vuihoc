@@ -22,7 +22,10 @@ pub use models::*;
     Achievement,
     BadgeDefinition,
     AchievementWithDefinition,
-    AchievementList
+    AchievementList,
+    UserExerciseStat,
+    ReviewExercise,
+    ReviewSession
 )))]
 pub struct ApiDoc;
 
@@ -89,6 +92,8 @@ async fn main() {
             post(handlers::mark_achievement_read),
         )
         .route("/api/progress", post(handlers::update_progress))
+        .route("/api/progress/review", post(handlers::update_exercise_stat))
+        .route("/api/progress/review/:user_id", get(handlers::get_review_session))
         .route_layer(axum::middleware::from_fn(shared::auth_middleware));
 
     let app = Router::new()

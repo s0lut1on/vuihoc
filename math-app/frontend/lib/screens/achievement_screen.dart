@@ -29,10 +29,21 @@ class _AchievementScreenState extends ConsumerState<AchievementScreen> {
       return;
     }
     final rows = await AchievementService.getAchievements(userId);
+    final badges = rows.map(Achievement.fromJson).toList();
     setState(() {
-      _badges = rows.map(Achievement.fromJson).toList();
+      _badges = badges;
       _loading = false;
     });
+    final newBadges = badges.where((b) => b.isNew).toList();
+    if (newBadges.isNotEmpty && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('🏅 ${newBadges.length} huy chương mới!'),
+          duration: const Duration(seconds: 3),
+          backgroundColor: Colors.orange.shade700,
+        ),
+      );
+    }
   }
 
   Future<void> _markRead(String badgeType) async {

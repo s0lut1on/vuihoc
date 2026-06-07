@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/app_colors.dart';
+import '../providers/app_providers.dart';
+import '../services/tts_service.dart';
 
 /// Ordering exercise: arrange scrambled words in correct sentence order.
 /// User taps words from a pool to add to answer row; taps in answer row to remove.
-class OrderingExercise extends StatefulWidget {
+class OrderingExercise extends ConsumerStatefulWidget {
   final Map<String, dynamic> exercise;
   final Function(bool isCorrect) onAnswered;
 
@@ -15,10 +18,10 @@ class OrderingExercise extends StatefulWidget {
   });
 
   @override
-  State<OrderingExercise> createState() => _OrderingExerciseState();
+  ConsumerState<OrderingExercise> createState() => _OrderingExerciseState();
 }
 
-class _OrderingExerciseState extends State<OrderingExercise> {
+class _OrderingExerciseState extends ConsumerState<OrderingExercise> {
   List<String> _answer = [];
   List<String> _pool = [];
 
@@ -31,11 +34,29 @@ class _OrderingExerciseState extends State<OrderingExercise> {
 
   @override
   Widget build(BuildContext context) {
+    final locale = Localizations.localeOf(context);
+    final question = _resolveQuestion(widget.exercise);
+    final ttsEnabled = ref.watch(ttsEnabledProvider);
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
+        if (question.isNotEmpty && ttsEnabled && TtsService().isSupported)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: ElevatedButton.icon(
+              onPressed: () => TtsService().speak(question, languageCode: locale.languageCode),
+              icon: const Icon(Icons.volume_up, size: 18),
+              label: Text(locale.languageCode == 'en' ? 'Listen' : 'Nghe'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primaryPink,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              ),
+            ),
+          ),
         Text(
-          _resolveQuestion(widget.exercise),
+          question,
           style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w600, color: AppColors.darkPurple),
         ),
         const SizedBox(height: 32),

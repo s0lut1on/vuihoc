@@ -321,6 +321,115 @@ async fn check_and_award_achievements(
     Ok(())
 }
 
+pub async fn update_exercise_stat(
+    State(state): State<AppState>,
+    Json(body): Json<serde_json::Value>,
+) -> ApiResponse<serde_json::Value> {
+    let user_id_str = body.get("user_id").and_then(|v| v.as_str()).unwrap_or("");
+    let user_uuid = match parse_uuid(user_id_str) {
+        Ok(u) => u,
+        Err(e) => return ApiResponse::err(e),
+    };
+    let exercise_id = body.get("exercise_id").and_then(|v| v.as_str()).unwrap_or("").to_string();
+    let lesson_id = body.get("lesson_id").and_then(|v| v.as_str()).unwrap_or("").to_string();
+    let is_correct = body.get("is_correct").and_then(|v| v.as_bool()).unwrap_or(false);
+
+    let existing = sqlx::query_as::<_, UserExerciseStat>(
+        "SELECT * FROM user_exercise_stats WHERE user_id = $1 AND exercise_id = $2"
+    )
+    .bind(user_uuid)
+    .bind(&exercise_id)
+    .fetch_optional(&state.db)
+    .await;
+
+    let now = chrono::Utc::now();
+    let next_review = if is_correct {
+        let new_interval = match existing {
+            Ok(Some(ref stat)) => {
+                let consecutive = stat.correct_count + 1;
+                if consecutive >= 3 { stat.interval_days * 2 } else { stat.interval_days + 1 }
+            },
+            _ => 1,
+        };
+        now + chrono::Duration::days(new_interval.min(30) as i64)
+    } else {
+        now + chrono::Duration::days(1)
+    };
+
+    let result = sqlx::query(
+        "INSERT INTO user_exercise_stats (user_id, exercise_id, lesson_id, correct_count, wrong_count, last_seen_at, next_review_at, interval_days, ease_factor) \
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) \
+         ON CONFLICT (user_id, exercise_id) \
+         DO UPDATE SET \
+           correct_count = user_exercise_stats.correct_count + $4, \
+           wrong_count = user_exercise_stats.wrong_count + $5, \
+           last_seen_at = $6, \
+           next_review_at = $7, \
+           interval_days = $8, \
+           ease_factor = $9 \
+         RETURNING *",
+    )
+    .bind(user_uuid)
+    .bind(&exercise_id)
+    .bind(&lesson_id)
+    .bind(if is_correct { 1 } else { 0 })
+    .bind(if is_correct { 0 } else { 1 })
+    .bind(now)
+    .bind(next_review)
+    .bind(if is_correct { 1 } else { 0 }) // simplified interval reset on wrong
+    .bind(2.5f32)
+    .fetch_one(&state.db)
+    .await;
+
+    match result {
+        Ok(_) => ApiResponse::ok(serde_json::json!({ "updated": true })),
+        Err(e) => {
+            tracing::error!("Database error in update_exercise_stat: {}", e);
+            ApiResponse::err("Internal server error")
+        }
+    }
+}
+
+pub async fn get_review_session(
+    State(state): State<AppState>,
+    Path(user_id): Path<String>,
+) -> ApiResponse<ReviewSession> {
+    let user_uuid = match parse_uuid(&user_id) {
+        Ok(u) => u,
+        Err(e) => return ApiResponse::err(e),
+    };
+
+    let now = chrono::Utc::now();
+    let rows = sqlx::query_as::<_, UserExerciseStat>(
+        "SELECT * FROM user_exercise_stats WHERE user_id = $1 AND next_review_at <= $2 AND wrong_count >= 1 ORDER BY next_review_at ASC LIMIT 10"
+    )
+    .bind(user_uuid)
+    .bind(now)
+    .fetch_all(&state.db)
+    .await;
+
+    match rows {
+        Ok(stats) => {
+            let exercises: Vec<ReviewExercise> = stats.into_iter().map(|stat| ReviewExercise {
+                exercise_id: stat.exercise_id.clone(),
+                lesson_id: stat.lesson_id.clone(),
+                question_vi: String::new(), // populated by frontend or joined query
+                question_en: String::new(),
+                exercise_type: "mcq".to_string(),
+                options: vec![],
+                correct: 0,
+                wrong_count: stat.wrong_count,
+            }).collect();
+            let due_count = exercises.len() as i32;
+            ApiResponse::ok(ReviewSession { exercises, due_count })
+        }
+        Err(e) => {
+            tracing::error!("Database error in get_review_session: {}", e);
+            ApiResponse::err("Internal server error")
+        }
+    }
+}
+
 fn parse_uuid(user_id: &str) -> Result<uuid::Uuid, &'static str> {
     uuid::Uuid::try_parse(user_id).map_err(|_| "Invalid user_id format")
 }

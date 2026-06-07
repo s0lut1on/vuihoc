@@ -321,7 +321,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget _buildDesktopStatsRow(
       BuildContext context, WidgetRef ref, Persona persona, dynamic user) {
     final l10n = AppLocalizations.of(context)!;
-    final streak = user?.streakDays ?? 0;
+    final streakData = ref.watch(streakProvider).valueOrNull;
+    final streak = streakData?['current_streak'] ?? user?.streakDays ?? 0;
     final completed = ref.watch(userProgressProvider).valueOrNull ?? {};
     final totalStars = ref.watch(totalStarsProvider).valueOrNull ?? 0;
     final nextLesson = ref.watch(nextLessonProvider).valueOrNull;
@@ -487,7 +488,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final l10n = AppLocalizations.of(context)!;
     final name = user?.name ?? l10n.homeDefaultName;
     final avatar = user?.avatar ?? '🐸';
-    final streak = user?.streakDays ?? 0;
+    final streakData = ref.watch(streakProvider).valueOrNull;
+    final streak = streakData?['current_streak'] ?? user?.streakDays ?? 0;
     final gems = user?.gems ?? 0;
 
     return Row(

@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/app_colors.dart';
+import '../providers/app_providers.dart';
+import '../services/tts_service.dart';
 import 'audio_player_widget.dart';
 import 'text_input_widget.dart';
 import 'matching_exercise.dart';
 import 'ordering_exercise.dart';
 
-class ExerciseDispatcher extends StatefulWidget {
+class ExerciseDispatcher extends ConsumerStatefulWidget {
   final Map<String, dynamic> exercise;
   final Function(bool isCorrect) onAnswered;
 
@@ -17,10 +20,10 @@ class ExerciseDispatcher extends StatefulWidget {
   });
 
   @override
-  State<ExerciseDispatcher> createState() => _ExerciseDispatcherState();
+  ConsumerState<ExerciseDispatcher> createState() => _ExerciseDispatcherState();
 }
 
-class _ExerciseDispatcherState extends State<ExerciseDispatcher> {
+class _ExerciseDispatcherState extends ConsumerState<ExerciseDispatcher> {
   int? _selectedAnswer;
   bool _isCorrect = false;
 
@@ -64,15 +67,33 @@ class _ExerciseDispatcherState extends State<ExerciseDispatcher> {
 
   Widget _buildListenSelectExercise() {
     final audioUrl = widget.exercise['audio_url'] as String?;
+    final locale = Localizations.localeOf(context);
+    final question = _resolveQuestion();
     return Column(
       children: [
         Center(
           child: AudioPlayerWidget(
             audioUrl: audioUrl,
-            fallbackText: _resolveQuestion(),
-            languageCode: Localizations.localeOf(context).languageCode,
+            fallbackText: question,
+            languageCode: locale.languageCode,
           ),
         ),
+        if (question.isNotEmpty && ttsEnabled && TtsService().isSupported)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: ElevatedButton.icon(
+              onPressed: () => TtsService().speak(question, languageCode: locale.languageCode),
+              icon: const Icon(Icons.volume_up, size: 18),
+              label: Text(locale.languageCode == 'en' ? 'Listen' : 'Nghe'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primaryPink,
+                foregroundColor: AppColors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
+            ),
+          ),
         const SizedBox(height: 32),
         _buildMcqOptions(),
       ],
@@ -108,72 +129,100 @@ class _ExerciseDispatcherState extends State<ExerciseDispatcher> {
     final options =
         (widget.exercise['options'] as List<dynamic>?)?.cast<String>() ?? [];
     final correctIndex = widget.exercise['correct'] as int? ?? 0;
+    final question = _resolveQuestion();
+    final locale = Localizations.localeOf(context);
+    final ttsEnabled = ref.watch(ttsEnabledProvider);
 
-    return Wrap(
-      alignment: WrapAlignment.center,
-      spacing: 16,
-      runSpacing: 12,
-      children: options.asMap().entries.map((entry) {
-        final index = entry.key;
-        final value = entry.value;
-        final isSelected = _selectedAnswer == index;
-        final isRightAnswer = index == correctIndex;
-
-        Color bgColor = AppColors.white;
-        Color borderColor = AppColors.divider;
-        double borderWidth = 1;
-
-        if (_selectedAnswer != null) {
-          if (isRightAnswer) {
-            bgColor = Colors.green.shade50;
-            borderColor = AppColors.successGreen;
-            borderWidth = 2;
-          } else if (isSelected && !isRightAnswer) {
-            bgColor = Colors.red.shade50;
-            borderColor = Colors.red;
-            borderWidth = 2;
-          }
-        } else if (isSelected) {
-          borderColor = AppColors.primaryPink;
-          borderWidth = 2;
-        }
-
-        return GestureDetector(
-          onTap: () => _selectAnswer(index, correctIndex),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 150),
-            constraints: const BoxConstraints(
-              minWidth: 110,
-              minHeight: 110,
-              maxWidth: 200,
+    return Column(
+      children: [
+        if (question.isNotEmpty && ttsEnabled && TtsService().isSupported)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton.icon(
+                  onPressed: () => TtsService().speak(question, languageCode: locale.languageCode),
+                  icon: const Icon(Icons.volume_up, size: 18),
+                  label: Text(locale.languageCode == 'en' ? 'Listen' : 'Nghe'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primaryPink,
+                    foregroundColor: AppColors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                  ),
+                ),
+              ],
             ),
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: bgColor,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: borderColor, width: borderWidth),
-            ),
-            child: Center(
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  value,
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.w700,
-                    color:
-                        isSelected && _selectedAnswer != null && !isRightAnswer
-                            ? Colors.red
-                            : AppColors.darkPurple,
+          ),
+        Wrap(
+          alignment: WrapAlignment.center,
+          spacing: 16,
+          runSpacing: 12,
+          children: options.asMap().entries.map((entry) {
+            final index = entry.key;
+            final value = entry.value;
+            final isSelected = _selectedAnswer == index;
+            final isRightAnswer = index == correctIndex;
+
+            Color bgColor = AppColors.white;
+            Color borderColor = AppColors.divider;
+            double borderWidth = 1;
+
+            if (_selectedAnswer != null) {
+              if (isRightAnswer) {
+                bgColor = Colors.green.shade50;
+                borderColor = AppColors.successGreen;
+                borderWidth = 2;
+              } else if (isSelected && !isRightAnswer) {
+                bgColor = Colors.red.shade50;
+                borderColor = Colors.red;
+                borderWidth = 2;
+              }
+            } else if (isSelected) {
+              borderColor = AppColors.primaryPink;
+              borderWidth = 2;
+            }
+
+            return GestureDetector(
+              onTap: () => _selectAnswer(index, correctIndex),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 150),
+                constraints: const BoxConstraints(
+                  minWidth: 110,
+                  minHeight: 110,
+                  maxWidth: 200,
+                ),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: bgColor,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: borderColor, width: borderWidth),
+                ),
+                child: Center(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      value,
+                      textAlign: TextAlign.center,
+                      maxLines: 2,
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.w700,
+                        color:
+                            isSelected && _selectedAnswer != null && !isRightAnswer
+                                ? Colors.red
+                                : AppColors.darkPurple,
+                      ),
+                    ),
                   ),
                 ),
               ),
-            ),
-          ),
-        );
-      }).toList(),
+            );
+          }).toList(),
+        ),
+      ],
     );
   }
 

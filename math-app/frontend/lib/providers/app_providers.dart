@@ -130,7 +130,12 @@ final nextLessonProvider = FutureProvider<Map<String, String>?>((ref) async {
   return null;
 });
 
-/// Total stars earned across all completed lessons.
+/// Real-time streak from backend (refreshes after lesson completion).
+final streakProvider = FutureProvider<Map<String, dynamic>?>((ref) async {
+  final userId = ref.watch(userIdProvider);
+  if (userId == null || userId.isEmpty) return null;
+  return ProgressApi.getStreak(userId);
+});
 final totalStarsProvider = FutureProvider<int>((ref) async {
   final userId = ref.watch(userIdProvider);
   if (userId == null || userId.isEmpty) return 0;

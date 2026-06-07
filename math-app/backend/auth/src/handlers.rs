@@ -335,7 +335,7 @@ pub async fn login_as_guest(
         Ok(token) => ApiResponse::ok(TokenResponse {
             access_token: token,
             token_type: "Bearer".to_string(),
-            expires_in: 86400 * 30,
+            expires_in: 86400 * 7,
         }),
         Err(_) => ApiResponse::err("Failed to generate token"),
     }

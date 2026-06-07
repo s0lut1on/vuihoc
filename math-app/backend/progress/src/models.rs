@@ -3,6 +3,44 @@ use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 
 #[derive(Serialize, sqlx::FromRow, ToSchema, Clone)]
+pub struct UserExerciseStat {
+    pub id: uuid::Uuid,
+    pub user_id: uuid::Uuid,
+    pub exercise_id: String,
+    pub lesson_id: String,
+    pub correct_count: i32,
+    pub wrong_count: i32,
+    pub last_seen_at: DateTime<Utc>,
+    pub next_review_at: DateTime<Utc>,
+    pub interval_days: i32,
+    pub ease_factor: f32,
+}
+
+#[derive(Serialize, Deserialize, ToSchema)]
+pub struct ReviewSessionRequest {
+    pub user_id: String,
+    pub subject_id: Option<String>,
+}
+
+#[derive(Serialize, ToSchema)]
+pub struct ReviewExercise {
+    pub exercise_id: String,
+    pub lesson_id: String,
+    pub question_vi: String,
+    pub question_en: String,
+    pub exercise_type: String,
+    pub options: Vec<String>,
+    pub correct: i32,
+    pub wrong_count: i32,
+}
+
+#[derive(Serialize, ToSchema)]
+pub struct ReviewSession {
+    pub exercises: Vec<ReviewExercise>,
+    pub due_count: i32,
+}
+
+#[derive(Serialize, sqlx::FromRow, ToSchema, Clone)]
 pub struct Progress {
     pub user_id: uuid::Uuid,
     pub lesson_id: String,
