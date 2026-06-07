@@ -52,12 +52,18 @@ final curriculumProvider =
 final subjectsProvider = FutureProvider.family<List<Map<String, dynamic>>, int>(
     (ref, grade) => ContentApi.getSubjects(grade: grade));
 
+/// Cached raw progress rows for the current user.
+/// All derived progress providers read from this to avoid duplicate API calls.
+final rawProgressProvider = FutureProvider<List<Map<String, dynamic>>>((ref) async {
+  final userId = ref.watch(userIdProvider);
+  if (userId == null || userId.isEmpty) return [];
+  return ProgressApi.getUserProgress(userId);
+});
+
 /// Loads the user's progress (completed lesson IDs) from the backend.
 /// Auto-refreshes when userId changes.
 final userProgressProvider = FutureProvider<Set<String>>((ref) async {
-  final userId = ref.watch(userIdProvider);
-  if (userId == null || userId.isEmpty) return {};
-  final rows = await ProgressApi.getUserProgress(userId);
+  final rows = await ref.watch(rawProgressProvider.future);
   return rows
       .where((r) => r['completed'] == true)
       .map((r) => r['lesson_id'] as String)
@@ -136,10 +142,10 @@ final streakProvider = FutureProvider<Map<String, dynamic>?>((ref) async {
   if (userId == null || userId.isEmpty) return null;
   return ProgressApi.getStreak(userId);
 });
+
+/// Total stars earned across all completed lessons.
 final totalStarsProvider = FutureProvider<int>((ref) async {
-  final userId = ref.watch(userIdProvider);
-  if (userId == null || userId.isEmpty) return 0;
-  final rows = await ProgressApi.getUserProgress(userId);
+  final rows = await ref.watch(rawProgressProvider.future);
   return rows.fold<int>(0, (sum, r) => sum + ((r['stars'] as int?) ?? 0));
 });
 

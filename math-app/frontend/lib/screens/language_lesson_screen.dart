@@ -420,8 +420,7 @@ class _LanguageLessonScreenState extends ConsumerState<LanguageLessonScreen> {
         completed: true,
       );
       ref.invalidate(streakProvider);
-      ref.invalidate(userProgressProvider);
-      ref.invalidate(totalStarsProvider);
+      ref.invalidate(rawProgressProvider);
 
       if (mounted) {
         context.go('/celebration', extra: {
