@@ -1,4 +1,4 @@
-use axum::{extract::State, Extension, Json};
+use axum::{extract::{Path, State}, Extension, Json};
 use chrono::Utc;
 
 use crate::models::{AppState, CreateUserRequest, JoinClassroomRequest, User};
@@ -48,6 +48,25 @@ pub async fn get_user(
         }
         Err(e) => {
             tracing::error!("Database error in get_user: {}", e);
+            shared::ApiResponse::err("Internal server error")
+        }
+    }
+}
+
+pub async fn get_user_by_id(
+    State(state): State<AppState>,
+    Path(user_id): Path<uuid::Uuid>,
+) -> shared::ApiResponse<User> {
+    let user = sqlx::query_as::<_, User>("SELECT * FROM users WHERE id = $1")
+        .bind(user_id)
+        .fetch_optional(&state.db)
+        .await;
+
+    match user {
+        Ok(Some(u)) => shared::ApiResponse::ok(u),
+        Ok(None) => shared::ApiResponse::err("User not found"),
+        Err(e) => {
+            tracing::error!("Database error in get_user_by_id: {}", e);
             shared::ApiResponse::err("Internal server error")
         }
     }

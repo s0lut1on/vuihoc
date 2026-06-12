@@ -33,6 +33,8 @@ async fn main() {
             "/api/users",
             get(handlers::get_user).post(handlers::create_user),
         )
+        .route("/api/users/me", get(handlers::get_user))
+        .route("/api/users/:id", get(handlers::get_user_by_id))
         .route("/api/users/classroom/join", post(handlers::join_classroom))
         .route(
             "/api/users/classroom/leave",

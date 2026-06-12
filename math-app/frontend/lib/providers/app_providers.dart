@@ -75,10 +75,10 @@ class UserNotifier extends StateNotifier<AsyncValue<User?>> {
 
   UserNotifier(this._ref) : super(const AsyncValue.data(null));
 
-  Future<void> loadUser(String userId) async {
+  Future<void> loadUser() async {
     state = const AsyncValue.loading();
     try {
-      final user = await UserApi.getUser(userId);
+      final user = await UserApi.getUser();
       _ref.read(personaProvider.notifier).state = user.persona;
       _ref.read(userIdProvider.notifier).state = user.id;
       state = AsyncValue.data(user);
@@ -110,10 +110,8 @@ class UserNotifier extends StateNotifier<AsyncValue<User?>> {
   }
 
   Future<void> refreshUser() async {
-    final userId = _ref.read(userIdProvider);
-    if (userId == null || userId.isEmpty) return;
     try {
-      final user = await UserApi.getUser(userId);
+      final user = await UserApi.getUser();
       _ref.read(personaProvider.notifier).state = user.persona;
       state = AsyncValue.data(user);
     } catch (e, st) {

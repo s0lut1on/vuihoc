@@ -4,8 +4,8 @@ import 'api_service.dart';
 class UserApi {
   static final _api = ApiService();
 
-  static Future<User> getUser(String userId) async {
-    final response = await _api.get('/users/$userId');
+  static Future<User> getUser() async {
+    final response = await _api.get('/users');
     final data = response['data'] as Map<String, dynamic>;
     return User.fromJson(data);
   }
