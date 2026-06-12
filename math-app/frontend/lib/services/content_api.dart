@@ -32,10 +32,12 @@ class ContentApi {
       return data.map((s) {
         final json = s as Map<String, dynamic>;
         return <String, dynamic>{
+          'id': json['id'] ?? '',
           'nameVi': json['name_vi'] ?? '',
           'nameEn': json['name_en'] ?? '',
           'icon': json['icon'] ?? '📚',
           'color': _parseColor(json['color'] ?? '#FFE8F0'),
+          'lessonCount': json['lesson_count'] ?? 0,
         };
       }).toList();
     } catch (_) {

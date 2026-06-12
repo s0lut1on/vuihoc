@@ -249,6 +249,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget _buildMobileHomePage(
       BuildContext context, WidgetRef ref, Persona persona, dynamic user) {
     final l10n = AppLocalizations.of(context)!;
+    final isVi = Localizations.localeOf(context).languageCode == 'vi';
+    final grade = user?.grade ?? 1;
+    final dynamicSubjects = ref.watch(subjectsProvider(grade));
+    final langSubjects = _buildLanguageSubjectList();
+
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
       child: Column(
@@ -271,7 +276,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             style: Theme.of(context).textTheme.titleLarge,
           ),
           const SizedBox(height: 16),
-          _buildSubjectGrid(context, ref),
+          dynamicSubjects.when(
+            data: (subjects) => _buildDynamicSubjectGrid(
+                context, ref, subjects, langSubjects, grade, isVi),
+            loading: () => const Padding(
+              padding: EdgeInsets.all(40),
+              child: Center(child: CircularProgressIndicator(color: AppColors.primaryPink)),
+            ),
+            error: (_, __) => _buildSubjectGrid(context, ref),
+          ),
         ],
       ),
     );
@@ -280,6 +293,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget _buildDesktopHomePage(
       BuildContext context, WidgetRef ref, Persona persona, dynamic user) {
     final l10n = AppLocalizations.of(context)!;
+    final isVi = Localizations.localeOf(context).languageCode == 'vi';
+    final grade = user?.grade ?? 1;
+    final dynamicSubjects = ref.watch(subjectsProvider(grade));
+    final langSubjects = _buildLanguageSubjectList();
+
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 32),
       child: Column(
@@ -311,8 +329,147 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 color: AppColors.darkPurple),
           ),
           const SizedBox(height: 16),
-          _buildDesktopSubjectRow(context, ref),
+          dynamicSubjects.when(
+            data: (subjects) => _buildDynamicSubjectRow(
+                context, ref, subjects, langSubjects, grade, isVi),
+            loading: () => const Padding(
+              padding: EdgeInsets.all(40),
+              child: Center(child: CircularProgressIndicator(color: AppColors.primaryPink)),
+            ),
+            error: (_, __) => _buildDesktopSubjectRow(context, ref),
+          ),
         ],
+      ),
+    );
+  }
+
+  List<Map<String, dynamic>> _buildLanguageSubjectList() {
+    return const [
+      {'id': 'vietnamese', 'icon': '🇻🇳', 'nameVi': 'Tiếng Việt', 'nameEn': 'Vietnamese', 'color': 0xFFFFEBEE, 'lessonCount': 50},
+      {'id': 'english', 'icon': '🇬🇧', 'nameVi': 'Tiếng Anh', 'nameEn': 'English', 'color': 0xFFE8EAF6, 'lessonCount': 50},
+    ];
+  }
+
+  Widget _buildDynamicSubjectGrid(
+    BuildContext context,
+    WidgetRef ref,
+    List<Map<String, dynamic>> mathSubjects,
+    List<Map<String, dynamic>> langSubjects,
+    int grade,
+    bool isVi,
+  ) {
+    final all = [...mathSubjects, ...langSubjects];
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: all.length,
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
+        childAspectRatio: 1.1,
+      ),
+      itemBuilder: (context, index) {
+        final s = all[index];
+        return _buildSubjectCard(context, ref, s, grade, isVi);
+      },
+    );
+  }
+
+  Widget _buildDynamicSubjectRow(
+    BuildContext context,
+    WidgetRef ref,
+    List<Map<String, dynamic>> mathSubjects,
+    List<Map<String, dynamic>> langSubjects,
+    int grade,
+    bool isVi,
+  ) {
+    final all = [...mathSubjects, ...langSubjects];
+    return SizedBox(
+      height: 200,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: all.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 12),
+        itemBuilder: (context, index) => SizedBox(
+          width: 200,
+          child: _buildSubjectCard(context, ref, all[index], grade, isVi),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSubjectCard(
+    BuildContext context,
+    WidgetRef ref,
+    Map<String, dynamic> s,
+    int grade,
+    bool isVi,
+  ) {
+    final id = s['id'] as String? ?? '';
+    final icon = s['icon'] as String? ?? '📚';
+    final color = s['color'] as int? ?? 0xFFFFE8F0;
+    final lessonCount = s['lessonCount'] as int? ?? 0;
+    final nameVi = s['nameVi'] as String? ?? '';
+    final nameEn = s['nameEn'] as String? ?? '';
+    return GestureDetector(
+      onTap: () => context.push('/subject/$id'),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Color(color),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(icon, style: const TextStyle(fontSize: 32)),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.85),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    isVi ? 'Lớp $grade' : 'Gr $grade',
+                    style: const TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.darkPurple,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  isVi ? nameVi : nameEn,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.darkPurple,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  isVi ? '$lessonCount bài' : '$lessonCount lessons',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: AppColors.darkPurple.withValues(alpha: 0.7),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
