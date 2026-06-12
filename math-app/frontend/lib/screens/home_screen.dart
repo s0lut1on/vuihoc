@@ -867,30 +867,50 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         final isSelected = g == grade;
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 6),
-          child: GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () async {
+          child: ElevatedButton(
+            onPressed: () async {
               if (isSelected) return;
-              await UserApi.updateGrade(g);
-              ref.invalidate(userProvider);
-              ref.invalidate(curriculumProvider(g));
+              try {
+                await UserApi.updateGrade(g);
+                ref.invalidate(userProvider);
+                ref.invalidate(curriculumProvider(g));
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        isVi ? 'Đã chuyển sang lớp $g' : 'Switched to Grade $g',
+                      ),
+                      duration: const Duration(seconds: 1),
+                    ),
+                  );
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(isVi ? 'Lỗi: $e' : 'Error: $e'),
+                    ),
+                  );
+                }
+              }
             },
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              decoration: BoxDecoration(
-                color: isSelected ? AppColors.primaryPink : AppColors.white,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: isSelected ? AppColors.primaryPink : AppColors.white,
+              foregroundColor: isSelected ? AppColors.white : AppColors.darkPurple,
+              elevation: isSelected ? 2 : 0,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(
+                side: BorderSide(
                   color: isSelected ? AppColors.primaryPink : const Color(0xFFE0E0E0),
                 ),
               ),
-              child: Text(
-                isVi ? 'Lớp $g' : 'Grade $g',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: isSelected ? AppColors.white : AppColors.darkPurple,
-                ),
+            ),
+            child: Text(
+              isVi ? 'Lớp $g' : 'Grade $g',
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ),
