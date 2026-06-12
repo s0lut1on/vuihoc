@@ -27,6 +27,7 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   int _selectedIndex = 0;
+  int? _optimisticGrade;
   final Stream<bool> _connectivityStream =
       ConnectivityService().onConnectivityChanged;
 
@@ -860,7 +861,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final l10n = AppLocalizations.of(context)!;
     final userAsync = ref.watch(userProvider);
     final liveUser = userAsync.value ?? user;
-    final grade = liveUser?.grade ?? 1;
+    final grade = _optimisticGrade ?? liveUser?.grade ?? 1;
     final isVi = Localizations.localeOf(context).languageCode == 'vi';
 
     return Row(
@@ -875,11 +876,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             child: ElevatedButton(
               onPressed: () async {
                 if (isSelected) return;
+                setState(() => _optimisticGrade = g);
                 try {
                   await UserApi.updateGrade(g);
                   await ref.read(userProvider.notifier).refreshUser();
                   ref.invalidate(curriculumProvider(g));
-                  if (context.mounted) {
+                  if (mounted) {
+                    setState(() => _optimisticGrade = null);
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text(
@@ -891,7 +894,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     );
                   }
                 } catch (e) {
-                  if (context.mounted) {
+                  if (mounted) {
+                    setState(() => _optimisticGrade = null);
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text(isVi ? 'Lỗi: $e' : 'Error: $e'),
