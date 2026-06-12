@@ -858,7 +858,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Widget _buildGradeSelector(BuildContext context, WidgetRef ref, dynamic user) {
     final l10n = AppLocalizations.of(context)!;
-    final grade = user?.grade ?? 1;
+    final userAsync = ref.watch(userProvider);
+    final liveUser = userAsync.value ?? user;
+    final grade = liveUser?.grade ?? 1;
     final isVi = Localizations.localeOf(context).languageCode == 'vi';
 
     return Row(
