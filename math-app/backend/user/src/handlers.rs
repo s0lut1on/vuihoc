@@ -164,18 +164,11 @@ pub async fn get_leaderboard(
 
 pub async fn update_grade(
     State(state): State<AppState>,
-    Extension(claims): Extension<shared::Claims>,
     Json(body): Json<crate::models::UpdateGradeRequest>,
 ) -> shared::ApiResponse<serde_json::Value> {
-    let user_id = match uuid::Uuid::try_parse(&claims.sub) {
-        Ok(u) => u,
-        Err(_) => return shared::ApiResponse::err("Invalid user_id"),
-    };
-
-    let result = sqlx::query("UPDATE users SET grade = $1 WHERE id = $2 RETURNING id")
+    let result = sqlx::query("UPDATE users SET grade = $1")
         .bind(body.grade)
-        .bind(user_id)
-        .fetch_one(&state.db)
+        .execute(&state.db)
         .await;
 
     match result {
