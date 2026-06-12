@@ -28,6 +28,7 @@ class HomeScreen extends ConsumerStatefulWidget {
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   int _selectedIndex = 0;
   int? _optimisticGrade;
+  int _pulseTick = 0;
   final Stream<bool> _connectivityStream =
       ConnectivityService().onConnectivityChanged;
 
@@ -871,58 +872,81 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 6),
           child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            curve: Curves.easeInOut,
-            child: ElevatedButton(
-              onPressed: () async {
-                if (isSelected) return;
-                setState(() => _optimisticGrade = g);
-                try {
-                  await UserApi.updateGrade(g);
-                  await ref.read(userProvider.notifier).refreshUser();
-                  ref.invalidate(curriculumProvider(g));
-                  if (mounted) {
-                    setState(() => _optimisticGrade = null);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          isVi ? 'Đã chuyển sang lớp $g!' : 'Switched to Grade $g!',
-                        ),
-                        duration: const Duration(seconds: 1),
-                        backgroundColor: AppColors.primaryPink,
-                      ),
-                    );
-                  }
-                } catch (e) {
-                  if (mounted) {
-                    setState(() => _optimisticGrade = null);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(isVi ? 'Lỗi: $e' : 'Error: $e'),
-                        backgroundColor: Colors.red,
-                      ),
-                    );
-                  }
-                }
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeOutBack,
+            child: TweenAnimationBuilder<double>(
+              key: ValueKey('grade-$g-${_pulseTick}'),
+              tween: Tween(begin: 1.0, end: isSelected ? 1.0 : 1.0),
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.elasticOut,
+              builder: (context, scale, child) {
+                return Transform.scale(
+                  scale: scale,
+                  child: child,
+                );
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: isSelected ? AppColors.primaryPink : AppColors.white,
-                foregroundColor: isSelected ? AppColors.white : AppColors.darkPurple,
-                elevation: isSelected ? 4 : 0,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  side: BorderSide(
-                    color: isSelected ? AppColors.primaryPink : const Color(0xFFE0E0E0),
-                    width: isSelected ? 2 : 1,
+              child: ElevatedButton(
+                onPressed: () async {
+                  if (isSelected) return;
+                  setState(() {
+                    _optimisticGrade = g;
+                    _pulseTick++;
+                  });
+                  try {
+                    await UserApi.updateGrade(g);
+                    await ref.read(userProvider.notifier).refreshUser();
+                    ref.invalidate(curriculumProvider(g));
+                    if (mounted) {
+                      setState(() => _optimisticGrade = null);
+                    }
+                  } catch (e) {
+                    if (mounted) {
+                      setState(() => _optimisticGrade = null);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(isVi ? 'Lỗi: $e' : 'Error: $e'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: isSelected ? AppColors.primaryPink : AppColors.white,
+                  foregroundColor: isSelected ? AppColors.white : AppColors.darkPurple,
+                  elevation: isSelected ? 6 : 0,
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    side: BorderSide(
+                      color: isSelected ? AppColors.primaryPink : const Color(0xFFE0E0E0),
+                      width: isSelected ? 2 : 1,
+                    ),
                   ),
                 ),
-              ),
-              child: Text(
-                isVi ? 'Lớp $g' : 'Grade $g',
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 250),
+                  transitionBuilder: (child, anim) => ScaleTransition(
+                    scale: anim,
+                    child: FadeTransition(opacity: anim, child: child),
+                  ),
+                  child: Row(
+                    key: ValueKey(isSelected),
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        isVi ? 'Lớp $g' : 'Grade $g',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      if (isSelected) ...[
+                        const SizedBox(width: 6),
+                        const Icon(Icons.check_rounded, size: 18, color: Colors.white),
+                      ],
+                    ],
+                  ),
                 ),
               ),
             ),
