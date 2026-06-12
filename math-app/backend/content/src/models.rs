@@ -438,3 +438,74 @@ fn static_ex(params: StaticExerciseParams<'_>) -> ApiExercise {
         exercise_order: 1,
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn get_curriculum_static_returns_subjects() {
+        let curriculum = get_curriculum_static();
+        assert_eq!(curriculum.len(), 3);
+        assert_eq!(curriculum[0].subject_id, "numbers");
+        assert_eq!(curriculum[1].subject_id, "geometry");
+        assert_eq!(curriculum[2].subject_id, "logic");
+    }
+
+    #[test]
+    fn get_curriculum_static_lessons_have_exercises() {
+        let curriculum = get_curriculum_static();
+        let lesson = &curriculum[0].lessons[0];
+        assert_eq!(lesson.id, "lesson_n1");
+        assert_eq!(lesson.exercises.len(), 1);
+        let ex = &lesson.exercises[0];
+        assert_eq!(ex.options.len(), 3);
+        assert_eq!(ex.correct, 1);
+    }
+
+    #[test]
+    fn api_exercise_fields() {
+        let ex = ApiExercise {
+            id: "ex1".to_string(),
+            question_vi: "Có bao nhiêu?".to_string(),
+            question_en: "How many?".to_string(),
+            options: vec!["3".into(), "5".into()],
+            correct: 0,
+            visual: "🍎".to_string(),
+            hint_vi: Some("Đếm nhé".to_string()),
+            hint_en: Some("Count them".to_string()),
+            exercise_order: 1,
+        };
+        assert_eq!(ex.id, "ex1");
+        assert_eq!(ex.hint_vi, Some("Đếm nhé".to_string()));
+        assert_eq!(ex.options.len(), 2);
+    }
+
+    #[test]
+    fn curriculum_subject_serde_roundtrip() {
+        let subject = CurriculumSubject {
+            subject_id: "math".to_string(),
+            subject_vi: "Toán".to_string(),
+            subject_en: "Math".to_string(),
+            subject_icon: "🔢".to_string(),
+            subject_color: "#FFE8F0".to_string(),
+            lessons: vec![],
+        };
+        let json = serde_json::to_string(&subject).unwrap();
+        assert!(json.contains("subject_id"));
+        assert!(json.contains("Toán"));
+    }
+
+    #[test]
+    fn subject_summary_lesson_count() {
+        let s = SubjectSummary {
+            id: "s1".to_string(),
+            name_vi: "Tên".to_string(),
+            name_en: "Name".to_string(),
+            icon: "📚".to_string(),
+            color: "#FFF".to_string(),
+            lesson_count: 42,
+        };
+        assert_eq!(s.lesson_count, 42);
+    }
+}

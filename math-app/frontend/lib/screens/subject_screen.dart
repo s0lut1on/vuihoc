@@ -7,6 +7,7 @@ import '../models/lesson_model.dart';
 import '../providers/app_providers.dart';
 import '../services/content_api.dart';
 import '../services/language_api.dart';
+import '../widgets/unlock_animation_overlay.dart';
 
 class SubjectScreen extends ConsumerStatefulWidget {
   final String subjectId;
@@ -25,6 +26,8 @@ class _SubjectScreenState extends ConsumerState<SubjectScreen> {
   String? _subjectTitle;
   int _lessonCount = 0;
   bool _hasDetailedProgress = false;
+  Set<String> _previousUnlockState = {};
+  String? _showOverlayFor; // sub-subject ID that just unlocked
 
   static const Map<String, Map<String, dynamic>> _subjectMeta = {
     'math': {'icon': '🔢', 'color': 0xFFFFE8F0},
@@ -121,6 +124,18 @@ class _SubjectScreenState extends ConsumerState<SubjectScreen> {
               'total': total,
             };
           }).toList();
+
+          // Detect newly unlocked sub-subjects
+          final currentUnlocked = subSubjects
+              .where((s) => s['isUnlocked'] == true)
+              .map((s) => s['id'] as String)
+              .toSet();
+          final newlyUnlocked = currentUnlocked.difference(_previousUnlockState);
+          if (newlyUnlocked.isNotEmpty) {
+            _showOverlayFor = newlyUnlocked.first;
+          }
+          _previousUnlockState = currentUnlocked;
+
           lessonCount = subSubjects.length;
         }
       } else {
@@ -179,6 +194,32 @@ class _SubjectScreenState extends ConsumerState<SubjectScreen> {
     );
 
     final isGrouping = _isGroupingSubject();
+
+    if (_showOverlayFor != null) {
+      final sub = _subSubjects.firstWhere(
+        (s) => s['id'] == _showOverlayFor,
+        orElse: () => _subSubjects.first,
+      );
+      final overlayColor = Color(sub['color'] as int);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && _showOverlayFor != null) {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            barrierColor: Colors.transparent,
+            builder: (_) => UnlockAnimationOverlay(
+              titleVi: sub['nameVi'] as String,
+              titleEn: sub['nameEn'] as String,
+              accentColor: overlayColor,
+              onDismiss: () {
+                setState(() => _showOverlayFor = null);
+                Navigator.of(context, rootNavigator: true).pop();
+              },
+            ),
+          );
+        }
+      });
+    }
 
     return Scaffold(
       backgroundColor: AppColors.grayBg,

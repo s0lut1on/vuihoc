@@ -225,10 +225,129 @@ pub struct RecordWrongResult {
     pub wrong_count: i32,
 }
 
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+pub struct HintRequest {
+    pub exercise_id: String,
+    pub question_text: String,
+    pub answer_history: Vec<String>,
+    pub expected_answer: String,
+    pub is_vietnamese: bool,
+}
+
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+pub struct HintResponse {
+    pub hint: String,
+    pub hint_en: String,
+    pub from_cache: bool,
+}
+
 #[derive(Debug, Clone)]
 #[allow(dead_code)]
 pub struct SampledParams {
     pub params: HashMap<String, f64>,
     #[allow(dead_code)]
     pub estimated_difficulty: f64,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn bkt_update_correct_increases_mastery() {
+        let state = BktState::default();
+        let new_state = state.update(true);
+        assert!(new_state.p_mastery > state.p_mastery);
+        assert_eq!(new_state.attempt_count, 1);
+    }
+
+    #[test]
+    fn bkt_update_wrong_stays_in_range() {
+        let state = BktState::default();
+        let new_state = state.update(false);
+        assert!(new_state.p_mastery >= 0.0 && new_state.p_mastery <= 1.0);
+        assert_eq!(new_state.attempt_count, 1);
+    }
+
+    #[test]
+    fn bkt_mastered_threshold() {
+        let mut state = BktState::default();
+        state.p_mastery = 0.94;
+        assert!(!state.is_mastered());
+        state.p_mastery = 0.96;
+        assert!(state.is_mastered());
+    }
+
+    #[test]
+    fn bkt_difficulty_target_maps_correctly() {
+        let mut state = BktState::default();
+        state.p_mastery = 0.2;
+        assert_eq!(state.difficulty_target(), 1);
+        state.p_mastery = 0.4;
+        assert_eq!(state.difficulty_target(), 2);
+        state.p_mastery = 0.6;
+        assert_eq!(state.difficulty_target(), 3);
+        state.p_mastery = 0.8;
+        assert_eq!(state.difficulty_target(), 4);
+    }
+
+    #[test]
+    fn hint_response_serde_roundtrip() {
+        let resp = HintResponse {
+            hint: "Try counting!".to_string(),
+            hint_en: "Try counting!".to_string(),
+            from_cache: false,
+        };
+        let json = serde_json::to_string(&resp).unwrap();
+        let decoded: HintResponse = serde_json::from_str(&json).unwrap();
+        assert_eq!(decoded.hint, "Try counting!");
+        assert_eq!(decoded.from_cache, false);
+    }
+
+    #[test]
+    fn hint_request_serde_roundtrip() {
+        let req = HintRequest {
+            exercise_id: "ex1".to_string(),
+            question_text: "1+1=?".to_string(),
+            answer_history: vec!["3".to_string()],
+            expected_answer: "2".to_string(),
+            is_vietnamese: true,
+        };
+        let json = serde_json::to_string(&req).unwrap();
+        let decoded: HintRequest = serde_json::from_str(&json).unwrap();
+        assert_eq!(decoded.exercise_id, "ex1");
+        assert_eq!(decoded.answer_history, vec!["3".to_string()]);
+        assert!(decoded.is_vietnamese);
+    }
+
+    #[test]
+    fn record_wrong_payload_fields() {
+        let payload = RecordWrongPayload {
+            exercise_id: "ex1".to_string(),
+            lesson_id: "l1".to_string(),
+            subject_id: "math".to_string(),
+            question_vi: "1+1=?".to_string(),
+            question_en: "1+1=?".to_string(),
+            hint_vi: Some("Gợi ý".to_string()),
+            hint_en: Some("Hint".to_string()),
+            options: vec!["1".into(), "2".into()],
+            correct_index: 1,
+        };
+        assert_eq!(payload.lesson_id, "l1");
+        assert_eq!(payload.hint_en, Some("Hint".to_string()));
+        assert_eq!(payload.options.len(), 2);
+    }
+
+    #[test]
+    fn answer_result_has_feedback() {
+        let result = AnswerResult {
+            is_correct: true,
+            correct_answer: 2.0,
+            p_mastery_new: 0.5,
+            is_mastered: false,
+            feedback: "Good job!".to_string(),
+        };
+        let json = serde_json::to_string(&result).unwrap();
+        assert!(json.contains("Good job"));
+    }
 }

@@ -174,4 +174,63 @@ void main() {
       expect(result, false);
     });
   });
+
+  group('ProgressApi.submitExerciseResult', () {
+    test('returns true on success', () async {
+      when(() => mockAdapter.fetch(any(), any(), any())).thenAnswer(
+        (_) async => ResponseBody.fromString(
+          jsonEncode({'success': true, 'data': {}}),
+          200,
+          headers: {Headers.contentTypeHeader: ['application/json']},
+        ),
+      );
+
+      final result = await ProgressApi.submitExerciseResult(
+        userId: 'user-1', exerciseId: 'ex-1', lessonId: 'l-1', isCorrect: true,
+      );
+      expect(result, true);
+    });
+
+    test('returns false on failure', () async {
+      when(() => mockAdapter.fetch(any(), any(), any()))
+          .thenThrow(DioException(requestOptions: RequestOptions(path: '/review')));
+
+      final result = await ProgressApi.submitExerciseResult(
+        userId: 'u', exerciseId: 'e', lessonId: 'l', isCorrect: false,
+      );
+      expect(result, false);
+    });
+  });
+
+  group('ProgressApi.getReviewSession', () {
+    test('returns exercises on success', () async {
+      when(() => mockAdapter.fetch(any(), any(), any())).thenAnswer(
+        (_) async => ResponseBody.fromString(
+          jsonEncode({
+            'success': true,
+            'data': {
+              'exercises': [
+                {'exercise_id': 'e1', 'lesson_id': 'l1', 'wrong_count': 2},
+                {'exercise_id': 'e2', 'lesson_id': 'l2', 'wrong_count': 1},
+              ],
+            },
+          }),
+          200,
+          headers: {Headers.contentTypeHeader: ['application/json']},
+        ),
+      );
+
+      final result = await ProgressApi.getReviewSession('u1');
+      expect(result.length, 2);
+      expect(result[0]['exercise_id'], 'e1');
+      expect(result[1]['wrong_count'], 1);
+    });
+
+    test('returns empty on failure', () async {
+      when(() => mockAdapter.fetch(any(), any(), any())).thenThrow(Exception());
+
+      final result = await ProgressApi.getReviewSession('u1');
+      expect(result, isEmpty);
+    });
+  });
 }

@@ -1,4 +1,6 @@
 import 'api_service.dart';
+import 'package:hive/hive.dart';
+import 'connectivity_service.dart';
 
 class ProgressApi {
   static final _api = ApiService();
@@ -69,6 +71,18 @@ class ProgressApi {
       });
       return true;
     } catch (_) {
+      final online = await ConnectivityService.isOnline;
+      if (!online) {
+        final box = Hive.box('pending_sync');
+        final key = '${DateTime.now().millisecondsSinceEpoch}_exercise';
+        box.put(key, {
+          'type': 'exercise',
+          'userId': userId,
+          'exerciseId': exerciseId,
+          'lessonId': lessonId,
+          'isCorrect': isCorrect,
+        });
+      }
       return false;
     }
   }

@@ -149,5 +149,7 @@
   "leaderboardJoinButton": "Tham gia",
   "leaderboardLeaveButton": "Rời lớp",
   "leaderboardWeeklyStars": "{count} ⭐ tuần này",
-  "leaderboardRank": "Hạng {rank}"
+  "leaderboardRank": "Hạng {rank}",
+  "offlineBanner": "Bạn đang ngoại tuyến. Dữ liệu sẽ được đồng bộ sau.",
+  "contactLabel": "Liên hệ"
 }

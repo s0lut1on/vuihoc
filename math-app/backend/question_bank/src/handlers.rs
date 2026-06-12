@@ -3,8 +3,12 @@ use std::sync::Arc;
 use uuid::Uuid;
 
 use crate::db::Db;
+use crate::llm::anthropic::{AnthropicClient, hint_contains_answer, llm_available};
 use crate::models::*;
 use shared::ApiResponse;
+use std::collections::HashMap;
+use std::sync::{Mutex, OnceLock};
+use std::time::Instant;
 
 #[derive(Clone)]
 pub struct AppState {
@@ -334,4 +338,89 @@ pub async fn clear_wrong(
             ApiResponse::err("Internal server error")
         }
     }
+}
+
+static HINT_CACHE: OnceLock<Mutex<HashMap<String, (String, Instant)>>> = OnceLock::new();
+
+fn hint_cache() -> &'static Mutex<HashMap<String, (String, Instant)>> {
+    HINT_CACHE.get_or_init(|| Mutex::new(HashMap::new()))
+}
+
+pub async fn get_hint(
+    Json(payload): Json<HintRequest>,
+) -> ApiResponse<HintResponse> {
+    if !llm_available() {
+        return ApiResponse::ok(HintResponse {
+            hint: if payload.is_vietnamese {
+                "Hãy thử lại nhé! 💪".to_string()
+            } else {
+                "Try again! 💪".to_string()
+            },
+            hint_en: "Try again! 💪".to_string(),
+            from_cache: false,
+        });
+    }
+
+    let cache_key = format!("{}:{:?}", payload.exercise_id, payload.answer_history);
+    let now = Instant::now();
+
+    if let Ok(cache) = hint_cache().lock() {
+        if let Some((cached, ts)) = cache.get(&cache_key) {
+            if now.duration_since(*ts).as_secs() < 86400 {
+                return ApiResponse::ok(HintResponse {
+                    hint: cached.clone(),
+                    hint_en: cached.clone(),
+                    from_cache: true,
+                });
+            }
+        }
+    }
+
+    let api_key = match std::env::var("ANTHROPIC_API_KEY") {
+        Ok(k) => k,
+        Err(_) => return ApiResponse::err("LLM not available"),
+    };
+
+    let client = AnthropicClient::new(api_key);
+    let generated = match client.generate_hint(
+        &payload.question_text,
+        &payload.answer_history,
+        payload.is_vietnamese,
+    ).await {
+        Ok(text) => text,
+        Err(e) => {
+            tracing::error!("LLM hint generation failed: {}", e);
+            return ApiResponse::ok(HintResponse {
+                hint: if payload.is_vietnamese {
+                    "Hãy thử lại nhé! 💪".to_string()
+                } else {
+                    "Try again! 💪".to_string()
+                },
+                hint_en: "Try again! 💪".to_string(),
+                from_cache: false,
+            });
+        }
+    };
+
+    if hint_contains_answer(&generated, &payload.expected_answer) {
+        return ApiResponse::ok(HintResponse {
+            hint: if payload.is_vietnamese {
+                "Hãy thử lại nhé! 💪".to_string()
+            } else {
+                "Try again! 💪".to_string()
+            },
+            hint_en: "Try again! 💪".to_string(),
+            from_cache: false,
+        });
+    }
+
+    if let Ok(mut cache) = hint_cache().lock() {
+        cache.insert(cache_key, (generated.clone(), now));
+    }
+
+    ApiResponse::ok(HintResponse {
+        hint: generated.clone(),
+        hint_en: generated,
+        from_cache: false,
+    })
 }

@@ -787,6 +787,18 @@ abstract class AppLocalizations {
   /// In vi, this message translates to:
   /// **'Hạng {rank}'**
   String leaderboardRank(Object rank);
+
+  /// No description provided for @offlineBanner.
+  ///
+  /// In vi, this message translates to:
+  /// **'Bạn đang ngoại tuyến. Dữ liệu sẽ được đồng bộ sau.'**
+  String get offlineBanner;
+
+  /// No description provided for @contactLabel.
+  ///
+  /// In vi, this message translates to:
+  /// **'Liên hệ'**
+  String get contactLabel;
 }
 
 class _AppLocalizationsDelegate

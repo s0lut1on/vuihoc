@@ -7,10 +7,16 @@ import '../providers/app_providers.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/language_switcher.dart';
 import '../services/review_api.dart';
+import '../services/progress_api.dart';
+import '../services/connectivity_service.dart';
 import '../services/wrong_answer_storage.dart';
+import '../widgets/offline_banner.dart';
 import 'achievement_screen.dart';
 import 'leaderboard_screen.dart';
 import 'profile_screen.dart';
+
+import '../services/user_api.dart';
+import '../utils/url_launcher.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -21,6 +27,8 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   int _selectedIndex = 0;
+  final Stream<bool> _connectivityStream =
+      ConnectivityService().onConnectivityChanged;
 
   String _resolveSubjectTitle(AppLocalizations l10n, String subjectId) {
     switch (subjectId) {
@@ -113,7 +121,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               title: _buildDesktopNavBar(context, ref, user, l10n),
             )
           : null,
-      body: SafeArea(child: pages[_selectedIndex]),
+      body: Column(
+        children: [
+          StreamBuilder<bool>(
+            stream: _connectivityStream,
+            initialData: true,
+            builder: (context, snapshot) {
+              if (snapshot.data == false) return const OfflineBanner();
+              return const SizedBox.shrink();
+            },
+          ),
+          Expanded(child: SafeArea(top: false, child: pages[_selectedIndex])),
+        ],
+      ),
       bottomNavigationBar: isDesktop
           ? null
           : BottomNavigationBar(
@@ -194,6 +214,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       fontWeight: FontWeight.w600,
                       color: AppColors.darkPurple)),
             ),
+            TextButton(
+              onPressed: () {
+                openExternalUrl('https://web.facebook.com/profile.php?id=100064784463812');
+              },
+              child: Text(l10n.contactLabel,
+                  style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.darkPurple)),
+            ),
             const SizedBox(width: 16),
             Text('💎 $gems',
                 style: const TextStyle(
@@ -223,6 +253,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildMobileHeader(context, ref, user),
+          const SizedBox(height: 12),
+          _buildGradeSelector(context, ref, user),
           const SizedBox(height: 24),
           _buildContinueCard(context, ref, persona),
           const SizedBox(height: 16),
@@ -258,6 +290,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 fontWeight: FontWeight.w700,
                 color: AppColors.darkPurple),
           ),
+          const SizedBox(height: 16),
+          _buildGradeSelector(context, ref, user),
           const SizedBox(height: 24),
           _buildDesktopStatsRow(context, ref, persona, user),
           const SizedBox(height: 24),
@@ -530,6 +564,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
             const SizedBox(width: 12),
             const LanguageSwitcher(),
+            const SizedBox(width: 8),
+            TextButton(
+              onPressed: () {
+                openExternalUrl('https://web.facebook.com/profile.php?id=100064784463812');
+              },
+              style: TextButton.styleFrom(
+                padding: EdgeInsets.zero,
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              child: Text(l10n.contactLabel,
+                  style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.darkPurple)),
+            ),
             const SizedBox(width: 12),
             const Text('💎', style: TextStyle(fontSize: 20)),
             const SizedBox(width: 4),
@@ -666,14 +716,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Future<int> _reviewCount(WidgetRef ref) async {
-    final local = await WrongAnswerStorage.getCount();
     final userId = ref.read(userIdProvider) ?? '';
-    if (userId.isEmpty) return local;
+    if (userId.isEmpty) return 0;
     try {
-      final remote = await ReviewApi.getReview(userId);
-      return remote.length > local ? remote.length : local;
+      final remote = await ProgressApi.getReviewSession(userId);
+      final dueCount = remote.fold<int>(0, (sum, e) => sum + ((e['wrong_count'] as int?) ?? 0)) ~/ 2 + 1;
+      return remote.length;
     } catch (_) {
-      return local;
+      return 0;
     }
   }
 
@@ -803,6 +853,48 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildGradeSelector(BuildContext context, WidgetRef ref, dynamic user) {
+    final l10n = AppLocalizations.of(context)!;
+    final grade = user?.grade ?? 1;
+    final isVi = Localizations.localeOf(context).languageCode == 'vi';
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [1, 2, 3].map((g) {
+        final isSelected = g == grade;
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 6),
+          child: GestureDetector(
+            onTap: () async {
+              if (isSelected) return;
+              await UserApi.updateGrade(g);
+              ref.invalidate(userProvider);
+              ref.invalidate(curriculumProvider(g));
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              decoration: BoxDecoration(
+                color: isSelected ? AppColors.primaryPink : AppColors.white,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: isSelected ? AppColors.primaryPink : const Color(0xFFE0E0E0),
+                ),
+              ),
+              child: Text(
+                isVi ? 'Lớp $g' : 'Grade $g',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: isSelected ? AppColors.white : AppColors.darkPurple,
+                ),
+              ),
+            ),
+          ),
+        );
+      }).toList(),
     );
   }
 }

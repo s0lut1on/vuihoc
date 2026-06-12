@@ -72,3 +72,63 @@ fn validate_mathematical(params: &HashMap<String, f64>) -> bool {
     }
     true
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn estimate_difficulty_low_values() {
+        let mut p = HashMap::new();
+        p.insert("a".to_string(), 1.0);
+        p.insert("b".to_string(), 2.0);
+        let d = estimate_difficulty(&p);
+        assert!(d >= 1.0 && d < 2.0);
+    }
+
+    #[test]
+    fn estimate_difficulty_clamped_to_5() {
+        let mut p = HashMap::new();
+        p.insert("a".to_string(), 100.0);
+        p.insert("b".to_string(), -50.0);
+        let d = estimate_difficulty(&p);
+        assert!(d <= 5.0);
+    }
+
+    #[test]
+    fn estimate_difficulty_empty_params() {
+        let p: HashMap<String, f64> = HashMap::new();
+        let d = estimate_difficulty(&p);
+        assert!((d - 1.0).abs() < 0.01);
+    }
+
+    #[test]
+    fn estimate_difficulty_negative_increases() {
+        let mut pos = HashMap::new();
+        pos.insert("a".to_string(), 5.0);
+        let mut neg = HashMap::new();
+        neg.insert("a".to_string(), -5.0);
+        assert!(estimate_difficulty(&neg) > estimate_difficulty(&pos));
+    }
+
+    #[test]
+    fn validate_mathematical_rejects_zero_a() {
+        let mut p = HashMap::new();
+        p.insert("a".to_string(), 0.0);
+        assert!(!validate_mathematical(&p));
+    }
+
+    #[test]
+    fn validate_mathematical_allows_nonzero_a() {
+        let mut p = HashMap::new();
+        p.insert("a".to_string(), 1.0);
+        assert!(validate_mathematical(&p));
+    }
+
+    #[test]
+    fn validate_mathematical_allows_no_a() {
+        let mut p = HashMap::new();
+        p.insert("b".to_string(), 0.0);
+        assert!(validate_mathematical(&p));
+    }
+}

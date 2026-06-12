@@ -40,7 +40,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Xin chào, bé yêu!'), findsOneWidget);
-    expect(find.text('Hãy cùng học Toán vui nhé! Chọn cách học của bé.'),
+    expect(find.text('Hãy cùng học vui nhé! Chọn cách học của bé.'),
         findsOneWidget);
     expect(find.textContaining('🐸'), findsOneWidget);
   });

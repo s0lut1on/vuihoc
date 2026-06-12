@@ -7,9 +7,12 @@ import '../l10n/app_localizations.dart';
 import '../providers/app_providers.dart';
 import '../services/language_api.dart';
 import '../services/progress_api.dart';
+import '../services/question_bank_api.dart';
+import '../services/connectivity_service.dart';
 import '../services/tts_service.dart';
 import '../widgets/exercise_dispatcher.dart';
 import '../widgets/language_switcher.dart';
+import '../widgets/offline_banner.dart';
 
 class LanguageLessonScreen extends ConsumerStatefulWidget {
   final String subjectId;
@@ -32,6 +35,11 @@ class _LanguageLessonScreenState extends ConsumerState<LanguageLessonScreen> {
   bool _loading = true;
   bool _showHint = false;
   int _correctAnswers = 0;
+  int _wrongCountThisExercise = 0;
+  String _hintText = '';
+  final List<String> _answerHistory = [];
+  final Stream<bool> _connectivityStream =
+      ConnectivityService().onConnectivityChanged;
 
   @override
   void initState() {
@@ -85,10 +93,24 @@ class _LanguageLessonScreenState extends ConsumerState<LanguageLessonScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.lightBlueBg,
-      body: SafeArea(
-        child: isDesktop
-            ? _buildDesktopLayout(currentExercise, totalExercises)
-            : _buildMobileLayout(currentExercise, totalExercises),
+      body: Column(
+        children: [
+          StreamBuilder<bool>(
+            stream: _connectivityStream,
+            initialData: true,
+            builder: (context, snapshot) {
+              if (snapshot.data == false) return const OfflineBanner();
+              return const SizedBox.shrink();
+            },
+          ),
+          Expanded(
+            child: SafeArea(
+              child: isDesktop
+                  ? _buildDesktopLayout(currentExercise, totalExercises)
+                  : _buildMobileLayout(currentExercise, totalExercises),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -159,9 +181,7 @@ class _LanguageLessonScreenState extends ConsumerState<LanguageLessonScreen> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      locale.languageCode == 'en'
-                          ? currentExercise['hint_en'] as String? ?? ''
-                          : currentExercise['hint_vi'] as String? ?? '',
+                      _hintText,
                       style: const TextStyle(
                         fontSize: 14,
                         color: AppColors.primaryPink,
@@ -333,7 +353,7 @@ class _LanguageLessonScreenState extends ConsumerState<LanguageLessonScreen> {
     );
   }
 
-  void _onAnswered(bool isCorrect) {
+  void _onAnswered(bool isCorrect, {String? userAnswer}) {
     final exercises = _lesson!['exercises'] as List<dynamic>;
     final currentEx = exercises[_currentExercise] as Map<String, dynamic>;
     final exerciseId = currentEx['id'] as String? ?? '';
@@ -351,27 +371,67 @@ class _LanguageLessonScreenState extends ConsumerState<LanguageLessonScreen> {
       HapticFeedback.lightImpact();
       setState(() {
         _correctAnswers++;
+        _wrongCountThisExercise = 0;
+        _hintText = '';
+        _answerHistory.clear();
       });
-
-      // Advance to next exercise or finish lesson
       Future.delayed(const Duration(milliseconds: 1000), () {
-        if (mounted) {
-          _advanceExercise();
-        }
+        if (mounted) _advanceExercise();
       });
     } else {
       HapticFeedback.heavyImpact();
-      setState(() {
-        _showHint = true;
-      });
+      _wrongCountThisExercise++;
+      if (userAnswer != null && userAnswer.isNotEmpty) {
+        _answerHistory.add(userAnswer);
+      }
 
-      // Hide hint after delay
-      Future.delayed(const Duration(seconds: 3), () {
+      final locale = ref.read(localeProvider);
+      final staticHint = locale.languageCode == 'en'
+          ? currentEx['hint_en'] as String? ?? ''
+          : currentEx['hint_vi'] as String? ?? '';
+
+      if (_wrongCountThisExercise >= 2) {
+        _fetchAiHint(currentEx, staticHint, locale.languageCode);
+      } else {
+        setState(() {
+          _showHint = true;
+          _hintText = staticHint;
+        });
+      }
+
+      Future.delayed(const Duration(seconds: 5), () {
         if (mounted) {
           setState(() {
             _showHint = false;
           });
         }
+      });
+    }
+  }
+
+  void _fetchAiHint(Map<String, dynamic> currentEx, String fallback, String lang) async {
+    final exerciseId = currentEx['id'] as String? ?? '';
+    final questionText = lang == 'vi'
+        ? (currentEx['question_vi'] as String? ?? '')
+        : (currentEx['question_en'] as String? ?? '');
+    final correctIndex = currentEx['correct_index'] as int?;
+    final options = currentEx['options'] as List<dynamic>?;
+    final expectedAnswer = (options != null && correctIndex != null && correctIndex < options.length)
+        ? options[correctIndex].toString()
+        : '';
+
+    final hint = await QuestionBankApi.getHint(
+      exerciseId: exerciseId,
+      questionText: questionText,
+      answerHistory: _answerHistory,
+      expectedAnswer: expectedAnswer,
+      isVietnamese: lang == 'vi',
+    );
+
+    if (mounted) {
+      setState(() {
+        _showHint = true;
+        _hintText = hint ?? fallback;
       });
     }
   }
@@ -382,6 +442,9 @@ class _LanguageLessonScreenState extends ConsumerState<LanguageLessonScreen> {
       setState(() {
         _currentExercise++;
         _showHint = false;
+        _wrongCountThisExercise = 0;
+        _hintText = '';
+        _answerHistory.clear();
       });
       if (ref.read(ttsEnabledProvider)) {
         final nextEx = exercises[_currentExercise] as Map<String, dynamic>;

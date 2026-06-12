@@ -371,4 +371,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String leaderboardRank(Object rank) {
     return '#$rank';
   }
+
+  @override
+  String get offlineBanner => 'You are offline. Changes will sync later.';
+
+  @override
+  String get contactLabel => 'Contact';
 }

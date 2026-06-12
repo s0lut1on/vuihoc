@@ -57,7 +57,7 @@ void main() {
 
     expect(find.textContaining('🐸'), findsOneWidget);
     expect(find.text('Chào mừng bạn!'), findsOneWidget);
-    expect(find.text('Hãy chọn cách để bắt đầu học toán nhé'), findsOneWidget);
+    expect(find.text('Hãy chọn cách để bắt đầu học nhé'), findsOneWidget);
   });
 
   testWidgets('LoginScreen shows Google Sign-In button',

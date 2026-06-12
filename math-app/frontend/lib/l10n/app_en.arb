@@ -149,5 +149,7 @@
   "leaderboardJoinButton": "Join",
   "leaderboardLeaveButton": "Leave",
   "leaderboardWeeklyStars": "{count} ⭐ this week",
-  "leaderboardRank": "#{rank}"
+  "leaderboardRank": "#{rank}",
+  "offlineBanner": "You are offline. Changes will sync later.",
+  "contactLabel": "Contact"
 }

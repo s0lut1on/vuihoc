@@ -11,7 +11,7 @@ import 'ordering_exercise.dart';
 
 class ExerciseDispatcher extends ConsumerStatefulWidget {
   final Map<String, dynamic> exercise;
-  final Function(bool isCorrect) onAnswered;
+  final Function(bool isCorrect, {String? userAnswer}) onAnswered;
 
   const ExerciseDispatcher({
     super.key,
@@ -69,6 +69,7 @@ class _ExerciseDispatcherState extends ConsumerState<ExerciseDispatcher> {
     final audioUrl = widget.exercise['audio_url'] as String?;
     final locale = Localizations.localeOf(context);
     final question = _resolveQuestion();
+    final ttsEnabled = ref.watch(ttsEnabledProvider);
     return Column(
       children: [
         Center(
@@ -233,10 +234,12 @@ class _ExerciseDispatcherState extends ConsumerState<ExerciseDispatcher> {
     setState(() => _selectedAnswer = index);
     _isCorrect = index == correctIndex;
 
-    widget.onAnswered(_isCorrect);
+    final options =
+        (widget.exercise['options'] as List<dynamic>?)?.cast<String>() ?? [];
+    final userAnswer = (index >= 0 && index < options.length) ? options[index] : '';
+    widget.onAnswered(_isCorrect, userAnswer: userAnswer);
 
     if (!_isCorrect) {
-      // Show hint or feedback after a short delay
       Future.delayed(const Duration(milliseconds: 1500), () {
         if (mounted) {
           setState(() {

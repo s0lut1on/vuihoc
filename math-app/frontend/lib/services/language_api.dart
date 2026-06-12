@@ -1,16 +1,28 @@
 import 'api_service.dart';
+import 'package:hive/hive.dart';
+import 'connectivity_service.dart';
 
 class LanguageApi {
   static final _api = ApiService.withBaseUrl('/api/language');
+  static Box _offlineCache() => Hive.box('offline_cache');
 
   static Future<List<Map<String, dynamic>>> getCurriculum({int grade = 1, String? subjectId}) async {
+    final cacheKey = 'curriculum:${subjectId ?? 'all'}:$grade';
     try {
       final queryParams = 'grade=$grade${subjectId != null ? '&subject_id=$subjectId' : ''}';
       final response = await _api.get('/curriculum?$queryParams');
       final data = response['data'] as Map<String, dynamic>?;
       final curriculum = data?['curriculum'] as List<dynamic>? ?? [];
-      return curriculum.map((e) => e as Map<String, dynamic>).toList();
+      final result = curriculum.map((e) => e as Map<String, dynamic>).toList();
+      try {
+        _offlineCache().put(cacheKey, result);
+      } catch (_) {}
+      return result;
     } catch (_) {
+      final cached = _offlineCache().get(cacheKey);
+      if (cached is List) {
+        return cached.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+      }
       return [];
     }
   }
@@ -63,8 +75,22 @@ class LanguageApi {
       });
       return true;
     } catch (_) {
+      final online = await ConnectivityService.isOnline;
+      if (!online) {
+        _queueSyncEntry('progress', {
+          'userId': userId,
+          'lessonId': lessonId,
+          'stars': stars,
+        });
+      }
       return false;
     }
+  }
+
+  static void _queueSyncEntry(String type, Map<String, dynamic> data) {
+    final box = Hive.box('pending_sync');
+    final key = '${DateTime.now().millisecondsSinceEpoch}_${type}';
+    box.put(key, {'type': type, ...data});
   }
 
   static Future<Map<String, dynamic>?> getDetailedProgress({required String userId, String? subjectId}) async {

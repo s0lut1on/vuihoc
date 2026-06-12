@@ -371,4 +371,11 @@ class AppLocalizationsVi extends AppLocalizations {
   String leaderboardRank(Object rank) {
     return 'Hạng $rank';
   }
+
+  @override
+  String get offlineBanner =>
+      'Bạn đang ngoại tuyến. Dữ liệu sẽ được đồng bộ sau.';
+
+  @override
+  String get contactLabel => 'Liên hệ';
 }

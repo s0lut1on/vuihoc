@@ -8,13 +8,15 @@ import 'core/app_router.dart';
 import 'providers/app_providers.dart';
 import 'services/api_service.dart';
 import 'services/auth_service.dart';
+import 'services/connectivity_service.dart';
 import 'l10n/app_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
-
-  ApiService().initialize();
+  await Hive.openBox('offline_cache');
+  await Hive.openBox('pending_sync');
+  ConnectivityService().init();
 
   final storedLocale = await _loadLocale();
   final ttsEnabled = await _loadTtsEnabled();
