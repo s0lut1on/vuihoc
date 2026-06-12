@@ -868,6 +868,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 6),
           child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
             onTap: () async {
               if (isSelected) return;
               await UserApi.updateGrade(g);
