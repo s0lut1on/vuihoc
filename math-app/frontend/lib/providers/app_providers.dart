@@ -108,6 +108,18 @@ class UserNotifier extends StateNotifier<AsyncValue<User?>> {
       state = AsyncValue.error(e, st);
     }
   }
+
+  Future<void> refreshUser() async {
+    final userId = _ref.read(userIdProvider);
+    if (userId == null || userId.isEmpty) return;
+    try {
+      final user = await UserApi.getUser(userId);
+      _ref.read(personaProvider.notifier).state = user.persona;
+      state = AsyncValue.data(user);
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+    }
+  }
 }
 
 /// Computes the next lesson the child should play.

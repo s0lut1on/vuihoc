@@ -3,28 +3,49 @@ use chrono::Utc;
 
 use crate::models::{AppState, CreateUserRequest, JoinClassroomRequest, User};
 
-pub async fn get_user(State(state): State<AppState>) -> shared::ApiResponse<User> {
-    let user = sqlx::query_as::<_, User>("SELECT * FROM users LIMIT 1")
+pub async fn get_user(
+    State(state): State<AppState>,
+    Extension(claims): Extension<shared::Claims>,
+) -> shared::ApiResponse<User> {
+    let user_id = match uuid::Uuid::try_parse(&claims.sub) {
+        Ok(u) => u,
+        Err(_) => return shared::ApiResponse::err("Invalid user_id"),
+    };
+
+    let user = sqlx::query_as::<_, User>("SELECT * FROM users WHERE id = $1")
+        .bind(user_id)
         .fetch_optional(&state.db)
         .await;
+
     match user {
         Ok(Some(u)) => shared::ApiResponse::ok(u),
-        Ok(None) => shared::ApiResponse::ok(User {
-            id: uuid::Uuid::new_v4(),
-            email: None,
-            name: "Be Minh Anh".to_string(),
-            persona: "achiever".to_string(),
-            avatar: "🐸".to_string(),
-            streak_days: 7,
-            gems: 248,
-            total_lessons: 12,
-            total_stars: 3,
-            locale: "vi_VN".to_string(),
-            subscription_tier: "free".to_string(),
-            classroom_code: None,
-            grade: 1,
-            created_at: Utc::now(),
-        }),
+        Ok(None) => {
+            tracing::info!("User not found, auto-creating default user for id={}", user_id);
+            let new_user = sqlx::query_as::<_, User>(
+                "INSERT INTO users (id, name, persona, avatar, streak_days, gems, total_lessons, total_stars, grade, locale, subscription_tier) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *",
+            )
+            .bind(user_id)
+            .bind("Bé")
+            .bind("achiever")
+            .bind("🐸")
+            .bind(0i32)
+            .bind(0i32)
+            .bind(0i32)
+            .bind(0i32)
+            .bind(1i32)
+            .bind("vi_VN")
+            .bind("free")
+            .fetch_one(&state.db)
+            .await;
+
+            match new_user {
+                Ok(u) => shared::ApiResponse::ok(u),
+                Err(e) => {
+                    tracing::error!("Database error creating user: {}", e);
+                    shared::ApiResponse::err("Internal server error")
+                }
+            }
+        }
         Err(e) => {
             tracing::error!("Database error in get_user: {}", e);
             shared::ApiResponse::err("Internal server error")

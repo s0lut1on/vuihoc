@@ -867,50 +867,57 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         final isSelected = g == grade;
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 6),
-          child: ElevatedButton(
-            onPressed: () async {
-              if (isSelected) return;
-              try {
-                await UserApi.updateGrade(g);
-                ref.invalidate(userProvider);
-                ref.invalidate(curriculumProvider(g));
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        isVi ? 'Đã chuyển sang lớp $g' : 'Switched to Grade $g',
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeInOut,
+            child: ElevatedButton(
+              onPressed: () async {
+                if (isSelected) return;
+                try {
+                  await UserApi.updateGrade(g);
+                  await ref.read(userProvider.notifier).refreshUser();
+                  ref.invalidate(curriculumProvider(g));
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          isVi ? 'Đã chuyển sang lớp $g!' : 'Switched to Grade $g!',
+                        ),
+                        duration: const Duration(seconds: 1),
+                        backgroundColor: AppColors.primaryPink,
                       ),
-                      duration: const Duration(seconds: 1),
-                    ),
-                  );
+                    );
+                  }
+                } catch (e) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(isVi ? 'Lỗi: $e' : 'Error: $e'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
                 }
-              } catch (e) {
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(isVi ? 'Lỗi: $e' : 'Error: $e'),
-                    ),
-                  );
-                }
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: isSelected ? AppColors.primaryPink : AppColors.white,
-              foregroundColor: isSelected ? AppColors.white : AppColors.darkPurple,
-              elevation: isSelected ? 2 : 0,
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-                side: BorderSide(
-                  color: isSelected ? AppColors.primaryPink : const Color(0xFFE0E0E0),
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: isSelected ? AppColors.primaryPink : AppColors.white,
+                foregroundColor: isSelected ? AppColors.white : AppColors.darkPurple,
+                elevation: isSelected ? 4 : 0,
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  side: BorderSide(
+                    color: isSelected ? AppColors.primaryPink : const Color(0xFFE0E0E0),
+                    width: isSelected ? 2 : 1,
+                  ),
                 ),
               ),
-            ),
-            child: Text(
-              isVi ? 'Lớp $g' : 'Grade $g',
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
+              child: Text(
+                isVi ? 'Lớp $g' : 'Grade $g',
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ),
