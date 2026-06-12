@@ -44,27 +44,33 @@ def generate_numbers(grade, prefix, diff):
 
     if grade == 2:
         configs = [
-            (10, "Cộng 2 chữ số", "2-digit addition", "add"),
-            (10, "Trừ 2 chữ số", "2-digit subtraction", "sub"),
-            (10, "Bảng cửu chương", "Times table", "mul"),
-            (10, "Bài toán có lời", "Word problems", "word"),
-            (10, "Ôn tập số học", "Mixed review", "mixed"),
+            (10, "Cộng 2 chữ số", "2-digit addition", "add", "arithmetic_2digit"),
+            (10, "Trừ 2 chữ số", "2-digit subtraction", "sub", "arithmetic_2digit"),
+            (10, "Bảng cửu chương", "Times table", "mul", "multiplication"),
+            (10, "Bài toán có lời", "Word problems", "word", "word_problems"),
+            (10, "Ôn tập số học", "Mixed review", "mixed", "arithmetic_2digit"),
         ]
     else:  # grade 3
         configs = [
-            (15, "Nhân 1-10", "Multiplication 1-10", "mul"),
-            (10, "Chia có dư", "Division with remainders", "div"),
-            (10, "Phân số", "Fractions", "frac"),
-            (10, "Số thập phân", "Decimals", "dec"),
-            (10, "Cộng trừ 3 chữ số", "3-digit arithmetic", "3dig"),
+            (15, "Nhân 1-10", "Multiplication 1-10", "mul", "multiplication"),
+            (10, "Chia có dư", "Division with remainders", "div", "division"),
+            (10, "Phân số", "Fractions", "frac", "fractions"),
+            (10, "Số thập phân", "Decimals", "dec", "decimals"),
+            (10, "Cộng trừ 3 chữ số", "3-digit arithmetic", "3dig", "arithmetic_3digit"),
         ]
 
+    op_to_subject = {
+        "add": "arithmetic_2digit", "sub": "arithmetic_2digit",
+        "3dig": "arithmetic_3digit", "mixed": "arithmetic_2digit",
+    }
+
     idx = 0
-    for count, title_vi_base, title_en_base, op in configs:
+    for count, title_vi_base, title_en_base, op, sub_subject in configs:
         for i in range(1, count + 1):
             idx += 1
             lid = gen_id(f"{prefix}n", idx)
-            lessons.append((lid, "numbers", f"{title_vi_base} (bài {i})", f"{title_en_base} (lesson {i})", idx, diff))
+            subject_id = op_to_subject.get(op, sub_subject)
+            lessons.append((lid, subject_id, f"{title_vi_base} (bài {i})", f"{title_en_base} (lesson {i})", idx, diff))
 
             ex_count = random.randint(2, 3)
             for ex_i in range(1, ex_count + 1):
@@ -152,24 +158,24 @@ def generate_geometry(grade, prefix, diff):
 
     if grade == 2:
         configs = [
-            (15, "Hình 3D", "3D shapes", "3d"),
-            (15, "Đối xứng", "Symmetry", "sym"),
-            (15, "Chu vi", "Perimeter", "per"),
+            (15, "Hình 3D", "3D shapes", "3d", "geometry"),
+            (15, "Đối xứng", "Symmetry", "sym", "geometry"),
+            (15, "Chu vi", "Perimeter", "per", "perimeter"),
         ]
     else:
         configs = [
-            (15, "Diện tích", "Area", "area"),
-            (15, "Góc", "Angles", "ang"),
-            (15, "Tọa độ", "Coordinates", "coord"),
-            (5, "Đối xứng gương", "Mirror symmetry", "mir"),
+            (15, "Diện tích", "Area", "area", "area"),
+            (15, "Góc", "Angles", "ang", "angles"),
+            (15, "Tọa độ", "Coordinates", "coord", "geometry"),
+            (5, "Đối xứng gương", "Mirror symmetry", "mir", "geometry"),
         ]
 
     idx = 0
-    for count, title_vi_base, title_en_base, op in configs:
+    for count, title_vi_base, title_en_base, op, sub_subject in configs:
         for i in range(1, count + 1):
             idx += 1
             lid = gen_id(f"{prefix}g", idx)
-            lessons.append((lid, "geometry", f"{title_vi_base} (bài {i})", f"{title_en_base} (lesson {i})", idx, diff))
+            lessons.append((lid, sub_subject, f"{title_vi_base} (bài {i})", f"{title_en_base} (lesson {i})", idx, diff))
 
             ex_count = random.randint(2, 3)
             for ex_i in range(1, ex_count + 1):
@@ -229,25 +235,25 @@ def generate_measurement(grade, prefix, diff):
 
     if grade == 2:
         configs = [
-            (15, "Đo chiều dài", "Measuring length", "len"),
-            (15, "Cân nặng", "Weight", "wgt"),
-            (7, "Đọc đồng hồ", "Telling time", "time"),
-            (8, "Tiền", "Money", "money"),
+            (15, "Đo chiều dài", "Measuring length", "len", "measurement"),
+            (15, "Cân nặng", "Weight", "wgt", "measurement"),
+            (7, "Đọc đồng hồ", "Telling time", "time", "time_money"),
+            (8, "Tiền", "Money", "money", "time_money"),
         ]
     else:
         configs = [
-            (15, "Thể tích", "Volume", "vol"),
-            (15, "Diện tích cm²", "Area cm²", "area"),
-            (10, "Thời gian", "Time", "time"),
-            (10, "Tốc độ", "Speed", "spd"),
+            (15, "Thể tích", "Volume", "vol", "volume"),
+            (15, "Diện tích cm²", "Area cm²", "area", "measurement"),
+            (10, "Thời gian", "Time", "time", "time_money"),
+            (10, "Tốc độ", "Speed", "spd", "speed"),
         ]
 
     idx = 0
-    for count, title_vi_base, title_en_base, op in configs:
+    for count, title_vi_base, title_en_base, op, sub_subject in configs:
         for i in range(1, count + 1):
             idx += 1
             lid = gen_id(f"{prefix}m", idx)
-            lessons.append((lid, "measurement", f"{title_vi_base} (bài {i})", f"{title_en_base} (lesson {i})", idx, diff))
+            lessons.append((lid, sub_subject, f"{title_vi_base} (bài {i})", f"{title_en_base} (lesson {i})", idx, diff))
 
             ex_count = random.randint(2, 3)
             for ex_i in range(1, ex_count + 1):
