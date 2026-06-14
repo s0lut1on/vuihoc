@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import '../utils/jwt_utils.dart';
 
 class ApiService {
   static final ApiService _instance = ApiService._internal();
@@ -9,6 +10,14 @@ class ApiService {
   late Dio _dio;
   static String? _token;
 
+  /// Called by the Dio interceptor to silently refresh the JWT.
+  /// Set via [setTokenRefresher]. Returns the new token, or null on failure.
+  Future<String?> Function()? _tokenRefresher;
+
+  /// Reference to our own interceptor so we can remove it on re-setup
+  /// without disturbing caller-supplied ones.
+  Interceptor? _authInterceptor;
+
   ApiService._internal({this.baseUrl = '/api'}) {
     final resolvedBase = kIsWeb ? baseUrl : 'http://localhost$baseUrl';
     _dio = Dio(BaseOptions(
@@ -16,28 +25,73 @@ class ApiService {
       connectTimeout: const Duration(seconds: 10),
       receiveTimeout: const Duration(seconds: 15),
     ));
+    _setupInterceptors();
+  }
 
-    _dio.interceptors.add(InterceptorsWrapper(
-      onRequest: (options, handler) {
-        if (_token != null) {
-          options.headers['Authorization'] = 'Bearer $_token';
+  void _setupInterceptors() {
+    // Idempotent: only our own interceptor is removed, so any
+    // caller-supplied interceptors (e.g. test mocks) stay intact.
+    if (_authInterceptor != null) {
+      _dio.interceptors.remove(_authInterceptor);
+    }
+    _authInterceptor = InterceptorsWrapper(
+      onRequest: _onRequest,
+      onResponse: (response, handler) => handler.next(response),
+      onError: _onError,
+    );
+    _dio.interceptors.add(_authInterceptor!);
+  }
+
+  Future<void> _onRequest(
+      RequestOptions options, RequestInterceptorHandler handler) async {
+    if (_token != null) {
+      options.headers['Authorization'] = 'Bearer $_token';
+    }
+    options.headers['Content-Type'] = 'application/json';
+
+    // Pre-flight: refresh if expiring soon. Skip auth endpoints to
+    // avoid infinite loops during login.
+    if (_tokenRefresher != null &&
+        _token != null &&
+        !options.path.contains('/auth/') &&
+        JwtUtil.isExpiringSoon(_token)) {
+      final fresh = await _tokenRefresher!();
+      if (fresh != null) {
+        options.headers['Authorization'] = 'Bearer $fresh';
+      }
+    }
+    return handler.next(options);
+  }
+
+  Future<void> _onError(
+      DioException error, ErrorInterceptorHandler handler) async {
+    final status = error.response?.statusCode;
+    final retried = error.requestOptions.extra['_retried'] == true;
+    if (status == 401 &&
+        _tokenRefresher != null &&
+        !retried &&
+        !error.requestOptions.path.contains('/auth/')) {
+      final fresh = await _tokenRefresher!();
+      if (fresh != null) {
+        final newReq = error.requestOptions;
+        newReq.headers['Authorization'] = 'Bearer $fresh';
+        newReq.extra['_retried'] = true;
+        try {
+          final response = await _dio.fetch(newReq);
+          return handler.resolve(response);
+        } catch (_) {
+          return handler.next(error);
         }
-        options.headers['Content-Type'] = 'application/json';
-        return handler.next(options);
-      },
-      onResponse: (response, handler) {
-        return handler.next(response);
-      },
-      onError: (DioException error, handler) {
-        return handler.next(error);
-      },
-    ));
+      }
+    }
+    return handler.next(error);
   }
 
   void initialize({Dio? dio}) {
     if (dio != null) {
       _dio = dio;
     }
+    _setupInterceptors();
   }
 
   factory ApiService.withBaseUrl(String baseUrl) {
@@ -52,21 +106,42 @@ class ApiService {
     _token = null;
   }
 
+  String? get token => _token;
+
+  void setTokenRefresher(Future<String?> Function()? refresher) {
+    _tokenRefresher = refresher;
+  }
+
   Future<Map<String, dynamic>> get(String path,
       {Map<String, dynamic>? queryParams}) async {
-    final response = await _dio.get(path, queryParameters: queryParams);
-    return _parseResponse(response);
+    try {
+      final response = await _dio.get(path, queryParameters: queryParams);
+      return _parseResponse(response);
+    } on DioException catch (e) {
+      throw ApiException(
+          'HTTP ${e.response?.statusCode ?? '???'}: ${e.message ?? ''}');
+    }
   }
 
   Future<Map<String, dynamic>> post(String path,
       {Map<String, dynamic>? data}) async {
-    final response = await _dio.post(path, data: data);
-    return _parseResponse(response);
+    try {
+      final response = await _dio.post(path, data: data);
+      return _parseResponse(response);
+    } on DioException catch (e) {
+      throw ApiException(
+          'HTTP ${e.response?.statusCode ?? '???'}: ${e.message ?? ''}');
+    }
   }
 
   Future<Map<String, dynamic>> delete(String path) async {
-    final response = await _dio.delete(path);
-    return _parseResponse(response);
+    try {
+      final response = await _dio.delete(path);
+      return _parseResponse(response);
+    } on DioException catch (e) {
+      throw ApiException(
+          'HTTP ${e.response?.statusCode ?? '???'}: ${e.message ?? ''}');
+    }
   }
 
   Map<String, dynamic> _parseResponse(Response response) {
@@ -85,6 +160,8 @@ class ApiService {
   }
 }
 
+/// Marker type so we can identify and remove our own interceptor
+/// without disturbing caller-supplied ones.
 class ApiException implements Exception {
   final String message;
   ApiException(this.message);

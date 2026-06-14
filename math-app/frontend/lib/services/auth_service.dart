@@ -9,7 +9,11 @@ import 'api_service.dart';
 class AuthService {
   static final AuthService _instance = AuthService._internal();
   factory AuthService() => _instance;
-  AuthService._internal();
+  AuthService._internal() {
+    // Register silent-refresh hook with the API layer so Dio can refresh
+    // expiring tokens before requests and on 401.
+    ApiService().setTokenRefresher(refreshTokenSilently);
+  }
 
   final GoogleSignIn _googleSignIn = GoogleSignIn(
     scopes: const ['email', 'profile'],
@@ -21,8 +25,11 @@ class AuthService {
         : null,
   );
 
-  /// Notifies listeners whenever the auth token changes (login/logout).
+  /// Notifies listeners whenever the auth token changes (login/logout/refresh).
   final ValueNotifier<String?> tokenNotifier = ValueNotifier<String?>(null);
+
+  /// Single in-flight refresh; concurrent callers await the same future.
+  Future<String?>? _pendingRefresh;
 
   Future<bool> signInWithGoogle() async {
     try {
@@ -49,6 +56,7 @@ class AuthService {
       if (token != null) {
         ApiService().setToken(token);
         await _persistToken(token);
+        await _persistTokenType('google');
         tokenNotifier.value = token;
         return true;
       }
@@ -65,6 +73,7 @@ class AuthService {
       if (token != null) {
         ApiService().setToken(token);
         await _persistToken(token);
+        await _persistTokenType('guest');
         tokenNotifier.value = token;
         return true;
       }
@@ -79,6 +88,7 @@ class AuthService {
     ApiService().clearToken();
     final box = await Hive.openBox('auth');
     await box.delete('token');
+    await box.delete('token_type');
     tokenNotifier.value = null;
   }
 
@@ -123,6 +133,7 @@ class AuthService {
         if (token != null) {
           ApiService().setToken(token);
           await _persistToken(token);
+          await _persistTokenType('google');
           tokenNotifier.value = token;
           return true;
         }
@@ -133,13 +144,84 @@ class AuthService {
     }
   }
 
+  /// Silently obtain a new JWT. Coalesces concurrent callers.
+  /// Returns the new token, or null if refresh failed (caller should sign out).
+  Future<String?> refreshTokenSilently() async {
+    if (_pendingRefresh != null) return _pendingRefresh!;
+    final completer = Completer<String?>();
+    _pendingRefresh = completer.future;
+    try {
+      final type = await _loadTokenType();
+      String? newToken;
+      if (type == 'google') {
+        newToken = await _refreshGoogle();
+      } else {
+        newToken = await _refreshGuest();
+      }
+      if (newToken != null) {
+        ApiService().setToken(newToken);
+        await _persistToken(newToken);
+        tokenNotifier.value = newToken;
+      }
+      completer.complete(newToken);
+      return newToken;
+    } catch (e) {
+      completer.complete(null);
+      return null;
+    } finally {
+      _pendingRefresh = null;
+    }
+  }
+
+  Future<String?> _refreshGoogle() async {
+    try {
+      final account = await _googleSignIn.signInSilently();
+      if (account == null) return null;
+      final auth = await account.authentication;
+      final idToken = auth.idToken;
+      final accessToken = auth.accessToken;
+      final Map<String, dynamic> payload;
+      if (idToken != null) {
+        payload = {'id_token': idToken};
+      } else if (accessToken != null) {
+        payload = {'access_token': accessToken};
+      } else {
+        return null;
+      }
+      final response =
+          await ApiService().post('/auth/google', data: payload);
+      return response['data']?['access_token'] as String?;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<String?> _refreshGuest() async {
+    try {
+      final response = await ApiService().post('/auth/guest', data: {});
+      return response['data']?['access_token'] as String?;
+    } catch (_) {
+      return null;
+    }
+  }
+
   Future<void> _persistToken(String token) async {
     final box = await Hive.openBox('auth');
     await box.put('token', token);
   }
 
+  Future<void> _persistTokenType(String type) async {
+    final box = await Hive.openBox('auth');
+    await box.put('token_type', type);
+  }
+
   Future<String?> _loadToken() async {
     final box = await Hive.openBox('auth');
     return box.get('token') as String?;
+  }
+
+  Future<String?> _loadTokenType() async {
+    final box = await Hive.openBox('auth');
+    return box.get('token_type') as String?;
   }
 }

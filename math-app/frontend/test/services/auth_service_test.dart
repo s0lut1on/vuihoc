@@ -197,5 +197,117 @@ void main() {
       final user = await authService.getCurrentUser();
       expect(user, isNull);
     });
+
+    test('refreshTokenSilently for guest re-issues /auth/guest and persists new token', () async {
+      // First call: initial guest sign-in
+      var callCount = 0;
+      when(() => mockAdapter.fetch(any(), any(), any())).thenAnswer(
+        (_) async {
+          callCount++;
+          return ResponseBody.fromString(
+            jsonEncode({
+              'success': true,
+              'data': {
+                'access_token': 'guest-token-$callCount',
+                'token_type': 'Bearer',
+                'expires_in': 31536000,
+              }
+            }),
+            200,
+            headers: {
+              Headers.contentTypeHeader: ['application/json'],
+            },
+          );
+        },
+      );
+
+      await authService.signInAsGuest();
+      expect(ApiService().token, 'guest-token-1');
+
+      final refreshed = await authService.refreshTokenSilently();
+      expect(refreshed, 'guest-token-2');
+      expect(ApiService().token, 'guest-token-2');
+      expect(callCount, greaterThanOrEqualTo(2));
+    });
+
+    test('refreshTokenSilently returns null when refresh fails', () async {
+      when(() => mockAdapter.fetch(any(), any(), any())).thenAnswer(
+        (_) async => ResponseBody.fromString(
+          jsonEncode({'success': false, 'error': 'Server error'}),
+          500,
+          headers: {
+            Headers.contentTypeHeader: ['application/json'],
+          },
+        ),
+      );
+
+      await authService.signInAsGuest();
+      final refreshed = await authService.refreshTokenSilently();
+      expect(refreshed, isNull);
+    });
+
+    test('concurrent refreshTokenSilently calls coalesce to a single network call', () async {
+      var guestCalls = 0;
+      // First call: guest sign-in. Subsequent calls: refresh.
+      // We block the refresh call on a Completer to verify coalescing.
+      when(() => mockAdapter.fetch(any(), any(), any())).thenAnswer(
+        (_) async {
+          guestCalls++;
+          return ResponseBody.fromString(
+            jsonEncode({
+              'success': true,
+              'data': {
+                'access_token': 'coalesced-token',
+                'token_type': 'Bearer',
+                'expires_in': 31536000,
+              }
+            }),
+            200,
+            headers: {
+              Headers.contentTypeHeader: ['application/json'],
+            },
+          );
+        },
+      );
+
+      await authService.signInAsGuest();
+      final callsBefore = guestCalls;
+
+      final results = await Future.wait([
+        authService.refreshTokenSilently(),
+        authService.refreshTokenSilently(),
+        authService.refreshTokenSilently(),
+      ]);
+      expect(results, ['coalesced-token', 'coalesced-token', 'coalesced-token']);
+      // Only one extra /auth/guest call despite three concurrent refreshes.
+      expect(guestCalls - callsBefore, 1);
+    });
+
+    test('signOut clears token_type from storage', () async {
+      when(() => mockAdapter.fetch(any(), any(), any())).thenAnswer(
+        (_) async => ResponseBody.fromString(
+          jsonEncode({
+            'success': true,
+            'data': {
+              'access_token': 'guest-token-abc',
+              'token_type': 'Bearer',
+              'expires_in': 31536000,
+            }
+          }),
+          200,
+          headers: {
+            Headers.contentTypeHeader: ['application/json'],
+          },
+        ),
+      );
+
+      await authService.signInAsGuest();
+      final box = await Hive.openBox('auth');
+      expect(box.get('token_type'), 'guest');
+
+      await authService.signOut();
+      expect(box.get('token_type'), isNull);
+      expect(box.get('token'), isNull);
+    });
   });
 }
