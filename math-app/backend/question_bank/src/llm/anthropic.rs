@@ -194,4 +194,69 @@ mod tests {
         std::env::remove_var("ANTHROPIC_API_KEY");
         assert!(!llm_available());
     }
+
+    // ---- hint_contains_answer edge cases ----
+
+    #[test]
+    fn hint_contains_answer_exact_word() {
+        assert!(hint_contains_answer("The answer is 7", "7"));
+    }
+
+    #[test]
+    fn hint_contains_answer_within_larger_number() {
+        // 17 contains 7 — current impl flags this. Document the behaviour.
+        assert!(hint_contains_answer("Try 17 apples", "7"));
+    }
+
+    #[test]
+    fn hint_contains_answer_case_insensitive_hint_lowercase_answer() {
+        assert!(hint_contains_answer("THE ANSWER IS SEVEN", "seven"));
+    }
+
+    #[test]
+    fn hint_contains_answer_case_insensitive_hint_uppercase_answer() {
+        assert!(hint_contains_answer("the answer is seven", "SEVEN"));
+    }
+
+    #[test]
+    fn hint_contains_answer_empty_answer_is_substring_of_any() {
+        // Documents the current behaviour: empty answer matches everything
+        // because "".contains("") is always true. This is a known loose
+        // behaviour of the simple substring filter.
+        assert!(hint_contains_answer("Try again", ""));
+        assert!(hint_contains_answer("", ""));
+    }
+
+    #[test]
+    fn hint_contains_answer_returns_false_for_unrelated() {
+        assert!(!hint_contains_answer("Count the apples in the picture", "42"));
+        assert!(!hint_contains_answer("What comes after 3?", "4"));
+    }
+
+    #[test]
+    fn hint_contains_answer_partial_word_match() {
+        // "twenty" contains "twen" — current impl is substring so flags this.
+        // Documents the loose behaviour.
+        assert!(hint_contains_answer("Try twenty as a guess", "twen"));
+    }
+
+    #[test]
+    fn hint_contains_answer_vietnamese() {
+        assert!(hint_contains_answer("Thử số 7 nhé", "7"));
+        assert!(hint_contains_answer("Câu trả lời là mười", "mười"));
+    }
+
+    // ---- AnthropicClient::new ----
+
+    #[test]
+    fn anthropic_client_new_does_not_panic_with_empty_key() {
+        let _client = AnthropicClient::new(String::new());
+        // Just verify construction
+    }
+
+    #[test]
+    fn anthropic_client_new_does_not_panic_with_long_key() {
+        let key = "x".repeat(200);
+        let _client = AnthropicClient::new(key);
+    }
 }

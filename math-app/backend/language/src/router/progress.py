@@ -10,6 +10,7 @@ from schemas import (
 )
 from auth import require_user
 from models import LanguageProgress, LanguageSubSubject, LanguageLesson, LanguageSubject
+from services.unlock import compute_unlocks
 
 router = APIRouter()
 
@@ -165,19 +166,13 @@ async def get_detailed_progress(
             "completion_pct": round(completed / total, 2) if total else 0.0,
         })
 
-    # 5. Compute unlock status per subject
+    # 5. Compute unlock status per subject (delegated to pure fn in services.unlock)
     subjects_map: dict = {}
     for stat in sub_stats:
         sid = stat["subject_id"]
         subjects_map.setdefault(sid, []).append(stat)
-
-    for sid, subs in subjects_map.items():
-        for i, sub in enumerate(subs):
-            if i == 0:
-                sub["is_unlocked"] = True
-            else:
-                prev = subs[i - 1]
-                sub["is_unlocked"] = prev["completion_pct"] >= _UNLOCK_THRESHOLD
+    for subs in subjects_map.values():
+        compute_unlocks(subs)
 
     # 6. Fetch subject metadata
     subject_ids = list(subjects_map.keys())

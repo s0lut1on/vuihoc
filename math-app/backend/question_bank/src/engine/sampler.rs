@@ -131,4 +131,138 @@ mod tests {
         p.insert("b".to_string(), 0.0);
         assert!(validate_mathematical(&p));
     }
+
+    // ---- sample_one ----
+
+    fn c(min: f64, max: f64, integer_only: bool, exclude_zero: bool) -> ParamConstraint {
+        ParamConstraint { min, max, integer_only, exclude_zero }
+    }
+
+    #[test]
+    fn sample_one_integer_returns_integer() {
+        let con = c(1.0, 10.0, true, false);
+        for _ in 0..50 {
+            let v = sample_one(&mut rand::thread_rng(), &con);
+            assert_eq!(v, v.round(), "expected integer, got {}", v);
+            assert!(v >= 1.0 && v <= 10.0);
+        }
+    }
+
+    #[test]
+    fn sample_integer_negative_range_works() {
+        let con = c(-5.0, -1.0, true, false);
+        for _ in 0..50 {
+            let v = sample_one(&mut rand::thread_rng(), &con);
+            assert_eq!(v, v.round());
+            assert!(v >= -5.0 && v <= -1.0);
+        }
+    }
+
+    #[test]
+    fn sample_one_continuous_returns_real() {
+        let con = c(0.0, 1.0, false, false);
+        let v = sample_one(&mut rand::thread_rng(), &con);
+        assert!(v >= 0.0 && v <= 1.0);
+        // statistically unlikely to be a clean integer
+        // (we just check it's in range; distribution is uniform)
+    }
+
+    #[test]
+    fn sample_one_exclude_zero_skips_zero() {
+        let con = c(-2.0, 2.0, true, true);  // {-2,-1,0,1,2} \ {0}
+        for _ in 0..100 {
+            let v = sample_one(&mut rand::thread_rng(), &con);
+            assert_ne!(v, 0.0, "exclude_zero failed");
+            assert!(v >= -2.0 && v <= 2.0);
+        }
+    }
+
+    #[test]
+    fn sample_one_exclude_zero_with_no_zero_in_range_unchanged() {
+        // If 0 is outside [min,max], exclude_zero has no effect
+        let con = c(5.0, 10.0, true, true);
+        for _ in 0..50 {
+            let v = sample_one(&mut rand::thread_rng(), &con);
+            assert!(v >= 5.0 && v <= 10.0);
+        }
+    }
+
+    // ---- estimate_difficulty edge cases ----
+
+    #[test]
+    fn estimate_difficulty_all_zero_params_returns_one() {
+        let mut p = HashMap::new();
+        p.insert("a".to_string(), 0.0);
+        p.insert("b".to_string(), 0.0);
+        let d = estimate_difficulty(&p);
+        assert!((d - 1.0).abs() < 0.01, "got {}", d);
+    }
+
+    #[test]
+    fn estimate_difficulty_very_large_values_clamp_to_five() {
+        let mut p = HashMap::new();
+        p.insert("a".to_string(), 1_000_000.0);
+        p.insert("b".to_string(), 999_999.0);
+        let d = estimate_difficulty(&p);
+        assert!(d <= 5.0, "got {}", d);
+    }
+
+    #[test]
+    fn estimate_difficulty_many_negatives_increase_score() {
+        let mut pos = HashMap::new();
+        pos.insert("a".to_string(), 10.0);
+        pos.insert("b".to_string(), 10.0);
+        let mut neg = HashMap::new();
+        neg.insert("a".to_string(), -10.0);
+        neg.insert("b".to_string(), -10.0);
+        assert!(estimate_difficulty(&neg) > estimate_difficulty(&pos));
+    }
+
+    #[test]
+    fn estimate_difficulty_decimals_increase_score() {
+        let mut ints = HashMap::new();
+        ints.insert("a".to_string(), 5.0);
+        ints.insert("b".to_string(), 5.0);
+        let mut decs = HashMap::new();
+        decs.insert("a".to_string(), 5.5);
+        decs.insert("b".to_string(), 5.5);
+        assert!(estimate_difficulty(&decs) > estimate_difficulty(&ints));
+    }
+
+    #[test]
+    fn estimate_difficulty_empty_returns_one() {
+        let p: HashMap<String, f64> = HashMap::new();
+        let d = estimate_difficulty(&p);
+        assert!((d - 1.0).abs() < 0.01);
+    }
+
+    // ---- validate_mathematical edge cases ----
+
+    #[test]
+    fn validate_mathematical_negative_a_allowed() {
+        let mut p = HashMap::new();
+        p.insert("a".to_string(), -1.0);
+        assert!(validate_mathematical(&p));
+    }
+
+    #[test]
+    fn validate_mathematical_very_small_nonzero_a_allowed() {
+        let mut p = HashMap::new();
+        p.insert("a".to_string(), 0.0001);
+        assert!(validate_mathematical(&p));
+    }
+
+    // ---- sample_params integration ----
+
+    #[test]
+    fn sample_params_with_wide_schema_handles_all_targets() {
+        // Schema wide enough that target 1-5 is reachable
+        let mut schema = HashMap::new();
+        schema.insert("a".to_string(), c(1.0, 50.0, true, true));
+        schema.insert("b".to_string(), c(-10.0, 50.0, true, false));
+        for target in 1..=5 {
+            let r = sample_params(&schema, target);
+            assert!(r.is_ok(), "target {} failed: {:?}", target, r.err());
+        }
+    }
 }

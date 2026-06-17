@@ -53,33 +53,37 @@ void main() {
   testWidgets('LoginScreen renders mascot and title',
       (WidgetTester tester) async {
     await tester.pumpWidget(localizedApp(const LoginScreen()));
-    await tester.pumpAndSettle();
+    // pump briefly — infinite mascot animations, don't pumpAndSettle
+    await tester.pump(const Duration(milliseconds: 100));
 
-    expect(find.textContaining('🐸'), findsOneWidget);
-    expect(find.text('Chào mừng bạn!'), findsOneWidget);
-    expect(find.text('Hãy chọn cách để bắt đầu học nhé'), findsOneWidget);
+    expect(find.textContaining('🐸'), findsAtLeastNWidgets(1));
+    expect(find.textContaining('Xin chào'), findsOneWidget);
+    expect(find.textContaining('Cùng nhau học'), findsOneWidget);
   });
 
   testWidgets('LoginScreen shows Google Sign-In button',
       (WidgetTester tester) async {
     await tester.pumpWidget(localizedApp(const LoginScreen()));
-    await tester.pumpAndSettle();
+    // pump briefly — infinite mascot animations, don't pumpAndSettle
+    await tester.pump(const Duration(milliseconds: 100));
 
-    expect(find.text('Đăng nhập với Google'), findsOneWidget);
-    expect(find.text('G'), findsOneWidget);
+    expect(find.text('Đăng nhập bằng Google'), findsOneWidget);
+    expect(find.text('🇬'), findsOneWidget);
   });
 
   testWidgets('LoginScreen shows guest login button',
       (WidgetTester tester) async {
     await tester.pumpWidget(localizedApp(const LoginScreen()));
-    await tester.pumpAndSettle();
+    // pump briefly — infinite mascot animations, don't pumpAndSettle
+    await tester.pump(const Duration(milliseconds: 100));
 
-    expect(find.text('Tiếp tục không đăng nhập'), findsOneWidget);
+    expect(find.text('Học thử không cần tài khoản'), findsOneWidget);
   });
 
   testWidgets('LoginScreen shows divider text', (WidgetTester tester) async {
     await tester.pumpWidget(localizedApp(const LoginScreen()));
-    await tester.pumpAndSettle();
+    // pump briefly — infinite mascot animations, don't pumpAndSettle
+    await tester.pump(const Duration(milliseconds: 100));
 
     expect(find.text('hoặc'), findsOneWidget);
   });

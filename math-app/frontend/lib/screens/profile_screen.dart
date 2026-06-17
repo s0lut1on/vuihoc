@@ -3,43 +3,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../core/app_colors.dart';
+import '../core/app_theme.dart';
 import '../l10n/app_localizations.dart';
 import '../providers/app_providers.dart';
 import '../services/auth_service.dart';
 import '../services/local_storage_service.dart';
 import '../services/user_api.dart';
+import '../widgets/bubble_button.dart';
+import '../widgets/kid_card.dart';
+import '../widgets/kid_nav_bar.dart';
+import '../widgets/mascot.dart';
 
 class ProfileScreen extends ConsumerWidget {
   final VoidCallback? onBack;
   const ProfileScreen({super.key, this.onBack});
-
-  Color _avatarColor(String name) {
-    final colors = [
-      Colors.red,
-      Colors.pink,
-      Colors.purple,
-      Colors.deepPurple,
-      Colors.indigo,
-      Colors.blue,
-      Colors.lightBlue,
-      Colors.cyan,
-      Colors.teal,
-      Colors.green,
-      Colors.lightGreen,
-      Colors.lime,
-      Colors.yellow,
-      Colors.amber,
-      Colors.orange,
-      Colors.deepOrange,
-      Colors.brown,
-      Colors.blueGrey,
-    ];
-    int hash = 0;
-    for (final code in name.codeUnits) {
-      hash = (hash * 31 + code) & 0x7fffffff;
-    }
-    return colors[hash % colors.length];
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -48,7 +25,7 @@ class ProfileScreen extends ConsumerWidget {
     final userAsync = ref.watch(userProvider);
 
     final name = currentUserAsync.value?['name'] as String? ??
-        (l10n?.guestUser ?? 'Guest');
+        (l10n?.guestUser ?? 'Bé ẩn danh');
     final email = currentUserAsync.value?['email'] as String? ?? '';
     final picture = currentUserAsync.value?['picture'] as String? ?? '';
     final isGuest = email.startsWith('guest_');
@@ -59,72 +36,56 @@ class ProfileScreen extends ConsumerWidget {
     final streak = stats?.streakDays ?? 0;
 
     return Scaffold(
-      backgroundColor: AppColors.lightPinkBg,
-      appBar: AppBar(
-        backgroundColor: AppColors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.darkPurple),
-          onPressed: () {
-            if (onBack != null) {
-              onBack!();
-            } else {
-              context.go('/home');
-            }
-          },
-        ),
-        title: Text(
-          l10n?.profileTitle ?? 'Profile',
-          style: const TextStyle(
-            color: AppColors.darkPurple,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
+      backgroundColor: AppColors.pinkBg,
+      body: SafeArea(
         child: Column(
           children: [
-            _buildAvatar(name, picture, isGuest),
-            const SizedBox(height: 16),
-            Text(
-              name,
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    color: AppColors.darkPurple,
-                    fontWeight: FontWeight.w700,
-                  ),
+            KidNavBar(
+              trailing: GestureDetector(
+                onTap: () => context.go('/home'),
+                child: const Icon(Icons.close, color: AppColors.deepPurple, size: 24),
+              ),
             ),
-            const SizedBox(height: 4),
-            Text(
-              email.isNotEmpty
-                  ? email
-                  : (isGuest ? (l10n?.guestUser ?? 'Guest') : ''),
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.mutedPurple,
-                  ),
-            ),
-            const SizedBox(height: 24),
-            _buildStatsRow(context, lessons, stars, streak),
-            const SizedBox(height: 32),
-            _buildMenuTile(
-              icon: Icons.settings_outlined,
-              title: l10n?.settings ?? 'Settings',
-              onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(l10n?.comingSoon ?? 'Coming soon')),
-                );
-              },
-            ),
-            _buildTtsTile(context, ref),
-            const SizedBox(height: 8),
-            _buildGradeTile(context, ref),
-            const SizedBox(height: 8),
-            _buildMenuTile(
-              icon: Icons.logout,
-              title: l10n?.logout ?? 'Logout',
-              iconColor: Colors.red,
-              textColor: Colors.red,
-              onTap: () => _handleLogout(context, ref),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
+                child: Column(
+                  children: [
+                    _buildAvatar(name, picture, isGuest),
+                    const SizedBox(height: 16),
+                    Text(name, style: AppTheme.display(size: 32)),
+                    const SizedBox(height: 4),
+                    Text(
+                      email.isNotEmpty
+                          ? email
+                          : (isGuest ? (l10n?.guestUser ?? 'Học thử') : ''),
+                      style: AppTheme.body(size: 14, color: AppColors.mutedPurple),
+                    ),
+                    const SizedBox(height: 24),
+                    // 3 stat cards
+                    Row(
+                      children: [
+                        Expanded(child: _StatCard(emoji: '📚', value: lessons, label: l10n?.profileStatLessons ?? 'Bài học', color: AppColors.purple, bg: AppColors.pinkSoft)),
+                        const SizedBox(width: 12),
+                        Expanded(child: _StatCard(emoji: '⭐', value: stars, label: l10n?.profileStatStars ?? 'Sao', color: AppColors.orangeText, bg: AppColors.orangeSoft)),
+                        const SizedBox(width: 12),
+                        Expanded(child: _StatCard(emoji: '🔥', value: streak, label: l10n?.profileStatStreak ?? 'Ngày', color: AppColors.red, bg: AppColors.cream)),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    _buildTtsTile(context, ref),
+                    const SizedBox(height: 8),
+                    _buildGradeTile(context, ref),
+                    const SizedBox(height: 24),
+                    BubbleButton(
+                      label: l10n?.logout ?? 'Đăng xuất',
+                      emoji: '👋',
+                      onPressed: () => _handleLogout(context, ref),
+                      minWidth: 200,
+                    ),
+                  ],
+                ),
+              ),
             ),
           ],
         ),
@@ -134,125 +95,59 @@ class ProfileScreen extends ConsumerWidget {
 
   Widget _buildAvatar(String name, String picture, bool isGuest) {
     if (picture.isNotEmpty) {
-      if (kDebugMode) {
-        debugPrint('ProfileScreen avatar picture URL: $picture');
-      }
-      return CircleAvatar(
-        radius: 50,
+      return Container(
+        width: 100, height: 100,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(color: AppColors.pink, width: 4),
+          boxShadow: const [BoxShadow(color: AppColors.pinkDark, offset: Offset(0, 6), blurRadius: 0)],
+        ),
         child: ClipOval(
-          child: Image.network(
-            picture,
-            width: 100,
-            height: 100,
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) {
-              if (kDebugMode) {
-                debugPrint(
-                    'ProfileScreen avatar image error for $name: $error');
-              }
-              return _buildInitialAvatar(name, 50);
-            },
-          ),
+          child: Image.network(picture, fit: BoxFit.cover,
+            errorBuilder: (_, __, ___) => const BigMascot(size: 100)),
         ),
       );
     }
-    return _buildInitialAvatar(name, 50);
-  }
-
-  Widget _buildInitialAvatar(String name, double radius) {
-    final color = _avatarColor(name);
-    final initial = name.isNotEmpty ? name[0].toUpperCase() : '?';
-    return CircleAvatar(
-      radius: radius,
-      backgroundColor: color,
-      child: Text(
-        initial,
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 40,
-          fontWeight: FontWeight.w700,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStatsRow(
-      BuildContext context, int lessons, int stars, int streak) {
-    final l10n = AppLocalizations.of(context);
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.divider),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          _buildStatItem(Icons.menu_book_outlined, lessons.toString(),
-              l10n?.profileStatLessons ?? 'Lessons'),
-          _buildStatItem(Icons.star_outline, stars.toString(),
-              l10n?.profileStatStars ?? 'Stars'),
-          _buildStatItem(Icons.local_fire_department_outlined,
-              streak.toString(), l10n?.profileStatStreak ?? 'Streak'),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStatItem(IconData icon, String value, String label) {
-    return Column(
-      children: [
-        Icon(icon, color: AppColors.primaryPink, size: 24),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-            color: AppColors.darkPurple,
-          ),
-        ),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            color: AppColors.mutedPurple,
-          ),
-        ),
-      ],
-    );
+    return const BigMascot(size: 110);
   }
 
   Widget _buildTtsTile(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final isEnabled = ref.watch(ttsEnabledProvider);
-    return ListTile(
-      leading: Icon(
-        isEnabled ? Icons.volume_up_outlined : Icons.volume_off_outlined,
-        color: AppColors.darkPurple,
-      ),
-      title: Text(
-        l10n?.settingsTtsTitle ?? 'Read question aloud',
-        style: const TextStyle(
-          color: AppColors.darkPurple,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-      subtitle: Text(
-        l10n?.settingsTtsSubtitle ?? 'Auto-read questions during lessons',
-        style: TextStyle(
-          fontSize: 12,
-          color: AppColors.mutedPurple,
-        ),
-      ),
-      trailing: Switch(
-        value: isEnabled,
-        activeThumbColor: AppColors.primaryPink,
-        onChanged: (value) {
-          ref.read(ttsEnabledProvider.notifier).state = value;
-          LocalStorageService.saveTtsEnabled(value);
-        },
+    return KidCard(
+      onTap: () {
+        ref.read(ttsEnabledProvider.notifier).state = !isEnabled;
+        LocalStorageService.saveTtsEnabled(!isEnabled);
+      },
+      padding: const EdgeInsets.all(16),
+      child: Row(
+        children: [
+          Container(
+            width: 48, height: 48,
+            decoration: BoxDecoration(
+              color: isEnabled ? AppColors.pinkSoft : AppColors.grayBg,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Icon(isEnabled ? Icons.volume_up : Icons.volume_off,
+                color: AppColors.deepPurple, size: 24),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(l10n?.settingsTtsTitle ?? 'Đọc câu hỏi',
+                    style: AppTheme.display(size: 16)),
+                Text(l10n?.settingsTtsSubtitle ?? 'Tự đọc to bài tập',
+                    style: AppTheme.body(size: 12, color: AppColors.mutedPurple)),
+              ],
+            ),
+          ),
+          Switch(value: isEnabled, activeThumbColor: AppColors.pink, onChanged: (v) {
+            ref.read(ttsEnabledProvider.notifier).state = v;
+            LocalStorageService.saveTtsEnabled(v);
+          }),
+        ],
       ),
     );
   }
@@ -263,89 +158,54 @@ class ProfileScreen extends ConsumerWidget {
     final grade = user?.grade ?? 1;
     final isVi = l10n != null && Localizations.localeOf(context).languageCode == 'vi';
 
-    return ListTile(
-      leading: const Icon(Icons.school_outlined, color: AppColors.darkPurple),
-      title: Text(
-        isVi ? 'Lớp học' : 'Grade',
-        style: const TextStyle(
-          color: AppColors.darkPurple,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-      trailing: SizedBox(
-        width: 140,
-        child: DropdownButtonHideUnderline(
-          child: DropdownButton<int>(
-            value: grade,
-            isDense: true,
-            icon: const Icon(Icons.chevron_right, color: AppColors.mutedPurple),
-            items: [
-              DropdownMenuItem(
-                value: 1,
-                child: Text(isVi ? 'Lớp 1' : 'Grade 1'),
-              ),
-              DropdownMenuItem(
-                value: 2,
-                child: Text(isVi ? 'Lớp 2' : 'Grade 2'),
-              ),
-              DropdownMenuItem(
-                value: 3,
-                child: Text(isVi ? 'Lớp 3' : 'Grade 3'),
-              ),
-            ],
-            onChanged: (newGrade) async {
-              if (newGrade == null || newGrade == grade) return;
-              try {
-                await UserApi.updateGrade(newGrade);
-                if (context.mounted) {
-                  ref.invalidate(userProvider);
-                  ref.invalidate(curriculumProvider(newGrade));
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        isVi
-                            ? 'Đã chuyển sang lớp $newGrade'
-                            : 'Switched to Grade $newGrade',
-                      ),
-                    ),
-                  );
-                }
-              } catch (e) {
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        isVi ? 'Chuyển lớp thất bại' : 'Failed to switch grade',
-                      ),
-                    ),
-                  );
-                }
-              }
-            },
+    return KidCard(
+      padding: const EdgeInsets.all(16),
+      child: Row(
+        children: [
+          Container(
+            width: 48, height: 48,
+            decoration: BoxDecoration(color: AppColors.pinkSoft, borderRadius: BorderRadius.circular(14)),
+            child: const Icon(Icons.school_outlined, color: AppColors.deepPurple, size: 24),
           ),
-        ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(isVi ? 'Lớp học' : 'Grade', style: AppTheme.display(size: 16)),
+          ),
+          ...[1, 2, 3].map((g) => Padding(
+            padding: const EdgeInsets.only(left: 6),
+            child: GestureDetector(
+              onTap: g == grade ? null : () async {
+                try {
+                  await UserApi.updateGrade(g);
+                  if (context.mounted) {
+                    ref.invalidate(userProvider);
+                    ref.invalidate(curriculumProvider(g));
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text(isVi ? 'Đã chuyển sang lớp $g' : 'Grade $g'),
+                    ));
+                  }
+                } catch (_) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text(isVi ? 'Chuyển lớp thất bại' : 'Failed'),
+                    ));
+                  }
+                }
+              },
+              child: Container(
+                width: 40, height: 40,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: g == grade ? AppColors.pink : AppColors.white,
+                  borderRadius: BorderRadius.circular(999),
+                  border: Border.all(color: g == grade ? AppColors.pink : AppColors.divider, width: 2),
+                ),
+                child: Text('$g', style: AppTheme.display(size: 14, color: g == grade ? AppColors.white : AppColors.deepPurple)),
+              ),
+            ),
+          )),
+        ],
       ),
-    );
-  }
-
-  Widget _buildMenuTile({
-    required IconData icon,
-    required String title,
-    required VoidCallback onTap,
-    Color? iconColor,
-    Color? textColor,
-  }) {
-    return ListTile(
-      leading: Icon(icon, color: iconColor ?? AppColors.darkPurple),
-      title: Text(
-        title,
-        style: TextStyle(
-          color: textColor ?? AppColors.darkPurple,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-      trailing: const Icon(Icons.chevron_right, color: AppColors.mutedPurple),
-      onTap: onTap,
     );
   }
 
@@ -357,5 +217,31 @@ class ProfileScreen extends ConsumerWidget {
     if (context.mounted) {
       context.go('/login');
     }
+  }
+}
+
+class _StatCard extends StatelessWidget {
+  final String emoji;
+  final int value;
+  final String label;
+  final Color color;
+  final Color bg;
+  const _StatCard({required this.emoji, required this.value, required this.label, required this.color, required this.bg});
+  @override
+  Widget build(BuildContext context) {
+    return KidCard(
+      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+      color: bg,
+      child: Column(
+        children: [
+          Text(emoji, style: const TextStyle(fontSize: 32)),
+          const SizedBox(height: 4),
+          Text('$value', style: AppTheme.display(size: 24, color: color)),
+          const SizedBox(height: 2),
+          Text(label, style: AppTheme.body(size: 11, color: AppColors.mutedPurple),
+              textAlign: TextAlign.center),
+        ],
+      ),
+    );
   }
 }

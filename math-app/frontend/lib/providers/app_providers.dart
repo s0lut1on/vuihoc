@@ -8,6 +8,7 @@ import '../services/auth_service.dart';
 import '../services/user_api.dart';
 import '../services/content_api.dart';
 import '../services/progress_api.dart';
+import '../services/lesson_unlock.dart';
 
 final apiServiceProvider =
     Provider<ApiService>((ref) => ApiService()..initialize());
@@ -128,22 +129,9 @@ final nextLessonProvider = FutureProvider<Map<String, String>?>((ref) async {
   final lessons = await ref.watch(curriculumProvider(grade).future);
   final completed = await ref.watch(userProgressProvider.future);
 
-  const subjectOrder = ['numbers', 'geometry', 'measurement', 'logic', 'vietnamese', 'english'];
-  for (final subjectId in subjectOrder) {
-    final subjectLessons = lessons
-        .where((l) => l.subjectId == subjectId)
-        .toList()
-      ..sort((a, b) => a.order.compareTo(b.order));
-
-    for (int i = 0; i < subjectLessons.length; i++) {
-      final lesson = subjectLessons[i];
-      final isUnlocked = i == 0 || completed.contains(subjectLessons[i - 1].id);
-      if (isUnlocked && !completed.contains(lesson.id)) {
-        return {'subjectId': subjectId, 'lessonId': lesson.id};
-      }
-    }
-  }
-  return null;
+  final next = nextUnlockedLesson(lessons: lessons, completed: completed);
+  if (next == null) return null;
+  return {'subjectId': next.subjectId, 'lessonId': next.lessonId};
 });
 
 /// Real-time streak from backend (refreshes after lesson completion).

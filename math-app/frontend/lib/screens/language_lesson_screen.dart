@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../core/app_colors.dart';
+import '../core/app_theme.dart';
 import '../l10n/app_localizations.dart';
 import '../providers/app_providers.dart';
 import '../services/language_api.dart';
@@ -11,7 +12,9 @@ import '../services/question_bank_api.dart';
 import '../services/connectivity_service.dart';
 import '../services/tts_service.dart';
 import '../widgets/exercise_dispatcher.dart';
-import '../widgets/language_switcher.dart';
+import '../widgets/kid_card.dart';
+import '../widgets/kid_progress_bar.dart';
+import '../widgets/mascot.dart';
 import '../widgets/offline_banner.dart';
 
 class LanguageLessonScreen extends ConsumerStatefulWidget {
@@ -25,8 +28,7 @@ class LanguageLessonScreen extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<LanguageLessonScreen> createState() =>
-      _LanguageLessonScreenState();
+  ConsumerState<LanguageLessonScreen> createState() => _LanguageLessonScreenState();
 }
 
 class _LanguageLessonScreenState extends ConsumerState<LanguageLessonScreen> {
@@ -38,8 +40,7 @@ class _LanguageLessonScreenState extends ConsumerState<LanguageLessonScreen> {
   int _wrongCountThisExercise = 0;
   String _hintText = '';
   final List<String> _answerHistory = [];
-  final Stream<bool> _connectivityStream =
-      ConnectivityService().onConnectivityChanged;
+  final Stream<bool> _connectivityStream = ConnectivityService().onConnectivityChanged;
 
   @override
   void initState() {
@@ -50,16 +51,9 @@ class _LanguageLessonScreenState extends ConsumerState<LanguageLessonScreen> {
   Future<void> _loadLesson() async {
     try {
       final lesson = await LanguageApi.getLesson(widget.lessonId);
-      if (mounted) {
-        setState(() {
-          _lesson = lesson;
-          _loading = false;
-        });
-      }
+      if (mounted) setState(() { _lesson = lesson; _loading = false; });
     } catch (_) {
-      if (mounted) {
-        setState(() => _loading = false);
-      }
+      if (mounted) setState(() => _loading = false);
     }
   }
 
@@ -70,19 +64,16 @@ class _LanguageLessonScreenState extends ConsumerState<LanguageLessonScreen> {
 
     if (_loading) {
       return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(color: AppColors.primaryPink),
-        ),
+        backgroundColor: AppColors.pinkBg,
+        body: Center(child: CircularProgressIndicator(color: AppColors.pink)),
       );
     }
-
     if (_lesson == null || _lesson!['exercises'] == null) {
       return Scaffold(
+        backgroundColor: AppColors.pinkBg,
         body: Center(
-          child: Text(
-            AppLocalizations.of(context)!.lessonNotFound,
-            style: const TextStyle(fontSize: 18, color: AppColors.primaryPink),
-          ),
+          child: Text(AppLocalizations.of(context)!.lessonNotFound,
+              style: AppTheme.display(size: 20, color: AppColors.mutedPurple)),
         ),
       );
     }
@@ -92,16 +83,14 @@ class _LanguageLessonScreenState extends ConsumerState<LanguageLessonScreen> {
     final totalExercises = exercises.length;
 
     return Scaffold(
-      backgroundColor: AppColors.lightBlueBg,
+      backgroundColor: AppColors.pinkBg,
       body: Column(
         children: [
           StreamBuilder<bool>(
             stream: _connectivityStream,
             initialData: true,
-            builder: (context, snapshot) {
-              if (snapshot.data == false) return const OfflineBanner();
-              return const SizedBox.shrink();
-            },
+            builder: (context, snapshot) =>
+                snapshot.data == false ? const OfflineBanner() : const SizedBox.shrink(),
           ),
           Expanded(
             child: SafeArea(
@@ -115,127 +104,124 @@ class _LanguageLessonScreenState extends ConsumerState<LanguageLessonScreen> {
     );
   }
 
-  Widget _buildMobileLayout(
-      Map<String, dynamic> currentExercise, int totalExercises) {
+  Widget _buildMobileLayout(Map<String, dynamic> currentExercise, int totalExercises) {
     final locale = ref.watch(localeProvider);
     final titleVi = _lesson!['title_vi'] as String? ?? '';
     final titleEn = _lesson!['title_en'] as String? ?? '';
     final title = locale.languageCode == 'en' ? titleEn : titleVi;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildProgressBar(totalExercises),
-          const SizedBox(height: 8),
-          Align(
-            alignment: Alignment.topRight,
+          _buildHeader(totalExercises),
+          const SizedBox(height: 12),
+          KidProgressBar(
+            value: (_currentExercise + 1) / totalExercises,
+            color: AppColors.purple, height: 12,
+          ),
+          const SizedBox(height: 12),
+          KidCard(
+            gradient: const [AppColors.pinkSoft, AppColors.cream],
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Row(
-              mainAxisSize: MainAxisSize.min,
               children: [
-                const LanguageSwitcher(),
-                IconButton(
-                  icon: const Icon(Icons.close, size: 24),
-                  onPressed: () => context.go('/home'),
-                ),
+                const Text('📚', style: TextStyle(fontSize: 24)),
+                const SizedBox(width: 8),
+                Expanded(child: Text(title, style: AppTheme.display(size: 18))),
               ],
             ),
           ),
-          const SizedBox(height: 8),
-          Text(
-            title,
-            style: Theme.of(context).textTheme.titleLarge,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            locale.languageCode == 'en'
-                ? 'Exercise ${_currentExercise + 1}/$totalExercises'
-                : 'Bài tập ${_currentExercise + 1}/$totalExercises',
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: AppColors.darkText,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 12),
+          if (_showHint) _buildHintBanner(currentExercise, locale.languageCode),
+          const SizedBox(height: 12),
           Expanded(
-            child: ExerciseDispatcher(
-              exercise: currentExercise,
-              onAnswered: _onAnswered,
-            ),
+            child: ExerciseDispatcher(exercise: currentExercise, onAnswered: _onAnswered),
           ),
-          const SizedBox(height: 16),
-          if (_showHint)
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: AppColors.white,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                children: [
-                  const Text('💡', style: TextStyle(fontSize: 20)),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      _hintText,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: AppColors.primaryPink,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
         ],
       ),
     );
   }
 
-  Widget _buildDesktopLayout(
-      Map<String, dynamic> currentExercise, int totalExercises) {
+  Widget _buildHeader(int total) {
+    return Row(
+      children: [
+        GestureDetector(
+          onTap: () => context.go('/home'),
+          child: Container(
+            width: 40, height: 40,
+            decoration: BoxDecoration(
+              color: AppColors.white, shape: BoxShape.circle,
+              boxShadow: const [BoxShadow(color: AppColors.pinkSoft, offset: Offset(0, 3), blurRadius: 0)],
+            ),
+            child: const Icon(Icons.close, color: AppColors.deepPurple, size: 20),
+          ),
+        ),
+        const SizedBox(width: 12),
+        const BigMascot(size: 40),
+        const Spacer(),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: AppColors.white,
+            borderRadius: BorderRadius.circular(999),
+            boxShadow: const [BoxShadow(color: AppColors.pinkSoft, offset: Offset(0, 3), blurRadius: 0)],
+          ),
+          child: Text('${_currentExercise + 1} / $total',
+              style: AppTheme.display(size: 14, color: AppColors.pink)),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildHintBanner(Map<String, dynamic> ex, String lang) {
+    final text = _hintText.isNotEmpty
+        ? _hintText
+        : (lang == 'en' ? (ex['hint_en'] as String? ?? '') : (ex['hint_vi'] as String? ?? ''));
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.yellow,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.orange, width: 2),
+      ),
+      child: Row(
+        children: [
+          const Text('💡', style: TextStyle(fontSize: 22)),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(text, style: AppTheme.body(size: 13, color: AppColors.deepPurple, weight: FontWeight.w800)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDesktopLayout(Map<String, dynamic> currentExercise, int totalExercises) {
     final locale = ref.watch(localeProvider);
     final titleVi = _lesson!['title_vi'] as String? ?? '';
     final titleEn = _lesson!['title_en'] as String? ?? '';
     final title = locale.languageCode == 'en' ? titleEn : titleVi;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 24),
+      padding: const EdgeInsets.fromLTRB(48, 24, 48, 24),
       child: Column(
         children: [
-          _buildDesktopNav(totalExercises),
-          const SizedBox(height: 32),
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.w700,
-              color: AppColors.darkPurple,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 32),
+          _buildDesktopNav(totalExercises, title),
+          const SizedBox(height: 24),
           Expanded(
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Expanded(
                   flex: 2,
-                  child: Container(
-                    margin: const EdgeInsets.only(right: 48),
-                    padding: const EdgeInsets.all(40),
-                    decoration: BoxDecoration(
-                      color: AppColors.white,
-                      borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: AppColors.divider),
-                    ),
-                    child: ExerciseDispatcher(
-                      exercise: currentExercise,
-                      onAnswered: _onAnswered,
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 24),
+                    child: KidCard(
+                      padding: const EdgeInsets.all(32),
+                      gradient: const [AppColors.pinkSoft, AppColors.cream],
+                      child: ExerciseDispatcher(exercise: currentExercise, onAnswered: _onAnswered),
                     ),
                   ),
                 ),
@@ -244,34 +230,7 @@ class _LanguageLessonScreenState extends ConsumerState<LanguageLessonScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      if (_showHint)
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: AppColors.white,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Row(
-                            children: [
-                              const Text('💡', style: TextStyle(fontSize: 20)),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  locale.languageCode == 'en'
-                                      ? currentExercise['hint_en'] as String? ??
-                                          ''
-                                      : currentExercise['hint_vi'] as String? ??
-                                          '',
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    color: AppColors.primaryPink,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                      if (_showHint) _buildHintBanner(currentExercise, locale.languageCode),
                     ],
                   ),
                 ),
@@ -283,22 +242,16 @@ class _LanguageLessonScreenState extends ConsumerState<LanguageLessonScreen> {
     );
   }
 
-  Widget _buildDesktopNav(int totalExercises) {
+  Widget _buildDesktopNav(int totalExercises, String title) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Row(
           children: [
-            const Text('🐸', style: TextStyle(fontSize: 32)),
-            const SizedBox(width: 12),
-            Text(
-              AppLocalizations.of(context)?.appTitle ?? 'Learning Fun',
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.w700,
-                color: AppColors.darkText,
-              ),
-            ),
+            const BigMascot(size: 40),
+            const SizedBox(width: 8),
+            Text(AppLocalizations.of(context)?.appTitle ?? 'Học Vui',
+                style: AppTheme.display(size: 22)),
           ],
         ),
         Row(
@@ -307,52 +260,36 @@ class _LanguageLessonScreenState extends ConsumerState<LanguageLessonScreen> {
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4),
               child: Container(
-                width: 40,
-                height: 40,
+                width: 36, height: 36,
                 decoration: BoxDecoration(
-                  color: isFilled ? AppColors.successGreen : AppColors.divider,
-                  borderRadius: BorderRadius.circular(20),
+                  color: isFilled ? AppColors.green : AppColors.white,
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(color: isFilled ? AppColors.green : AppColors.divider, width: 2),
                 ),
                 alignment: Alignment.center,
-                child: Text(
-                  '${index + 1}',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
+                child: Text('${index + 1}',
+                    style: AppTheme.display(size: 14, color: isFilled ? AppColors.white : AppColors.mutedPurple)),
               ),
             );
           }),
         ),
-        IconButton(
-          icon: const Icon(Icons.close, size: 24, color: AppColors.darkText),
-          onPressed: () => context.go('/home'),
+        Text(title, style: AppTheme.display(size: 18)),
+        GestureDetector(
+          onTap: () => context.go('/home'),
+          child: Container(
+            width: 40, height: 40,
+            decoration: BoxDecoration(
+              color: AppColors.white, shape: BoxShape.circle,
+              boxShadow: const [BoxShadow(color: AppColors.pinkSoft, offset: Offset(0, 3), blurRadius: 0)],
+            ),
+            child: const Icon(Icons.close, color: AppColors.deepPurple, size: 20),
+          ),
         ),
-        const LanguageSwitcher(),
       ],
     );
   }
 
-  Widget _buildProgressBar(int total) {
-    return Row(
-      children: List.generate(total, (index) {
-        final isFilled = index <= _currentExercise;
-        return Expanded(
-          child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 4),
-            height: 8,
-            decoration: BoxDecoration(
-              color: isFilled ? AppColors.successGreen : AppColors.divider,
-              borderRadius: BorderRadius.circular(4),
-            ),
-          ),
-        );
-      }),
-    );
-  }
-
+  // ================ GAME LOGIC (preserved) ================
   void _onAnswered(bool isCorrect, {String? userAnswer}) {
     final exercises = _lesson!['exercises'] as List<dynamic>;
     final currentEx = exercises[_currentExercise] as Map<String, dynamic>;
@@ -360,20 +297,14 @@ class _LanguageLessonScreenState extends ConsumerState<LanguageLessonScreen> {
     final userId = ref.read(userIdProvider);
     if (userId != null && userId.isNotEmpty && exerciseId.isNotEmpty) {
       ProgressApi.submitExerciseResult(
-        userId: userId,
-        exerciseId: exerciseId,
-        lessonId: widget.lessonId,
-        isCorrect: isCorrect,
+        userId: userId, exerciseId: exerciseId, lessonId: widget.lessonId, isCorrect: isCorrect,
       );
     }
 
     if (isCorrect) {
       HapticFeedback.lightImpact();
       setState(() {
-        _correctAnswers++;
-        _wrongCountThisExercise = 0;
-        _hintText = '';
-        _answerHistory.clear();
+        _correctAnswers++; _wrongCountThisExercise = 0; _hintText = ''; _answerHistory.clear();
       });
       Future.delayed(const Duration(milliseconds: 1000), () {
         if (mounted) _advanceExercise();
@@ -381,9 +312,7 @@ class _LanguageLessonScreenState extends ConsumerState<LanguageLessonScreen> {
     } else {
       HapticFeedback.heavyImpact();
       _wrongCountThisExercise++;
-      if (userAnswer != null && userAnswer.isNotEmpty) {
-        _answerHistory.add(userAnswer);
-      }
+      if (userAnswer != null && userAnswer.isNotEmpty) _answerHistory.add(userAnswer);
 
       final locale = ref.read(localeProvider);
       final staticHint = locale.languageCode == 'en'
@@ -393,18 +322,11 @@ class _LanguageLessonScreenState extends ConsumerState<LanguageLessonScreen> {
       if (_wrongCountThisExercise >= 2) {
         _fetchAiHint(currentEx, staticHint, locale.languageCode);
       } else {
-        setState(() {
-          _showHint = true;
-          _hintText = staticHint;
-        });
+        setState(() { _showHint = true; _hintText = staticHint; });
       }
 
       Future.delayed(const Duration(seconds: 5), () {
-        if (mounted) {
-          setState(() {
-            _showHint = false;
-          });
-        }
+        if (mounted) setState(() => _showHint = false);
       });
     }
   }
@@ -417,34 +339,21 @@ class _LanguageLessonScreenState extends ConsumerState<LanguageLessonScreen> {
     final correctIndex = currentEx['correct_index'] as int?;
     final options = currentEx['options'] as List<dynamic>?;
     final expectedAnswer = (options != null && correctIndex != null && correctIndex < options.length)
-        ? options[correctIndex].toString()
-        : '';
+        ? options[correctIndex].toString() : '';
 
     final hint = await QuestionBankApi.getHint(
-      exerciseId: exerciseId,
-      questionText: questionText,
-      answerHistory: _answerHistory,
-      expectedAnswer: expectedAnswer,
-      isVietnamese: lang == 'vi',
+      exerciseId: exerciseId, questionText: questionText,
+      answerHistory: _answerHistory, expectedAnswer: expectedAnswer, isVietnamese: lang == 'vi',
     );
 
-    if (mounted) {
-      setState(() {
-        _showHint = true;
-        _hintText = hint ?? fallback;
-      });
-    }
+    if (mounted) setState(() { _showHint = true; _hintText = hint ?? fallback; });
   }
 
   void _advanceExercise() {
     final exercises = _lesson!['exercises'] as List<dynamic>;
     if (_currentExercise < exercises.length - 1) {
       setState(() {
-        _currentExercise++;
-        _showHint = false;
-        _wrongCountThisExercise = 0;
-        _hintText = '';
-        _answerHistory.clear();
+        _currentExercise++; _showHint = false; _wrongCountThisExercise = 0; _hintText = ''; _answerHistory.clear();
       });
       if (ref.read(ttsEnabledProvider)) {
         final nextEx = exercises[_currentExercise] as Map<String, dynamic>;
@@ -452,9 +361,7 @@ class _LanguageLessonScreenState extends ConsumerState<LanguageLessonScreen> {
         final vi = nextEx['question_vi'] as String? ?? '';
         final en = nextEx['question_en'] as String? ?? '';
         final question = locale.languageCode == 'vi' ? vi : en;
-        if (question.isNotEmpty) {
-          TtsService().speak(question, languageCode: locale.languageCode);
-        }
+        if (question.isNotEmpty) TtsService().speak(question, languageCode: locale.languageCode);
       }
     } else {
       _finishLesson();
@@ -465,40 +372,28 @@ class _LanguageLessonScreenState extends ConsumerState<LanguageLessonScreen> {
     final userId = ref.read(userIdProvider);
     if (userId == null || userId.isEmpty) return;
 
-    // Calculate stars based on correct answers
     final totalExercises = (_lesson!['exercises'] as List<dynamic>).length;
     final accuracy = totalExercises > 0 ? _correctAnswers / totalExercises : 0;
     int stars = 1;
-    if (accuracy >= 0.9) {
-      stars = 3;
-    } else if (accuracy >= 0.7) {
-      stars = 2;
-    }
+    if (accuracy >= 0.9) stars = 3;
+    else if (accuracy >= 0.7) stars = 2;
 
     try {
       await LanguageApi.updateProgress(
-        userId: userId,
-        lessonId: widget.lessonId,
-        stars: stars,
-        completed: true,
+        userId: userId, lessonId: widget.lessonId, stars: stars, completed: true,
       );
       ref.invalidate(streakProvider);
       ref.invalidate(rawProgressProvider);
 
       if (mounted) {
         context.go('/celebration', extra: {
-          'stars': stars,
-          'subjectId': widget.subjectId,
-          'lessonId': widget.lessonId,
+          'stars': stars, 'subjectId': widget.subjectId, 'lessonId': widget.lessonId,
         });
       }
     } catch (e) {
-      // Fallback navigation even if API call fails
       if (mounted) {
         context.go('/celebration', extra: {
-          'stars': stars,
-          'subjectId': widget.subjectId,
-          'lessonId': widget.lessonId,
+          'stars': stars, 'subjectId': widget.subjectId, 'lessonId': widget.lessonId,
         });
       }
     }

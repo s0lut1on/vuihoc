@@ -21,8 +21,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get welcomeParentAccess => 'Parent access';
 
   @override
-  String get welcomeSubtitle =>
-      'Let\'s learn together! Choose a learning style.';
+  String get welcomeSubtitle => 'Let\'s learn together every day!';
 
   @override
   String get welcomeLanguageVi => 'English';
@@ -31,7 +30,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get welcomeGoogleSignIn => 'Sign in with Google';
 
   @override
-  String get welcomeSelectPersona => 'Choose character';
+  String get welcomeSelectPersona => 'Who are you?';
+
+  @override
+  String get welcomePersonaSubtitle => 'Pick your learning buddy!';
+
+  @override
+  String get welcomeStartButton => 'Start learning! 🚀';
+
+  @override
+  String get welcomeGuestButton => 'Try without signing in';
+
+  @override
+  String get welcomeOrDivider => 'or';
 
   @override
   String get welcomeBackButton => 'Back';

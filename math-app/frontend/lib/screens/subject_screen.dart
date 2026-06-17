@@ -2,11 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../core/app_colors.dart';
+import '../core/app_theme.dart';
 import '../l10n/app_localizations.dart';
 import '../models/lesson_model.dart';
 import '../providers/app_providers.dart';
 import '../services/content_api.dart';
 import '../services/language_api.dart';
+import '../widgets/bubble_button.dart';
+import '../widgets/kid_card.dart';
+import '../widgets/kid_progress_bar.dart';
+import '../widgets/lesson_tile.dart';
+import '../widgets/mascot.dart';
 import '../widgets/unlock_animation_overlay.dart';
 
 class SubjectScreen extends ConsumerStatefulWidget {
@@ -25,25 +31,24 @@ class _SubjectScreenState extends ConsumerState<SubjectScreen> {
   bool _loading = true;
   String? _subjectTitle;
   int _lessonCount = 0;
-  bool _hasDetailedProgress = false;
   Set<String> _previousUnlockState = {};
-  String? _showOverlayFor; // sub-subject ID that just unlocked
+  String? _showOverlayFor;
 
   static const Map<String, Map<String, dynamic>> _subjectMeta = {
-    'math': {'icon': '🔢', 'color': 0xFFFFE8F0},
-    'numbers': {'icon': '🔢', 'color': 0xFFFFE8F0},
-    'geometry': {'icon': '📐', 'color': 0xFFE8F5E9},
-    'measurement': {'icon': '📏', 'color': 0xFFFFF3E0},
-    'logic': {'icon': '🧩', 'color': 0xFFE3F2FD},
-    'vietnamese': {'icon': '🇻🇳', 'color': 0xFFFFEBEE},
-    'english': {'icon': '🇬🇧', 'color': 0xFFE8EAF6},
+    'math':         {'icon': '🧮', 'color': 0xFFFFE8F0, 'gradient': [0xFFFFE8F0, 0xFFFFF3E0]},
+    'numbers':      {'icon': '🔢', 'color': 0xFFFFE8F0, 'gradient': [0xFFFFE8F0, 0xFFFFF3E0]},
+    'geometry':     {'icon': '📐', 'color': 0xFFE8F5E9, 'gradient': [0xFFE8F5E9, 0xFFFFF8E1]},
+    'measurement':  {'icon': '📏', 'color': 0xFFFFF3E0, 'gradient': [0xFFFFF3E0, 0xFFFFE0EC]},
+    'logic':        {'icon': '🧩', 'color': 0xFFE3F2FD, 'gradient': [0xFFE3F2FD, 0xFFE0F2FE]},
+    'vietnamese':   {'icon': '🇻🇳', 'color': 0xFFFFEBEE, 'gradient': [0xFFFFEBEE, 0xFFFFE0EC]},
+    'english':      {'icon': '🇬🇧', 'color': 0xFFE8EAF6, 'gradient': [0xFFE8EAF6, 0xFFE0F2FE]},
   };
 
   static const List<Map<String, dynamic>> _mathSubSubjects = [
-    {'id': 'numbers', 'icon': '🔢', 'nameVi': 'Số học', 'nameEn': 'Numbers', 'color': 0xFFFFE8F0},
-    {'id': 'geometry', 'icon': '📐', 'nameVi': 'Hình học', 'nameEn': 'Geometry', 'color': 0xFFE8F5E9},
-    {'id': 'measurement', 'icon': '📏', 'nameVi': 'Đo lường', 'nameEn': 'Measurement', 'color': 0xFFFFF3E0},
-    {'id': 'logic', 'icon': '🧩', 'nameVi': 'Tư duy', 'nameEn': 'Logic', 'color': 0xFFE3F2FD},
+    {'id': 'numbers',     'icon': '🔢', 'nameVi': 'Số học',   'nameEn': 'Numbers',    'color': 0xFFFFE8F0},
+    {'id': 'geometry',    'icon': '📐', 'nameVi': 'Hình học', 'nameEn': 'Geometry',   'color': 0xFFE8F5E9},
+    {'id': 'measurement', 'icon': '📏', 'nameVi': 'Đo lường', 'nameEn': 'Measurement','color': 0xFFFFF3E0},
+    {'id': 'logic',       'icon': '🧩', 'nameVi': 'Tư duy',   'nameEn': 'Logic',      'color': 0xFFE3F2FD},
   ];
 
   @override
@@ -65,13 +70,11 @@ class _SubjectScreenState extends ConsumerState<SubjectScreen> {
         lessonCount = subSubjects.length;
       } else if (widget.subjectId == 'vietnamese' || widget.subjectId == 'english') {
         if (widget.subSubjectId != null) {
-          // Show lessons within a sub-subject
           final curriculum = await LanguageApi.getCurriculum(grade: userGrade, subjectId: widget.subjectId);
           final subject = curriculum.firstWhere(
             (s) => s['subject_id'] == widget.subjectId,
             orElse: () => {},
           );
-          // Find sub-subject and its lessons
           final subSubjectsList = (subject['sub_subjects'] as List<dynamic>?) ?? [];
           final subSubject = subSubjectsList.firstWhere(
             (ss) => ss['sub_subject_id'] == widget.subSubjectId,
@@ -85,12 +88,11 @@ class _SubjectScreenState extends ConsumerState<SubjectScreen> {
           }).toList();
           lessonCount = lessons.length;
         } else {
-          // Show sub-subjects list — fetch unlock status from detailed progress
           final apiSubSubjects = await LanguageApi.getSubSubjects(subjectId: widget.subjectId, grade: userGrade);
           Map<String, bool> unlockMap = {};
           Map<String, int> completedMap = {};
           Map<String, int> totalMap = {};
-          
+
           final userId = ref.read(userProvider).value?.id;
           if (userId != null) {
             final detailed = await LanguageApi.getDetailedProgress(userId: userId, subjectId: widget.subjectId);
@@ -107,10 +109,10 @@ class _SubjectScreenState extends ConsumerState<SubjectScreen> {
               }
             }
           }
-          
+
           subSubjects = apiSubSubjects.map((ss) {
             final id = ss['id'] as String;
-            final isUnlocked = unlockMap[id] ?? true; // Default unlocked if no progress data
+            final isUnlocked = unlockMap[id] ?? true;
             final completed = completedMap[id] ?? 0;
             final total = totalMap[id] ?? 0;
             return {
@@ -125,7 +127,6 @@ class _SubjectScreenState extends ConsumerState<SubjectScreen> {
             };
           }).toList();
 
-          // Detect newly unlocked sub-subjects
           final currentUnlocked = subSubjects
               .where((s) => s['isUnlocked'] == true)
               .map((s) => s['id'] as String)
@@ -159,32 +160,24 @@ class _SubjectScreenState extends ConsumerState<SubjectScreen> {
 
   String _resolveTitle(AppLocalizations l10n) {
     switch (widget.subjectId) {
-      case 'math':
-        return l10n.parentDashboardSubjectMath;
-      case 'numbers':
-        return l10n.parentDashboardSubjectNumbers;
-      case 'geometry':
-        return l10n.parentDashboardSubjectGeometry;
-      case 'measurement':
-        return l10n.parentDashboardSubjectMeasurement;
-      case 'logic':
-        return l10n.parentDashboardSubjectLogic;
-      case 'vietnamese':
-        return l10n.parentDashboardSubjectVietnamese;
-      case 'english':
-        return l10n.parentDashboardSubjectEnglish;
-      default:
-        return widget.subjectId;
+      case 'math':         return l10n.parentDashboardSubjectMath;
+      case 'numbers':      return l10n.parentDashboardSubjectNumbers;
+      case 'geometry':     return l10n.parentDashboardSubjectGeometry;
+      case 'measurement':  return l10n.parentDashboardSubjectMeasurement;
+      case 'logic':        return l10n.parentDashboardSubjectLogic;
+      case 'vietnamese':   return l10n.parentDashboardSubjectVietnamese;
+      case 'english':      return l10n.parentDashboardSubjectEnglish;
+      default:             return widget.subjectId;
     }
   }
 
-  bool _isGroupingSubject() => widget.subjectId == 'math' || 
-    ((widget.subjectId == 'vietnamese' || widget.subjectId == 'english') && widget.subSubjectId == null);
+  bool _isGroupingSubject() => widget.subjectId == 'math' ||
+      ((widget.subjectId == 'vietnamese' || widget.subjectId == 'english') && widget.subSubjectId == null);
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final meta = _subjectMeta[widget.subjectId] ?? {'icon': '📚', 'color': 0xFFE0E0E0};
+    final meta = _subjectMeta[widget.subjectId] ?? {'icon': '📚', 'color': 0xFFE0E0E0, 'gradient': const [0xFFFFE8F0, 0xFFFFF3E0]};
     final completedAsync = ref.watch(userProgressProvider);
 
     final completedSet = completedAsync.when(
@@ -222,91 +215,51 @@ class _SubjectScreenState extends ConsumerState<SubjectScreen> {
     }
 
     return Scaffold(
-      backgroundColor: AppColors.grayBg,
+      backgroundColor: AppColors.pinkBg,
       body: SafeArea(
         child: Column(
           children: [
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              decoration: BoxDecoration(
-                color: Color(meta['color'] as int),
-                borderRadius: const BorderRadius.vertical(bottom: Radius.circular(24)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.arrow_back, color: AppColors.darkPurple),
-                        onPressed: () => widget.subSubjectId != null 
-                          ? context.go('/subject/${widget.subjectId}')
-                          : context.go('/home'),
-                      ),
-                      const Spacer(),
-                    ],
-                  ),
-                  if (!isGrouping) ...[
-                    Text(meta['icon'] as String, style: const TextStyle(fontSize: 32)),
-                    const SizedBox(height: 4),
-                  ],
-                  Text(
-                    _subjectTitle ?? _resolveTitle(l10n),
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.darkPurple,
-                    ),
-                  ),
-                  Text(
-                    isGrouping
-                        ? '$_lessonCount ${l10n.homeDayStreak(0).contains('ng') ? 'chủ đề' : 'subjects'}'
-                        : _lessons.isEmpty
-                            ? l10n.lessonNotFound
-                            : '$_lessonCount ${l10n.homeDayStreak(0).contains('ng') ? 'bai hoc' : 'lessons'}',
-                    style: const TextStyle(fontSize: 14, color: AppColors.darkText),
-                  ),
-                ],
-              ),
+            _Header(
+              meta: meta,
+              title: _subjectTitle ?? _resolveTitle(l10n),
+              count: _lessonCount,
+              isGrouping: isGrouping,
+              onBack: () => widget.subSubjectId != null
+                  ? context.go('/subject/${widget.subjectId}')
+                  : context.go('/home'),
             ),
-            const SizedBox(height: 16),
-            isGrouping
-                ? _buildSubSubjectList(context, l10n)
-                : Expanded(
-                    child: _loading
-                        ? const Center(child: CircularProgressIndicator(color: AppColors.primaryPink))
-                        : _lessons.isEmpty
-                            ? Center(
-                                child: Text(
-                                  l10n.lessonNotFound,
-                                  style: const TextStyle(fontSize: 18, color: AppColors.primaryPink),
-                                ),
-                              )
-                            : ListView.builder(
-                                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                                itemCount: _lessons.length,
-                                itemBuilder: (context, index) {
-                                  final lesson = _lessons[index];
-                                  final isCompleted = completedSet.contains(lesson.id);
-                                  final isUnlocked = index == 0 || completedSet.contains(_lessons[index - 1].id);
-                                  return _LessonCard(
+            Expanded(
+              child: isGrouping
+                  ? _buildSubSubjectList(context, l10n)
+                  : _loading
+                      ? const Center(child: CircularProgressIndicator(color: AppColors.pink))
+                      : _lessons.isEmpty
+                          ? Center(child: Text(l10n.lessonNotFound,
+                              style: AppTheme.display(size: 20, color: AppColors.mutedPurple)))
+                          : ListView.builder(
+                              padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+                              itemCount: _lessons.length,
+                              itemBuilder: (context, index) {
+                                final lesson = _lessons[index];
+                                final isCompleted = completedSet.contains(lesson.id);
+                                final isUnlocked = index == 0 || completedSet.contains(_lessons[index - 1].id);
+                                return Padding(
+                                  padding: const EdgeInsets.only(bottom: 12),
+                                  child: _KidLessonRow(
                                     lesson: lesson,
-                                    subjectId: widget.subjectId,
                                     isCompleted: isCompleted,
                                     isUnlocked: isUnlocked,
-                                    onTap: isUnlocked
-                                        ? () {
-                                            final route = widget.subjectId == 'vietnamese' || widget.subjectId == 'english'
-                                                ? '/language-lesson/${widget.subjectId}/${lesson.id}'
-                                                : '/lesson/${widget.subjectId}/${lesson.id}';
-                                            context.go(route);
-                                          }
-                                        : null,
-                                  );
-                                },
-                              ),
-                  ),
+                                    onTap: isUnlocked ? () {
+                                      final route = widget.subjectId == 'vietnamese' || widget.subjectId == 'english'
+                                          ? '/language-lesson/${widget.subjectId}/${lesson.id}'
+                                          : '/lesson/${widget.subjectId}/${lesson.id}';
+                                      context.go(route);
+                                    } : null,
+                                  ),
+                                );
+                              },
+                            ),
+            ),
           ],
         ),
       ),
@@ -317,7 +270,7 @@ class _SubjectScreenState extends ConsumerState<SubjectScreen> {
     final locale = Localizations.localeOf(context);
     final isVi = locale.languageCode == 'vi';
     return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
       child: Column(
         children: _subSubjects.map((sub) {
           final title = isVi ? sub['nameVi'] as String : sub['nameEn'] as String;
@@ -328,86 +281,57 @@ class _SubjectScreenState extends ConsumerState<SubjectScreen> {
           final targetRoute = widget.subjectId == 'math'
               ? '/subject/${sub['id']}'
               : '/subject/${widget.subjectId}/${sub['id']}';
-          return GestureDetector(
-            onTap: isUnlocked ? () => context.push(targetRoute) : null,
-            child: Opacity(
-              opacity: isUnlocked ? 1.0 : 0.55,
-              child: Container(
-                margin: const EdgeInsets.only(bottom: 12),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                decoration: BoxDecoration(
-                  color: Color(sub['color'] as int),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        color: AppColors.white,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Center(
-                        child: isUnlocked
-                            ? Text(
-                                sub['icon'] as String,
-                                style: const TextStyle(fontSize: 24),
-                              )
-                            : const Icon(Icons.lock, color: AppColors.darkText, size: 22),
-                      ),
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: KidCard(
+              padding: const EdgeInsets.all(16),
+              color: Color(sub['color'] as int).withValues(alpha: isUnlocked ? 1.0 : 0.6),
+              onTap: isUnlocked ? () => context.push(targetRoute) : null,
+              child: Row(
+                children: [
+                  Container(
+                    width: 56, height: 56,
+                    decoration: BoxDecoration(
+                      color: AppColors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: const [BoxShadow(color: AppColors.pinkSoft, offset: Offset(0, 4), blurRadius: 0)],
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            title,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.darkPurple,
-                            ),
+                    child: Center(
+                      child: isUnlocked
+                          ? Text(sub['icon'] as String, style: const TextStyle(fontSize: 32))
+                          : const Icon(Icons.lock, color: AppColors.mutedText, size: 24),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(title, style: AppTheme.display(size: 18)),
+                        if (isUnlocked && total > 0) ...[
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              Expanded(child: KidProgressBar(value: completionPct.toDouble(), color: AppColors.deepPurple, height: 10)),
+                              const SizedBox(width: 8),
+                              Text('$completed/$total',
+                                  style: AppTheme.body(size: 12, color: AppColors.mutedPurple)),
+                            ],
                           ),
-                          if (isUnlocked && total > 0) ...[
-                            const SizedBox(height: 6),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(4),
-                                    child: LinearProgressIndicator(
-                                      value: completionPct.toDouble(),
-                                      minHeight: 6,
-                                      backgroundColor: AppColors.white.withValues(alpha: 0.5),
-                                      valueColor: AlwaysStoppedAnimation<Color>(AppColors.darkPurple),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  '$completed/$total',
-                                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.darkPurple),
-                                ),
-                              ],
-                            ),
-                          ] else if (!isUnlocked) ...[
-                            const SizedBox(height: 2),
-                            Text(
-                              isVi ? 'Hoàn thành chủ đề trước để mở khóa' : 'Complete previous topic to unlock',
-                              style: const TextStyle(fontSize: 12, color: AppColors.darkText),
-                            ),
-                          ],
+                        ] else if (!isUnlocked) ...[
+                          const SizedBox(height: 2),
+                          Text(isVi ? 'Hoàn thành chủ đề trước để mở khóa' : 'Complete previous topic to unlock',
+                              style: AppTheme.body(size: 12, color: AppColors.mutedText)),
                         ],
-                      ),
+                      ],
                     ),
-                    if (isUnlocked)
-                      const Icon(Icons.chevron_right, color: AppColors.darkPurple, size: 20)
-                    else
-                      const Icon(Icons.lock, color: AppColors.darkText, size: 20),
-                  ],
-                ),
+                  ),
+                  Icon(
+                    isUnlocked ? Icons.chevron_right : Icons.lock,
+                    color: isUnlocked ? AppColors.deepPurple : AppColors.mutedText,
+                    size: 24,
+                  ),
+                ],
               ),
             ),
           );
@@ -417,18 +341,92 @@ class _SubjectScreenState extends ConsumerState<SubjectScreen> {
   }
 }
 
-class _LessonCard extends StatelessWidget {
+class _Header extends StatelessWidget {
+  final Map<String, dynamic> meta;
+  final String title;
+  final int count;
+  final bool isGrouping;
+  final VoidCallback onBack;
+  const _Header({
+    required this.meta,
+    required this.title,
+    required this.count,
+    required this.isGrouping,
+    required this.onBack,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final gradient = (meta['gradient'] as List?)?.map((e) => Color(e as int)).toList() ?? const [AppColors.pinkSoft, AppColors.cream];
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(colors: gradient, begin: Alignment.topLeft, end: Alignment.bottomRight),
+        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(28)),
+        boxShadow: const [BoxShadow(color: Color(0x14000000), offset: Offset(0, 4), blurRadius: 12)],
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              _circleBtn(Icons.arrow_back, onBack),
+              const Spacer(),
+              const MiniMascot(size: 36),
+              const SizedBox(width: 8),
+              _circleBtn(Icons.search, () {}),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Text(meta['icon'] as String, style: const TextStyle(fontSize: 48)),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title, style: AppTheme.display(size: 26)),
+                    Text(
+                      isGrouping
+                          ? '$count chủ đề nhỏ'
+                          : '$count bài học',
+                      style: AppTheme.body(size: 13, color: AppColors.mutedPurple),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _circleBtn(IconData icon, VoidCallback? onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 40, height: 40,
+        decoration: BoxDecoration(
+          color: AppColors.white,
+          shape: BoxShape.circle,
+          boxShadow: const [BoxShadow(color: AppColors.pinkSoft, offset: Offset(0, 3), blurRadius: 0)],
+        ),
+        child: Icon(icon, color: AppColors.deepPurple, size: 20),
+      ),
+    );
+  }
+}
+
+class _KidLessonRow extends StatelessWidget {
   final ApiLesson lesson;
-  final String subjectId;
   final bool isCompleted;
   final bool isUnlocked;
   final VoidCallback? onTap;
-
-  const _LessonCard({
+  const _KidLessonRow({
     required this.lesson,
-    required this.subjectId,
-    this.isCompleted = false,
-    this.isUnlocked = true,
+    required this.isCompleted,
+    required this.isUnlocked,
     this.onTap,
   });
 
@@ -438,117 +436,78 @@ class _LessonCard extends StatelessWidget {
     final isVi = locale.languageCode == 'vi';
     final title = isVi ? lesson.titleVi : lesson.titleEn;
     final difficultyLabel = lesson.difficulty == 1
-        ? (isVi ? 'De' : 'Easy')
+        ? (isVi ? 'Dễ' : 'Easy')
         : lesson.difficulty == 2
-            ? (isVi ? 'Vua' : 'Medium')
-            : (isVi ? 'Kho' : 'Hard');
-
-    final Color bgColor = isUnlocked ? AppColors.white : const Color(0xFFF5F5F5);
-    final Color borderColor = isUnlocked
-        ? (isCompleted ? AppColors.successGreen : AppColors.divider)
-        : AppColors.divider;
-
-    return GestureDetector(
-      onTap: isUnlocked ? onTap : null,
-      child: Opacity(
-        opacity: isUnlocked ? 1.0 : 0.5,
-        child: Container(
-          margin: const EdgeInsets.only(bottom: 12),
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: bgColor,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: borderColor, width: isCompleted ? 2 : 1),
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: isCompleted
-                      ? AppColors.successGreen.withValues(alpha: 0.1)
-                      : AppColors.primaryPink.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Center(
-                  child: isCompleted
-                      ? const Icon(Icons.check_circle, color: AppColors.successGreen, size: 24)
-                      : !isUnlocked
-                          ? const Icon(Icons.lock, color: AppColors.darkText, size: 24)
-                          : Text(
-                              '${lesson.order}',
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.primaryPink,
-                              ),
-                            ),
-                ),
+            ? (isVi ? 'Vừa' : 'Medium')
+            : (isVi ? 'Khó' : 'Hard');
+    final diffColor = lesson.difficulty == 1
+        ? AppColors.green
+        : lesson.difficulty == 2
+            ? AppColors.orangeText
+            : AppColors.red;
+    final diffBg = lesson.difficulty == 1
+        ? AppColors.greenSoft
+        : lesson.difficulty == 2
+            ? AppColors.orangeSoft
+            : const Color(0xFFFEE2E2);
+    return Opacity(
+      opacity: isUnlocked ? 1.0 : 0.55,
+      child: KidCard(
+        padding: const EdgeInsets.all(16),
+        onTap: onTap,
+        child: Row(
+          children: [
+            Container(
+              width: 56, height: 56,
+              decoration: BoxDecoration(
+                color: isCompleted ? AppColors.greenSoft : AppColors.pinkSoft,
+                borderRadius: BorderRadius.circular(18),
               ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: isUnlocked ? AppColors.darkPurple : AppColors.darkText,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: lesson.difficulty == 1
-                                ? Colors.green.shade50
-                                : lesson.difficulty == 2
-                                    ? Colors.orange.shade50
-                                    : Colors.red.shade50,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            difficultyLabel,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: lesson.difficulty == 1
-                                  ? AppColors.successGreen
-                                  : lesson.difficulty == 2
-                                      ? Colors.orange
-                                      : Colors.red,
-                            ),
-                          ),
+              child: Center(
+                child: isCompleted
+                    ? const Text('✅', style: TextStyle(fontSize: 24))
+                    : !isUnlocked
+                        ? const Icon(Icons.lock, color: AppColors.mutedText, size: 24)
+                        : Text('${lesson.order}',
+                            style: AppTheme.display(size: 22, color: AppColors.pink)),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: AppTheme.display(size: 16)),
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: diffBg,
+                          borderRadius: BorderRadius.circular(999),
                         ),
-                        if (lesson.isPremium) ...[
-                          const SizedBox(width: 8),
-                          const Icon(Icons.star, size: 14, color: Colors.amber),
-                        ],
-                        if (isCompleted) ...[
-                          const SizedBox(width: 8),
-                          Row(
-                            children: List.generate(3, (i) {
-                              return Icon(
-                                Icons.star,
-                                size: 14,
-                                color: i < 3 ? Colors.amber : AppColors.divider,
-                              );
-                            }),
-                          ),
-                        ],
+                        child: Text(difficultyLabel,
+                            style: AppTheme.body(size: 11, color: diffColor, weight: FontWeight.w800)),
+                      ),
+                      if (lesson.isPremium) ...[
+                        const SizedBox(width: 6),
+                        const Text('⭐', style: TextStyle(fontSize: 14)),
                       ],
-                    ),
-                  ],
-                ),
+                      if (isCompleted) ...[
+                        const SizedBox(width: 6),
+                        const Text('⭐⭐⭐', style: TextStyle(fontSize: 11)),
+                      ],
+                    ],
+                  ),
+                ],
               ),
-              if (isUnlocked)
-                const Icon(Icons.chevron_right, color: AppColors.divider),
-            ],
-          ),
+            ),
+            Icon(
+              isUnlocked ? Icons.chevron_right : Icons.lock,
+              color: AppColors.mutedText,
+            ),
+          ],
         ),
       ),
     );

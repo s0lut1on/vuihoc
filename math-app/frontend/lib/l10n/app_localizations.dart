@@ -125,7 +125,7 @@ abstract class AppLocalizations {
   /// No description provided for @welcomeSubtitle.
   ///
   /// In vi, this message translates to:
-  /// **'Hãy cùng học vui nhé! Chọn cách học của bé.'**
+  /// **'Cùng nhau học vui mỗi ngày nhé!'**
   String get welcomeSubtitle;
 
   /// No description provided for @welcomeLanguageVi.
@@ -143,8 +143,32 @@ abstract class AppLocalizations {
   /// No description provided for @welcomeSelectPersona.
   ///
   /// In vi, this message translates to:
-  /// **'Chọn nhân vật'**
+  /// **'Bé là ai nè?'**
   String get welcomeSelectPersona;
+
+  /// No description provided for @welcomePersonaSubtitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Chọn bạn đồng hành của mình nhé!'**
+  String get welcomePersonaSubtitle;
+
+  /// No description provided for @welcomeStartButton.
+  ///
+  /// In vi, this message translates to:
+  /// **'Bắt đầu học thôi! 🚀'**
+  String get welcomeStartButton;
+
+  /// No description provided for @welcomeGuestButton.
+  ///
+  /// In vi, this message translates to:
+  /// **'Học thử không cần tài khoản'**
+  String get welcomeGuestButton;
+
+  /// No description provided for @welcomeOrDivider.
+  ///
+  /// In vi, this message translates to:
+  /// **'hoặc'**
+  String get welcomeOrDivider;
 
   /// No description provided for @welcomeBackButton.
   ///

@@ -2,10 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../core/app_colors.dart';
+import '../core/app_theme.dart';
 import '../l10n/app_localizations.dart';
 import '../providers/app_providers.dart';
 import '../services/language_api.dart';
+import '../widgets/kid_card.dart';
+import '../widgets/kid_progress_bar.dart';
 import '../widgets/language_switcher.dart';
+import '../widgets/mascot.dart';
 
 class ParentDashboardScreen extends ConsumerStatefulWidget {
   const ParentDashboardScreen({super.key});
@@ -54,7 +58,7 @@ class _ParentDashboardScreenState extends ConsumerState<ParentDashboardScreen> {
     final isDesktop = screenWidth > 900;
 
     return Scaffold(
-      backgroundColor: AppColors.grayBg,
+      backgroundColor: AppColors.pinkBg,
       body: SafeArea(
         child: isDesktop
             ? _buildDesktopLayout(context, l10n)
@@ -157,16 +161,27 @@ class _ParentDashboardScreenState extends ConsumerState<ParentDashboardScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          l10n.parentDashboardTitle,
-          style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w700,
-              color: AppColors.darkPurple),
+        Row(
+          children: [
+            const BigMascot(size: 56, emoji: '👨‍👩‍👧'),
+            const SizedBox(width: 12),
+            Text(
+              l10n.parentDashboardTitle,
+              style: AppTheme.display(size: 28),
+            ),
+          ],
         ),
-        IconButton(
-          icon: const Icon(Icons.close, color: AppColors.darkPurple),
-          onPressed: () => context.go('/home'),
+        GestureDetector(
+          onTap: () => context.go('/home'),
+          child: Container(
+            width: 40, height: 40,
+            decoration: BoxDecoration(
+              color: AppColors.white,
+              shape: BoxShape.circle,
+              boxShadow: const [BoxShadow(color: AppColors.pinkSoft, offset: Offset(0, 3), blurRadius: 0)],
+            ),
+            child: const Icon(Icons.close, color: AppColors.deepPurple, size: 20),
+          ),
         ),
       ],
     );

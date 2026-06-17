@@ -21,7 +21,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get welcomeParentAccess => 'Bố mẹ nhấn vào đây';
 
   @override
-  String get welcomeSubtitle => 'Hãy cùng học vui nhé! Chọn cách học của bé.';
+  String get welcomeSubtitle => 'Cùng nhau học vui mỗi ngày nhé!';
 
   @override
   String get welcomeLanguageVi => 'Tiếng Việt';
@@ -30,7 +30,19 @@ class AppLocalizationsVi extends AppLocalizations {
   String get welcomeGoogleSignIn => 'Đăng nhập bằng Google';
 
   @override
-  String get welcomeSelectPersona => 'Chọn nhân vật';
+  String get welcomeSelectPersona => 'Bé là ai nè?';
+
+  @override
+  String get welcomePersonaSubtitle => 'Chọn bạn đồng hành của mình nhé!';
+
+  @override
+  String get welcomeStartButton => 'Bắt đầu học thôi! 🚀';
+
+  @override
+  String get welcomeGuestButton => 'Học thử không cần tài khoản';
+
+  @override
+  String get welcomeOrDivider => 'hoặc';
 
   @override
   String get welcomeBackButton => 'Quay lại';

@@ -29,6 +29,23 @@ math-app/frontend/flutter_sdk/
 # Generated design exports (auto-generated previews)
 design-exports/
 
+# Python build artifacts
+__pycache__/
+*.pyc
+*.pyo
+
+# Flutter web build output
+math-app/frontend/build/
+
+# Rust / Cargo build artifacts
+math-app/backend/target/
+**/model_registry.json
+
+# Dart generated localizations (regen via flutter gen-l10n)
+math-app/frontend/lib/l10n/app_localizations.dart
+math-app/frontend/lib/l10n/app_localizations_en.dart
+math-app/frontend/lib/l10n/app_localizations_vi.dart
+
 # Build artifacts
 build/
 target/

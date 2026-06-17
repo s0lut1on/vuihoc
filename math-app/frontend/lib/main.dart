@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -20,7 +21,16 @@ void main() async {
 
   final storedLocale = await _loadLocale();
   final ttsEnabled = await _loadTtsEnabled();
-  final token = await _loadToken();
+  var token = await _loadToken();
+
+  // Screenshot/demo mode: bypass auth when URL contains ?demo=true.
+  // Useful for taking screenshots of protected screens without a backend.
+  if (token == null && _isDemoMode()) {
+    token = 'demo-token-no-network';
+    ApiService().setToken(token);
+    AuthService().tokenNotifier.value = token;
+  }
+
   if (token != null) {
     ApiService().setToken(token);
     AuthService().tokenNotifier.value = token;
@@ -38,6 +48,12 @@ void main() async {
       child: MathApp(autoSignedIn: didAutoSignIn),
     ),
   );
+}
+
+bool _isDemoMode() {
+  if (!kIsWeb) return false;
+  // ignore: avoid_web_libraries_in_flutter
+  return Uri.base.queryParameters.containsKey('demo');
 }
 
 Future<Locale> _loadLocale() async {

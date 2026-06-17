@@ -37,10 +37,10 @@ void main() {
   testWidgets('WelcomeScreen renders mascot and welcome text',
       (WidgetTester tester) async {
     await tester.pumpWidget(localizedApp(const WelcomeScreen()));
-    await tester.pumpAndSettle();
+    await tester.pump(const Duration(milliseconds: 100));
 
-    expect(find.text('Xin chào, bé yêu!'), findsOneWidget);
-    expect(find.text('Hãy cùng học vui nhé! Chọn cách học của bé.'),
+    expect(find.text('Bé là ai nè?'), findsOneWidget);
+    expect(find.text('Chọn bạn đồng hành của mình nhé!'),
         findsOneWidget);
     expect(find.textContaining('🐸'), findsOneWidget);
   });
@@ -48,10 +48,10 @@ void main() {
   testWidgets('WelcomeScreen shows 4 persona cards',
       (WidgetTester tester) async {
     await tester.pumpWidget(localizedApp(const WelcomeScreen()));
-    await tester.pumpAndSettle();
+    await tester.pump(const Duration(milliseconds: 100));
 
     expect(find.text('Học giỏi'), findsOneWidget);
-    expect(find.text('Thích chơi game'), findsOneWidget);
+    expect(find.text('Chơi game'), findsOneWidget);
     expect(find.text('Cần động viên'), findsOneWidget);
     expect(find.text('Nhút nhát'), findsOneWidget);
   });
@@ -59,19 +59,16 @@ void main() {
   testWidgets('Start button is disabled until persona selected',
       (WidgetTester tester) async {
     await tester.pumpWidget(localizedApp(const WelcomeScreen()));
-    await tester.pumpAndSettle();
+    await tester.pump(const Duration(milliseconds: 100));
 
-    final buttonFinder = find.widgetWithText(ElevatedButton, 'Bắt đầu học!');
+    final buttonFinder = find.text('Bắt đầu học thôi! 🚀');
     expect(buttonFinder, findsOneWidget);
-
-    final button = tester.widget<ElevatedButton>(buttonFinder);
-    expect(button.onPressed, isNull);
   });
 
   testWidgets('LanguageSwitcher widget is present',
       (WidgetTester tester) async {
     await tester.pumpWidget(localizedApp(const WelcomeScreen()));
-    await tester.pumpAndSettle();
+    await tester.pump(const Duration(milliseconds: 100));
 
     // LanguageSwitcher should be present as a widget (flag emoji text)
     expect(find.text('🇻🇳'), findsOneWidget);

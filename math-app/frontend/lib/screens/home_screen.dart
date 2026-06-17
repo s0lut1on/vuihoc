@@ -2,21 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../core/app_colors.dart';
+import '../core/app_theme.dart';
+import '../l10n/app_localizations.dart';
 import '../models/persona_model.dart';
 import '../providers/app_providers.dart';
-import '../l10n/app_localizations.dart';
-import '../widgets/language_switcher.dart';
-import '../services/review_api.dart';
 import '../services/progress_api.dart';
-import '../services/connectivity_service.dart';
-import '../services/wrong_answer_storage.dart';
-import '../widgets/offline_banner.dart';
-import 'achievement_screen.dart';
-import 'leaderboard_screen.dart';
-import 'profile_screen.dart';
-
 import '../services/user_api.dart';
-import '../utils/url_launcher.dart';
+import '../widgets/bubble_button.dart';
+import '../widgets/kid_card.dart';
+import '../widgets/kid_nav_bar.dart';
+import '../widgets/mascot.dart';
+import '../widgets/subject_tile.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -26,1090 +22,262 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  int _selectedIndex = 0;
-  int? _optimisticGrade;
-  int _pulseTick = 0;
-  final Stream<bool> _connectivityStream =
-      ConnectivityService().onConnectivityChanged;
-
-  String _resolveSubjectTitle(AppLocalizations l10n, String subjectId) {
-    switch (subjectId) {
-      case 'math':
-        return l10n.parentDashboardSubjectMath;
-      case 'numbers':
-        return l10n.parentDashboardSubjectNumbers;
-      case 'geometry':
-        return l10n.parentDashboardSubjectGeometry;
-      case 'measurement':
-        return l10n.parentDashboardSubjectMeasurement;
-      case 'logic':
-        return l10n.parentDashboardSubjectLogic;
-      case 'vietnamese':
-        return l10n.parentDashboardSubjectVietnamese;
-      case 'english':
-        return l10n.parentDashboardSubjectEnglish;
-      default:
-        return subjectId;
-    }
-  }
-
-  static const List<String> _subjectIds = [
-    'math',
-    'vietnamese',
-    'english'
-  ];
-
-  static const List<Map<String, dynamic>> _subjects = [
-    {
-      'icon': '🔢',
-      'nameVi': 'Toán học',
-      'nameEn': 'Math',
-      'color': 0xFFFFE8F0
-    },
-    {
-      'icon': '🇻🇳',
-      'nameVi': 'Tiếng Việt',
-      'nameEn': 'Vietnamese',
-      'color': 0xFFFFEBEE
-    },
-    {
-      'icon': '🇬🇧',
-      'nameVi': 'Tiếng Anh',
-      'nameEn': 'English',
-      'color': 0xFFE8EAF6
-    },
-  ];
-
   @override
   Widget build(BuildContext context) {
-    final persona = ref.watch(personaProvider) ?? Persona.achiever;
-    final userAsync = ref.watch(userProvider);
-
-    return userAsync.when(
-      data: (user) => _buildScaffold(context, ref, persona, user),
-      loading: () => const Scaffold(
-        body: Center(
-            child: CircularProgressIndicator(color: AppColors.primaryPink)),
-      ),
-      error: (err, _) {
-        // Silently recover from user load error and show home with defaults
-        return _buildScaffold(context, ref, persona, null);
-      },
-    );
-  }
-
-  Widget _buildScaffold(
-      BuildContext context, WidgetRef ref, Persona persona, dynamic user) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isDesktop = screenWidth > 900;
     final l10n = AppLocalizations.of(context)!;
-
-    final List<Widget> pages = [
-      isDesktop
-          ? _buildDesktopHomePage(context, ref, persona, user)
-          : _buildMobileHomePage(context, ref, persona, user),
-      AchievementScreen(onBack: () { setState(() => _selectedIndex = 0); }),
-      LeaderboardScreen(onBack: () { setState(() => _selectedIndex = 0); }),
-      ProfileScreen(onBack: () { setState(() => _selectedIndex = 0); }),
-    ];
-
+    final user = ref.watch(userProvider).value;
+    final streakAsync = ref.watch(streakProvider);
     return Scaffold(
-      backgroundColor: AppColors.grayBg,
-      appBar: isDesktop
-          ? AppBar(
-              backgroundColor: AppColors.white,
-              elevation: 0,
-              automaticallyImplyLeading: false,
-              title: _buildDesktopNavBar(context, ref, user, l10n),
-            )
-          : null,
-      body: Column(
-        children: [
-          StreamBuilder<bool>(
-            stream: _connectivityStream,
-            initialData: true,
-            builder: (context, snapshot) {
-              if (snapshot.data == false) return const OfflineBanner();
-              return const SizedBox.shrink();
-            },
-          ),
-          Expanded(child: SafeArea(top: false, child: pages[_selectedIndex])),
-        ],
-      ),
-      bottomNavigationBar: isDesktop
-          ? null
-          : BottomNavigationBar(
-              currentIndex: _selectedIndex,
-              onTap: (index) => setState(() => _selectedIndex = index),
-              selectedItemColor: AppColors.primaryPink,
-              unselectedItemColor: AppColors.mutedPurple,
-              type: BottomNavigationBarType.fixed,
-              items: [
-                BottomNavigationBarItem(
-                  icon: const Icon(Icons.home_outlined),
-                  activeIcon: const Icon(Icons.home),
-                  label: l10n.homeNavSubjects,
-                ),
-                BottomNavigationBarItem(
-                  icon: const Icon(Icons.emoji_events_outlined),
-                  activeIcon: const Icon(Icons.emoji_events),
-                  label: l10n.achievementsTitle,
-                ),
-                BottomNavigationBarItem(
-                  icon: const Icon(Icons.leaderboard_outlined),
-                  activeIcon: const Icon(Icons.leaderboard),
-                  label: l10n.leaderboardTitle,
-                ),
-                BottomNavigationBarItem(
-                  icon: const Icon(Icons.person_outline),
-                  activeIcon: const Icon(Icons.person),
-                  label: l10n.profile,
-                ),
-              ],
-            ),
-    );
-  }
-
-  Widget _buildDesktopNavBar(
-      BuildContext context, WidgetRef ref, dynamic user, AppLocalizations l10n) {
-    final gems = user?.gems ?? 0;
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Row(
+      backgroundColor: AppColors.pinkBg,
+      body: SafeArea(
+        child: Column(
           children: [
-            const Text('🐸', style: TextStyle(fontSize: 28)),
-            const SizedBox(width: 8),
-            Text(
-              l10n.appTitle,
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
-                color: AppColors.darkPurple,
+            KidNavBar(
+              activeLabel: 'Chủ đề',
+              trailing: const _NavRight(),
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(48, 16, 48, 32),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Continue card + 2 stats
+                    LayoutBuilder(builder: (context, c) {
+                      final wide = c.maxWidth > 900;
+                      final continueCard = _ContinueCard(user: user);
+                      if (wide) {
+                        return Row(
+                          children: [
+                            Expanded(flex: 2, child: continueCard),
+                            const SizedBox(width: 16),
+                            Expanded(child: _StreakCard(streakAsync.valueOrNull)),
+                            const SizedBox(width: 16),
+                            Expanded(child: _StarsCard(user)),
+                          ],
+                        );
+                      }
+                      return Column(
+                        children: [
+                          continueCard,
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              Expanded(child: _StreakCard(streakAsync.valueOrNull)),
+                              const SizedBox(width: 12),
+                              Expanded(child: _StarsCard(user)),
+                            ],
+                          ),
+                        ],
+                      );
+                    }),
+                    const SizedBox(height: 12),
+                    // 4-up stat row
+                    LayoutBuilder(builder: (context, c) {
+                      final wide = c.maxWidth > 900;
+                      final cards = [
+                        _Stat(emoji: '🏆', value: '3',
+                            label: l10n.parentDashboardSubjectMath,
+                            valueColor: AppColors.purple,
+                            gradient: const [AppColors.cream, AppColors.pinkSoft]),
+                        _Stat(emoji: '💎', value: '45', label: 'Viên ngọc',
+                            valueColor: AppColors.green,
+                            gradient: const [AppColors.greenSoft, AppColors.cream]),
+                        _Stat(emoji: '⏱️', value: '2.5h', label: 'Tuần này',
+                            valueColor: const Color(0xFF2563EB),
+                            gradient: const [Color(0xFFDBEAFE), AppColors.sky]),
+                      ];
+                      return Row(
+                        children: [
+                          for (var i = 0; i < cards.length; i++) ...[
+                            Expanded(child: cards[i]),
+                            if (i != cards.length - 1) const SizedBox(width: 12),
+                          ],
+                        ],
+                      );
+                    }),
+                    const SizedBox(height: 24),
+                    Row(
+                      children: [
+                        Text('${l10n.homeSubjects} 🎯', style: AppTheme.display(size: 26)),
+                        const Spacer(),
+                        PopupMenuButton<String>(
+                          icon: const Icon(Icons.emoji_events, color: AppColors.purple),
+                          onSelected: (v) {
+                            if (v == 'achievements') context.go('/achievements');
+                            if (v == 'leaderboard') context.go('/leaderboard');
+                            if (v == 'profile') context.go('/profile');
+                          },
+                          itemBuilder: (_) => const [
+                            PopupMenuItem(value: 'achievements', child: Text('Huy chương')),
+                            PopupMenuItem(value: 'leaderboard', child: Text('Bảng xếp hạng')),
+                            PopupMenuItem(value: 'profile', child: Text('Hồ sơ')),
+                          ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    LayoutBuilder(builder: (context, c) {
+                      final cols = c.maxWidth > 1100 ? 4 : (c.maxWidth > 700 ? 3 : 2);
+                      return _subjectsGrid(cols);
+                    }),
+                  ],
+                ),
               ),
             ),
           ],
         ),
-        Row(
-          children: [
-            TextButton(
-              onPressed: () => setState(() => _selectedIndex = 1),
-              child: Text(l10n.achievementsTitle,
-                  style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.darkPurple)),
-            ),
-            TextButton(
-              onPressed: () => setState(() => _selectedIndex = 2),
-              child: Text(l10n.leaderboardTitle,
-                  style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.darkPurple)),
-            ),
-            TextButton(
-              onPressed: () => setState(() => _selectedIndex = 3),
-              child: Text(l10n.profile,
-                  style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.darkPurple)),
-            ),
-            TextButton(
-              onPressed: () {
-                openExternalUrl('https://web.facebook.com/profile.php?id=100064784463812');
-              },
-              child: Text(l10n.contactLabel,
-                  style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.darkPurple)),
-            ),
-            const SizedBox(width: 16),
-            Text('💎 $gems',
-                style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.primaryPink)),
-            const SizedBox(width: 16),
-            GestureDetector(
-              onTap: () => context.push('/parent-dashboard'),
-              child: const Icon(Icons.admin_panel_settings,
-                  color: AppColors.mutedPurple, size: 28),
-            ),
-            const SizedBox(width: 12),
-            const LanguageSwitcher(),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildMobileHomePage(
-      BuildContext context, WidgetRef ref, Persona persona, dynamic user) {
-    final l10n = AppLocalizations.of(context)!;
-    final isVi = Localizations.localeOf(context).languageCode == 'vi';
-    final grade = user?.grade ?? 1;
-    final dynamicSubjects = ref.watch(subjectsProvider(grade));
-    final langSubjects = _buildLanguageSubjectList();
-
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildMobileHeader(context, ref, user),
-          const SizedBox(height: 12),
-          _buildGradeSelector(context, ref, user),
-          const SizedBox(height: 24),
-          _buildContinueCard(context, ref, persona),
-          const SizedBox(height: 16),
-          _buildReviewCard(context, ref),
-          const SizedBox(height: 16),
-          _buildAchievementsCard(context, ref),
-          const SizedBox(height: 16),
-          _buildLeaderboardCard(context, ref),
-          const SizedBox(height: 32),
-          Text(
-            l10n.homeSubjects,
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-          const SizedBox(height: 16),
-          dynamicSubjects.when(
-            data: (subjects) => _buildDynamicSubjectGrid(
-                context, ref, subjects, langSubjects, grade, isVi),
-            loading: () => const Padding(
-              padding: EdgeInsets.all(40),
-              child: Center(child: CircularProgressIndicator(color: AppColors.primaryPink)),
-            ),
-            error: (_, __) => _buildSubjectGrid(context, ref),
-          ),
-        ],
       ),
     );
   }
 
-  Widget _buildDesktopHomePage(
-      BuildContext context, WidgetRef ref, Persona persona, dynamic user) {
-    final l10n = AppLocalizations.of(context)!;
-    final isVi = Localizations.localeOf(context).languageCode == 'vi';
-    final grade = user?.grade ?? 1;
-    final dynamicSubjects = ref.watch(subjectsProvider(grade));
-    final langSubjects = _buildLanguageSubjectList();
-
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 32),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            l10n.homeContinueStrugglerLabel,
-            style: const TextStyle(
-                fontSize: 36,
-                fontWeight: FontWeight.w700,
-                color: AppColors.darkPurple),
-          ),
-          const SizedBox(height: 16),
-          _buildGradeSelector(context, ref, user),
-          const SizedBox(height: 24),
-          _buildDesktopStatsRow(context, ref, persona, user),
-          const SizedBox(height: 24),
-          _buildReviewCard(context, ref),
-          const SizedBox(height: 16),
-          _buildAchievementsCard(context, ref),
-          const SizedBox(height: 16),
-          _buildLeaderboardCard(context, ref),
-          const SizedBox(height: 32),
-          Text(
-            l10n.homeSubjects,
-            style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.w700,
-                color: AppColors.darkPurple),
-          ),
-          const SizedBox(height: 16),
-          dynamicSubjects.when(
-            data: (subjects) => _buildDynamicSubjectRow(
-                context, ref, subjects, langSubjects, grade, isVi),
-            loading: () => const Padding(
-              padding: EdgeInsets.all(40),
-              child: Center(child: CircularProgressIndicator(color: AppColors.primaryPink)),
-            ),
-            error: (_, __) => _buildDesktopSubjectRow(context, ref),
-          ),
-        ],
-      ),
+  Widget _subjectsGrid(int cols) {
+    final subjects = _buildSubjects();
+    return GridView.count(
+      crossAxisCount: cols,
+      mainAxisSpacing: 12,
+      crossAxisSpacing: 12,
+      childAspectRatio: 1.1,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      children: subjects,
     );
   }
 
-  List<Map<String, dynamic>> _buildLanguageSubjectList() {
-    return const [
-      {'id': 'vietnamese', 'icon': '🇻🇳', 'nameVi': 'Tiếng Việt', 'nameEn': 'Vietnamese', 'color': 0xFFFFEBEE, 'lessonCount': 50},
-      {'id': 'english', 'icon': '🇬🇧', 'nameVi': 'Tiếng Anh', 'nameEn': 'English', 'color': 0xFFE8EAF6, 'lessonCount': 50},
+  List<Widget> _buildSubjects() {
+    return [
+      SubjectTile(id: 'numbers', emoji: '🔢', nameVi: 'Số học', nameEn: 'Numbers', lessonCount: 24, onTap: () => context.go('/subject/numbers')),
+      SubjectTile(id: 'geometry', emoji: '📐', nameVi: 'Hình học', nameEn: 'Geometry', lessonCount: 18, onTap: () => context.go('/subject/geometry')),
+      SubjectTile(id: 'measurement', emoji: '📏', nameVi: 'Đo lường', nameEn: 'Measurement', lessonCount: 20, onTap: () => context.go('/subject/measurement')),
+      SubjectTile(id: 'logic', emoji: '🧩', nameVi: 'Tư duy', nameEn: 'Logic', lessonCount: 15, onTap: () => context.go('/subject/logic')),
+      SubjectTile(id: 'vietnamese', emoji: '🇻🇳', nameVi: 'Tiếng Việt', nameEn: 'Vietnamese', lessonCount: 40, onTap: () => context.go('/subject/vietnamese')),
+      SubjectTile(id: 'english', emoji: '🇬🇧', nameVi: 'Tiếng Anh', nameEn: 'English', lessonCount: 40, onTap: () => context.go('/subject/english')),
+      SubjectTile(id: 'science', emoji: '🔒', nameVi: 'Sắp ra mắt', nameEn: 'Coming soon', lessonCount: 0, locked: true),
+      SubjectTile(id: 'music', emoji: '🔒', nameVi: 'Sắp ra mắt', nameEn: 'Coming soon', lessonCount: 0, locked: true),
     ];
   }
+}
 
-  Widget _buildDynamicSubjectGrid(
-    BuildContext context,
-    WidgetRef ref,
-    List<Map<String, dynamic>> mathSubjects,
-    List<Map<String, dynamic>> langSubjects,
-    int grade,
-    bool isVi,
-  ) {
-    final all = [...mathSubjects, ...langSubjects];
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: all.length,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
-        childAspectRatio: 1.1,
-      ),
-      itemBuilder: (context, index) {
-        final s = all[index];
-        return _buildSubjectCard(context, ref, s, grade, isVi);
-      },
+class _NavRight extends ConsumerWidget {
+  const _NavRight();
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        GestureDetector(
+          onTap: () => context.push('/achievements'),
+          child: const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 6),
+            child: Text('🏅', style: TextStyle(fontSize: 22)),
+          ),
+        ),
+        GestureDetector(
+          onTap: () => context.push('/leaderboard'),
+          child: const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 6),
+            child: Text('🏆', style: TextStyle(fontSize: 22)),
+          ),
+        ),
+        const SizedBox(width: 8),
+        GestureDetector(
+          onTap: () => context.go('/profile'),
+          child: const MiniMascot(size: 40),
+        ),
+      ],
     );
   }
+}
 
-  Widget _buildDynamicSubjectRow(
-    BuildContext context,
-    WidgetRef ref,
-    List<Map<String, dynamic>> mathSubjects,
-    List<Map<String, dynamic>> langSubjects,
-    int grade,
-    bool isVi,
-  ) {
-    final all = [...mathSubjects, ...langSubjects];
-    return SizedBox(
-      height: 200,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        itemCount: all.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 12),
-        itemBuilder: (context, index) => SizedBox(
-          width: 200,
-          child: _buildSubjectCard(context, ref, all[index], grade, isVi),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSubjectCard(
-    BuildContext context,
-    WidgetRef ref,
-    Map<String, dynamic> s,
-    int grade,
-    bool isVi,
-  ) {
-    final id = s['id'] as String? ?? '';
-    final icon = s['icon'] as String? ?? '📚';
-    final color = s['color'] as int? ?? 0xFFFFE8F0;
-    final lessonCount = s['lessonCount'] as int? ?? 0;
-    final nameVi = s['nameVi'] as String? ?? '';
-    final nameEn = s['nameEn'] as String? ?? '';
-    return GestureDetector(
-      onTap: () => context.push('/subject/$id'),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Color(color),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(icon, style: const TextStyle(fontSize: 32)),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.85),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Text(
-                    isVi ? 'Lớp $grade' : 'Gr $grade',
-                    style: const TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.darkPurple,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            Column(
+class _ContinueCard extends StatelessWidget {
+  final dynamic user;
+  const _ContinueCard({this.user});
+  @override
+  Widget build(BuildContext context) {
+    return KidCard(
+      gradient: const [AppColors.pinkSoft, AppColors.cream],
+      onTap: () => context.go('/subject/numbers'),
+      child: Row(
+        children: [
+          const BigMascot(size: 80, wiggle: true),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  isVi ? nameVi : nameEn,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.darkPurple,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  isVi ? '$lessonCount bài' : '$lessonCount lessons',
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: AppColors.darkPurple.withValues(alpha: 0.7),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDesktopNav(
-      BuildContext context, WidgetRef ref, dynamic user) {
-    final gems = user?.gems ?? 0;
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Row(
-          children: [
-            const LanguageSwitcher(),
-            const SizedBox(width: 16),
-            Text('💎 $gems',
-                style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.primaryPink)),
-            const SizedBox(width: 16),
-            GestureDetector(
-              onTap: () => context.push('/parent-dashboard'),
-              child: const Icon(Icons.admin_panel_settings,
-                  color: AppColors.mutedPurple, size: 28),
-            ),
-            const SizedBox(width: 12),
-            Container(
-              width: 40,
-              height: 40,
-              decoration: const BoxDecoration(
-                  shape: BoxShape.circle, color: AppColors.primaryPink),
-              child: const Center(
-                  child: Text('🐸', style: TextStyle(fontSize: 24))),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDesktopStatsRow(
-      BuildContext context, WidgetRef ref, Persona persona, dynamic user) {
-    final l10n = AppLocalizations.of(context)!;
-    final streakData = ref.watch(streakProvider).valueOrNull;
-    final streak = streakData?['current_streak'] ?? user?.streakDays ?? 0;
-    final completed = ref.watch(userProgressProvider).valueOrNull ?? {};
-    final totalStars = ref.watch(totalStarsProvider).valueOrNull ?? 0;
-    final nextLesson = ref.watch(nextLessonProvider).valueOrNull;
-    final nextRoute = nextLesson != null
-        ? '/lesson/${nextLesson['subjectId']}/${nextLesson['lessonId']}'
-        : '/lesson/numbers/lesson_n1';
-    String label;
-    String topic;
-    switch (persona) {
-      case Persona.achiever:
-        label = l10n.homeContinueAchieverLabel;
-        topic = l10n.homeContinueAchieverTopic;
-      case Persona.gamer:
-        label = l10n.homeContinueGamerLabel;
-        topic = l10n.homeContinueGamerTopic;
-      case Persona.struggler:
-        label = l10n.homeContinueStrugglerLabel;
-        topic = l10n.homeContinueStrugglerTopic;
-      case Persona.silent:
-        label = l10n.homeContinueSilentLabel;
-        topic = l10n.homeContinueSilentTopic;
-    }
-
-    return Row(
-      children: [
-        Expanded(
-          child: Container(
-            height: 140,
-            decoration: BoxDecoration(
-                color: AppColors.white,
-                borderRadius: BorderRadius.circular(16)),
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text('${completed.length}',
-                    style: const TextStyle(
-                        fontSize: 40,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.primaryPink)),
-                Text(l10n.homeLessonsLearned,
-                    style: const TextStyle(
-                        fontSize: 14, color: Color(0xFF666666))),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(width: 24),
-        Expanded(
-          child: Container(
-            height: 140,
-            decoration: BoxDecoration(
-                color: AppColors.white,
-                borderRadius: BorderRadius.circular(16)),
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text('$totalStars ⭐',
-                    style: const TextStyle(
-                        fontSize: 36,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF4CAF50))),
-                Text(l10n.homeStarsEarned,
-                    style: const TextStyle(
-                        fontSize: 14, color: Color(0xFF666666))),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(width: 24),
-        Expanded(
-          child: GestureDetector(
-            onTap: () => context.go(nextRoute),
-            child: Container(
-              height: 140,
-              decoration: BoxDecoration(
-                  color: AppColors.primaryPink,
-                  borderRadius: BorderRadius.circular(16)),
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text('▶️', style: const TextStyle(fontSize: 32)),
-                  Text(label,
-                      style: const TextStyle(
-                          fontSize: 14, color: AppColors.white)),
-                  Text(topic,
-                      style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.white)),
-                ],
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(width: 24),
-        Expanded(
-          child: Container(
-            height: 140,
-            decoration: BoxDecoration(
-                color: AppColors.white,
-                borderRadius: BorderRadius.circular(16)),
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text('🔥', style: const TextStyle(fontSize: 32)),
-                Text(l10n.homeDayStreak(streak),
-                    style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.primaryPink)),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDesktopSubjectRow(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context)!;
-    return Row(
-      children: List.generate(_subjects.length, (index) {
-        final subject = _subjects[index];
-        final subjectId = _subjectIds[index];
-        return Expanded(
-          child: GestureDetector(
-            onTap: () => context.push('/subject/$subjectId'),
-            child: Container(
-              height: 220,
-              margin: const EdgeInsets.symmetric(horizontal: 8),
-              decoration: BoxDecoration(
-                color: Color(subject['color'] as int),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(subject['icon'] as String,
-                      style: const TextStyle(fontSize: 48)),
-                  const SizedBox(height: 8),
-                  Text(
-                    _resolveSubjectTitle(l10n, subjectId),
-                    style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.darkPurple),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      }),
-    );
-  }
-
-  // ==================== MOBILE SHARED ====================
-  Widget _buildMobileHeader(BuildContext context, WidgetRef ref, dynamic user) {
-    final l10n = AppLocalizations.of(context)!;
-    final name = user?.name ?? l10n.homeDefaultName;
-    final avatar = user?.avatar ?? '🐸';
-    final streakData = ref.watch(streakProvider).valueOrNull;
-    final streak = streakData?['current_streak'] ?? user?.streakDays ?? 0;
-    final gems = user?.gems ?? 0;
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Row(
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: const BoxDecoration(
-                  shape: BoxShape.circle, color: AppColors.primaryPink),
-              child: Center(
-                  child: Text(avatar, style: const TextStyle(fontSize: 24))),
-            ),
-            const SizedBox(width: 12),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(name,
-                    style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.darkPurple)),
-                Text(l10n.homeDayStreak(streak),
-                    style: const TextStyle(
-                        fontSize: 12, color: AppColors.primaryPink)),
-              ],
-            ),
-          ],
-        ),
-        Row(
-          children: [
-            GestureDetector(
-              onTap: () => context.push('/parent-dashboard'),
-              child: const Icon(Icons.admin_panel_settings,
-                  color: AppColors.mutedPurple, size: 28),
-            ),
-            const SizedBox(width: 12),
-            const LanguageSwitcher(),
-            const SizedBox(width: 8),
-            TextButton(
-              onPressed: () {
-                openExternalUrl('https://web.facebook.com/profile.php?id=100064784463812');
-              },
-              style: TextButton.styleFrom(
-                padding: EdgeInsets.zero,
-                minimumSize: Size.zero,
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              ),
-              child: Text(l10n.contactLabel,
-                  style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.darkPurple)),
-            ),
-            const SizedBox(width: 12),
-            const Text('💎', style: TextStyle(fontSize: 20)),
-            const SizedBox(width: 4),
-            Text('$gems',
-                style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.primaryPink)),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildContinueCard(
-      BuildContext context, WidgetRef ref, Persona persona) {
-    final l10n = AppLocalizations.of(context)!;
-    final nextLesson = ref.watch(nextLessonProvider).valueOrNull;
-    final nextRoute = nextLesson != null
-        ? '/lesson/${nextLesson['subjectId']}/${nextLesson['lessonId']}'
-        : '/lesson/numbers/lesson_n1';
-    String label;
-    String topic;
-    switch (persona) {
-      case Persona.achiever:
-        label = l10n.homeContinueAchieverLabel;
-        topic = l10n.homeContinueAchieverTopic;
-      case Persona.gamer:
-        label = l10n.homeContinueGamerLabel;
-        topic = l10n.homeContinueGamerTopic;
-      case Persona.struggler:
-        label = l10n.homeContinueStrugglerLabel;
-        topic = l10n.homeContinueStrugglerTopic;
-      case Persona.silent:
-        label = l10n.homeContinueSilentLabel;
-        topic = l10n.homeContinueSilentTopic;
-    }
-
-    return GestureDetector(
-      onTap: () => context.go(nextRoute),
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-            color: AppColors.primaryPink,
-            borderRadius: BorderRadius.circular(20)),
-        child: Row(
-          children: [
-            const Text('▶️', style: TextStyle(fontSize: 32)),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(label,
-                      style: TextStyle(
-                          fontSize: 12,
-                          color: AppColors.white.withValues(alpha: 0.9))),
-                  const SizedBox(height: 4),
-                  Text(topic,
-                      style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.white)),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildReviewCard(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context)!;
-    return FutureBuilder<int>(
-      future: _reviewCount(ref),
-      builder: (context, snapshot) {
-        final count = snapshot.data ?? 0;
-        if (count == 0) return const SizedBox.shrink();
-        return GestureDetector(
-          onTap: () => context.go('/review'),
-          child: Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: const Color(0xFFFFF3E0),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: const Color(0xFFFF9800)),
-            ),
-            child: Row(
-              children: [
-                const Text('🔥', style: TextStyle(fontSize: 32)),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        l10n.reviewCardLabel,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: AppColors.darkPurple.withValues(alpha: 0.8),
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        l10n.reviewCardTopic,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.darkPurple,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Chip(
-                  label: Text(
-                    '$count',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
-                    ),
-                  ),
-                  backgroundColor: const Color(0xFFFF9800),
-                  padding: EdgeInsets.zero,
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Future<int> _reviewCount(WidgetRef ref) async {
-    final userId = ref.read(userIdProvider) ?? '';
-    if (userId.isEmpty) return 0;
-    try {
-      final remote = await ProgressApi.getReviewSession(userId);
-      final dueCount = remote.fold<int>(0, (sum, e) => sum + ((e['wrong_count'] as int?) ?? 0)) ~/ 2 + 1;
-      return remote.length;
-    } catch (_) {
-      return 0;
-    }
-  }
-
-  Widget _buildSubjectGrid(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context)!;
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: _subjects.length,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
-        childAspectRatio: 1.1,
-      ),
-      itemBuilder: (context, index) {
-        final subject = _subjects[index];
-        final subjectId = _subjectIds[index];
-        return GestureDetector(
-          onTap: () => context.push('/subject/$subjectId'),
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-                color: Color(subject['color'] as int),
-                borderRadius: BorderRadius.circular(16)),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(subject['icon'] as String,
-                    style: const TextStyle(fontSize: 36)),
+                Text('${user?.name ?? 'Bé An'} ơi!', style: AppTheme.display(size: 22)),
+                const SizedBox(height: 4),
+                Text('Tiếp tục: Phép cộng 2 chữ số',
+                    style: AppTheme.body(size: 14, color: AppColors.mutedPurple)),
                 const SizedBox(height: 8),
-                Text(
-                  _resolveSubjectTitle(l10n, subjectId),
-                  style: const TextStyle(
-                      fontSize: 14, color: AppColors.darkPurple),
+                BubbleButton(
+                  label: 'Học tiếp thôi! 🚀',
+                  minWidth: 140,
+                  height: 44,
+                  fontSize: 14,
+                  onPressed: () => context.go('/subject/numbers'),
                 ),
               ],
             ),
           ),
-        );
-      },
-    );
-  }
-
-  Widget _buildAchievementsCard(BuildContext context, WidgetRef ref) {
-    return GestureDetector(
-      onTap: () => context.push('/achievements'),
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: const Color(0xFFF3E5F5),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: const Color(0xFF9C27B0)),
-        ),
-        child: Row(
-          children: [
-            const Text('🏅', style: TextStyle(fontSize: 32)),
-            const SizedBox(width: 16),
-            const Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Huy chương',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: AppColors.darkPurple,
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    'Xem huy chương của bạn',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.darkPurple,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const Icon(Icons.chevron_right, color: AppColors.darkPurple),
-          ],
-        ),
+        ],
       ),
     );
   }
+}
 
-  Widget _buildLeaderboardCard(BuildContext context, WidgetRef ref) {
-    return GestureDetector(
-      onTap: () => context.push('/leaderboard'),
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: const Color(0xFFE8F5E9),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: const Color(0xFF4CAF50)),
-        ),
-        child: Row(
-          children: [
-            const Text('🏆', style: TextStyle(fontSize: 32)),
-            const SizedBox(width: 16),
-            const Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Bảng xếp hạng',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: AppColors.darkPurple,
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    'Top bạn bè tuần này',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.darkPurple,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const Icon(Icons.chevron_right, color: AppColors.darkPurple),
-          ],
-        ),
-      ),
+class _StreakCard extends StatelessWidget {
+  final Map<String, dynamic>? data;
+  const _StreakCard(this.data);
+  @override
+  Widget build(BuildContext context) {
+    final days = (data?['current_streak'] as int?) ?? 0;
+    return _Stat(
+      emoji: '🔥', value: '$days', label: 'Ngày liên tiếp',
+      valueColor: AppColors.red,
     );
   }
+}
 
-  Widget _buildGradeSelector(BuildContext context, WidgetRef ref, dynamic user) {
-    final l10n = AppLocalizations.of(context)!;
-    final userAsync = ref.watch(userProvider);
-    final liveUser = userAsync.value ?? user;
-    final grade = _optimisticGrade ?? liveUser?.grade ?? 1;
-    final isVi = Localizations.localeOf(context).languageCode == 'vi';
+class _StarsCard extends StatelessWidget {
+  final dynamic user;
+  const _StarsCard(this.user);
+  @override
+  Widget build(BuildContext context) {
+    return _Stat(
+      emoji: '⭐', value: '${user?.totalStars ?? 0}', label: 'Sao tích lũy',
+      valueColor: AppColors.orange,
+    );
+  }
+}
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [1, 2, 3].map((g) {
-        final isSelected = g == grade;
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 6),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 250),
-            curve: Curves.easeOutBack,
-            child: TweenAnimationBuilder<double>(
-              key: ValueKey('grade-$g-${_pulseTick}'),
-              tween: Tween(begin: 1.0, end: isSelected ? 1.0 : 1.0),
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.elasticOut,
-              builder: (context, scale, child) {
-                return Transform.scale(
-                  scale: scale,
-                  child: child,
-                );
-              },
-              child: ElevatedButton(
-                onPressed: () async {
-                  if (isSelected) return;
-                  setState(() {
-                    _optimisticGrade = g;
-                    _pulseTick++;
-                  });
-                  try {
-                    await UserApi.updateGrade(g);
-                    await ref.read(userProvider.notifier).refreshUser();
-                    ref.invalidate(curriculumProvider(g));
-                    if (mounted) {
-                      setState(() => _optimisticGrade = null);
-                    }
-                  } catch (e) {
-                    if (mounted) {
-                      setState(() => _optimisticGrade = null);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(isVi ? 'Lỗi: $e' : 'Error: $e'),
-                          backgroundColor: Colors.red,
-                        ),
-                      );
-                    }
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: isSelected ? AppColors.primaryPink : AppColors.white,
-                  foregroundColor: isSelected ? AppColors.white : AppColors.darkPurple,
-                  elevation: isSelected ? 6 : 0,
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                    side: BorderSide(
-                      color: isSelected ? AppColors.primaryPink : const Color(0xFFE0E0E0),
-                      width: isSelected ? 2 : 1,
-                    ),
-                  ),
-                ),
-                child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 250),
-                  transitionBuilder: (child, anim) => ScaleTransition(
-                    scale: anim,
-                    child: FadeTransition(opacity: anim, child: child),
-                  ),
-                  child: Row(
-                    key: ValueKey(isSelected),
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        isVi ? 'Lớp $g' : 'Grade $g',
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      if (isSelected) ...[
-                        const SizedBox(width: 6),
-                        const Icon(Icons.check_rounded, size: 18, color: Colors.white),
-                      ],
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        );
-      }).toList(),
+class _Stat extends StatelessWidget {
+  final String emoji, value, label;
+  final Color? valueColor;
+  final List<Color>? gradient;
+  const _Stat({
+    required this.emoji,
+    required this.value,
+    required this.label,
+    this.valueColor,
+    this.gradient,
+  });
+  @override
+  Widget build(BuildContext context) {
+    return KidCard(
+      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+      gradient: gradient,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(emoji, style: const TextStyle(fontSize: 36)),
+          const SizedBox(height: 4),
+          Text(value, style: AppTheme.display(size: 30, color: valueColor ?? AppColors.pink)),
+          const SizedBox(height: 2),
+          Text(label, textAlign: TextAlign.center,
+              style: AppTheme.body(size: 12, color: AppColors.mutedPurple)),
+        ],
+      ),
     );
   }
 }

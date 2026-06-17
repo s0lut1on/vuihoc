@@ -14,6 +14,7 @@ void main() {
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: const [Locale('en'), Locale('vi')],
+      locale: const Locale('vi'),
       home: Scaffold(
         body: Builder(
           builder: (context) => ElevatedButton(
@@ -34,9 +35,9 @@ void main() {
     await tester.tap(find.text('Open'));
     await tester.pumpAndSettle();
 
-    expect(find.text("You have reached today's limit"), findsOneWidget);
+    expect(find.text('Bạn đã học đủ bài hôm nay'), findsOneWidget);
     expect(
-        find.textContaining('Free accounts can study up to'), findsOneWidget);
+        find.textContaining('Tài khoản miễn phí được học tối đa 50 bài'), findsOneWidget);
   });
 
   testWidgets('PaywallModal has close and understand buttons',
@@ -45,8 +46,8 @@ void main() {
     await tester.tap(find.text('Open'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Got it'), findsOneWidget);
-    expect(find.text('Close'), findsOneWidget);
+    expect(find.text('Đã hiểu'), findsOneWidget);
+    expect(find.text('Đóng'), findsOneWidget);
   });
 
   testWidgets('tapping Close calls onClose', (WidgetTester tester) async {
@@ -55,7 +56,7 @@ void main() {
     await tester.tap(find.text('Open'));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Close'));
+    await tester.tap(find.text('Đóng'));
     await tester.pumpAndSettle();
     expect(counter, 1);
   });
@@ -66,7 +67,7 @@ void main() {
     await tester.tap(find.text('Open'));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.widgetWithText(ElevatedButton, 'Got it'));
+    await tester.tap(find.text('Đã hiểu'));
     await tester.pumpAndSettle();
     expect(counter, 1);
   });
