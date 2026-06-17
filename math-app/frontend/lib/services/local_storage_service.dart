@@ -87,4 +87,28 @@ class LocalStorageService {
     final box = await Hive.openBox(_settingsBox);
     return box.get('unlockAnimationsEnabled', defaultValue: true);
   }
+
+  // Plan 5: parent email preferences. Persisted locally so the dashboard
+  // round-trips even before the backend `/api/user/email-preferences`
+  // endpoint ships. The backend delivery itself is a separate task
+  // (cron + SendGrid). For now, this is the user-entered data.
+  static Future<void> saveParentEmail(String email) async {
+    final box = await Hive.openBox(_settingsBox);
+    await box.put('parentEmail', email);
+  }
+
+  static Future<String> getParentEmail() async {
+    final box = await Hive.openBox(_settingsBox);
+    return box.get('parentEmail', defaultValue: '') as String;
+  }
+
+  static Future<void> saveEmailFrequency(String freq) async {
+    final box = await Hive.openBox(_settingsBox);
+    await box.put('emailFrequency', freq);
+  }
+
+  static Future<String> getEmailFrequency() async {
+    final box = await Hive.openBox(_settingsBox);
+    return box.get('emailFrequency', defaultValue: 'never') as String;
+  }
 }

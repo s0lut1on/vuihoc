@@ -1,5 +1,6 @@
 mod handlers;
 mod models;
+mod spaced_repetition;
 
 use axum::{
     routing::{get, post},
@@ -93,7 +94,10 @@ async fn main() {
         )
         .route("/api/progress", post(handlers::update_progress))
         .route("/api/progress/review", post(handlers::update_exercise_stat))
-        .route("/api/progress/review/:user_id", get(handlers::get_review_session))
+        .route(
+            "/api/progress/review/:user_id",
+            get(handlers::get_review_session),
+        )
         .route_layer(axum::middleware::from_fn(shared::auth_middleware));
 
     let app = Router::new()

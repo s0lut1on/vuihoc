@@ -28,6 +28,31 @@ class _ExerciseDispatcherState extends ConsumerState<ExerciseDispatcher> {
   bool _isCorrect = false;
 
   @override
+  void initState() {
+    super.initState();
+    // Plan 3: auto-play the prompt for listen_select exercises on first
+    // build. Guarded by ttsEnabledProvider + isSupported so non-web builds
+    // and disabled users are no-ops.
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      final ttsEnabled = ref.read(ttsEnabledProvider);
+      if (!ttsEnabled || !TtsService().isSupported) return;
+      final ex = widget.exercise;
+      final type = ex['exercise_type'] as String? ?? 'mcq';
+      if (type != 'listen_select') return;
+      final locale = Localizations.localeOf(context);
+      final text = locale.languageCode == 'en'
+          ? (ex['question_en'] as String? ?? '')
+          : (ex['question_vi'] as String? ?? '');
+      if (text.isEmpty) return;
+      // Small delay so the screen settles before speech starts.
+      await Future<void>.delayed(const Duration(milliseconds: 600));
+      if (!mounted) return;
+      TtsService().speak(text, languageCode: locale.languageCode);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final exerciseType = widget.exercise['exercise_type'] as String? ?? 'mcq';
 
@@ -39,9 +64,11 @@ class _ExerciseDispatcherState extends ConsumerState<ExerciseDispatcher> {
       case 'typing':
         return _buildTypingExercise();
       case 'matching':
-        return MatchingExercise(exercise: widget.exercise, onAnswered: widget.onAnswered);
+        return MatchingExercise(
+            exercise: widget.exercise, onAnswered: widget.onAnswered);
       case 'ordering':
-        return OrderingExercise(exercise: widget.exercise, onAnswered: widget.onAnswered);
+        return OrderingExercise(
+            exercise: widget.exercise, onAnswered: widget.onAnswered);
       case 'mcq':
       default:
         return _buildMcqExercise();
@@ -83,7 +110,8 @@ class _ExerciseDispatcherState extends ConsumerState<ExerciseDispatcher> {
           Padding(
             padding: const EdgeInsets.only(top: 8),
             child: ElevatedButton.icon(
-              onPressed: () => TtsService().speak(question, languageCode: locale.languageCode),
+              onPressed: () => TtsService()
+                  .speak(question, languageCode: locale.languageCode),
               icon: const Icon(Icons.volume_up, size: 18),
               label: Text(locale.languageCode == 'en' ? 'Listen' : 'Nghe'),
               style: ElevatedButton.styleFrom(
@@ -143,7 +171,8 @@ class _ExerciseDispatcherState extends ConsumerState<ExerciseDispatcher> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 ElevatedButton.icon(
-                  onPressed: () => TtsService().speak(question, languageCode: locale.languageCode),
+                  onPressed: () => TtsService()
+                      .speak(question, languageCode: locale.languageCode),
                   icon: const Icon(Icons.volume_up, size: 18),
                   label: Text(locale.languageCode == 'en' ? 'Listen' : 'Nghe'),
                   style: ElevatedButton.styleFrom(
@@ -211,10 +240,11 @@ class _ExerciseDispatcherState extends ConsumerState<ExerciseDispatcher> {
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.w700,
-                        color:
-                            isSelected && _selectedAnswer != null && !isRightAnswer
-                                ? Colors.red
-                                : AppColors.darkPurple,
+                        color: isSelected &&
+                                _selectedAnswer != null &&
+                                !isRightAnswer
+                            ? Colors.red
+                            : AppColors.darkPurple,
                       ),
                     ),
                   ),
@@ -236,7 +266,8 @@ class _ExerciseDispatcherState extends ConsumerState<ExerciseDispatcher> {
 
     final options =
         (widget.exercise['options'] as List<dynamic>?)?.cast<String>() ?? [];
-    final userAnswer = (index >= 0 && index < options.length) ? options[index] : '';
+    final userAnswer =
+        (index >= 0 && index < options.length) ? options[index] : '';
     widget.onAnswered(_isCorrect, userAnswer: userAnswer);
 
     if (!_isCorrect) {

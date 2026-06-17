@@ -330,12 +330,23 @@ pub async fn update_exercise_stat(
         Ok(u) => u,
         Err(e) => return ApiResponse::err(e),
     };
-    let exercise_id = body.get("exercise_id").and_then(|v| v.as_str()).unwrap_or("").to_string();
-    let lesson_id = body.get("lesson_id").and_then(|v| v.as_str()).unwrap_or("").to_string();
-    let is_correct = body.get("is_correct").and_then(|v| v.as_bool()).unwrap_or(false);
+    let exercise_id = body
+        .get("exercise_id")
+        .and_then(|v| v.as_str())
+        .unwrap_or("")
+        .to_string();
+    let lesson_id = body
+        .get("lesson_id")
+        .and_then(|v| v.as_str())
+        .unwrap_or("")
+        .to_string();
+    let is_correct = body
+        .get("is_correct")
+        .and_then(|v| v.as_bool())
+        .unwrap_or(false);
 
     let existing = sqlx::query_as::<_, UserExerciseStat>(
-        "SELECT * FROM user_exercise_stats WHERE user_id = $1 AND exercise_id = $2"
+        "SELECT * FROM user_exercise_stats WHERE user_id = $1 AND exercise_id = $2",
     )
     .bind(user_uuid)
     .bind(&exercise_id)
@@ -346,12 +357,16 @@ pub async fn update_exercise_stat(
     let next_review = if is_correct {
         let new_interval = match existing {
             Ok(Some(ref stat)) => {
-                let consecutive = stat.correct_count + 1;
-                if consecutive >= 3 { stat.interval_days * 2 } else { stat.interval_days + 1 }
-            },
+                crate::spaced_repetition::compute_new_interval_days(
+                    stat.interval_days,
+                    true,
+                    stat.correct_count + 1,
+                )
+            }
+            Ok(None) | Err(_) => 1,
             _ => 1,
         };
-        now + chrono::Duration::days(new_interval.min(30) as i64)
+        now + chrono::Duration::days(new_interval as i64)
     } else {
         now + chrono::Duration::days(1)
     };
@@ -376,7 +391,7 @@ pub async fn update_exercise_stat(
     .bind(if is_correct { 0 } else { 1 })
     .bind(now)
     .bind(next_review)
-    .bind(if is_correct { 1 } else { 0 }) // simplified interval reset on wrong
+    .bind(if is_correct { crate::spaced_repetition::compute_new_interval_days(1, true, 1) } else { 1 }) // simplified interval reset on wrong
     .bind(2.5f32)
     .fetch_one(&state.db)
     .await;
@@ -410,18 +425,24 @@ pub async fn get_review_session(
 
     match rows {
         Ok(stats) => {
-            let exercises: Vec<ReviewExercise> = stats.into_iter().map(|stat| ReviewExercise {
-                exercise_id: stat.exercise_id.clone(),
-                lesson_id: stat.lesson_id.clone(),
-                question_vi: String::new(), // populated by frontend or joined query
-                question_en: String::new(),
-                exercise_type: "mcq".to_string(),
-                options: vec![],
-                correct: 0,
-                wrong_count: stat.wrong_count,
-            }).collect();
+            let exercises: Vec<ReviewExercise> = stats
+                .into_iter()
+                .map(|stat| ReviewExercise {
+                    exercise_id: stat.exercise_id.clone(),
+                    lesson_id: stat.lesson_id.clone(),
+                    question_vi: String::new(), // populated by frontend or joined query
+                    question_en: String::new(),
+                    exercise_type: "mcq".to_string(),
+                    options: vec![],
+                    correct: 0,
+                    wrong_count: stat.wrong_count,
+                })
+                .collect();
             let due_count = exercises.len() as i32;
-            ApiResponse::ok(ReviewSession { exercises, due_count })
+            ApiResponse::ok(ReviewSession {
+                exercises,
+                due_count,
+            })
         }
         Err(e) => {
             tracing::error!("Database error in get_review_session: {}", e);

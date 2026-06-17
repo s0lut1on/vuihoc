@@ -23,11 +23,42 @@ class ParentDashboardScreen extends ConsumerStatefulWidget {
 class _ParentDashboardScreenState extends ConsumerState<ParentDashboardScreen> {
   List<Map<String, dynamic>> _subjects = [];
   bool _loading = true;
+  final _emailCtrl = TextEditingController();
+  String _emailFrequency = 'never';
+  bool _emailInitialized = false;
+
+  @override
+  void dispose() {
+    _emailCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadEmailPrefs() async {
+    final email = await LocalStorageService.getParentEmail();
+    final freq = await LocalStorageService.getEmailFrequency();
+    if (mounted) {
+      setState(() {
+        _emailCtrl.text = email;
+        _emailFrequency = freq;
+        _emailInitialized = true;
+      });
+    }
+  }
+
+  Future<void> _saveEmail() async {
+    await LocalStorageService.saveParentEmail(_emailCtrl.text.trim());
+  }
+
+  Future<void> _saveFrequency(String freq) async {
+    setState(() => _emailFrequency = freq);
+    await LocalStorageService.saveEmailFrequency(freq);
+  }
 
   @override
   void initState() {
     super.initState();
     _loadProgress();
+    _loadEmailPrefs();
   }
 
   Future<void> _loadProgress() async {
@@ -429,6 +460,13 @@ class _ParentDashboardScreenState extends ConsumerState<ParentDashboardScreen> {
               LocalStorageService.saveUnlockAnimationsEnabled(v);
             },
           ),
+          // Parent email preferences (Plan 5)
+          if (_emailInitialized) _EmailPreferencesTile(
+            emailController: _emailCtrl,
+            onEmailSaved: _saveEmail,
+            frequency: _emailFrequency,
+            onFrequencyChanged: _saveFrequency,
+          ),
           _settingTile(Icons.logout, l10n.parentDashboardLogout, ''),
         ],
       ),
@@ -483,6 +521,89 @@ class _UnlockAnimationToggle extends StatelessWidget {
             onChanged: onChanged,
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _EmailPreferencesTile extends StatelessWidget {
+  final TextEditingController emailController;
+  final Future<void> Function() onEmailSaved;
+  final String frequency;
+  final ValueChanged<String> onFrequencyChanged;
+  const _EmailPreferencesTile({
+    required this.emailController,
+    required this.onEmailSaved,
+    required this.frequency,
+    required this.onFrequencyChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Text('📧', style: TextStyle(fontSize: 22)),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Báo cáo hàng tuần cho phụ huynh',
+                        style: AppTheme.body(size: 14, color: AppColors.deepPurple, weight: FontWeight.w800)),
+                    Text('Tổng kết bài học, streak, điểm yếu',
+                        style: AppTheme.body(size: 11, color: AppColors.mutedPurple)),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          TextField(
+            controller: emailController,
+            keyboardType: TextInputType.emailAddress,
+            decoration: const InputDecoration(
+              hintText: 'email@example.com',
+              prefixIcon: Icon(Icons.email_outlined, color: AppColors.mutedPurple),
+            ),
+            onChanged: (_) => onEmailSaved(),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              _freqChip('never', 'Tắt', frequency, onFrequencyChanged),
+              const SizedBox(width: 8),
+              _freqChip('weekly', 'Hàng tuần', frequency, onFrequencyChanged),
+            ],
+          ),
+          if (frequency == 'weekly' && emailController.text.trim().isEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 6),
+              child: Text('⚠️ Nhập email để nhận báo cáo',
+                  style: AppTheme.body(size: 11, color: AppColors.red)),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _freqChip(String value, String label, String selected, ValueChanged<String> onTap) {
+    final isOn = value == selected;
+    return GestureDetector(
+      onTap: () => onTap(value),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: isOn ? AppColors.pink : AppColors.white,
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(color: isOn ? AppColors.pink : AppColors.divider, width: 2),
+        ),
+        child: Text(label,
+            style: AppTheme.body(size: 12, color: isOn ? AppColors.white : AppColors.deepPurple, weight: FontWeight.w800)),
       ),
     );
   }
