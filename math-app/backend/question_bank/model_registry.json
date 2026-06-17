@@ -1,0 +1,166 @@
+{
+  "providers": {
+    "ollama-cloud": {
+      "base_url": "https://ollama.com/v1",
+      "env_key": "OLLAMA_CLOUD_API_KEY",
+      "api_style": "openai"
+    },
+    "local-ollama": {
+      "base_url": "http://localhost:11434/v1",
+      "env_key": null,
+      "api_style": "openai"
+    }
+  },
+  "models": [
+    {
+      "id": "gemma3:4b",
+      "provider": "ollama-cloud",
+      "cost_input_per_1m": 0.0,
+      "cost_output_per_1m": 0.0,
+      "speed": "fast",
+      "vietnamese_quality": "acceptable",
+      "max_tokens": 4096,
+      "strengths": ["short_form", "fast", "low_memory"],
+      "context_length": 32768
+    },
+    {
+      "id": "gemma3:12b",
+      "provider": "ollama-cloud",
+      "cost_input_per_1m": 0.0,
+      "cost_output_per_1m": 0.0,
+      "speed": "fast",
+      "vietnamese_quality": "good",
+      "max_tokens": 8192,
+      "strengths": ["creative", "multilingual", "short_form"],
+      "context_length": 32768
+    },
+    {
+      "id": "gemma3:27b",
+      "provider": "ollama-cloud",
+      "cost_input_per_1m": 0.0,
+      "cost_output_per_1m": 0.0,
+      "speed": "medium",
+      "vietnamese_quality": "good",
+      "max_tokens": 8192,
+      "strengths": ["creative", "multilingual", "long_context"],
+      "context_length": 131072
+    },
+    {
+      "id": "glm-5.1",
+      "provider": "ollama-cloud",
+      "cost_input_per_1m": 0.0,
+      "cost_output_per_1m": 0.0,
+      "speed": "fast",
+      "vietnamese_quality": "excellent",
+      "max_tokens": 65536,
+      "strengths": ["structured", "chinese_vietnamese", "creative"],
+      "context_length": 131072
+    },
+    {
+      "id": "kimi-k2.6",
+      "provider": "ollama-cloud",
+      "cost_input_per_1m": 0.0,
+      "cost_output_per_1m": 0.0,
+      "speed": "medium",
+      "vietnamese_quality": "excellent",
+      "max_tokens": 65536,
+      "strengths": ["long_context", "multilingual", "reasoning", "creative"],
+      "context_length": 262144
+    },
+    {
+      "id": "kimi-k2.5",
+      "provider": "ollama-cloud",
+      "cost_input_per_1m": 0.0,
+      "cost_output_per_1m": 0.0,
+      "speed": "medium",
+      "vietnamese_quality": "excellent",
+      "max_tokens": 65536,
+      "strengths": ["long_context", "multilingual", "reasoning"],
+      "context_length": 262144
+    },
+    {
+      "id": "deepseek-v3.2",
+      "provider": "ollama-cloud",
+      "cost_input_per_1m": 0.0,
+      "cost_output_per_1m": 0.0,
+      "speed": "fast",
+      "vietnamese_quality": "good",
+      "max_tokens": 8000,
+      "strengths": ["coding", "structured", "fast"],
+      "context_length": 162816
+    },
+    {
+      "id": "qwen3-coder:480b",
+      "provider": "ollama-cloud",
+      "cost_input_per_1m": 0.0,
+      "cost_output_per_1m": 0.0,
+      "speed": "slow",
+      "vietnamese_quality": "good",
+      "max_tokens": 32000,
+      "strengths": ["coding", "chinese", "reasoning"],
+      "context_length": 256000
+    },
+    {
+      "id": "llama3.2-vision",
+      "provider": "local-ollama",
+      "cost_input_per_1m": 0.0,
+      "cost_output_per_1m": 0.0,
+      "speed": "fast",
+      "vietnamese_quality": "acceptable",
+      "max_tokens": 4096,
+      "strengths": ["vision", "fast", "local"],
+      "context_length": 32768
+    },
+    {
+      "id": "qwen2.5-coder",
+      "provider": "local-ollama",
+      "cost_input_per_1m": 0.0,
+      "cost_output_per_1m": 0.0,
+      "speed": "fast",
+      "vietnamese_quality": "good",
+      "max_tokens": 8192,
+      "strengths": ["coding", "chinese", "fast", "local"],
+      "context_length": 32768
+    },
+    {
+      "id": "nomic-embed-text",
+      "provider": "local-ollama",
+      "cost_input_per_1m": 0.0,
+      "cost_output_per_1m": 0.0,
+      "speed": "fast",
+      "vietnamese_quality": "poor",
+      "max_tokens": 512,
+      "strengths": ["embedding", "local"],
+      "context_length": 2048
+    }
+  ],
+  "agents": {
+    "hint_generator": {
+      "description": "Generates short gentle hints (≤20 words) for children after wrong answers",
+      "required_strengths": ["short_form", "multilingual"],
+      "preferred_vietnamese_quality": "good",
+      "max_output_tokens": 100,
+      "priority": ["speed", "cost", "vietnamese_quality"],
+      "candidates": ["gemma3:12b", "glm-5.1", "kimi-k2.5", "deepseek-v3.2"],
+      "fallback": "anthropic:claude-haiku-4-5"
+    },
+    "word_problem_wrapper": {
+      "description": "Converts bare math equations into Vietnamese real-world story problems",
+      "required_strengths": ["creative", "multilingual"],
+      "preferred_vietnamese_quality": "excellent",
+      "max_output_tokens": 300,
+      "priority": ["vietnamese_quality", "cost", "speed"],
+      "candidates": ["glm-5.1", "kimi-k2.6", "gemma3:27b", "kimi-k2.5"],
+      "fallback": "anthropic:claude-sonnet-4"
+    },
+    "fallback": {
+      "description": "Generic fallback when no specialized model is available",
+      "required_strengths": [],
+      "preferred_vietnamese_quality": "acceptable",
+      "max_output_tokens": 500,
+      "priority": ["cost", "speed"],
+      "candidates": ["gemma3:4b", "llama3.2-vision", "qwen2.5-coder"],
+      "fallback": null
+    }
+  }
+}

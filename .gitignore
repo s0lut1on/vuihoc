@@ -39,7 +39,6 @@ math-app/frontend/build/
 
 # Rust / Cargo build artifacts
 math-app/backend/target/
-**/model_registry.json
 
 # Dart generated localizations (regen via flutter gen-l10n)
 math-app/frontend/lib/l10n/app_localizations.dart
