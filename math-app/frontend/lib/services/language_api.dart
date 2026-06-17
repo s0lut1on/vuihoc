@@ -1,15 +1,18 @@
 import 'api_service.dart';
 import 'package:hive/hive.dart';
+import 'cache_helper.dart';
 import 'connectivity_service.dart';
 
 class LanguageApi {
   static final _api = ApiService.withBaseUrl('/api/language');
   static Box _offlineCache() => Hive.box('offline_cache');
 
-  static Future<List<Map<String, dynamic>>> getCurriculum({int grade = 1, String? subjectId}) async {
+  static Future<List<Map<String, dynamic>>> getCurriculum(
+      {int grade = 1, String? subjectId}) async {
     final cacheKey = 'curriculum:${subjectId ?? 'all'}:$grade';
     try {
-      final queryParams = 'grade=$grade${subjectId != null ? '&subject_id=$subjectId' : ''}';
+      final queryParams =
+          'grade=$grade${subjectId != null ? '&subject_id=$subjectId' : ''}';
       final response = await _api.get('/curriculum?$queryParams');
       final data = response['data'] as Map<String, dynamic>?;
       final curriculum = data?['curriculum'] as List<dynamic>? ?? [];
@@ -27,24 +30,40 @@ class LanguageApi {
     }
   }
 
-  static Future<List<Map<String, dynamic>>> getSubSubjects({required String subjectId, int grade = 1}) async {
-    try {
-      final response = await _api.get('/sub-subjects?subject_id=$subjectId&grade=$grade');
-      final data = response['data'] as Map<String, dynamic>?;
-      final subSubjects = data?['sub_subjects'] as List<dynamic>? ?? [];
-      return subSubjects.map((e) => e as Map<String, dynamic>).toList();
-    } catch (_) {
-      return [];
-    }
+  static const _lessonCacheTtl = Duration(days: 7);
+  static const _subSubjectsCacheTtl = Duration(days: 7);
+
+  static Future<List<Map<String, dynamic>>> getSubSubjects(
+      {required String subjectId, int grade = 1}) async {
+    final result = await withCache<List<Map<String, dynamic>>>(
+      key: 'subsubjects:$subjectId:$grade',
+      ttl: _subSubjectsCacheTtl,
+      network: () async {
+        final response =
+            await _api.get('/sub-subjects?subject_id=$subjectId&grade=$grade');
+        final data = response['data'] as Map<String, dynamic>?;
+        final subSubjects = data?['sub_subjects'] as List<dynamic>? ?? [];
+        return subSubjects.map((e) => e as Map<String, dynamic>).toList();
+      },
+    );
+    return result.value ?? <Map<String, dynamic>>[];
   }
 
   static Future<Map<String, dynamic>?> getLesson(String lessonId) async {
-    try {
-      final response = await _api.get('/lesson/$lessonId');
-      return response['data'] as Map<String, dynamic>?;
-    } catch (_) {
-      return null;
-    }
+    // Lesson data is a Map that may legitimately be null when the backend
+    // returns nothing for an unknown id. We treat "no data" as "no cache hit"
+    // and bubble that up to the caller unchanged.
+    final result = await withCache<Map<String, dynamic>>(
+      key: 'lesson:$lessonId',
+      ttl: _lessonCacheTtl,
+      network: () async {
+        final response = await _api.get('/lesson/$lessonId');
+        return response['data'] as Map<String, dynamic>? ?? const {};
+      },
+    );
+    final v = result.value;
+    if (v == null || v.isEmpty) return null;
+    return v;
   }
 
   static Future<bool> validateText(String exerciseId, String userText) async {
@@ -93,7 +112,8 @@ class LanguageApi {
     box.put(key, {'type': type, ...data});
   }
 
-  static Future<Map<String, dynamic>?> getDetailedProgress({required String userId, String? subjectId}) async {
+  static Future<Map<String, dynamic>?> getDetailedProgress(
+      {required String userId, String? subjectId}) async {
     try {
       final query = subjectId != null ? '?subject_id=$subjectId' : '';
       final response = await _api.get('/progress/detailed/$userId$query');

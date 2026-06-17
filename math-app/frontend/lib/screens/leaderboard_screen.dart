@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import '../core/app_colors.dart';
 import '../core/app_theme.dart';
 import '../models/leaderboard_model.dart';
+import '../models/leaderboard_privacy.dart';
+import '../providers/app_providers.dart';
 import '../services/user_api.dart';
 import '../widgets/bubble_button.dart';
 import '../widgets/kid_card.dart';
@@ -68,17 +70,22 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
         child: Column(
           children: [
             _header(context),
+            _buildThisWeekCard(),
             _buildJoinCard(),
             Expanded(
               child: _loading
-                  ? const Center(child: CircularProgressIndicator(color: AppColors.pink))
+                  ? const Center(
+                      child: CircularProgressIndicator(color: AppColors.pink))
                   : _entries.isEmpty
-                      ? Center(child: Text('Chưa có dữ liệu bảng xếp hạng',
-                          style: AppTheme.display(size: 20, color: AppColors.mutedPurple)))
+                      ? Center(
+                          child: Text('Chưa có dữ liệu bảng xếp hạng',
+                              style: AppTheme.display(
+                                  size: 20, color: AppColors.mutedPurple)))
                       : ListView.builder(
                           padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
                           itemCount: _entries.length,
-                          itemBuilder: (context, i) => _Row(entry: _entries[i], rank: i + 1),
+                          itemBuilder: (context, i) =>
+                              _Row(entry: _entries[i], rank: i + 1),
                         ),
             ),
           ],
@@ -91,7 +98,10 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
       decoration: const BoxDecoration(
-        gradient: LinearGradient(colors: [AppColors.pinkSoft, AppColors.cream], begin: Alignment.topLeft, end: Alignment.bottomRight),
+        gradient: LinearGradient(
+            colors: [AppColors.pinkSoft, AppColors.cream],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight),
         borderRadius: BorderRadius.vertical(bottom: Radius.circular(28)),
       ),
       child: Column(
@@ -99,9 +109,12 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
           Row(
             children: [
               _circleBtn(Icons.arrow_back, () {
-                if (widget.onBack != null) widget.onBack!();
-                else if (ctx.canPop()) ctx.pop();
-                else ctx.go('/home');
+                if (widget.onBack != null)
+                  widget.onBack!();
+                else if (ctx.canPop())
+                  ctx.pop();
+                else
+                  ctx.go('/home');
               }),
               const Spacer(),
               const BigMascot(size: 48, emoji: '🏆'),
@@ -123,12 +136,57 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 40, height: 40,
+        width: 40,
+        height: 40,
         decoration: BoxDecoration(
-          color: AppColors.white, shape: BoxShape.circle,
-          boxShadow: const [BoxShadow(color: AppColors.pinkSoft, offset: Offset(0, 3), blurRadius: 0)],
+          color: AppColors.white,
+          shape: BoxShape.circle,
+          boxShadow: const [
+            BoxShadow(
+                color: AppColors.pinkSoft, offset: Offset(0, 3), blurRadius: 0)
+          ],
         ),
         child: Icon(icon, color: AppColors.deepPurple, size: 20),
+      ),
+    );
+  }
+
+  Widget _buildThisWeekCard() {
+    if (_loading) return const SizedBox.shrink();
+    if (_entries.isEmpty) return const SizedBox.shrink();
+    final myId = ref.read(userIdProvider) ?? '';
+    final rank = computeRank(
+      leaderboard: _entries.map((e) => {'id': e.id, 'weekly_stars': e.weeklyStars}).toList(),
+      userId: myId,
+    );
+    if (rank == null) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+      child: KidCard(
+        gradient: const [AppColors.pinkSoft, AppColors.cream],
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            const Text('🏆', style: TextStyle(fontSize: 36)),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Tuần này của bé', style: AppTheme.body(size: 12, color: AppColors.mutedPurple)),
+                  Text(
+                    'Top ${rank.percentile}%',
+                    style: AppTheme.display(size: 28, color: AppColors.pink),
+                  ),
+                  Text(
+                    'Hạng ${rank.rank} / ${rank.totalUsers} bạn cùng lớp 🎉',
+                    style: AppTheme.body(size: 12, color: AppColors.mutedPurple),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -158,13 +216,17 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
                 BubbleButton(
                   label: 'Tham gia',
                   emoji: '🚀',
-                  height: 44, minWidth: 120, fontSize: 14,
+                  height: 44,
+                  minWidth: 120,
+                  fontSize: 14,
                   onPressed: _join,
                 ),
                 const SizedBox(width: 8),
                 BubbleButton.secondary(
                   label: 'Rời lớp',
-                  height: 44, minWidth: 100, fontSize: 14,
+                  height: 44,
+                  minWidth: 100,
+                  fontSize: 14,
                   onPressed: _leave,
                 ),
               ],
@@ -185,10 +247,21 @@ class _Row extends StatelessWidget {
     Color medal;
     String medalStr;
     switch (rank) {
-      case 1: medal = const Color(0xFFFFD93D); medalStr = '🥇'; break;
-      case 2: medal = const Color(0xFFD1D5DB); medalStr = '🥈'; break;
-      case 3: medal = const Color(0xFFCD7F32); medalStr = '🥉'; break;
-      default: medal = AppColors.divider; medalStr = '$rank';
+      case 1:
+        medal = const Color(0xFFFFD93D);
+        medalStr = '🥇';
+        break;
+      case 2:
+        medal = const Color(0xFFD1D5DB);
+        medalStr = '🥈';
+        break;
+      case 3:
+        medal = const Color(0xFFCD7F32);
+        medalStr = '🥉';
+        break;
+      default:
+        medal = AppColors.divider;
+        medalStr = '$rank';
     }
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
@@ -197,7 +270,8 @@ class _Row extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              width: 44, height: 44,
+              width: 44,
+              height: 44,
               alignment: Alignment.center,
               decoration: BoxDecoration(
                 color: medal.withValues(alpha: 0.25),
@@ -215,10 +289,11 @@ class _Row extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(entry.name, style: AppTheme.display(size: 16)),
+                  Text(anonymizeName(entry.name), style: AppTheme.display(size: 16)),
                   const SizedBox(height: 2),
                   Text('${entry.weeklyStars} ⭐ tuần này',
-                      style: AppTheme.body(size: 12, color: AppColors.mutedPurple)),
+                      style: AppTheme.body(
+                          size: 12, color: AppColors.mutedPurple)),
                 ],
               ),
             ),

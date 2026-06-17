@@ -13,6 +13,7 @@ import '../widgets/kid_card.dart';
 import '../widgets/kid_nav_bar.dart';
 import '../widgets/mascot.dart';
 import '../widgets/subject_tile.dart';
+import '../widgets/streak_badge.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -34,7 +35,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           children: [
             KidNavBar(
               activeLabel: 'Chủ đề',
-              trailing: const _NavRight(),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  StreakBadge(
+                    days: (streakAsync.valueOrNull?['current_streak'] as int?) ?? 0,
+                    onTap: () => context.go('/achievements'),
+                  ),
+                  const SizedBox(width: 8),
+                  const _NavRight(),
+                ],
+              ),
             ),
             Expanded(
               child: SingleChildScrollView(
@@ -51,7 +62,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           children: [
                             Expanded(flex: 2, child: continueCard),
                             const SizedBox(width: 16),
-                            Expanded(child: _StreakCard(streakAsync.valueOrNull)),
+                            Expanded(
+                                child: _StreakCard(streakAsync.valueOrNull)),
                             const SizedBox(width: 16),
                             Expanded(child: _StarsCard(user)),
                           ],
@@ -63,7 +75,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           const SizedBox(height: 12),
                           Row(
                             children: [
-                              Expanded(child: _StreakCard(streakAsync.valueOrNull)),
+                              Expanded(
+                                  child: _StreakCard(streakAsync.valueOrNull)),
                               const SizedBox(width: 12),
                               Expanded(child: _StarsCard(user)),
                             ],
@@ -76,14 +89,28 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     LayoutBuilder(builder: (context, c) {
                       final wide = c.maxWidth > 900;
                       final cards = [
-                        _Stat(emoji: '🏆', value: '3',
+                        _Stat(
+                            emoji: '🏆',
+                            value: '3',
                             label: l10n.parentDashboardSubjectMath,
                             valueColor: AppColors.purple,
-                            gradient: const [AppColors.cream, AppColors.pinkSoft]),
-                        _Stat(emoji: '💎', value: '45', label: 'Viên ngọc',
+                            gradient: const [
+                              AppColors.cream,
+                              AppColors.pinkSoft
+                            ]),
+                        _Stat(
+                            emoji: '💎',
+                            value: '45',
+                            label: 'Viên ngọc',
                             valueColor: AppColors.green,
-                            gradient: const [AppColors.greenSoft, AppColors.cream]),
-                        _Stat(emoji: '⏱️', value: '2.5h', label: 'Tuần này',
+                            gradient: const [
+                              AppColors.greenSoft,
+                              AppColors.cream
+                            ]),
+                        _Stat(
+                            emoji: '⏱️',
+                            value: '2.5h',
+                            label: 'Tuần này',
                             valueColor: const Color(0xFF2563EB),
                             gradient: const [Color(0xFFDBEAFE), AppColors.sky]),
                       ];
@@ -91,7 +118,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         children: [
                           for (var i = 0; i < cards.length; i++) ...[
                             Expanded(child: cards[i]),
-                            if (i != cards.length - 1) const SizedBox(width: 12),
+                            if (i != cards.length - 1)
+                              const SizedBox(width: 12),
                           ],
                         ],
                       );
@@ -99,26 +127,35 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     const SizedBox(height: 24),
                     Row(
                       children: [
-                        Text('${l10n.homeSubjects} 🎯', style: AppTheme.display(size: 26)),
+                        Text('${l10n.homeSubjects} 🎯',
+                            style: AppTheme.display(size: 26)),
                         const Spacer(),
                         PopupMenuButton<String>(
-                          icon: const Icon(Icons.emoji_events, color: AppColors.purple),
+                          icon: const Icon(Icons.emoji_events,
+                              color: AppColors.purple),
                           onSelected: (v) {
-                            if (v == 'achievements') context.go('/achievements');
+                            if (v == 'achievements')
+                              context.go('/achievements');
                             if (v == 'leaderboard') context.go('/leaderboard');
                             if (v == 'profile') context.go('/profile');
                           },
                           itemBuilder: (_) => const [
-                            PopupMenuItem(value: 'achievements', child: Text('Huy chương')),
-                            PopupMenuItem(value: 'leaderboard', child: Text('Bảng xếp hạng')),
-                            PopupMenuItem(value: 'profile', child: Text('Hồ sơ')),
+                            PopupMenuItem(
+                                value: 'achievements',
+                                child: Text('Huy chương')),
+                            PopupMenuItem(
+                                value: 'leaderboard',
+                                child: Text('Bảng xếp hạng')),
+                            PopupMenuItem(
+                                value: 'profile', child: Text('Hồ sơ')),
                           ],
                         ),
                       ],
                     ),
                     const SizedBox(height: 12),
                     LayoutBuilder(builder: (context, c) {
-                      final cols = c.maxWidth > 1100 ? 4 : (c.maxWidth > 700 ? 3 : 2);
+                      final cols =
+                          c.maxWidth > 1100 ? 4 : (c.maxWidth > 700 ? 3 : 2);
                       return _subjectsGrid(cols);
                     }),
                   ],
@@ -146,14 +183,62 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   List<Widget> _buildSubjects() {
     return [
-      SubjectTile(id: 'numbers', emoji: '🔢', nameVi: 'Số học', nameEn: 'Numbers', lessonCount: 24, onTap: () => context.go('/subject/numbers')),
-      SubjectTile(id: 'geometry', emoji: '📐', nameVi: 'Hình học', nameEn: 'Geometry', lessonCount: 18, onTap: () => context.go('/subject/geometry')),
-      SubjectTile(id: 'measurement', emoji: '📏', nameVi: 'Đo lường', nameEn: 'Measurement', lessonCount: 20, onTap: () => context.go('/subject/measurement')),
-      SubjectTile(id: 'logic', emoji: '🧩', nameVi: 'Tư duy', nameEn: 'Logic', lessonCount: 15, onTap: () => context.go('/subject/logic')),
-      SubjectTile(id: 'vietnamese', emoji: '🇻🇳', nameVi: 'Tiếng Việt', nameEn: 'Vietnamese', lessonCount: 40, onTap: () => context.go('/subject/vietnamese')),
-      SubjectTile(id: 'english', emoji: '🇬🇧', nameVi: 'Tiếng Anh', nameEn: 'English', lessonCount: 40, onTap: () => context.go('/subject/english')),
-      SubjectTile(id: 'science', emoji: '🔒', nameVi: 'Sắp ra mắt', nameEn: 'Coming soon', lessonCount: 0, locked: true),
-      SubjectTile(id: 'music', emoji: '🔒', nameVi: 'Sắp ra mắt', nameEn: 'Coming soon', lessonCount: 0, locked: true),
+      SubjectTile(
+          id: 'numbers',
+          emoji: '🔢',
+          nameVi: 'Số học',
+          nameEn: 'Numbers',
+          lessonCount: 24,
+          onTap: () => context.go('/subject/numbers')),
+      SubjectTile(
+          id: 'geometry',
+          emoji: '📐',
+          nameVi: 'Hình học',
+          nameEn: 'Geometry',
+          lessonCount: 18,
+          onTap: () => context.go('/subject/geometry')),
+      SubjectTile(
+          id: 'measurement',
+          emoji: '📏',
+          nameVi: 'Đo lường',
+          nameEn: 'Measurement',
+          lessonCount: 20,
+          onTap: () => context.go('/subject/measurement')),
+      SubjectTile(
+          id: 'logic',
+          emoji: '🧩',
+          nameVi: 'Tư duy',
+          nameEn: 'Logic',
+          lessonCount: 15,
+          onTap: () => context.go('/subject/logic')),
+      SubjectTile(
+          id: 'vietnamese',
+          emoji: '🇻🇳',
+          nameVi: 'Tiếng Việt',
+          nameEn: 'Vietnamese',
+          lessonCount: 40,
+          onTap: () => context.go('/subject/vietnamese')),
+      SubjectTile(
+          id: 'english',
+          emoji: '🇬🇧',
+          nameVi: 'Tiếng Anh',
+          nameEn: 'English',
+          lessonCount: 40,
+          onTap: () => context.go('/subject/english')),
+      SubjectTile(
+          id: 'science',
+          emoji: '🔒',
+          nameVi: 'Sắp ra mắt',
+          nameEn: 'Coming soon',
+          lessonCount: 0,
+          locked: true),
+      SubjectTile(
+          id: 'music',
+          emoji: '🔒',
+          nameVi: 'Sắp ra mắt',
+          nameEn: 'Coming soon',
+          lessonCount: 0,
+          locked: true),
     ];
   }
 }
@@ -205,10 +290,12 @@ class _ContinueCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('${user?.name ?? 'Bé An'} ơi!', style: AppTheme.display(size: 22)),
+                Text('${user?.name ?? 'Bé An'} ơi!',
+                    style: AppTheme.display(size: 22)),
                 const SizedBox(height: 4),
                 Text('Tiếp tục: Phép cộng 2 chữ số',
-                    style: AppTheme.body(size: 14, color: AppColors.mutedPurple)),
+                    style:
+                        AppTheme.body(size: 14, color: AppColors.mutedPurple)),
                 const SizedBox(height: 8),
                 BubbleButton(
                   label: 'Học tiếp thôi! 🚀',
@@ -233,7 +320,9 @@ class _StreakCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final days = (data?['current_streak'] as int?) ?? 0;
     return _Stat(
-      emoji: '🔥', value: '$days', label: 'Ngày liên tiếp',
+      emoji: '🔥',
+      value: '$days',
+      label: 'Ngày liên tiếp',
       valueColor: AppColors.red,
     );
   }
@@ -245,7 +334,9 @@ class _StarsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _Stat(
-      emoji: '⭐', value: '${user?.totalStars ?? 0}', label: 'Sao tích lũy',
+      emoji: '⭐',
+      value: '${user?.totalStars ?? 0}',
+      label: 'Sao tích lũy',
       valueColor: AppColors.orange,
     );
   }
@@ -272,9 +363,12 @@ class _Stat extends StatelessWidget {
         children: [
           Text(emoji, style: const TextStyle(fontSize: 36)),
           const SizedBox(height: 4),
-          Text(value, style: AppTheme.display(size: 30, color: valueColor ?? AppColors.pink)),
+          Text(value,
+              style: AppTheme.display(
+                  size: 30, color: valueColor ?? AppColors.pink)),
           const SizedBox(height: 2),
-          Text(label, textAlign: TextAlign.center,
+          Text(label,
+              textAlign: TextAlign.center,
               style: AppTheme.body(size: 12, color: AppColors.mutedPurple)),
         ],
       ),
