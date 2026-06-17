@@ -6,6 +6,7 @@ import '../core/app_theme.dart';
 import '../l10n/app_localizations.dart';
 import '../providers/app_providers.dart';
 import '../services/language_api.dart';
+import '../services/local_storage_service.dart';
 import '../widgets/kid_card.dart';
 import '../widgets/kid_progress_bar.dart';
 import '../widgets/language_switcher.dart';
@@ -174,13 +175,20 @@ class _ParentDashboardScreenState extends ConsumerState<ParentDashboardScreen> {
         GestureDetector(
           onTap: () => context.go('/home'),
           child: Container(
-            width: 40, height: 40,
+            width: 40,
+            height: 40,
             decoration: BoxDecoration(
               color: AppColors.white,
               shape: BoxShape.circle,
-              boxShadow: const [BoxShadow(color: AppColors.pinkSoft, offset: Offset(0, 3), blurRadius: 0)],
+              boxShadow: const [
+                BoxShadow(
+                    color: AppColors.pinkSoft,
+                    offset: Offset(0, 3),
+                    blurRadius: 0)
+              ],
             ),
-            child: const Icon(Icons.close, color: AppColors.deepPurple, size: 20),
+            child:
+                const Icon(Icons.close, color: AppColors.deepPurple, size: 20),
           ),
         ),
       ],
@@ -201,13 +209,13 @@ class _ParentDashboardScreenState extends ConsumerState<ParentDashboardScreen> {
     return Row(
       children: [
         Expanded(
-          child: _statCard(
-              '📚', '$totalCompleted', l10n.parentDashboardLessonsLearned, Colors.blue),
+          child: _statCard('📚', '$totalCompleted',
+              l10n.parentDashboardLessonsLearned, Colors.blue),
         ),
         const SizedBox(width: 16),
         Expanded(
-          child: _statCard(
-              '⭐', '$totalStars', l10n.parentDashboardStarsEarned, Colors.amber),
+          child: _statCard('⭐', '$totalStars', l10n.parentDashboardStarsEarned,
+              Colors.amber),
         ),
         const SizedBox(width: 16),
         Expanded(
@@ -280,11 +288,14 @@ class _ParentDashboardScreenState extends ConsumerState<ParentDashboardScreen> {
                   color: AppColors.darkPurple),
             ),
             const SizedBox(height: 16),
-            _progressRow(l10n.parentDashboardSubjectMath, 0.0, AppColors.primaryPink),
+            _progressRow(
+                l10n.parentDashboardSubjectMath, 0.0, AppColors.primaryPink),
             const SizedBox(height: 12),
-            _progressRow(l10n.parentDashboardSubjectVietnamese, 0.0, Colors.red),
+            _progressRow(
+                l10n.parentDashboardSubjectVietnamese, 0.0, Colors.red),
             const SizedBox(height: 12),
-            _progressRow(l10n.parentDashboardSubjectEnglish, 0.0, Colors.indigo),
+            _progressRow(
+                l10n.parentDashboardSubjectEnglish, 0.0, Colors.indigo),
           ],
         ),
       );
@@ -325,7 +336,8 @@ class _ParentDashboardScreenState extends ConsumerState<ParentDashboardScreen> {
                   final ssLabel = isVi
                       ? (ss['name_vi'] as String? ?? '')
                       : (ss['name_en'] as String? ?? '');
-                  final ssColor = _parseColor(ss['color'] as String? ?? '#FFEBEE');
+                  final ssColor =
+                      _parseColor(ss['color'] as String? ?? '#FFEBEE');
                   final ssPct = ss['completion_pct'] as double? ?? 0.0;
                   return Padding(
                     padding: const EdgeInsets.only(left: 16, bottom: 8),
@@ -384,6 +396,7 @@ class _ParentDashboardScreenState extends ConsumerState<ParentDashboardScreen> {
   }
 
   Widget _buildSettings(AppLocalizations l10n) {
+    final unlockEnabled = ref.watch(unlockAnimationsEnabledProvider);
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -407,6 +420,15 @@ class _ParentDashboardScreenState extends ConsumerState<ParentDashboardScreen> {
               l10n.parentDashboardStudyTimeValue),
           _settingTile(
               Icons.notifications, l10n.parentDashboardNotifications, 'On'),
+          const Divider(),
+          // Unlock-anim toggle (Plan 8)
+          _UnlockAnimationToggle(
+            enabled: unlockEnabled,
+            onChanged: (v) {
+              ref.read(unlockAnimationsEnabledProvider.notifier).state = v;
+              LocalStorageService.saveUnlockAnimationsEnabled(v);
+            },
+          ),
           _settingTile(Icons.logout, l10n.parentDashboardLogout, ''),
         ],
       ),
@@ -427,6 +449,41 @@ class _ParentDashboardScreenState extends ConsumerState<ParentDashboardScreen> {
             )
           : const Icon(Icons.chevron_right, color: AppColors.mutedText),
       contentPadding: EdgeInsets.zero,
+    );
+  }
+}
+
+class _UnlockAnimationToggle extends StatelessWidget {
+  final bool enabled;
+  final ValueChanged<bool> onChanged;
+  const _UnlockAnimationToggle(
+      {required this.enabled, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          const Text('🎉', style: TextStyle(fontSize: 22)),
+          const SizedBox(width: 8),
+          const Expanded(
+            child: Text(
+              'Hiệu ứng ăn mừng khi mở khóa',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: AppColors.darkPurple,
+              ),
+            ),
+          ),
+          Switch(
+            value: enabled,
+            activeThumbColor: AppColors.primaryPink,
+            onChanged: onChanged,
+          ),
+        ],
+      ),
     );
   }
 }

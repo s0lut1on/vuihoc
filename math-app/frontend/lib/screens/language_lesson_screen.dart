@@ -28,7 +28,8 @@ class LanguageLessonScreen extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<LanguageLessonScreen> createState() => _LanguageLessonScreenState();
+  ConsumerState<LanguageLessonScreen> createState() =>
+      _LanguageLessonScreenState();
 }
 
 class _LanguageLessonScreenState extends ConsumerState<LanguageLessonScreen> {
@@ -40,7 +41,8 @@ class _LanguageLessonScreenState extends ConsumerState<LanguageLessonScreen> {
   int _wrongCountThisExercise = 0;
   String _hintText = '';
   final List<String> _answerHistory = [];
-  final Stream<bool> _connectivityStream = ConnectivityService().onConnectivityChanged;
+  final Stream<bool> _connectivityStream =
+      ConnectivityService().onConnectivityChanged;
 
   @override
   void initState() {
@@ -51,7 +53,11 @@ class _LanguageLessonScreenState extends ConsumerState<LanguageLessonScreen> {
   Future<void> _loadLesson() async {
     try {
       final lesson = await LanguageApi.getLesson(widget.lessonId);
-      if (mounted) setState(() { _lesson = lesson; _loading = false; });
+      if (mounted)
+        setState(() {
+          _lesson = lesson;
+          _loading = false;
+        });
     } catch (_) {
       if (mounted) setState(() => _loading = false);
     }
@@ -89,8 +95,9 @@ class _LanguageLessonScreenState extends ConsumerState<LanguageLessonScreen> {
           StreamBuilder<bool>(
             stream: _connectivityStream,
             initialData: true,
-            builder: (context, snapshot) =>
-                snapshot.data == false ? const OfflineBanner() : const SizedBox.shrink(),
+            builder: (context, snapshot) => snapshot.data == false
+                ? const OfflineBanner()
+                : const SizedBox.shrink(),
           ),
           Expanded(
             child: SafeArea(
@@ -104,7 +111,8 @@ class _LanguageLessonScreenState extends ConsumerState<LanguageLessonScreen> {
     );
   }
 
-  Widget _buildMobileLayout(Map<String, dynamic> currentExercise, int totalExercises) {
+  Widget _buildMobileLayout(
+      Map<String, dynamic> currentExercise, int totalExercises) {
     final locale = ref.watch(localeProvider);
     final titleVi = _lesson!['title_vi'] as String? ?? '';
     final titleEn = _lesson!['title_en'] as String? ?? '';
@@ -119,7 +127,8 @@ class _LanguageLessonScreenState extends ConsumerState<LanguageLessonScreen> {
           const SizedBox(height: 12),
           KidProgressBar(
             value: (_currentExercise + 1) / totalExercises,
-            color: AppColors.purple, height: 12,
+            color: AppColors.purple,
+            height: 12,
           ),
           const SizedBox(height: 12),
           KidCard(
@@ -137,7 +146,8 @@ class _LanguageLessonScreenState extends ConsumerState<LanguageLessonScreen> {
           if (_showHint) _buildHintBanner(currentExercise, locale.languageCode),
           const SizedBox(height: 12),
           Expanded(
-            child: ExerciseDispatcher(exercise: currentExercise, onAnswered: _onAnswered),
+            child: ExerciseDispatcher(
+                exercise: currentExercise, onAnswered: _onAnswered),
           ),
         ],
       ),
@@ -150,12 +160,20 @@ class _LanguageLessonScreenState extends ConsumerState<LanguageLessonScreen> {
         GestureDetector(
           onTap: () => context.go('/home'),
           child: Container(
-            width: 40, height: 40,
+            width: 40,
+            height: 40,
             decoration: BoxDecoration(
-              color: AppColors.white, shape: BoxShape.circle,
-              boxShadow: const [BoxShadow(color: AppColors.pinkSoft, offset: Offset(0, 3), blurRadius: 0)],
+              color: AppColors.white,
+              shape: BoxShape.circle,
+              boxShadow: const [
+                BoxShadow(
+                    color: AppColors.pinkSoft,
+                    offset: Offset(0, 3),
+                    blurRadius: 0)
+              ],
             ),
-            child: const Icon(Icons.close, color: AppColors.deepPurple, size: 20),
+            child:
+                const Icon(Icons.close, color: AppColors.deepPurple, size: 20),
           ),
         ),
         const SizedBox(width: 12),
@@ -166,7 +184,12 @@ class _LanguageLessonScreenState extends ConsumerState<LanguageLessonScreen> {
           decoration: BoxDecoration(
             color: AppColors.white,
             borderRadius: BorderRadius.circular(999),
-            boxShadow: const [BoxShadow(color: AppColors.pinkSoft, offset: Offset(0, 3), blurRadius: 0)],
+            boxShadow: const [
+              BoxShadow(
+                  color: AppColors.pinkSoft,
+                  offset: Offset(0, 3),
+                  blurRadius: 0)
+            ],
           ),
           child: Text('${_currentExercise + 1} / $total',
               style: AppTheme.display(size: 14, color: AppColors.pink)),
@@ -178,7 +201,9 @@ class _LanguageLessonScreenState extends ConsumerState<LanguageLessonScreen> {
   Widget _buildHintBanner(Map<String, dynamic> ex, String lang) {
     final text = _hintText.isNotEmpty
         ? _hintText
-        : (lang == 'en' ? (ex['hint_en'] as String? ?? '') : (ex['hint_vi'] as String? ?? ''));
+        : (lang == 'en'
+            ? (ex['hint_en'] as String? ?? '')
+            : (ex['hint_vi'] as String? ?? ''));
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -191,14 +216,19 @@ class _LanguageLessonScreenState extends ConsumerState<LanguageLessonScreen> {
           const Text('💡', style: TextStyle(fontSize: 22)),
           const SizedBox(width: 8),
           Expanded(
-            child: Text(text, style: AppTheme.body(size: 13, color: AppColors.deepPurple, weight: FontWeight.w800)),
+            child: Text(text,
+                style: AppTheme.body(
+                    size: 13,
+                    color: AppColors.deepPurple,
+                    weight: FontWeight.w800)),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildDesktopLayout(Map<String, dynamic> currentExercise, int totalExercises) {
+  Widget _buildDesktopLayout(
+      Map<String, dynamic> currentExercise, int totalExercises) {
     final locale = ref.watch(localeProvider);
     final titleVi = _lesson!['title_vi'] as String? ?? '';
     final titleEn = _lesson!['title_en'] as String? ?? '';
@@ -221,7 +251,8 @@ class _LanguageLessonScreenState extends ConsumerState<LanguageLessonScreen> {
                     child: KidCard(
                       padding: const EdgeInsets.all(32),
                       gradient: const [AppColors.pinkSoft, AppColors.cream],
-                      child: ExerciseDispatcher(exercise: currentExercise, onAnswered: _onAnswered),
+                      child: ExerciseDispatcher(
+                          exercise: currentExercise, onAnswered: _onAnswered),
                     ),
                   ),
                 ),
@@ -230,7 +261,8 @@ class _LanguageLessonScreenState extends ConsumerState<LanguageLessonScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      if (_showHint) _buildHintBanner(currentExercise, locale.languageCode),
+                      if (_showHint)
+                        _buildHintBanner(currentExercise, locale.languageCode),
                     ],
                   ),
                 ),
@@ -260,15 +292,22 @@ class _LanguageLessonScreenState extends ConsumerState<LanguageLessonScreen> {
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4),
               child: Container(
-                width: 36, height: 36,
+                width: 36,
+                height: 36,
                 decoration: BoxDecoration(
                   color: isFilled ? AppColors.green : AppColors.white,
                   borderRadius: BorderRadius.circular(18),
-                  border: Border.all(color: isFilled ? AppColors.green : AppColors.divider, width: 2),
+                  border: Border.all(
+                      color: isFilled ? AppColors.green : AppColors.divider,
+                      width: 2),
                 ),
                 alignment: Alignment.center,
                 child: Text('${index + 1}',
-                    style: AppTheme.display(size: 14, color: isFilled ? AppColors.white : AppColors.mutedPurple)),
+                    style: AppTheme.display(
+                        size: 14,
+                        color: isFilled
+                            ? AppColors.white
+                            : AppColors.mutedPurple)),
               ),
             );
           }),
@@ -277,12 +316,20 @@ class _LanguageLessonScreenState extends ConsumerState<LanguageLessonScreen> {
         GestureDetector(
           onTap: () => context.go('/home'),
           child: Container(
-            width: 40, height: 40,
+            width: 40,
+            height: 40,
             decoration: BoxDecoration(
-              color: AppColors.white, shape: BoxShape.circle,
-              boxShadow: const [BoxShadow(color: AppColors.pinkSoft, offset: Offset(0, 3), blurRadius: 0)],
+              color: AppColors.white,
+              shape: BoxShape.circle,
+              boxShadow: const [
+                BoxShadow(
+                    color: AppColors.pinkSoft,
+                    offset: Offset(0, 3),
+                    blurRadius: 0)
+              ],
             ),
-            child: const Icon(Icons.close, color: AppColors.deepPurple, size: 20),
+            child:
+                const Icon(Icons.close, color: AppColors.deepPurple, size: 20),
           ),
         ),
       ],
@@ -297,14 +344,20 @@ class _LanguageLessonScreenState extends ConsumerState<LanguageLessonScreen> {
     final userId = ref.read(userIdProvider);
     if (userId != null && userId.isNotEmpty && exerciseId.isNotEmpty) {
       ProgressApi.submitExerciseResult(
-        userId: userId, exerciseId: exerciseId, lessonId: widget.lessonId, isCorrect: isCorrect,
+        userId: userId,
+        exerciseId: exerciseId,
+        lessonId: widget.lessonId,
+        isCorrect: isCorrect,
       );
     }
 
     if (isCorrect) {
       HapticFeedback.lightImpact();
       setState(() {
-        _correctAnswers++; _wrongCountThisExercise = 0; _hintText = ''; _answerHistory.clear();
+        _correctAnswers++;
+        _wrongCountThisExercise = 0;
+        _hintText = '';
+        _answerHistory.clear();
       });
       Future.delayed(const Duration(milliseconds: 1000), () {
         if (mounted) _advanceExercise();
@@ -312,7 +365,8 @@ class _LanguageLessonScreenState extends ConsumerState<LanguageLessonScreen> {
     } else {
       HapticFeedback.heavyImpact();
       _wrongCountThisExercise++;
-      if (userAnswer != null && userAnswer.isNotEmpty) _answerHistory.add(userAnswer);
+      if (userAnswer != null && userAnswer.isNotEmpty)
+        _answerHistory.add(userAnswer);
 
       final locale = ref.read(localeProvider);
       final staticHint = locale.languageCode == 'en'
@@ -322,7 +376,10 @@ class _LanguageLessonScreenState extends ConsumerState<LanguageLessonScreen> {
       if (_wrongCountThisExercise >= 2) {
         _fetchAiHint(currentEx, staticHint, locale.languageCode);
       } else {
-        setState(() { _showHint = true; _hintText = staticHint; });
+        setState(() {
+          _showHint = true;
+          _hintText = staticHint;
+        });
       }
 
       Future.delayed(const Duration(seconds: 5), () {
@@ -331,29 +388,45 @@ class _LanguageLessonScreenState extends ConsumerState<LanguageLessonScreen> {
     }
   }
 
-  void _fetchAiHint(Map<String, dynamic> currentEx, String fallback, String lang) async {
+  void _fetchAiHint(
+      Map<String, dynamic> currentEx, String fallback, String lang) async {
     final exerciseId = currentEx['id'] as String? ?? '';
     final questionText = lang == 'vi'
         ? (currentEx['question_vi'] as String? ?? '')
         : (currentEx['question_en'] as String? ?? '');
     final correctIndex = currentEx['correct_index'] as int?;
     final options = currentEx['options'] as List<dynamic>?;
-    final expectedAnswer = (options != null && correctIndex != null && correctIndex < options.length)
-        ? options[correctIndex].toString() : '';
+    final expectedAnswer = (options != null &&
+            correctIndex != null &&
+            correctIndex < options.length)
+        ? options[correctIndex].toString()
+        : '';
 
     final hint = await QuestionBankApi.getHint(
-      exerciseId: exerciseId, questionText: questionText,
-      answerHistory: _answerHistory, expectedAnswer: expectedAnswer, isVietnamese: lang == 'vi',
+      exerciseId: exerciseId,
+      questionText: questionText,
+      answerHistory: _answerHistory,
+      expectedAnswer: expectedAnswer,
+      isVietnamese: lang == 'vi',
+      userId: ref.read(userIdProvider) ?? '',
     );
 
-    if (mounted) setState(() { _showHint = true; _hintText = hint ?? fallback; });
+    if (mounted)
+      setState(() {
+        _showHint = true;
+        _hintText = hint ?? fallback;
+      });
   }
 
   void _advanceExercise() {
     final exercises = _lesson!['exercises'] as List<dynamic>;
     if (_currentExercise < exercises.length - 1) {
       setState(() {
-        _currentExercise++; _showHint = false; _wrongCountThisExercise = 0; _hintText = ''; _answerHistory.clear();
+        _currentExercise++;
+        _showHint = false;
+        _wrongCountThisExercise = 0;
+        _hintText = '';
+        _answerHistory.clear();
       });
       if (ref.read(ttsEnabledProvider)) {
         final nextEx = exercises[_currentExercise] as Map<String, dynamic>;
@@ -361,7 +434,8 @@ class _LanguageLessonScreenState extends ConsumerState<LanguageLessonScreen> {
         final vi = nextEx['question_vi'] as String? ?? '';
         final en = nextEx['question_en'] as String? ?? '';
         final question = locale.languageCode == 'vi' ? vi : en;
-        if (question.isNotEmpty) TtsService().speak(question, languageCode: locale.languageCode);
+        if (question.isNotEmpty)
+          TtsService().speak(question, languageCode: locale.languageCode);
       }
     } else {
       _finishLesson();
@@ -375,25 +449,33 @@ class _LanguageLessonScreenState extends ConsumerState<LanguageLessonScreen> {
     final totalExercises = (_lesson!['exercises'] as List<dynamic>).length;
     final accuracy = totalExercises > 0 ? _correctAnswers / totalExercises : 0;
     int stars = 1;
-    if (accuracy >= 0.9) stars = 3;
+    if (accuracy >= 0.9)
+      stars = 3;
     else if (accuracy >= 0.7) stars = 2;
 
     try {
       await LanguageApi.updateProgress(
-        userId: userId, lessonId: widget.lessonId, stars: stars, completed: true,
+        userId: userId,
+        lessonId: widget.lessonId,
+        stars: stars,
+        completed: true,
       );
       ref.invalidate(streakProvider);
       ref.invalidate(rawProgressProvider);
 
       if (mounted) {
         context.go('/celebration', extra: {
-          'stars': stars, 'subjectId': widget.subjectId, 'lessonId': widget.lessonId,
+          'stars': stars,
+          'subjectId': widget.subjectId,
+          'lessonId': widget.lessonId,
         });
       }
     } catch (e) {
       if (mounted) {
         context.go('/celebration', extra: {
-          'stars': stars, 'subjectId': widget.subjectId, 'lessonId': widget.lessonId,
+          'stars': stars,
+          'subjectId': widget.subjectId,
+          'lessonId': widget.lessonId,
         });
       }
     }

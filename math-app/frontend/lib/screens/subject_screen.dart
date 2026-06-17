@@ -35,21 +35,95 @@ class _SubjectScreenState extends ConsumerState<SubjectScreen> {
   String? _showOverlayFor;
 
   static const Map<String, Map<String, dynamic>> _subjectMeta = {
-    'math':         {'icon': '🧮', 'color': 0xFFFFE8F0, 'gradient': [0xFFFFE8F0, 0xFFFFF3E0]},
-    'numbers':      {'icon': '🔢', 'color': 0xFFFFE8F0, 'gradient': [0xFFFFE8F0, 0xFFFFF3E0]},
-    'geometry':     {'icon': '📐', 'color': 0xFFE8F5E9, 'gradient': [0xFFE8F5E9, 0xFFFFF8E1]},
-    'measurement':  {'icon': '📏', 'color': 0xFFFFF3E0, 'gradient': [0xFFFFF3E0, 0xFFFFE0EC]},
-    'logic':        {'icon': '🧩', 'color': 0xFFE3F2FD, 'gradient': [0xFFE3F2FD, 0xFFE0F2FE]},
-    'vietnamese':   {'icon': '🇻🇳', 'color': 0xFFFFEBEE, 'gradient': [0xFFFFEBEE, 0xFFFFE0EC]},
-    'english':      {'icon': '🇬🇧', 'color': 0xFFE8EAF6, 'gradient': [0xFFE8EAF6, 0xFFE0F2FE]},
+    'math': {
+      'icon': '🧮',
+      'color': 0xFFFFE8F0,
+      'gradient': [0xFFFFE8F0, 0xFFFFF3E0]
+    },
+    'numbers': {
+      'icon': '🔢',
+      'color': 0xFFFFE8F0,
+      'gradient': [0xFFFFE8F0, 0xFFFFF3E0]
+    },
+    'geometry': {
+      'icon': '📐',
+      'color': 0xFFE8F5E9,
+      'gradient': [0xFFE8F5E9, 0xFFFFF8E1]
+    },
+    'measurement': {
+      'icon': '📏',
+      'color': 0xFFFFF3E0,
+      'gradient': [0xFFFFF3E0, 0xFFFFE0EC]
+    },
+    'logic': {
+      'icon': '🧩',
+      'color': 0xFFE3F2FD,
+      'gradient': [0xFFE3F2FD, 0xFFE0F2FE]
+    },
+    'vietnamese': {
+      'icon': '🇻🇳',
+      'color': 0xFFFFEBEE,
+      'gradient': [0xFFFFEBEE, 0xFFFFE0EC]
+    },
+    'english': {
+      'icon': '🇬🇧',
+      'color': 0xFFE8EAF6,
+      'gradient': [0xFFE8EAF6, 0xFFE0F2FE]
+    },
   };
 
   static const List<Map<String, dynamic>> _mathSubSubjects = [
-    {'id': 'numbers',     'icon': '🔢', 'nameVi': 'Số học',   'nameEn': 'Numbers',    'color': 0xFFFFE8F0},
-    {'id': 'geometry',    'icon': '📐', 'nameVi': 'Hình học', 'nameEn': 'Geometry',   'color': 0xFFE8F5E9},
-    {'id': 'measurement', 'icon': '📏', 'nameVi': 'Đo lường', 'nameEn': 'Measurement','color': 0xFFFFF3E0},
-    {'id': 'logic',       'icon': '🧩', 'nameVi': 'Tư duy',   'nameEn': 'Logic',      'color': 0xFFE3F2FD},
+    {
+      'id': 'numbers',
+      'icon': '🔢',
+      'nameVi': 'Số học',
+      'nameEn': 'Numbers',
+      'color': 0xFFFFE8F0
+    },
+    {
+      'id': 'geometry',
+      'icon': '📐',
+      'nameVi': 'Hình học',
+      'nameEn': 'Geometry',
+      'color': 0xFFE8F5E9
+    },
+    {
+      'id': 'measurement',
+      'icon': '📏',
+      'nameVi': 'Đo lường',
+      'nameEn': 'Measurement',
+      'color': 0xFFFFF3E0
+    },
+    {
+      'id': 'logic',
+      'icon': '🧩',
+      'nameVi': 'Tư duy',
+      'nameEn': 'Logic',
+      'color': 0xFFE3F2FD
+    },
   ];
+
+  static UnlockTheme _themeForSubSubject(String id) {
+    switch (id) {
+      case 'geometry':
+      case 'patterns':
+        return UnlockTheme.space;
+      case 'numbers':
+      case 'counting':
+      case 'counting_1_10':
+        return UnlockTheme.jungle;
+      case 'measurement':
+      case 'time':
+        return UnlockTheme.farm;
+      case 'logic':
+        return UnlockTheme.ocean;
+      case 'vn_alphabet':
+      case 'vietnamese':
+        return UnlockTheme.castle;
+      default:
+        return UnlockTheme.space;
+    }
+  }
 
   @override
   void initState() {
@@ -68,14 +142,17 @@ class _SubjectScreenState extends ConsumerState<SubjectScreen> {
       if (widget.subjectId == 'math') {
         subSubjects = _mathSubSubjects;
         lessonCount = subSubjects.length;
-      } else if (widget.subjectId == 'vietnamese' || widget.subjectId == 'english') {
+      } else if (widget.subjectId == 'vietnamese' ||
+          widget.subjectId == 'english') {
         if (widget.subSubjectId != null) {
-          final curriculum = await LanguageApi.getCurriculum(grade: userGrade, subjectId: widget.subjectId);
+          final curriculum = await LanguageApi.getCurriculum(
+              grade: userGrade, subjectId: widget.subjectId);
           final subject = curriculum.firstWhere(
             (s) => s['subject_id'] == widget.subjectId,
             orElse: () => {},
           );
-          final subSubjectsList = (subject['sub_subjects'] as List<dynamic>?) ?? [];
+          final subSubjectsList =
+              (subject['sub_subjects'] as List<dynamic>?) ?? [];
           final subSubject = subSubjectsList.firstWhere(
             (ss) => ss['sub_subject_id'] == widget.subSubjectId,
             orElse: () => {},
@@ -88,14 +165,16 @@ class _SubjectScreenState extends ConsumerState<SubjectScreen> {
           }).toList();
           lessonCount = lessons.length;
         } else {
-          final apiSubSubjects = await LanguageApi.getSubSubjects(subjectId: widget.subjectId, grade: userGrade);
+          final apiSubSubjects = await LanguageApi.getSubSubjects(
+              subjectId: widget.subjectId, grade: userGrade);
           Map<String, bool> unlockMap = {};
           Map<String, int> completedMap = {};
           Map<String, int> totalMap = {};
 
           final userId = ref.read(userProvider).value?.id;
           if (userId != null) {
-            final detailed = await LanguageApi.getDetailedProgress(userId: userId, subjectId: widget.subjectId);
+            final detailed = await LanguageApi.getDetailedProgress(
+                userId: userId, subjectId: widget.subjectId);
             if (detailed != null) {
               final subjects = detailed['subjects'] as List<dynamic>? ?? [];
               for (final s in subjects) {
@@ -120,7 +199,8 @@ class _SubjectScreenState extends ConsumerState<SubjectScreen> {
               'icon': ss['icon'] as String? ?? '📚',
               'nameVi': ss['name_vi'] as String,
               'nameEn': ss['name_en'] as String,
-              'color': int.parse((ss['color'] as String? ?? '#FFE0E0').replaceFirst('#', '0xFF')),
+              'color': int.parse((ss['color'] as String? ?? '#FFE0E0')
+                  .replaceFirst('#', '0xFF')),
               'isUnlocked': isUnlocked,
               'completed': completed,
               'total': total,
@@ -131,7 +211,8 @@ class _SubjectScreenState extends ConsumerState<SubjectScreen> {
               .where((s) => s['isUnlocked'] == true)
               .map((s) => s['id'] as String)
               .toSet();
-          final newlyUnlocked = currentUnlocked.difference(_previousUnlockState);
+          final newlyUnlocked =
+              currentUnlocked.difference(_previousUnlockState);
           if (newlyUnlocked.isNotEmpty) {
             _showOverlayFor = newlyUnlocked.first;
           }
@@ -141,7 +222,8 @@ class _SubjectScreenState extends ConsumerState<SubjectScreen> {
         }
       } else {
         lessons = await ContentApi.getCurriculum(grade: userGrade);
-        lessons = lessons.where((l) => l.subjectId == widget.subjectId).toList();
+        lessons =
+            lessons.where((l) => l.subjectId == widget.subjectId).toList();
         lessonCount = lessons.length;
       }
 
@@ -160,24 +242,39 @@ class _SubjectScreenState extends ConsumerState<SubjectScreen> {
 
   String _resolveTitle(AppLocalizations l10n) {
     switch (widget.subjectId) {
-      case 'math':         return l10n.parentDashboardSubjectMath;
-      case 'numbers':      return l10n.parentDashboardSubjectNumbers;
-      case 'geometry':     return l10n.parentDashboardSubjectGeometry;
-      case 'measurement':  return l10n.parentDashboardSubjectMeasurement;
-      case 'logic':        return l10n.parentDashboardSubjectLogic;
-      case 'vietnamese':   return l10n.parentDashboardSubjectVietnamese;
-      case 'english':      return l10n.parentDashboardSubjectEnglish;
-      default:             return widget.subjectId;
+      case 'math':
+        return l10n.parentDashboardSubjectMath;
+      case 'numbers':
+        return l10n.parentDashboardSubjectNumbers;
+      case 'geometry':
+        return l10n.parentDashboardSubjectGeometry;
+      case 'measurement':
+        return l10n.parentDashboardSubjectMeasurement;
+      case 'logic':
+        return l10n.parentDashboardSubjectLogic;
+      case 'vietnamese':
+        return l10n.parentDashboardSubjectVietnamese;
+      case 'english':
+        return l10n.parentDashboardSubjectEnglish;
+      default:
+        return widget.subjectId;
     }
   }
 
-  bool _isGroupingSubject() => widget.subjectId == 'math' ||
-      ((widget.subjectId == 'vietnamese' || widget.subjectId == 'english') && widget.subSubjectId == null);
+  bool _isGroupingSubject() =>
+      widget.subjectId == 'math' ||
+      ((widget.subjectId == 'vietnamese' || widget.subjectId == 'english') &&
+          widget.subSubjectId == null);
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final meta = _subjectMeta[widget.subjectId] ?? {'icon': '📚', 'color': 0xFFE0E0E0, 'gradient': const [0xFFFFE8F0, 0xFFFFF3E0]};
+    final meta = _subjectMeta[widget.subjectId] ??
+        {
+          'icon': '📚',
+          'color': 0xFFE0E0E0,
+          'gradient': const [0xFFFFE8F0, 0xFFFFF3E0]
+        };
     final completedAsync = ref.watch(userProgressProvider);
 
     final completedSet = completedAsync.when(
@@ -194,8 +291,14 @@ class _SubjectScreenState extends ConsumerState<SubjectScreen> {
         orElse: () => _subSubjects.first,
       );
       final overlayColor = Color(sub['color'] as int);
+      final theme = _themeForSubSubject(sub['id'] as String);
+      final animEnabled = ref.read(unlockAnimationsEnabledProvider);
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted && _showOverlayFor != null) {
+          if (!animEnabled) {
+            setState(() => _showOverlayFor = null);
+            return;
+          }
           showDialog(
             context: context,
             barrierDismissible: false,
@@ -204,6 +307,7 @@ class _SubjectScreenState extends ConsumerState<SubjectScreen> {
               titleVi: sub['nameVi'] as String,
               titleEn: sub['nameEn'] as String,
               accentColor: overlayColor,
+              theme: theme,
               onDismiss: () {
                 setState(() => _showOverlayFor = null);
                 Navigator.of(context, rootNavigator: true).pop();
@@ -232,29 +336,42 @@ class _SubjectScreenState extends ConsumerState<SubjectScreen> {
               child: isGrouping
                   ? _buildSubSubjectList(context, l10n)
                   : _loading
-                      ? const Center(child: CircularProgressIndicator(color: AppColors.pink))
+                      ? const Center(
+                          child:
+                              CircularProgressIndicator(color: AppColors.pink))
                       : _lessons.isEmpty
-                          ? Center(child: Text(l10n.lessonNotFound,
-                              style: AppTheme.display(size: 20, color: AppColors.mutedPurple)))
+                          ? Center(
+                              child: Text(l10n.lessonNotFound,
+                                  style: AppTheme.display(
+                                      size: 20, color: AppColors.mutedPurple)))
                           : ListView.builder(
-                              padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+                              padding:
+                                  const EdgeInsets.fromLTRB(24, 16, 24, 32),
                               itemCount: _lessons.length,
                               itemBuilder: (context, index) {
                                 final lesson = _lessons[index];
-                                final isCompleted = completedSet.contains(lesson.id);
-                                final isUnlocked = index == 0 || completedSet.contains(_lessons[index - 1].id);
+                                final isCompleted =
+                                    completedSet.contains(lesson.id);
+                                final isUnlocked = index == 0 ||
+                                    completedSet
+                                        .contains(_lessons[index - 1].id);
                                 return Padding(
                                   padding: const EdgeInsets.only(bottom: 12),
                                   child: _KidLessonRow(
                                     lesson: lesson,
                                     isCompleted: isCompleted,
                                     isUnlocked: isUnlocked,
-                                    onTap: isUnlocked ? () {
-                                      final route = widget.subjectId == 'vietnamese' || widget.subjectId == 'english'
-                                          ? '/language-lesson/${widget.subjectId}/${lesson.id}'
-                                          : '/lesson/${widget.subjectId}/${lesson.id}';
-                                      context.go(route);
-                                    } : null,
+                                    onTap: isUnlocked
+                                        ? () {
+                                            final route = widget.subjectId ==
+                                                        'vietnamese' ||
+                                                    widget.subjectId ==
+                                                        'english'
+                                                ? '/language-lesson/${widget.subjectId}/${lesson.id}'
+                                                : '/lesson/${widget.subjectId}/${lesson.id}';
+                                            context.go(route);
+                                          }
+                                        : null,
                                   ),
                                 );
                               },
@@ -273,7 +390,8 @@ class _SubjectScreenState extends ConsumerState<SubjectScreen> {
       padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
       child: Column(
         children: _subSubjects.map((sub) {
-          final title = isVi ? sub['nameVi'] as String : sub['nameEn'] as String;
+          final title =
+              isVi ? sub['nameVi'] as String : sub['nameEn'] as String;
           final isUnlocked = sub['isUnlocked'] as bool? ?? true;
           final completed = sub['completed'] as int? ?? 0;
           final total = sub['total'] as int? ?? 0;
@@ -285,21 +403,30 @@ class _SubjectScreenState extends ConsumerState<SubjectScreen> {
             padding: const EdgeInsets.only(bottom: 12),
             child: KidCard(
               padding: const EdgeInsets.all(16),
-              color: Color(sub['color'] as int).withValues(alpha: isUnlocked ? 1.0 : 0.6),
+              color: Color(sub['color'] as int)
+                  .withValues(alpha: isUnlocked ? 1.0 : 0.6),
               onTap: isUnlocked ? () => context.push(targetRoute) : null,
               child: Row(
                 children: [
                   Container(
-                    width: 56, height: 56,
+                    width: 56,
+                    height: 56,
                     decoration: BoxDecoration(
                       color: AppColors.white,
                       borderRadius: BorderRadius.circular(16),
-                      boxShadow: const [BoxShadow(color: AppColors.pinkSoft, offset: Offset(0, 4), blurRadius: 0)],
+                      boxShadow: const [
+                        BoxShadow(
+                            color: AppColors.pinkSoft,
+                            offset: Offset(0, 4),
+                            blurRadius: 0)
+                      ],
                     ),
                     child: Center(
                       child: isUnlocked
-                          ? Text(sub['icon'] as String, style: const TextStyle(fontSize: 32))
-                          : const Icon(Icons.lock, color: AppColors.mutedText, size: 24),
+                          ? Text(sub['icon'] as String,
+                              style: const TextStyle(fontSize: 32))
+                          : const Icon(Icons.lock,
+                              color: AppColors.mutedText, size: 24),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -312,23 +439,33 @@ class _SubjectScreenState extends ConsumerState<SubjectScreen> {
                           const SizedBox(height: 8),
                           Row(
                             children: [
-                              Expanded(child: KidProgressBar(value: completionPct.toDouble(), color: AppColors.deepPurple, height: 10)),
+                              Expanded(
+                                  child: KidProgressBar(
+                                      value: completionPct.toDouble(),
+                                      color: AppColors.deepPurple,
+                                      height: 10)),
                               const SizedBox(width: 8),
                               Text('$completed/$total',
-                                  style: AppTheme.body(size: 12, color: AppColors.mutedPurple)),
+                                  style: AppTheme.body(
+                                      size: 12, color: AppColors.mutedPurple)),
                             ],
                           ),
                         ] else if (!isUnlocked) ...[
                           const SizedBox(height: 2),
-                          Text(isVi ? 'Hoàn thành chủ đề trước để mở khóa' : 'Complete previous topic to unlock',
-                              style: AppTheme.body(size: 12, color: AppColors.mutedText)),
+                          Text(
+                              isVi
+                                  ? 'Hoàn thành chủ đề trước để mở khóa'
+                                  : 'Complete previous topic to unlock',
+                              style: AppTheme.body(
+                                  size: 12, color: AppColors.mutedText)),
                         ],
                       ],
                     ),
                   ),
                   Icon(
                     isUnlocked ? Icons.chevron_right : Icons.lock,
-                    color: isUnlocked ? AppColors.deepPurple : AppColors.mutedText,
+                    color:
+                        isUnlocked ? AppColors.deepPurple : AppColors.mutedText,
                     size: 24,
                   ),
                 ],
@@ -357,13 +494,21 @@ class _Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final gradient = (meta['gradient'] as List?)?.map((e) => Color(e as int)).toList() ?? const [AppColors.pinkSoft, AppColors.cream];
+    final gradient =
+        (meta['gradient'] as List?)?.map((e) => Color(e as int)).toList() ??
+            const [AppColors.pinkSoft, AppColors.cream];
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
       decoration: BoxDecoration(
-        gradient: LinearGradient(colors: gradient, begin: Alignment.topLeft, end: Alignment.bottomRight),
+        gradient: LinearGradient(
+            colors: gradient,
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight),
         borderRadius: const BorderRadius.vertical(bottom: Radius.circular(28)),
-        boxShadow: const [BoxShadow(color: Color(0x14000000), offset: Offset(0, 4), blurRadius: 12)],
+        boxShadow: const [
+          BoxShadow(
+              color: Color(0x14000000), offset: Offset(0, 4), blurRadius: 12)
+        ],
       ),
       child: Column(
         children: [
@@ -379,7 +524,8 @@ class _Header extends StatelessWidget {
           const SizedBox(height: 16),
           Row(
             children: [
-              Text(meta['icon'] as String, style: const TextStyle(fontSize: 48)),
+              Text(meta['icon'] as String,
+                  style: const TextStyle(fontSize: 48)),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -387,10 +533,9 @@ class _Header extends StatelessWidget {
                   children: [
                     Text(title, style: AppTheme.display(size: 26)),
                     Text(
-                      isGrouping
-                          ? '$count chủ đề nhỏ'
-                          : '$count bài học',
-                      style: AppTheme.body(size: 13, color: AppColors.mutedPurple),
+                      isGrouping ? '$count chủ đề nhỏ' : '$count bài học',
+                      style:
+                          AppTheme.body(size: 13, color: AppColors.mutedPurple),
                     ),
                   ],
                 ),
@@ -406,11 +551,15 @@ class _Header extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 40, height: 40,
+        width: 40,
+        height: 40,
         decoration: BoxDecoration(
           color: AppColors.white,
           shape: BoxShape.circle,
-          boxShadow: const [BoxShadow(color: AppColors.pinkSoft, offset: Offset(0, 3), blurRadius: 0)],
+          boxShadow: const [
+            BoxShadow(
+                color: AppColors.pinkSoft, offset: Offset(0, 3), blurRadius: 0)
+          ],
         ),
         child: Icon(icon, color: AppColors.deepPurple, size: 20),
       ),
@@ -458,7 +607,8 @@ class _KidLessonRow extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              width: 56, height: 56,
+              width: 56,
+              height: 56,
               decoration: BoxDecoration(
                 color: isCompleted ? AppColors.greenSoft : AppColors.pinkSoft,
                 borderRadius: BorderRadius.circular(18),
@@ -467,9 +617,11 @@ class _KidLessonRow extends StatelessWidget {
                 child: isCompleted
                     ? const Text('✅', style: TextStyle(fontSize: 24))
                     : !isUnlocked
-                        ? const Icon(Icons.lock, color: AppColors.mutedText, size: 24)
+                        ? const Icon(Icons.lock,
+                            color: AppColors.mutedText, size: 24)
                         : Text('${lesson.order}',
-                            style: AppTheme.display(size: 22, color: AppColors.pink)),
+                            style: AppTheme.display(
+                                size: 22, color: AppColors.pink)),
               ),
             ),
             const SizedBox(width: 12),
@@ -482,13 +634,17 @@ class _KidLessonRow extends StatelessWidget {
                   Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
                           color: diffBg,
                           borderRadius: BorderRadius.circular(999),
                         ),
                         child: Text(difficultyLabel,
-                            style: AppTheme.body(size: 11, color: diffColor, weight: FontWeight.w800)),
+                            style: AppTheme.body(
+                                size: 11,
+                                color: diffColor,
+                                weight: FontWeight.w800)),
                       ),
                       if (lesson.isPremium) ...[
                         const SizedBox(width: 6),

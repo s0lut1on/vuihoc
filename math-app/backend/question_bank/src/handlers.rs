@@ -3,12 +3,12 @@ use std::sync::Arc;
 use uuid::Uuid;
 
 use crate::db::Db;
-use crate::llm::anthropic::{AnthropicClient, hint_contains_answer, llm_available};
+use crate::llm::anthropic::{hint_contains_answer, llm_available, AnthropicClient};
 use crate::models::*;
 use shared::ApiResponse;
 use std::collections::HashMap;
 use std::sync::{Mutex, OnceLock};
-use std::time::Instant;
+use std::time::{Duration, Instant};
 
 #[derive(Clone)]
 pub struct AppState {
@@ -258,7 +258,7 @@ pub async fn record_wrong(
             lesson_id = EXCLUDED.lesson_id,
             subject_id = EXCLUDED.subject_id
         RETURNING *
-        "#
+        "#,
     )
     .bind(user_id)
     .bind(&payload.exercise_id)
@@ -298,18 +298,21 @@ pub async fn get_review(
 
     match rows {
         Ok(list) => {
-            let entries: Vec<ReviewEntry> = list.into_iter().map(|wa| ReviewEntry {
-                exercise_id: wa.exercise_id,
-                lesson_id: wa.lesson_id,
-                subject_id: wa.subject_id,
-                question_vi: wa.question_vi,
-                question_en: wa.question_en,
-                hint_vi: wa.hint_vi,
-                hint_en: wa.hint_en,
-                options: wa.options,
-                correct_index: wa.correct_index,
-                wrong_count: wa.wrong_count,
-            }).collect();
+            let entries: Vec<ReviewEntry> = list
+                .into_iter()
+                .map(|wa| ReviewEntry {
+                    exercise_id: wa.exercise_id,
+                    lesson_id: wa.lesson_id,
+                    subject_id: wa.subject_id,
+                    question_vi: wa.question_vi,
+                    question_en: wa.question_en,
+                    hint_vi: wa.hint_vi,
+                    hint_en: wa.hint_en,
+                    options: wa.options,
+                    correct_index: wa.correct_index,
+                    wrong_count: wa.wrong_count,
+                })
+                .collect();
             ApiResponse::ok(ReviewList { entries })
         }
         Err(e) => {
@@ -323,13 +326,11 @@ pub async fn clear_wrong(
     Path((user_id, exercise_id)): Path<(Uuid, String)>,
     State(state): State<Arc<AppState>>,
 ) -> ApiResponse<shared::HealthResponse> {
-    let result = sqlx::query(
-        "DELETE FROM wrong_answers WHERE user_id = $1 AND exercise_id = $2"
-    )
-    .bind(user_id)
-    .bind(&exercise_id)
-    .execute(state.db.pool())
-    .await;
+    let result = sqlx::query("DELETE FROM wrong_answers WHERE user_id = $1 AND exercise_id = $2")
+        .bind(user_id)
+        .bind(&exercise_id)
+        .execute(state.db.pool())
+        .await;
 
     match result {
         Ok(_) => ApiResponse::ok(shared::health("question_bank")),
@@ -341,14 +342,52 @@ pub async fn clear_wrong(
 }
 
 static HINT_CACHE: OnceLock<Mutex<HashMap<String, (String, Instant)>>> = OnceLock::new();
+static HINT_RATE_LIMITER: OnceLock<Mutex<crate::llm::hint_cache::RateLimiter>> = OnceLock::new();
+static HINT_RL_WINDOW: Duration = Duration::from_secs(60 * 60); // 1 hour window
 
 fn hint_cache() -> &'static Mutex<HashMap<String, (String, Instant)>> {
     HINT_CACHE.get_or_init(|| Mutex::new(HashMap::new()))
 }
 
-pub async fn get_hint(
-    Json(payload): Json<HintRequest>,
-) -> ApiResponse<HintResponse> {
+fn hint_rate_limiter() -> &'static Mutex<crate::llm::hint_cache::RateLimiter> {
+    HINT_RATE_LIMITER.get_or_init(|| Mutex::new(crate::llm::hint_cache::RateLimiter::new(3)))
+}
+
+pub async fn get_hint(Json(payload): Json<HintRequest>) -> ApiResponse<HintResponse> {
+    // Per-user rate limit: 3 hints per hour. Cache hits are FREE — the
+    // rate limiter only gates new hint generation, so repeated identical
+    // requests in the same window still get fast cached answers.
+    let rate_key = if payload.user_id.is_empty() {
+        format!("anon:{}", payload.exercise_id)
+    } else {
+        format!("{}:{}", payload.user_id, payload.exercise_id)
+    };
+    let now = Instant::now();
+    let cache_key = format!("{}:{:?}", payload.exercise_id, payload.answer_history);
+
+    // Check cache first — this is the fast path and doesn't consume quota.
+    if let Ok(cache) = hint_cache().lock() {
+        if let Some((cached, ts)) = cache.get(&cache_key) {
+            if now.duration_since(*ts).as_secs() < 86400 {
+                return ApiResponse::ok(HintResponse {
+                    hint: cached.clone(),
+                    hint_en: cached.clone(),
+                    from_cache: true,
+                });
+            }
+        }
+    }
+
+    // Cache miss: consult rate limiter before spending a Claude call.
+    if let Ok(mut rl) = hint_rate_limiter().lock() {
+        match rl.try_acquire(&rate_key, HINT_RL_WINDOW) {
+            crate::llm::hint_cache::RateLimit::Denied => {
+                return ApiResponse::err("Hint rate limit exceeded; try again later");
+            }
+            crate::llm::hint_cache::RateLimit::Allowed { .. } => {}
+        }
+    }
+
     if !llm_available() {
         return ApiResponse::ok(HintResponse {
             hint: if payload.is_vietnamese {
@@ -382,11 +421,14 @@ pub async fn get_hint(
     };
 
     let client = AnthropicClient::new(api_key);
-    let generated = match client.generate_hint(
-        &payload.question_text,
-        &payload.answer_history,
-        payload.is_vietnamese,
-    ).await {
+    let generated = match client
+        .generate_hint(
+            &payload.question_text,
+            &payload.answer_history,
+            payload.is_vietnamese,
+        )
+        .await
+    {
         Ok(text) => text,
         Err(e) => {
             tracing::error!("LLM hint generation failed: {}", e);

@@ -75,4 +75,16 @@ class LocalStorageService {
     final box = await Hive.openBox(_settingsBox);
     return box.get('locale', defaultValue: 'vi_VN');
   }
+
+  /// Whether unlock-celebration animations should play. Parents can disable
+  /// from the dashboard to reduce overstimulation. Default: true.
+  static Future<void> saveUnlockAnimationsEnabled(bool enabled) async {
+    final box = await Hive.openBox(_settingsBox);
+    await box.put('unlockAnimationsEnabled', enabled);
+  }
+
+  static Future<bool> getUnlockAnimationsEnabled() async {
+    final box = await Hive.openBox(_settingsBox);
+    return box.get('unlockAnimationsEnabled', defaultValue: true);
+  }
 }

@@ -232,6 +232,10 @@ pub struct HintRequest {
     pub answer_history: Vec<String>,
     pub expected_answer: String,
     pub is_vietnamese: bool,
+    /// Caller's user id — used for per-user rate limiting. If empty, the
+    /// handler treats the call as anonymous and applies a global cap.
+    #[serde(default)]
+    pub user_id: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
@@ -293,7 +297,9 @@ mod tests {
 
     // --- Bayesian posterior math (default p_learn=0.2, p_slip=0.1, p_guess=0.2) ---
 
-    fn approx(a: f64, b: f64, eps: f64) -> bool { (a - b).abs() < eps }
+    fn approx(a: f64, b: f64, eps: f64) -> bool {
+        (a - b).abs() < eps
+    }
 
     #[test]
     fn bkt_correct_from_default_matches_posterior() {
@@ -304,7 +310,11 @@ mod tests {
         // p_new = 0.3333 + (1 - 0.3333) * 0.2 = 0.3333 + 0.1333 = 0.4666...
         let s = BktState::default();
         let next = s.update(true);
-        assert!(approx(next.p_mastery, 0.4667, 0.001), "got {}", next.p_mastery);
+        assert!(
+            approx(next.p_mastery, 0.4667, 0.001),
+            "got {}",
+            next.p_mastery
+        );
     }
 
     #[test]
@@ -316,7 +326,11 @@ mod tests {
         // p_new = 0.01370 + (1 - 0.01370) * 0.2 ≈ 0.01370 + 0.19726 = 0.21096
         let s = BktState::default();
         let next = s.update(false);
-        assert!(approx(next.p_mastery, 0.21096, 0.001), "got {}", next.p_mastery);
+        assert!(
+            approx(next.p_mastery, 0.21096, 0.001),
+            "got {}",
+            next.p_mastery
+        );
     }
 
     #[test]
@@ -348,7 +362,11 @@ mod tests {
         let mut s = BktState::default();
         for i in 0..200 {
             s = s.update(i % 2 == 0);
-            assert!(s.p_mastery >= 0.0 && s.p_mastery <= 1.0, "i={i} got {}", s.p_mastery);
+            assert!(
+                s.p_mastery >= 0.0 && s.p_mastery <= 1.0,
+                "i={i} got {}",
+                s.p_mastery
+            );
         }
     }
 
@@ -483,6 +501,7 @@ mod tests {
             answer_history: vec!["3".to_string()],
             expected_answer: "2".to_string(),
             is_vietnamese: true,
+            user_id: "user-123".to_string(),
         };
         let json = serde_json::to_string(&req).unwrap();
         let decoded: HintRequest = serde_json::from_str(&json).unwrap();

@@ -10,6 +10,7 @@ import 'providers/app_providers.dart';
 import 'services/api_service.dart';
 import 'services/auth_service.dart';
 import 'services/connectivity_service.dart';
+import 'services/local_storage_service.dart';
 import 'l10n/app_localizations.dart';
 
 void main() async {
@@ -21,6 +22,8 @@ void main() async {
 
   final storedLocale = await _loadLocale();
   final ttsEnabled = await _loadTtsEnabled();
+  final unlockAnimEnabled =
+      await LocalStorageService.getUnlockAnimationsEnabled();
   var token = await _loadToken();
 
   // Screenshot/demo mode: bypass auth when URL contains ?demo=true.
@@ -44,6 +47,8 @@ void main() async {
       overrides: [
         localeProvider.overrideWith((ref) => storedLocale),
         ttsEnabledProvider.overrideWith((ref) => ttsEnabled),
+        unlockAnimationsEnabledProvider
+            .overrideWith((ref) => unlockAnimEnabled),
       ],
       child: MathApp(autoSignedIn: didAutoSignIn),
     ),

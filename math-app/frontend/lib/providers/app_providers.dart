@@ -17,6 +17,11 @@ final localeProvider = StateProvider<Locale>((ref) => const Locale('vi', 'VN'));
 
 final ttsEnabledProvider = StateProvider<bool>((ref) => true);
 
+/// Whether unlock-celebration animations should play. Parents can disable
+/// from the dashboard to reduce overstimulation. Default: true (opt-out, not
+/// opt-in, because the surprise moment is part of the value for most kids).
+final unlockAnimationsEnabledProvider = StateProvider<bool>((ref) => true);
+
 final personaProvider = StateProvider<Persona?>((ref) => null);
 
 final userIdProvider = StateProvider<String?>((ref) => null);
@@ -47,15 +52,16 @@ final currentUserTierProvider = Provider<String>((ref) {
   return user.value?['tier'] as String? ?? 'free';
 });
 
-final curriculumProvider =
-    FutureProvider.family<List<ApiLesson>, int>((ref, grade) => ContentApi.getCurriculum(grade: grade));
+final curriculumProvider = FutureProvider.family<List<ApiLesson>, int>(
+    (ref, grade) => ContentApi.getCurriculum(grade: grade));
 
 final subjectsProvider = FutureProvider.family<List<Map<String, dynamic>>, int>(
     (ref, grade) => ContentApi.getSubjects(grade: grade));
 
 /// Cached raw progress rows for the current user.
 /// All derived progress providers read from this to avoid duplicate API calls.
-final rawProgressProvider = FutureProvider<List<Map<String, dynamic>>>((ref) async {
+final rawProgressProvider =
+    FutureProvider<List<Map<String, dynamic>>>((ref) async {
   final userId = ref.watch(userIdProvider);
   if (userId == null || userId.isEmpty) return [];
   return ProgressApi.getUserProgress(userId);
