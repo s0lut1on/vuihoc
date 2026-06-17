@@ -146,7 +146,7 @@ services:
     environment:
       - PORT=3000
       - DATABASE_URL=${QB_DB_URL}
-      - REDIS_URL=redis://redis:6379
+      - REDIS_URL=redis:redis:6379
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
       - JWT_SECRET=${JWT_SECRET}
     depends_on:
@@ -154,10 +154,39 @@ services:
       - redis
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.question-bank.rule=Host(`${DOMAIN}`) \u0026\u0026 PathPrefix(`/api/questions`)"
+      - "traefik.http.routers.question-bank.rule=Host(`${DOMAIN}`) && PathPrefix(`/api/questions`)"
       - "traefik.http.routers.question-bank.entrypoints=websecure"
       - "traefik.http.routers.question-bank.priority=100"
       - "traefik.http.routers.question-bank.tls.certresolver=letsencrypt"
+    restart: unless-stopped
+
+  language-service:
+    image: ghcr.io/${OWNER_REPO:-your-username/math-app}/language:${IMAGE_TAG:-latest}
+    environment:
+      - PORT=3000
+      - DATABASE_URL=${LANGUAGE_DB_URL}
+      - REDIS_URL=redis:redis:6379
+      - JWT_SECRET=${JWT_SECRET}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+    depends_on:
+      - language-db
+      - redis
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.language.rule=Host(`${DOMAIN}`) && PathPrefix(`/api/language`)"
+      - "traefik.http.routers.language.entrypoints=websecure"
+      - "traefik.http.routers.language.priority=100"
+      - "traefik.http.routers.language.tls.certresolver=letsencrypt"
+    restart: unless-stopped
+
+  language-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: ${LANGUAGE_DB_NAME:-language_db}
+      POSTGRES_USER: ${LANGUAGE_DB_USER:-lang_user}
+      POSTGRES_PASSWORD: ${LANGUAGE_DB_PASS:-lang_pass}
+    volumes:
+      - language_db_data:/var/lib/postgresql/data
     restart: unless-stopped
 
   auth-db:
@@ -252,4 +281,5 @@ volumes:
   notification_db_data:
   media_db_data:
   qb_db_data:
+  language_db_data:
   minio_data:
