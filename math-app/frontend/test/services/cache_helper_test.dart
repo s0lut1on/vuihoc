@@ -37,7 +37,8 @@ void main() {
       expect(networkCalls, 1);
     });
 
-    test('caches result and returns cached on second call (when network fails)', () async {
+    test('caches result and returns cached on second call (when network fails)',
+        () async {
       var networkCalls = 0;
       // First call: network works
       final first = await withCache<String>(
@@ -76,7 +77,8 @@ void main() {
       expect(result.fromCache, isTrue);
     });
 
-    test('falls back to cache when network throws, no cache = null/empty', () async {
+    test('falls back to cache when network throws, no cache = null/empty',
+        () async {
       final result = await withCache<String>(
         key: 'never-seen',
         ttl: const Duration(minutes: 5),

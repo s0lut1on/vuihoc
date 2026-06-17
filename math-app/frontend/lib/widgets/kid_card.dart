@@ -26,11 +26,22 @@ class KidCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final box = BoxDecoration(
       color: color,
-      gradient: gradient != null ? LinearGradient(colors: gradient!, begin: Alignment.topLeft, end: Alignment.bottomRight) : null,
+      gradient: gradient != null
+          ? LinearGradient(
+              colors: gradient!,
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight)
+          : null,
       borderRadius: BorderRadius.circular(radius),
       boxShadow: [
-        BoxShadow(color: AppColors.pinkSoft, offset: const Offset(0, 6), blurRadius: 0),
-        BoxShadow(color: AppColors.purple.withValues(alpha: 0.08), offset: const Offset(0, 8), blurRadius: 16),
+        BoxShadow(
+            color: AppColors.pinkSoft,
+            offset: const Offset(0, 6),
+            blurRadius: 0),
+        BoxShadow(
+            color: AppColors.purple.withValues(alpha: 0.08),
+            offset: const Offset(0, 8),
+            blurRadius: 16),
       ],
     );
     Widget body = Container(padding: padding, decoration: box, child: child);
@@ -74,9 +85,12 @@ class StatTile extends StatelessWidget {
         children: [
           Text(emoji, style: const TextStyle(fontSize: 40)),
           const SizedBox(height: 4),
-          Text(value, style: AppTheme.display(size: 36, color: valueColor ?? AppColors.pink)),
+          Text(value,
+              style: AppTheme.display(
+                  size: 36, color: valueColor ?? AppColors.pink)),
           const SizedBox(height: 4),
-          Text(label, style: AppTheme.body(size: 14, color: AppColors.mutedPurple)),
+          Text(label,
+              style: AppTheme.body(size: 14, color: AppColors.mutedPurple)),
         ],
       ),
     );

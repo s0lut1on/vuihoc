@@ -27,9 +27,10 @@ void main() {
     });
 
     test('isExpired true for past exp, false for future', () {
-      final past = makeJwt({'exp': DateTime.now().millisecondsSinceEpoch ~/ 1000 - 60});
-      final future =
-          makeJwt({'exp': DateTime.now().millisecondsSinceEpoch ~/ 1000 + 3600});
+      final past =
+          makeJwt({'exp': DateTime.now().millisecondsSinceEpoch ~/ 1000 - 60});
+      final future = makeJwt(
+          {'exp': DateTime.now().millisecondsSinceEpoch ~/ 1000 + 3600});
       expect(JwtUtil.isExpired(past), true);
       expect(JwtUtil.isExpired(future), false);
     });

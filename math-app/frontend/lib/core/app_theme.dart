@@ -62,13 +62,17 @@ class AppTheme {
           minimumSize: const Size(140, 52),
           padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
           textStyle: _body.copyWith(fontSize: 18, fontWeight: FontWeight.w800),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
           elevation: 0,
         ).copyWith(
           // 3D press: shadow + translate on press
-          backgroundColor: WidgetStateProperty.resolveWith<Color>((s) => AppColors.pink),
-          shadowColor: WidgetStateProperty.resolveWith<Color>((s) => AppColors.pinkDark),
-          elevation: WidgetStateProperty.resolveWith<double>((s) => s.contains(WidgetState.pressed) ? 2 : 6),
+          backgroundColor:
+              WidgetStateProperty.resolveWith<Color>((s) => AppColors.pink),
+          shadowColor:
+              WidgetStateProperty.resolveWith<Color>((s) => AppColors.pinkDark),
+          elevation: WidgetStateProperty.resolveWith<double>(
+              (s) => s.contains(WidgetState.pressed) ? 2 : 6),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
@@ -78,20 +82,23 @@ class AppTheme {
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
           textStyle: _body.copyWith(fontSize: 18, fontWeight: FontWeight.w800),
           side: const BorderSide(color: AppColors.divider, width: 2),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: AppColors.deepPurple,
           textStyle: _body.copyWith(fontSize: 14),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: AppColors.white,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: const BorderSide(color: AppColors.divider),
@@ -104,7 +111,8 @@ class AppTheme {
           borderRadius: BorderRadius.circular(16),
           borderSide: const BorderSide(color: AppColors.pink, width: 2),
         ),
-        hintStyle: GoogleFonts.nunito(color: AppColors.mutedText, fontWeight: FontWeight.w600),
+        hintStyle: GoogleFonts.nunito(
+            color: AppColors.mutedText, fontWeight: FontWeight.w600),
       ),
       cardTheme: CardThemeData(
         elevation: 0,
@@ -115,17 +123,26 @@ class AppTheme {
         color: AppColors.pink,
         linearTrackColor: AppColors.divider,
       ),
-      dividerTheme: const DividerThemeData(color: AppColors.divider, thickness: 1),
+      dividerTheme:
+          const DividerThemeData(color: AppColors.divider, thickness: 1),
     );
   }
 
   /// Build a Baloo 2 display text style.
-  static TextStyle display({double size = 28, FontWeight weight = FontWeight.w800, Color? color}) {
-    return _display.copyWith(fontSize: size, fontWeight: weight, color: color ?? AppColors.deepPurple);
+  static TextStyle display(
+      {double size = 28, FontWeight weight = FontWeight.w800, Color? color}) {
+    return _display.copyWith(
+        fontSize: size,
+        fontWeight: weight,
+        color: color ?? AppColors.deepPurple);
   }
 
   /// Build a Nunito body text style.
-  static TextStyle body({double size = 16, FontWeight weight = FontWeight.w600, Color? color}) {
-    return _body.copyWith(fontSize: size, fontWeight: weight, color: color ?? AppColors.deepPurple);
+  static TextStyle body(
+      {double size = 16, FontWeight weight = FontWeight.w600, Color? color}) {
+    return _body.copyWith(
+        fontSize: size,
+        fontWeight: weight,
+        color: color ?? AppColors.deepPurple);
   }
 }

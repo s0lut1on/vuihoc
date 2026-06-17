@@ -28,7 +28,8 @@ class _OrderingExerciseState extends ConsumerState<OrderingExercise> {
   @override
   void initState() {
     super.initState();
-    final options = (widget.exercise['options'] as List<dynamic>?)?.cast<String>() ?? [];
+    final options =
+        (widget.exercise['options'] as List<dynamic>?)?.cast<String>() ?? [];
     _pool = [...options]..shuffle();
   }
 
@@ -45,19 +46,24 @@ class _OrderingExerciseState extends ConsumerState<OrderingExercise> {
           Padding(
             padding: const EdgeInsets.only(bottom: 8),
             child: ElevatedButton.icon(
-              onPressed: () => TtsService().speak(question, languageCode: locale.languageCode),
+              onPressed: () => TtsService()
+                  .speak(question, languageCode: locale.languageCode),
               icon: const Icon(Icons.volume_up, size: 18),
               label: Text(locale.languageCode == 'en' ? 'Listen' : 'Nghe'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primaryPink,
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20)),
               ),
             ),
           ),
         Text(
           question,
-          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w600, color: AppColors.darkPurple),
+          style: const TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.w600,
+              color: AppColors.darkPurple),
         ),
         const SizedBox(height: 32),
         // Answer row
@@ -77,7 +83,9 @@ class _OrderingExerciseState extends ConsumerState<OrderingExercise> {
                 ? [
                     Text(
                       'Tap words below',
-                      style: TextStyle(fontSize: 18, color: AppColors.darkText.withOpacity(0.4)),
+                      style: TextStyle(
+                          fontSize: 18,
+                          color: AppColors.darkText.withOpacity(0.4)),
                     ),
                   ]
                 : _answer.asMap().entries.map((entry) {
@@ -87,7 +95,8 @@ class _OrderingExerciseState extends ConsumerState<OrderingExercise> {
                       onTap: () => _removeFromAnswer(idx),
                       child: Chip(
                         label: Text(word),
-                        backgroundColor: AppColors.primaryPink.withOpacity(0.15),
+                        backgroundColor:
+                            AppColors.primaryPink.withOpacity(0.15),
                         deleteIcon: const Icon(Icons.close, size: 18),
                         onDeleted: () => _removeFromAnswer(idx),
                       ),
@@ -105,9 +114,12 @@ class _OrderingExerciseState extends ConsumerState<OrderingExercise> {
             return GestureDetector(
               onTap: () => _addToAnswer(word),
               child: Chip(
-                label: Text(word, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
+                label: Text(word,
+                    style: const TextStyle(
+                        fontSize: 20, fontWeight: FontWeight.w600)),
                 backgroundColor: AppColors.lightBlueBg,
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               ),
             );
           }).toList(),
@@ -120,9 +132,11 @@ class _OrderingExerciseState extends ConsumerState<OrderingExercise> {
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primaryPink,
               padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
             ),
-            child: const Text('Kiểm tra / Check', style: TextStyle(fontSize: 18, color: Colors.white)),
+            child: const Text('Kiểm tra / Check',
+                style: TextStyle(fontSize: 18, color: Colors.white)),
           ),
       ],
     );
@@ -155,7 +169,9 @@ class _OrderingExerciseState extends ConsumerState<OrderingExercise> {
     HapticFeedback.mediumImpact();
     // For ordering, we validate client-side then server-side
     // Client-side can give instant feedback
-    final expected = (widget.exercise['expected_text'] as String? ?? '').trim().toLowerCase();
+    final expected = (widget.exercise['expected_text'] as String? ?? '')
+        .trim()
+        .toLowerCase();
     final userAnswer = _answer.join(' ').trim().toLowerCase();
     final isCorrect = userAnswer == expected;
     widget.onAnswered(isCorrect);

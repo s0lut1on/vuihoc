@@ -36,8 +36,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Bạn đã học đủ bài hôm nay'), findsOneWidget);
-    expect(
-        find.textContaining('Tài khoản miễn phí được học tối đa 50 bài'), findsOneWidget);
+    expect(find.textContaining('Tài khoản miễn phí được học tối đa 50 bài'),
+        findsOneWidget);
   });
 
   testWidgets('PaywallModal has close and understand buttons',

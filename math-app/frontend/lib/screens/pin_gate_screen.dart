@@ -64,7 +64,8 @@ class _PinGateScreenState extends State<PinGateScreen> {
         child: Stack(
           children: [
             Positioned(
-              top: 16, right: 16,
+              top: 16,
+              right: 16,
               child: GestureDetector(
                 onTap: () => context.go('/home'),
                 child: Container(
@@ -73,13 +74,15 @@ class _PinGateScreenState extends State<PinGateScreen> {
                     color: AppColors.white.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.close, color: AppColors.white, size: 20),
+                  child:
+                      const Icon(Icons.close, color: AppColors.white, size: 20),
                 ),
               ),
             ),
             Center(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -87,14 +90,18 @@ class _PinGateScreenState extends State<PinGateScreen> {
                     const SizedBox(height: 16),
                     Text(l10n.pinGateTitle,
                         textAlign: TextAlign.center,
-                        style: AppTheme.display(size: 26, color: AppColors.white)),
+                        style:
+                            AppTheme.display(size: 26, color: AppColors.white)),
                     const SizedBox(height: 8),
                     Text('Chỉ bố mẹ mới biết nhé!',
-                        style: AppTheme.body(size: 14, color: AppColors.pinkSoft)),
+                        style:
+                            AppTheme.body(size: 14, color: AppColors.pinkSoft)),
                     const SizedBox(height: 32),
                     AnimatedContainer(
                       duration: const Duration(milliseconds: 80),
-                      transform: _shake ? (Matrix4.identity()..translate(-8.0, 0, 0)) : Matrix4.identity(),
+                      transform: _shake
+                          ? (Matrix4.identity()..translate(-8.0, 0, 0))
+                          : Matrix4.identity(),
                       curve: Curves.easeInOut,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -102,11 +109,14 @@ class _PinGateScreenState extends State<PinGateScreen> {
                           final filled = index < _pin.length;
                           return Container(
                             margin: const EdgeInsets.symmetric(horizontal: 8),
-                            width: 22, height: 22,
+                            width: 22,
+                            height: 22,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: filled ? AppColors.pink : Colors.transparent,
-                              border: Border.all(color: AppColors.white, width: 2),
+                              color:
+                                  filled ? AppColors.pink : Colors.transparent,
+                              border:
+                                  Border.all(color: AppColors.white, width: 2),
                             ),
                           );
                         }),
@@ -159,21 +169,32 @@ class _PinGateScreenState extends State<PinGateScreen> {
           }
         },
         child: Container(
-          width: 72, height: 64,
+          width: 72,
+          height: 64,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: isAction ? Colors.transparent : AppColors.pink.withValues(alpha: 0.15),
+            color: isAction
+                ? Colors.transparent
+                : AppColors.pink.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AppColors.pink.withValues(alpha: isAction ? 0 : 0.4), width: 2),
-            boxShadow: isAction ? null : const [
-              BoxShadow(color: AppColors.pinkDark, offset: Offset(0, 4), blurRadius: 0),
-            ],
+            border: Border.all(
+                color: AppColors.pink.withValues(alpha: isAction ? 0 : 0.4),
+                width: 2),
+            boxShadow: isAction
+                ? null
+                : const [
+                    BoxShadow(
+                        color: AppColors.pinkDark,
+                        offset: Offset(0, 4),
+                        blurRadius: 0),
+                  ],
           ),
-          child: Text(label, style: TextStyle(
-            fontSize: label == '←' ? 26 : 22,
-            fontWeight: FontWeight.w800,
-            color: AppColors.white,
-          )),
+          child: Text(label,
+              style: TextStyle(
+                fontSize: label == '←' ? 26 : 22,
+                fontWeight: FontWeight.w800,
+                color: AppColors.white,
+              )),
         ),
       ),
     );

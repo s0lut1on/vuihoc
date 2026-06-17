@@ -29,16 +29,22 @@ class StreakBadge extends StatelessWidget {
           boxShadow: dim
               ? null
               : const [
-                  BoxShadow(color: AppColors.orange, offset: Offset(0, 2), blurRadius: 0),
+                  BoxShadow(
+                      color: AppColors.orange,
+                      offset: Offset(0, 2),
+                      blurRadius: 0),
                 ],
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('🔥', style: TextStyle(fontSize: 16, color: dim ? AppColors.mutedText : null)),
+            Text('🔥',
+                style: TextStyle(
+                    fontSize: 16, color: dim ? AppColors.mutedText : null)),
             const SizedBox(width: 4),
             Text('$days',
-                style: AppTheme.display(size: 14, color: fg, weight: FontWeight.w800)),
+                style: AppTheme.display(
+                    size: 14, color: fg, weight: FontWeight.w800)),
           ],
         ),
       ),

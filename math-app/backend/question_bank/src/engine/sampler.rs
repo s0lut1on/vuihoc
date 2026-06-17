@@ -135,7 +135,12 @@ mod tests {
     // ---- sample_one ----
 
     fn c(min: f64, max: f64, integer_only: bool, exclude_zero: bool) -> ParamConstraint {
-        ParamConstraint { min, max, integer_only, exclude_zero }
+        ParamConstraint {
+            min,
+            max,
+            integer_only,
+            exclude_zero,
+        }
     }
 
     #[test]
@@ -169,7 +174,7 @@ mod tests {
 
     #[test]
     fn sample_one_exclude_zero_skips_zero() {
-        let con = c(-2.0, 2.0, true, true);  // {-2,-1,0,1,2} \ {0}
+        let con = c(-2.0, 2.0, true, true); // {-2,-1,0,1,2} \ {0}
         for _ in 0..100 {
             let v = sample_one(&mut rand::thread_rng(), &con);
             assert_ne!(v, 0.0, "exclude_zero failed");

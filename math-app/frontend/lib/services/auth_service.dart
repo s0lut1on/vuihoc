@@ -188,8 +188,7 @@ class AuthService {
       } else {
         return null;
       }
-      final response =
-          await ApiService().post('/auth/google', data: payload);
+      final response = await ApiService().post('/auth/google', data: payload);
       return response['data']?['access_token'] as String?;
     } catch (_) {
       return null;

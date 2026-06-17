@@ -62,7 +62,10 @@ impl Registry {
         let agent = match self.agents.get(agent_name) {
             Some(a) => a,
             None => {
-                tracing::warn!("Agent '{}' not found in registry, using fallback", agent_name);
+                tracing::warn!(
+                    "Agent '{}' not found in registry, using fallback",
+                    agent_name
+                );
                 return self.fallback_choice();
             }
         };
@@ -74,8 +77,12 @@ impl Registry {
             };
 
             if model.max_tokens < agent.max_output_tokens {
-                tracing::debug!("Candidate {} rejected: max_tokens {} < required {}",
-                    candidate_id, model.max_tokens, agent.max_output_tokens);
+                tracing::debug!(
+                    "Candidate {} rejected: max_tokens {} < required {}",
+                    candidate_id,
+                    model.max_tokens,
+                    agent.max_output_tokens
+                );
                 continue;
             }
 
@@ -97,7 +104,10 @@ impl Registry {
                 provider_name: model.provider.clone(),
                 api_style: provider.api_style.clone(),
                 base_url: provider.base_url.clone(),
-                api_key: provider.env_key.as_ref().and_then(|k| std::env::var(k).ok()),
+                api_key: provider
+                    .env_key
+                    .as_ref()
+                    .and_then(|k| std::env::var(k).ok()),
                 max_tokens: agent.max_output_tokens,
             };
         }

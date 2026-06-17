@@ -13,7 +13,8 @@ ApiLesson _lesson(String subject, String id, int order) => ApiLesson(
 void main() {
   group('nextUnlockedLesson', () {
     test('returns null when there are no lessons', () {
-      expect(nextUnlockedLesson(lessons: const [], completed: const {}), isNull);
+      expect(
+          nextUnlockedLesson(lessons: const [], completed: const {}), isNull);
     });
 
     test('first lesson in each subject is always unlocked', () {
@@ -39,7 +40,8 @@ void main() {
       expect(result.lessonId, 'n1');
     });
 
-    test('lesson N is unlocked iff lesson N-1 is completed in the same subject', () {
+    test('lesson N is unlocked iff lesson N-1 is completed in the same subject',
+        () {
       final lessons = [
         _lesson('numbers', 'n1', 1),
         _lesson('numbers', 'n2', 2),
@@ -111,7 +113,9 @@ void main() {
       expect(result!.subjectId, 'numbers');
     });
 
-    test('all lessons in first 5 subjects completed, only english left -> english', () {
+    test(
+        'all lessons in first 5 subjects completed, only english left -> english',
+        () {
       final lessons = [
         _lesson('numbers', 'n1', 1),
         _lesson('geometry', 'g1', 1),

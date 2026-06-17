@@ -35,14 +35,21 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
   Future<void> _loadReviewSession() async {
     final userId = ref.read(userIdProvider) ?? '';
     if (userId.isEmpty) {
-      setState(() { _loading = false; _error = 'Not signed in'; });
+      setState(() {
+        _loading = false;
+        _error = 'Not signed in';
+      });
       return;
     }
 
     try {
       final session = await ProgressApi.getReviewSession(userId);
       if (session.isEmpty) {
-        setState(() { _exercises = []; _reviewMeta = []; _loading = false; });
+        setState(() {
+          _exercises = [];
+          _reviewMeta = [];
+          _loading = false;
+        });
         return;
       }
 
@@ -61,14 +68,26 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
         );
         if (exercise != null) {
           loaded.add(exercise as Map<String, dynamic>);
-          meta.add({'exercise_id': exerciseId, 'lesson_id': lessonId, 'wrong_count': wrongCount});
+          meta.add({
+            'exercise_id': exerciseId,
+            'lesson_id': lessonId,
+            'wrong_count': wrongCount
+          });
         }
       }
       if (mounted) {
-        setState(() { _exercises = loaded; _reviewMeta = meta; _loading = false; });
+        setState(() {
+          _exercises = loaded;
+          _reviewMeta = meta;
+          _loading = false;
+        });
       }
     } catch (e) {
-      if (mounted) setState(() { _error = e.toString(); _loading = false; });
+      if (mounted)
+        setState(() {
+          _error = e.toString();
+          _loading = false;
+        });
     }
   }
 
@@ -83,7 +102,9 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
     if (_error != null) {
       return Scaffold(
         backgroundColor: AppColors.pinkBg,
-        body: Center(child: Text('Error: $_error', style: const TextStyle(color: AppColors.red))),
+        body: Center(
+            child: Text('Error: $_error',
+                style: const TextStyle(color: AppColors.red))),
       );
     }
     if (_exercises.isEmpty) return _buildEmptyState(context);
@@ -102,10 +123,14 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
             children: [
               _buildHeader(context, currentMeta['wrong_count'] ?? 0, total),
               const SizedBox(height: 12),
-              KidProgressBar(value: (_currentIndex + 1) / total, color: AppColors.purple, height: 12),
+              KidProgressBar(
+                  value: (_currentIndex + 1) / total,
+                  color: AppColors.purple,
+                  height: 12),
               const SizedBox(height: 16),
               Expanded(
-                child: ExerciseDispatcher(exercise: currentExercise, onAnswered: _onAnswered),
+                child: ExerciseDispatcher(
+                    exercise: currentExercise, onAnswered: _onAnswered),
               ),
             ],
           ),
@@ -124,12 +149,20 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
           GestureDetector(
             onTap: () => context.go('/home'),
             child: Container(
-              width: 40, height: 40,
+              width: 40,
+              height: 40,
               decoration: BoxDecoration(
-                color: AppColors.white, shape: BoxShape.circle,
-                boxShadow: const [BoxShadow(color: AppColors.pinkSoft, offset: Offset(0, 3), blurRadius: 0)],
+                color: AppColors.white,
+                shape: BoxShape.circle,
+                boxShadow: const [
+                  BoxShadow(
+                      color: AppColors.pinkSoft,
+                      offset: Offset(0, 3),
+                      blurRadius: 0)
+                ],
               ),
-              child: const Icon(Icons.close, color: AppColors.deepPurple, size: 20),
+              child: const Icon(Icons.close,
+                  color: AppColors.deepPurple, size: 20),
             ),
           ),
           const SizedBox(width: 12),
@@ -139,13 +172,16 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
               children: [
                 Text(l10n.reviewScreenTitle, style: AppTheme.display(size: 18)),
                 Text('Sai ${wrongCount} lần — cùng luyện lại nha!',
-                    style: AppTheme.body(size: 12, color: AppColors.mutedPurple)),
+                    style:
+                        AppTheme.body(size: 12, color: AppColors.mutedPurple)),
               ],
             ),
           ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(color: AppColors.white, borderRadius: BorderRadius.circular(999)),
+            decoration: BoxDecoration(
+                color: AppColors.white,
+                borderRadius: BorderRadius.circular(999)),
             child: Text('${_currentIndex + 1}/$total',
                 style: AppTheme.display(size: 14, color: AppColors.pink)),
           ),
@@ -181,13 +217,21 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
                 GestureDetector(
                   onTap: () => context.go('/home'),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 12),
                     decoration: BoxDecoration(
                       color: AppColors.pink,
                       borderRadius: BorderRadius.circular(999),
-                      boxShadow: const [BoxShadow(color: AppColors.pinkDark, offset: Offset(0, 4), blurRadius: 0)],
+                      boxShadow: const [
+                        BoxShadow(
+                            color: AppColors.pinkDark,
+                            offset: Offset(0, 4),
+                            blurRadius: 0)
+                      ],
                     ),
-                    child: Text('Về nhà 🏠', style: AppTheme.display(size: 16, color: AppColors.white)),
+                    child: Text('Về nhà 🏠',
+                        style:
+                            AppTheme.display(size: 16, color: AppColors.white)),
                   ),
                 ),
               ],

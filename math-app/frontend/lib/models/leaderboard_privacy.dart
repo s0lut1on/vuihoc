@@ -10,15 +10,19 @@
 ///
 /// Returns null when there is no data at all.
 import 'package:characters/characters.dart';
+
 class LeaderboardRank {
   /// Integer percentile (lower = better). 5 means "Top 5%". Always in [1, 100].
   final int percentile;
+
   /// 1-based rank within the leaderboard list. 1 = first place.
   final int rank;
+
   /// Total number of users in the leaderboard, including the current user
   /// (best-effort; may underestimate when the user is not in the list).
   final int totalUsers;
-  const LeaderboardRank({required this.percentile, required this.rank, required this.totalUsers});
+  const LeaderboardRank(
+      {required this.percentile, required this.rank, required this.totalUsers});
 }
 
 LeaderboardRank? computeRank({
@@ -43,7 +47,8 @@ LeaderboardRank? computeRank({
   // Percentile = "in the top X% of users" = round((rank / total) * 100),
   // clamped to [1, 100]. rank=1/1 → 100; rank=1/100 → 1; rank=100/100 → 100.
   final pct = ((rank * 100) / effectiveTotal).clamp(1, 100).round();
-  return LeaderboardRank(percentile: pct, rank: rank, totalUsers: effectiveTotal);
+  return LeaderboardRank(
+      percentile: pct, rank: rank, totalUsers: effectiveTotal);
 }
 
 /// Convert a free-form name to "Bạn X" for anonymous display. Strips whitespace

@@ -35,8 +35,11 @@ class SubjectTile extends StatelessWidget {
         children: [
           Text(emoji, style: const TextStyle(fontSize: 56)),
           const SizedBox(height: 8),
-          Text(nameVi, style: AppTheme.display(
-            size: 20, color: locked ? const Color(0xFF9CA3AF) : AppColors.deepPurple)),
+          Text(nameVi,
+              style: AppTheme.display(
+                  size: 20,
+                  color:
+                      locked ? const Color(0xFF9CA3AF) : AppColors.deepPurple)),
           const SizedBox(height: 2),
           Text('$lessonCount bài',
               style: AppTheme.body(size: 13, color: AppColors.mutedPurple)),

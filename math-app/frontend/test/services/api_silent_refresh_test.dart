@@ -48,7 +48,9 @@ void main() {
         (_) async => ResponseBody.fromString(
           jsonEncode({'success': true, 'data': {}}),
           200,
-          headers: {Headers.contentTypeHeader: ['application/json']},
+          headers: {
+            Headers.contentTypeHeader: ['application/json']
+          },
         ),
       );
 
@@ -57,7 +59,8 @@ void main() {
       expect(refreshCalls, 1);
     });
 
-    test('pre-flight does not refresh when token has plenty of time left', () async {
+    test('pre-flight does not refresh when token has plenty of time left',
+        () async {
       api.setToken(_jwtWithExp(3600));
       var refreshCalls = 0;
       api.setTokenRefresher(() async {
@@ -69,7 +72,9 @@ void main() {
         (_) async => ResponseBody.fromString(
           jsonEncode({'success': true, 'data': {}}),
           200,
-          headers: {Headers.contentTypeHeader: ['application/json']},
+          headers: {
+            Headers.contentTypeHeader: ['application/json']
+          },
         ),
       );
 
@@ -87,9 +92,14 @@ void main() {
 
       when(() => mockAdapter.fetch(any(), any(), any())).thenAnswer(
         (_) async => ResponseBody.fromString(
-          jsonEncode({'success': true, 'data': {'access_token': 'x'}}),
+          jsonEncode({
+            'success': true,
+            'data': {'access_token': 'x'}
+          }),
           200,
-          headers: {Headers.contentTypeHeader: ['application/json']},
+          headers: {
+            Headers.contentTypeHeader: ['application/json']
+          },
         ),
       );
 
@@ -116,18 +126,26 @@ void main() {
             return ResponseBody.fromString(
               jsonEncode({'success': false, 'error': 'Token expired'}),
               401,
-              headers: {Headers.contentTypeHeader: ['application/json']},
+              headers: {
+                Headers.contentTypeHeader: ['application/json']
+              },
             );
           }
           return ResponseBody.fromString(
-            jsonEncode({'success': true, 'data': {'grade': 2}}),
+            jsonEncode({
+              'success': true,
+              'data': {'grade': 2}
+            }),
             200,
-            headers: {Headers.contentTypeHeader: ['application/json']},
+            headers: {
+              Headers.contentTypeHeader: ['application/json']
+            },
           );
         },
       );
 
-      final result = await api.get('/content/subjects', queryParams: {'grade': 2});
+      final result =
+          await api.get('/content/subjects', queryParams: {'grade': 2});
       expect(result['success'], true);
       expect(result['data']['grade'], 2);
       expect(refreshCalls, 1);
@@ -149,7 +167,9 @@ void main() {
         (_) async => ResponseBody.fromString(
           jsonEncode({'success': false, 'error': 'Token expired'}),
           401,
-          headers: {Headers.contentTypeHeader: ['application/json']},
+          headers: {
+            Headers.contentTypeHeader: ['application/json']
+          },
         ),
       );
 
@@ -171,7 +191,9 @@ void main() {
         (_) async => ResponseBody.fromString(
           jsonEncode({'success': true, 'data': {}}),
           200,
-          headers: {Headers.contentTypeHeader: ['application/json']},
+          headers: {
+            Headers.contentTypeHeader: ['application/json']
+          },
         ),
       );
 

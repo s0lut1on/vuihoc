@@ -27,8 +27,10 @@ class BigMascot extends StatelessWidget {
           stops: [0.3, 1.0],
         ),
         boxShadow: const [
-          BoxShadow(color: AppColors.pinkDark, offset: Offset(0, 8), blurRadius: 0),
-          BoxShadow(color: Color(0x33000000), offset: Offset(0, 4), blurRadius: 12),
+          BoxShadow(
+              color: AppColors.pinkDark, offset: Offset(0, 8), blurRadius: 0),
+          BoxShadow(
+              color: Color(0x33000000), offset: Offset(0, 4), blurRadius: 12),
         ],
       ),
       alignment: Alignment.center,
@@ -61,13 +63,19 @@ class _WiggleState extends State<_Wiggle> with SingleTickerProviderStateMixin {
     super.initState();
     _c.repeat(reverse: true);
   }
+
   @override
-  void dispose() { _c.dispose(); super.dispose(); }
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: _c,
-      builder: (_, w) => Transform.rotate(angle: (_c.value - 0.5) * 0.12, child: w),
+      builder: (_, w) =>
+          Transform.rotate(angle: (_c.value - 0.5) * 0.12, child: w),
       child: widget.child,
     );
   }
@@ -90,8 +98,13 @@ class _FloatState extends State<_Float> with SingleTickerProviderStateMixin {
     super.initState();
     _c.repeat(reverse: true);
   }
+
   @override
-  void dispose() { _c.dispose(); super.dispose(); }
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
@@ -119,7 +132,10 @@ class MiniMascot extends StatelessWidget {
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: AppColors.pink,
-        boxShadow: const [BoxShadow(color: AppColors.pinkDark, offset: Offset(0, 3), blurRadius: 0)],
+        boxShadow: const [
+          BoxShadow(
+              color: AppColors.pinkDark, offset: Offset(0, 3), blurRadius: 0)
+        ],
       ),
       alignment: Alignment.center,
       child: Text(emoji, style: TextStyle(fontSize: size * 0.6)),

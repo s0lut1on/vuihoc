@@ -198,7 +198,9 @@ void main() {
       expect(user, isNull);
     });
 
-    test('refreshTokenSilently for guest re-issues /auth/guest and persists new token', () async {
+    test(
+        'refreshTokenSilently for guest re-issues /auth/guest and persists new token',
+        () async {
       // First call: initial guest sign-in
       var callCount = 0;
       when(() => mockAdapter.fetch(any(), any(), any())).thenAnswer(
@@ -246,7 +248,9 @@ void main() {
       expect(refreshed, isNull);
     });
 
-    test('concurrent refreshTokenSilently calls coalesce to a single network call', () async {
+    test(
+        'concurrent refreshTokenSilently calls coalesce to a single network call',
+        () async {
       var guestCalls = 0;
       // First call: guest sign-in. Subsequent calls: refresh.
       // We block the refresh call on a Completer to verify coalescing.
@@ -278,7 +282,8 @@ void main() {
         authService.refreshTokenSilently(),
         authService.refreshTokenSilently(),
       ]);
-      expect(results, ['coalesced-token', 'coalesced-token', 'coalesced-token']);
+      expect(
+          results, ['coalesced-token', 'coalesced-token', 'coalesced-token']);
       // Only one extra /auth/guest call despite three concurrent refreshes.
       expect(guestCalls - callsBefore, 1);
     });

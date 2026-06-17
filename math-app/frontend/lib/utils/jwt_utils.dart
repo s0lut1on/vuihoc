@@ -11,9 +11,7 @@ class JwtUtil {
     final parts = token.split('.');
     if (parts.length < 2) return null;
     try {
-      var normalized = parts[1]
-          .replaceAll('-', '+')
-          .replaceAll('_', '/');
+      var normalized = parts[1].replaceAll('-', '+').replaceAll('_', '/');
       while (normalized.length % 4 != 0) {
         normalized += '=';
       }

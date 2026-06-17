@@ -17,7 +17,8 @@ Widget _wrapped(Widget child) {
 }
 
 void main() {
-  testWidgets('UnlockAnimationOverlay shows unlock text and dismisses', (tester) async {
+  testWidgets('UnlockAnimationOverlay shows unlock text and dismisses',
+      (tester) async {
     bool dismissed = false;
 
     await tester.pumpWidget(_wrapped(
@@ -41,7 +42,8 @@ void main() {
     expect(dismissed, true);
   });
 
-  testWidgets('UnlockAnimationOverlay auto-dismisses after timeout', (tester) async {
+  testWidgets('UnlockAnimationOverlay auto-dismisses after timeout',
+      (tester) async {
     bool dismissed = false;
 
     await tester.pumpWidget(_wrapped(

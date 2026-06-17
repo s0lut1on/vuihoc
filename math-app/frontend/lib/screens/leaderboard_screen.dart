@@ -156,7 +156,9 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
     if (_entries.isEmpty) return const SizedBox.shrink();
     final myId = ref.read(userIdProvider) ?? '';
     final rank = computeRank(
-      leaderboard: _entries.map((e) => {'id': e.id, 'weekly_stars': e.weeklyStars}).toList(),
+      leaderboard: _entries
+          .map((e) => {'id': e.id, 'weekly_stars': e.weeklyStars})
+          .toList(),
       userId: myId,
     );
     if (rank == null) return const SizedBox.shrink();
@@ -173,14 +175,17 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Tuần này của bé', style: AppTheme.body(size: 12, color: AppColors.mutedPurple)),
+                  Text('Tuần này của bé',
+                      style: AppTheme.body(
+                          size: 12, color: AppColors.mutedPurple)),
                   Text(
                     'Top ${rank.percentile}%',
                     style: AppTheme.display(size: 28, color: AppColors.pink),
                   ),
                   Text(
                     'Hạng ${rank.rank} / ${rank.totalUsers} bạn cùng lớp 🎉',
-                    style: AppTheme.body(size: 12, color: AppColors.mutedPurple),
+                    style:
+                        AppTheme.body(size: 12, color: AppColors.mutedPurple),
                   ),
                 ],
               ),
@@ -289,7 +294,8 @@ class _Row extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(anonymizeName(entry.name), style: AppTheme.display(size: 16)),
+                  Text(anonymizeName(entry.name),
+                      style: AppTheme.display(size: 16)),
                   const SizedBox(height: 2),
                   Text('${entry.weeklyStars} ⭐ tuần này',
                       style: AppTheme.body(

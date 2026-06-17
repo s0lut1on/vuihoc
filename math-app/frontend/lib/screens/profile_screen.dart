@@ -43,7 +43,8 @@ class ProfileScreen extends ConsumerWidget {
             KidNavBar(
               trailing: GestureDetector(
                 onTap: () => context.go('/home'),
-                child: const Icon(Icons.close, color: AppColors.deepPurple, size: 24),
+                child: const Icon(Icons.close,
+                    color: AppColors.deepPurple, size: 24),
               ),
             ),
             Expanded(
@@ -59,17 +60,36 @@ class ProfileScreen extends ConsumerWidget {
                       email.isNotEmpty
                           ? email
                           : (isGuest ? (l10n?.guestUser ?? 'Học thử') : ''),
-                      style: AppTheme.body(size: 14, color: AppColors.mutedPurple),
+                      style:
+                          AppTheme.body(size: 14, color: AppColors.mutedPurple),
                     ),
                     const SizedBox(height: 24),
                     // 3 stat cards
                     Row(
                       children: [
-                        Expanded(child: _StatCard(emoji: '📚', value: lessons, label: l10n?.profileStatLessons ?? 'Bài học', color: AppColors.purple, bg: AppColors.pinkSoft)),
+                        Expanded(
+                            child: _StatCard(
+                                emoji: '📚',
+                                value: lessons,
+                                label: l10n?.profileStatLessons ?? 'Bài học',
+                                color: AppColors.purple,
+                                bg: AppColors.pinkSoft)),
                         const SizedBox(width: 12),
-                        Expanded(child: _StatCard(emoji: '⭐', value: stars, label: l10n?.profileStatStars ?? 'Sao', color: AppColors.orangeText, bg: AppColors.orangeSoft)),
+                        Expanded(
+                            child: _StatCard(
+                                emoji: '⭐',
+                                value: stars,
+                                label: l10n?.profileStatStars ?? 'Sao',
+                                color: AppColors.orangeText,
+                                bg: AppColors.orangeSoft)),
                         const SizedBox(width: 12),
-                        Expanded(child: _StatCard(emoji: '🔥', value: streak, label: l10n?.profileStatStreak ?? 'Ngày', color: AppColors.red, bg: AppColors.cream)),
+                        Expanded(
+                            child: _StatCard(
+                                emoji: '🔥',
+                                value: streak,
+                                label: l10n?.profileStatStreak ?? 'Ngày',
+                                color: AppColors.red,
+                                bg: AppColors.cream)),
                       ],
                     ),
                     const SizedBox(height: 24),
@@ -96,15 +116,20 @@ class ProfileScreen extends ConsumerWidget {
   Widget _buildAvatar(String name, String picture, bool isGuest) {
     if (picture.isNotEmpty) {
       return Container(
-        width: 100, height: 100,
+        width: 100,
+        height: 100,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           border: Border.all(color: AppColors.pink, width: 4),
-          boxShadow: const [BoxShadow(color: AppColors.pinkDark, offset: Offset(0, 6), blurRadius: 0)],
+          boxShadow: const [
+            BoxShadow(
+                color: AppColors.pinkDark, offset: Offset(0, 6), blurRadius: 0)
+          ],
         ),
         child: ClipOval(
-          child: Image.network(picture, fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) => const BigMascot(size: 100)),
+          child: Image.network(picture,
+              fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => const BigMascot(size: 100)),
         ),
       );
     }
@@ -123,7 +148,8 @@ class ProfileScreen extends ConsumerWidget {
       child: Row(
         children: [
           Container(
-            width: 48, height: 48,
+            width: 48,
+            height: 48,
             decoration: BoxDecoration(
               color: isEnabled ? AppColors.pinkSoft : AppColors.grayBg,
               borderRadius: BorderRadius.circular(14),
@@ -139,14 +165,18 @@ class ProfileScreen extends ConsumerWidget {
                 Text(l10n?.settingsTtsTitle ?? 'Đọc câu hỏi',
                     style: AppTheme.display(size: 16)),
                 Text(l10n?.settingsTtsSubtitle ?? 'Tự đọc to bài tập',
-                    style: AppTheme.body(size: 12, color: AppColors.mutedPurple)),
+                    style:
+                        AppTheme.body(size: 12, color: AppColors.mutedPurple)),
               ],
             ),
           ),
-          Switch(value: isEnabled, activeThumbColor: AppColors.pink, onChanged: (v) {
-            ref.read(ttsEnabledProvider.notifier).state = v;
-            LocalStorageService.saveTtsEnabled(v);
-          }),
+          Switch(
+              value: isEnabled,
+              activeThumbColor: AppColors.pink,
+              onChanged: (v) {
+                ref.read(ttsEnabledProvider.notifier).state = v;
+                LocalStorageService.saveTtsEnabled(v);
+              }),
         ],
       ),
     );
@@ -156,54 +186,76 @@ class ProfileScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final user = ref.watch(userProvider).valueOrNull;
     final grade = user?.grade ?? 1;
-    final isVi = l10n != null && Localizations.localeOf(context).languageCode == 'vi';
+    final isVi =
+        l10n != null && Localizations.localeOf(context).languageCode == 'vi';
 
     return KidCard(
       padding: const EdgeInsets.all(16),
       child: Row(
         children: [
           Container(
-            width: 48, height: 48,
-            decoration: BoxDecoration(color: AppColors.pinkSoft, borderRadius: BorderRadius.circular(14)),
-            child: const Icon(Icons.school_outlined, color: AppColors.deepPurple, size: 24),
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+                color: AppColors.pinkSoft,
+                borderRadius: BorderRadius.circular(14)),
+            child: const Icon(Icons.school_outlined,
+                color: AppColors.deepPurple, size: 24),
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: Text(isVi ? 'Lớp học' : 'Grade', style: AppTheme.display(size: 16)),
+            child: Text(isVi ? 'Lớp học' : 'Grade',
+                style: AppTheme.display(size: 16)),
           ),
           ...[1, 2, 3].map((g) => Padding(
-            padding: const EdgeInsets.only(left: 6),
-            child: GestureDetector(
-              onTap: g == grade ? null : () async {
-                try {
-                  await UserApi.updateGrade(g);
-                  if (context.mounted) {
-                    ref.invalidate(userProvider);
-                    ref.invalidate(curriculumProvider(g));
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      content: Text(isVi ? 'Đã chuyển sang lớp $g' : 'Grade $g'),
-                    ));
-                  }
-                } catch (_) {
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      content: Text(isVi ? 'Chuyển lớp thất bại' : 'Failed'),
-                    ));
-                  }
-                }
-              },
-              child: Container(
-                width: 40, height: 40,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: g == grade ? AppColors.pink : AppColors.white,
-                  borderRadius: BorderRadius.circular(999),
-                  border: Border.all(color: g == grade ? AppColors.pink : AppColors.divider, width: 2),
+                padding: const EdgeInsets.only(left: 6),
+                child: GestureDetector(
+                  onTap: g == grade
+                      ? null
+                      : () async {
+                          try {
+                            await UserApi.updateGrade(g);
+                            if (context.mounted) {
+                              ref.invalidate(userProvider);
+                              ref.invalidate(curriculumProvider(g));
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(SnackBar(
+                                content: Text(isVi
+                                    ? 'Đã chuyển sang lớp $g'
+                                    : 'Grade $g'),
+                              ));
+                            }
+                          } catch (_) {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(SnackBar(
+                                content: Text(
+                                    isVi ? 'Chuyển lớp thất bại' : 'Failed'),
+                              ));
+                            }
+                          }
+                        },
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: g == grade ? AppColors.pink : AppColors.white,
+                      borderRadius: BorderRadius.circular(999),
+                      border: Border.all(
+                          color:
+                              g == grade ? AppColors.pink : AppColors.divider,
+                          width: 2),
+                    ),
+                    child: Text('$g',
+                        style: AppTheme.display(
+                            size: 14,
+                            color: g == grade
+                                ? AppColors.white
+                                : AppColors.deepPurple)),
+                  ),
                 ),
-                child: Text('$g', style: AppTheme.display(size: 14, color: g == grade ? AppColors.white : AppColors.deepPurple)),
-              ),
-            ),
-          )),
+              )),
         ],
       ),
     );
@@ -226,7 +278,12 @@ class _StatCard extends StatelessWidget {
   final String label;
   final Color color;
   final Color bg;
-  const _StatCard({required this.emoji, required this.value, required this.label, required this.color, required this.bg});
+  const _StatCard(
+      {required this.emoji,
+      required this.value,
+      required this.label,
+      required this.color,
+      required this.bg});
   @override
   Widget build(BuildContext context) {
     return KidCard(
@@ -238,7 +295,8 @@ class _StatCard extends StatelessWidget {
           const SizedBox(height: 4),
           Text('$value', style: AppTheme.display(size: 24, color: color)),
           const SizedBox(height: 2),
-          Text(label, style: AppTheme.body(size: 11, color: AppColors.mutedPurple),
+          Text(label,
+              style: AppTheme.body(size: 11, color: AppColors.mutedPurple),
               textAlign: TextAlign.center),
         ],
       ),

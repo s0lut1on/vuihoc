@@ -181,22 +181,30 @@ void main() {
         (_) async => ResponseBody.fromString(
           jsonEncode({'success': true, 'data': {}}),
           200,
-          headers: {Headers.contentTypeHeader: ['application/json']},
+          headers: {
+            Headers.contentTypeHeader: ['application/json']
+          },
         ),
       );
 
       final result = await ProgressApi.submitExerciseResult(
-        userId: 'user-1', exerciseId: 'ex-1', lessonId: 'l-1', isCorrect: true,
+        userId: 'user-1',
+        exerciseId: 'ex-1',
+        lessonId: 'l-1',
+        isCorrect: true,
       );
       expect(result, true);
     });
 
     test('returns false on failure', () async {
-      when(() => mockAdapter.fetch(any(), any(), any()))
-          .thenThrow(DioException(requestOptions: RequestOptions(path: '/review')));
+      when(() => mockAdapter.fetch(any(), any(), any())).thenThrow(
+          DioException(requestOptions: RequestOptions(path: '/review')));
 
       final result = await ProgressApi.submitExerciseResult(
-        userId: 'u', exerciseId: 'e', lessonId: 'l', isCorrect: false,
+        userId: 'u',
+        exerciseId: 'e',
+        lessonId: 'l',
+        isCorrect: false,
       );
       expect(result, false);
     });
@@ -216,7 +224,9 @@ void main() {
             },
           }),
           200,
-          headers: {Headers.contentTypeHeader: ['application/json']},
+          headers: {
+            Headers.contentTypeHeader: ['application/json']
+          },
         ),
       );
 

@@ -11,7 +11,11 @@ mod handlers;
 mod models;
 
 #[derive(OpenApi)]
-#[openapi(components(schemas(models::User, models::CreateUserRequest, models::UpdateGradeRequest)))]
+#[openapi(components(schemas(
+    models::User,
+    models::CreateUserRequest,
+    models::UpdateGradeRequest
+)))]
 pub struct ApiDoc;
 
 #[tokio::main]

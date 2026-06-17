@@ -70,7 +70,8 @@ class AppRouter {
         builder: (context, state) {
           final subjectId = state.pathParameters['subjectId']!;
           final subSubjectId = state.pathParameters['subSubjectId']!;
-          return SubjectScreen(subjectId: subjectId, subSubjectId: subSubjectId);
+          return SubjectScreen(
+              subjectId: subjectId, subSubjectId: subSubjectId);
         },
       ),
       GoRoute(

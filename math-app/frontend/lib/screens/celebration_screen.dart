@@ -38,8 +38,10 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(duration: const Duration(milliseconds: 800), vsync: this);
-    _scaleAnimation = CurvedAnimation(parent: _controller, curve: Curves.elasticOut);
+    _controller = AnimationController(
+        duration: const Duration(milliseconds: 800), vsync: this);
+    _scaleAnimation =
+        CurvedAnimation(parent: _controller, curve: Curves.elasticOut);
     _controller.forward();
     _confetti = List.generate(40, (i) {
       final r = i * 1.7;
@@ -48,7 +50,10 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
   }
 
   @override
-  void dispose() { _controller.dispose(); super.dispose(); }
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +77,8 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
             ),
             // Close button
             Positioned(
-              top: 16, right: 16,
+              top: 16,
+              right: 16,
               child: GestureDetector(
                 onTap: () => context.go('/home'),
                 child: Container(
@@ -80,15 +86,22 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
                   decoration: BoxDecoration(
                     color: AppColors.white,
                     shape: BoxShape.circle,
-                    boxShadow: const [BoxShadow(color: AppColors.pinkSoft, offset: Offset(0, 3), blurRadius: 0)],
+                    boxShadow: const [
+                      BoxShadow(
+                          color: AppColors.pinkSoft,
+                          offset: Offset(0, 3),
+                          blurRadius: 0)
+                    ],
                   ),
-                  child: const Icon(Icons.close, color: AppColors.deepPurple, size: 20),
+                  child: const Icon(Icons.close,
+                      color: AppColors.deepPurple, size: 20),
                 ),
               ),
             ),
             Center(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -99,10 +112,12 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
                         children: [
                           const BigMascot(size: 140, float_: false),
                           Positioned(
-                            right: 0, top: 0,
+                            right: 0,
+                            top: 0,
                             child: ScaleTransition(
                               scale: _scaleAnimation,
-                              child: const Text('🎉', style: TextStyle(fontSize: 60)),
+                              child: const Text('🎉',
+                                  style: TextStyle(fontSize: 60)),
                             ),
                           ),
                         ],
@@ -115,19 +130,27 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
                     const SizedBox(height: 8),
                     Text(messages['subtitle']!,
                         textAlign: TextAlign.center,
-                        style: AppTheme.body(size: 16, color: AppColors.mutedPurple)),
+                        style: AppTheme.body(
+                            size: 16, color: AppColors.mutedPurple)),
                     const SizedBox(height: 24),
                     _buildStars(),
                     const SizedBox(height: 16),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 10),
                       decoration: BoxDecoration(
                         color: AppColors.purple,
                         borderRadius: BorderRadius.circular(999),
-                        boxShadow: const [BoxShadow(color: AppColors.deepPurple, offset: Offset(0, 4), blurRadius: 0)],
+                        boxShadow: const [
+                          BoxShadow(
+                              color: AppColors.deepPurple,
+                              offset: Offset(0, 4),
+                              blurRadius: 0)
+                        ],
                       ),
                       child: Text('+${widget.stars * 5} 💎',
-                          style: AppTheme.display(size: 18, color: AppColors.white)),
+                          style: AppTheme.display(
+                              size: 18, color: AppColors.white)),
                     ),
                     const SizedBox(height: 32),
                     Row(
@@ -136,14 +159,18 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
                         BubbleButton.success(
                           label: messages['next']!,
                           emoji: '🚀',
-                          minWidth: 160, fontSize: 16, height: 52,
+                          minWidth: 160,
+                          fontSize: 16,
+                          height: 52,
                           onPressed: _goNext,
                         ),
                         const SizedBox(width: 12),
                         BubbleButton.secondary(
                           label: messages['home']!,
                           emoji: '🏠',
-                          minWidth: 140, fontSize: 16, height: 52,
+                          minWidth: 140,
+                          fontSize: 16,
+                          height: 52,
                           onPressed: () => context.go('/home'),
                         ),
                       ],
@@ -159,7 +186,10 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(l10n.celebrationGamerUnlock,
-                                  style: AppTheme.body(size: 14, color: AppColors.gamerText, weight: FontWeight.w800)),
+                                  style: AppTheme.body(
+                                      size: 14,
+                                      color: AppColors.gamerText,
+                                      weight: FontWeight.w800)),
                             ),
                           ],
                         ),
@@ -181,11 +211,21 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
       children: List.generate(3, (index) {
         final isFilled = index < widget.stars;
         return ScaleTransition(
-          scale: CurvedAnimation(parent: _controller, curve: Interval(index * 0.2, 1, curve: Curves.elasticOut)),
+          scale: CurvedAnimation(
+              parent: _controller,
+              curve: Interval(index * 0.2, 1, curve: Curves.elasticOut)),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 6),
             child: Text(isFilled ? '⭐' : '☆',
-                style: const TextStyle(fontSize: 64, color: Color(0xFFFFD93D), shadows: [Shadow(color: AppColors.pinkDark, offset: Offset(0, 4), blurRadius: 0)])),
+                style: const TextStyle(
+                    fontSize: 64,
+                    color: Color(0xFFFFD93D),
+                    shadows: [
+                      Shadow(
+                          color: AppColors.pinkDark,
+                          offset: Offset(0, 4),
+                          blurRadius: 0)
+                    ])),
           ),
         );
       }),
@@ -201,10 +241,14 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
     if (widget.subjectId == null || widget.lessonId == null) return null;
     final userGrade = ref.read(userProvider).value?.grade ?? 1;
     final lessons = await ContentApi.getCurriculum(grade: userGrade);
-    final subjectLessons = lessons.where((l) => l.subjectId == widget.subjectId).toList()
+    final subjectLessons = lessons
+        .where((l) => l.subjectId == widget.subjectId)
+        .toList()
       ..sort((a, b) => a.order.compareTo(b.order));
-    final currentIndex = subjectLessons.indexWhere((l) => l.id == widget.lessonId);
-    if (currentIndex == -1 || currentIndex >= subjectLessons.length - 1) return null;
+    final currentIndex =
+        subjectLessons.indexWhere((l) => l.id == widget.lessonId);
+    if (currentIndex == -1 || currentIndex >= subjectLessons.length - 1)
+      return null;
     final next = subjectLessons[currentIndex + 1];
     if (widget.subjectId == 'vietnamese' || widget.subjectId == 'english') {
       return '/language-lesson/${widget.subjectId}/${next.id}';
@@ -214,10 +258,22 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
 
   Map<String, String> _getMessages(AppLocalizations l10n, Persona persona) {
     final baseMessages = {
-      'achiever': {'title': l10n.celebrationAchieverTitle, 'subtitle': l10n.celebrationAchieverSubtitle},
-      'gamer':    {'title': l10n.celebrationGamerTitle,    'subtitle': l10n.celebrationGamerSubtitle},
-      'struggler':{'title': l10n.celebrationStrugglerTitle, 'subtitle': l10n.celebrationStrugglerSubtitle},
-      'silent':   {'title': l10n.celebrationSilentTitle,   'subtitle': l10n.celebrationSilentSubtitle},
+      'achiever': {
+        'title': l10n.celebrationAchieverTitle,
+        'subtitle': l10n.celebrationAchieverSubtitle
+      },
+      'gamer': {
+        'title': l10n.celebrationGamerTitle,
+        'subtitle': l10n.celebrationGamerSubtitle
+      },
+      'struggler': {
+        'title': l10n.celebrationStrugglerTitle,
+        'subtitle': l10n.celebrationStrugglerSubtitle
+      },
+      'silent': {
+        'title': l10n.celebrationSilentTitle,
+        'subtitle': l10n.celebrationSilentSubtitle
+      },
     };
     final personaMessages = baseMessages[persona.name]!;
     return {
@@ -237,13 +293,19 @@ class _ConfettiPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
     final colors = [
-      AppColors.pink, AppColors.yellow, AppColors.purple, AppColors.green, AppColors.orange, AppColors.skyBlue,
+      AppColors.pink,
+      AppColors.yellow,
+      AppColors.purple,
+      AppColors.green,
+      AppColors.orange,
+      AppColors.skyBlue,
     ];
     for (var i = 0; i < offsets.length; i++) {
       final p = (progress + i * 0.013) % 1.0;
       final dx = center.dx + offsets[i].dx * (0.5 + p);
       final dy = center.dy + offsets[i].dy * p + 200 * p;
-      final paint = Paint()..color = colors[i % colors.length].withValues(alpha: 1 - p);
+      final paint = Paint()
+        ..color = colors[i % colors.length].withValues(alpha: 1 - p);
       canvas.save();
       canvas.translate(dx, dy);
       canvas.rotate(p * 6.28);
@@ -251,6 +313,8 @@ class _ConfettiPainter extends CustomPainter {
       canvas.restore();
     }
   }
+
   @override
-  bool shouldRepaint(_ConfettiPainter oldDelegate) => oldDelegate.progress != progress;
+  bool shouldRepaint(_ConfettiPainter oldDelegate) =>
+      oldDelegate.progress != progress;
 }

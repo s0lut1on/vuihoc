@@ -179,9 +179,7 @@ impl AppState {
             .collect())
     }
 
-    pub async fn get_curriculum(&self,
-        grade: i32,
-    ) -> Result<Vec<CurriculumSubject>, sqlx::Error> {
+    pub async fn get_curriculum(&self, grade: i32) -> Result<Vec<CurriculumSubject>, sqlx::Error> {
         let rows = sqlx::query_as::<_, CurriculumRow>(
             r#"SELECT
                 s.id as subject_id,

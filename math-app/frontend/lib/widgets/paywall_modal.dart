@@ -37,7 +37,9 @@ class PaywallModal extends StatelessWidget {
             const SizedBox(height: 24),
             BubbleButton(
               label: l10n?.paywallGotIt ?? 'Nâng cấp ngay 🚀',
-              minWidth: 220, height: 52, fontSize: 16,
+              minWidth: 220,
+              height: 52,
+              fontSize: 16,
               onPressed: onClose,
             ),
             const SizedBox(height: 8),

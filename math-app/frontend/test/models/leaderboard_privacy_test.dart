@@ -8,7 +8,8 @@ void main() {
     });
 
     test('first place gets percentile 1 (in a 100-user list)', () {
-      final entries = List.generate(100, (i) => {'id': 'a', 'weekly_stars': 50 - i});
+      final entries =
+          List.generate(100, (i) => {'id': 'a', 'weekly_stars': 50 - i});
       final r = computeRank(leaderboard: entries, userId: 'a');
       expect(r!.rank, 1);
       expect(r.percentile, 1);
@@ -43,7 +44,8 @@ void main() {
       expect(r.totalUsers, 3);
     });
 
-    test('no userId returns null when list non-empty? — actually returns first', () {
+    test('no userId returns null when list non-empty? — actually returns first',
+        () {
       final entries = [
         {'id': 'a'},
         {'id': 'b'},

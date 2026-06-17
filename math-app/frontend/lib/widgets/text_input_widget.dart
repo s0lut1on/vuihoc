@@ -103,13 +103,15 @@ class _TextInputWidgetState extends ConsumerState<TextInputWidget> {
           Padding(
             padding: const EdgeInsets.only(bottom: 8),
             child: ElevatedButton.icon(
-              onPressed: () => TtsService().speak(prompt, languageCode: locale.languageCode),
+              onPressed: () =>
+                  TtsService().speak(prompt, languageCode: locale.languageCode),
               icon: const Icon(Icons.volume_up, size: 18),
               label: Text(locale.languageCode == 'en' ? 'Listen' : 'Nghe'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primaryPink,
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20)),
               ),
             ),
           ),

@@ -79,17 +79,25 @@ class _BubbleButtonState extends State<BubbleButton> {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 80),
           curve: Curves.easeOut,
-          constraints: BoxConstraints(minWidth: widget.minWidth, minHeight: widget.height),
+          constraints: BoxConstraints(
+              minWidth: widget.minWidth, minHeight: widget.height),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
           decoration: BoxDecoration(
             color: widget.color,
             borderRadius: BorderRadius.circular(widget.height / 2),
-            border: widget.primary ? null : Border.all(color: AppColors.divider, width: 2),
+            border: widget.primary
+                ? null
+                : Border.all(color: AppColors.divider, width: 2),
             boxShadow: [
-              BoxShadow(color: widget.primary ? AppColors.pinkDark : AppColors.divider,
-                        offset: Offset(0, shadow), blurRadius: 0),
-              BoxShadow(color: Colors.black.withValues(alpha: 0.08),
-                        offset: const Offset(0, 4), blurRadius: 12),
+              BoxShadow(
+                  color:
+                      widget.primary ? AppColors.pinkDark : AppColors.divider,
+                  offset: Offset(0, shadow),
+                  blurRadius: 0),
+              BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.08),
+                  offset: const Offset(0, 4),
+                  blurRadius: 12),
             ],
           ),
           child: Row(
@@ -97,17 +105,20 @@ class _BubbleButtonState extends State<BubbleButton> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               if (widget.emoji != null) ...[
-                Text(widget.emoji!, style: TextStyle(fontSize: widget.fontSize + 4)),
+                Text(widget.emoji!,
+                    style: TextStyle(fontSize: widget.fontSize + 4)),
                 const SizedBox(width: 8),
               ] else if (widget.icon != null) ...[
-                Icon(widget.icon, color: widget.textColor, size: widget.fontSize + 2),
+                Icon(widget.icon,
+                    color: widget.textColor, size: widget.fontSize + 2),
                 const SizedBox(width: 8),
               ],
-              Text(widget.label, style: TextStyle(
-                fontSize: widget.fontSize,
-                fontWeight: FontWeight.w800,
-                color: widget.textColor,
-              )),
+              Text(widget.label,
+                  style: TextStyle(
+                    fontSize: widget.fontSize,
+                    fontWeight: FontWeight.w800,
+                    color: widget.textColor,
+                  )),
             ],
           ),
         ),

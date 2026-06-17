@@ -40,8 +40,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
 
     expect(find.text('Bé là ai nè?'), findsOneWidget);
-    expect(find.text('Chọn bạn đồng hành của mình nhé!'),
-        findsOneWidget);
+    expect(find.text('Chọn bạn đồng hành của mình nhé!'), findsOneWidget);
     expect(find.textContaining('🐸'), findsOneWidget);
   });
 

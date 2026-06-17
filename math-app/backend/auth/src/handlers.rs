@@ -32,12 +32,11 @@ pub async fn login_with_google(
 
     // Support both id_token (mobile) and access_token (web GIS)
     let info: GoogleTokenInfo = if let Some(id_token) = &body.id_token {
-        let resp = match
-            client
-                .post("https://oauth2.googleapis.com/tokeninfo")
-                .form(&[("id_token", id_token.as_str())])
-                .send()
-                .await
+        let resp = match client
+            .post("https://oauth2.googleapis.com/tokeninfo")
+            .form(&[("id_token", id_token.as_str())])
+            .send()
+            .await
         {
             Ok(r) => r,
             Err(_) => return ApiResponse::err("Failed to verify Google token"),

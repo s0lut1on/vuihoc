@@ -87,7 +87,8 @@ class ProgressApi {
     }
   }
 
-  static Future<List<Map<String, dynamic>>> getReviewSession(String userId) async {
+  static Future<List<Map<String, dynamic>>> getReviewSession(
+      String userId) async {
     try {
       final response = await _api.get('/progress/review/$userId');
       final data = response['data'] as Map<String, dynamic>?;

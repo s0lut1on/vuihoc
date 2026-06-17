@@ -88,7 +88,10 @@ mod tests {
 
     #[test]
     fn is_valid_distractor_rejects_duplicate() {
-        let existing = vec![Distractor { value: 3.0, error_type: "test".into() }];
+        let existing = vec![Distractor {
+            value: 3.0,
+            error_type: "test".into(),
+        }];
         assert!(!is_valid_distractor(3.0, 5.0, &existing));
     }
 
@@ -100,7 +103,10 @@ mod tests {
 
     #[test]
     fn is_valid_distractor_accepts_novel_value() {
-        let existing = vec![Distractor { value: 3.0, error_type: "test".into() }];
+        let existing = vec![Distractor {
+            value: 3.0,
+            error_type: "test".into(),
+        }];
         assert!(is_valid_distractor(4.0, 5.0, &existing));
     }
 
@@ -195,7 +201,8 @@ mod tests {
     fn arithmetic_slip_delta_in_noise_range() {
         // noise is rng.gen_range(-5..=5) so abs delta can be up to 5
         for _ in 0..50 {
-            let d = generate_distractors(10.0, &HashMap::new(), &["arithmetic_slip".to_string()], 1);
+            let d =
+                generate_distractors(10.0, &HashMap::new(), &["arithmetic_slip".to_string()], 1);
             let delta = (d[0] - 10.0).abs();
             assert!(delta <= 5.0, "delta {} out of range", delta);
         }
@@ -235,8 +242,12 @@ mod tests {
 
     #[test]
     fn generate_distractors_returns_exact_count_when_taxonomy_sufficient() {
-        let d = generate_distractors(10.0, &p(2.0),
-            &["sign_flip".to_string(), "negated_answer".to_string()], 4);
+        let d = generate_distractors(
+            10.0,
+            &p(2.0),
+            &["sign_flip".to_string(), "negated_answer".to_string()],
+            4,
+        );
         assert_eq!(d.len(), 4);
     }
 

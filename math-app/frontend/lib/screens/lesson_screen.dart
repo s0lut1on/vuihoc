@@ -70,7 +70,12 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
       final lesson = lessons.firstWhere(
         (l) => l.subjectId == widget.subjectId && l.id == widget.lessonId,
         orElse: () => const ApiLesson(
-            id: '', subjectId: '', titleVi: '', titleEn: '', order: 0, exercises: []),
+            id: '',
+            subjectId: '',
+            titleVi: '',
+            titleEn: '',
+            order: 0,
+            exercises: []),
       );
       setState(() {
         _lesson = lesson;
@@ -119,7 +124,8 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
 
   Widget _buildMobileLayout(ApiExercise currentQ, int totalQuestions) {
     final locale = ref.watch(localeProvider);
-    final questionText = locale.languageCode == 'en' ? currentQ.questionEn : currentQ.questionVi;
+    final questionText =
+        locale.languageCode == 'en' ? currentQ.questionEn : currentQ.questionVi;
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
       child: Column(
@@ -133,7 +139,9 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
             height: 12,
           ),
           const SizedBox(height: 16),
-          Expanded(child: _buildQuestionCard(currentQ, questionText, locale.languageCode)),
+          Expanded(
+              child: _buildQuestionCard(
+                  currentQ, questionText, locale.languageCode)),
           const SizedBox(height: 12),
           _buildOptionsGrid(currentQ),
           const SizedBox(height: 12),
@@ -149,12 +157,20 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
         GestureDetector(
           onTap: () => context.go('/home'),
           child: Container(
-            width: 40, height: 40,
+            width: 40,
+            height: 40,
             decoration: BoxDecoration(
-              color: AppColors.white, shape: BoxShape.circle,
-              boxShadow: const [BoxShadow(color: AppColors.pinkSoft, offset: Offset(0, 3), blurRadius: 0)],
+              color: AppColors.white,
+              shape: BoxShape.circle,
+              boxShadow: const [
+                BoxShadow(
+                    color: AppColors.pinkSoft,
+                    offset: Offset(0, 3),
+                    blurRadius: 0)
+              ],
             ),
-            child: const Icon(Icons.close, color: AppColors.deepPurple, size: 20),
+            child:
+                const Icon(Icons.close, color: AppColors.deepPurple, size: 20),
           ),
         ),
         const SizedBox(width: 12),
@@ -165,7 +181,12 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
           decoration: BoxDecoration(
             color: AppColors.white,
             borderRadius: BorderRadius.circular(999),
-            boxShadow: const [BoxShadow(color: AppColors.pinkSoft, offset: Offset(0, 3), blurRadius: 0)],
+            boxShadow: const [
+              BoxShadow(
+                  color: AppColors.pinkSoft,
+                  offset: Offset(0, 3),
+                  blurRadius: 0)
+            ],
           ),
           child: Text('${_currentQuestion + 1} / $total',
               style: AppTheme.display(size: 14, color: AppColors.pink)),
@@ -174,13 +195,20 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
         GestureDetector(
           onTap: _speakQuestion,
           child: Container(
-            width: 48, height: 48,
+            width: 48,
+            height: 48,
             decoration: BoxDecoration(
               color: AppColors.white,
               shape: BoxShape.circle,
-              boxShadow: const [BoxShadow(color: AppColors.pinkDark, offset: Offset(0, 4), blurRadius: 0)],
+              boxShadow: const [
+                BoxShadow(
+                    color: AppColors.pinkDark,
+                    offset: Offset(0, 4),
+                    blurRadius: 0)
+              ],
             ),
-            child: const Center(child: Text('🔊', style: TextStyle(fontSize: 22))),
+            child:
+                const Center(child: Text('🔊', style: TextStyle(fontSize: 22))),
           ),
         ),
       ],
@@ -224,7 +252,10 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
                   Expanded(
                     child: Text(
                       lang == 'en' ? (q.hintEn ?? '') : (q.hintVi ?? ''),
-                      style: AppTheme.body(size: 13, color: AppColors.deepPurple, weight: FontWeight.w800),
+                      style: AppTheme.body(
+                          size: 13,
+                          color: AppColors.deepPurple,
+                          weight: FontWeight.w800),
                     ),
                   ),
                 ],
@@ -240,7 +271,8 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
     final asset = question.visualAsset ?? '';
     final clock = ClockFace.tryParse(asset);
     if (clock != null) return clock;
-    return Text(asset, style: const TextStyle(fontSize: 64), textAlign: TextAlign.center);
+    return Text(asset,
+        style: const TextStyle(fontSize: 64), textAlign: TextAlign.center);
   }
 
   Widget _buildOptionsGrid(ApiExercise question) {
@@ -277,7 +309,8 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
           onTap: () => _selectAnswer(index, question.correctIndex),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 150),
-            constraints: const BoxConstraints(minWidth: 110, minHeight: 90, maxWidth: 280),
+            constraints: const BoxConstraints(
+                minWidth: 110, minHeight: 90, maxWidth: 280),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             decoration: BoxDecoration(
               color: bg,
@@ -287,7 +320,9 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
                 BoxShadow(
                   color: _selectedAnswer == null
                       ? AppColors.pinkSoft
-                      : (isRightAnswer ? AppColors.greenSoft : Colors.transparent),
+                      : (isRightAnswer
+                          ? AppColors.greenSoft
+                          : Colors.transparent),
                   offset: const Offset(0, 4),
                   blurRadius: 0,
                 ),
@@ -320,7 +355,12 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
             decoration: BoxDecoration(
               color: AppColors.orange,
               borderRadius: BorderRadius.circular(999),
-              boxShadow: const [BoxShadow(color: Color(0xFFCC5500), offset: Offset(0, 4), blurRadius: 0)],
+              boxShadow: const [
+                BoxShadow(
+                    color: Color(0xFFCC5500),
+                    offset: Offset(0, 4),
+                    blurRadius: 0)
+              ],
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -341,7 +381,8 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
   // ================ DESKTOP LAYOUT (kept close to original) ================
   Widget _buildDesktopLayout(ApiExercise currentQ, int totalQuestions) {
     final locale = ref.watch(localeProvider);
-    final questionText = locale.languageCode == 'en' ? currentQ.questionEn : currentQ.questionVi;
+    final questionText =
+        locale.languageCode == 'en' ? currentQ.questionEn : currentQ.questionVi;
     return Padding(
       padding: const EdgeInsets.fromLTRB(48, 24, 48, 24),
       child: Column(
@@ -363,7 +404,8 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text('🍎 $questionText',
-                              style: AppTheme.display(size: 28), textAlign: TextAlign.center),
+                              style: AppTheme.display(size: 28),
+                              textAlign: TextAlign.center),
                           const SizedBox(height: 16),
                           _buildVisualAsset(currentQ),
                         ],
@@ -378,27 +420,33 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
                     children: [
                       _buildOptionsGrid(currentQ),
                       const SizedBox(height: 16),
-                      if (_showHint) Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: AppColors.yellow,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: AppColors.orange, width: 2),
-                        ),
-                        child: Row(
-                          children: [
-                            const Text('💡', style: TextStyle(fontSize: 22)),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                locale.languageCode == 'en' ? (currentQ.hintEn ?? '') : (currentQ.hintVi ?? ''),
-                                style: AppTheme.body(size: 13, weight: FontWeight.w800),
+                      if (_showHint)
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: AppColors.yellow,
+                            borderRadius: BorderRadius.circular(16),
+                            border:
+                                Border.all(color: AppColors.orange, width: 2),
+                          ),
+                          child: Row(
+                            children: [
+                              const Text('💡', style: TextStyle(fontSize: 22)),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  locale.languageCode == 'en'
+                                      ? (currentQ.hintEn ?? '')
+                                      : (currentQ.hintVi ?? ''),
+                                  style: AppTheme.body(
+                                      size: 13, weight: FontWeight.w800),
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                      if (!_isCorrect && _selectedAnswer != null) _buildBottomRow(),
+                      if (!_isCorrect && _selectedAnswer != null)
+                        _buildBottomRow(),
                     ],
                   ),
                 ),
@@ -428,15 +476,22 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4),
               child: Container(
-                width: 36, height: 36,
+                width: 36,
+                height: 36,
                 decoration: BoxDecoration(
                   color: isFilled ? AppColors.green : AppColors.white,
                   borderRadius: BorderRadius.circular(18),
-                  border: Border.all(color: isFilled ? AppColors.green : AppColors.divider, width: 2),
+                  border: Border.all(
+                      color: isFilled ? AppColors.green : AppColors.divider,
+                      width: 2),
                 ),
                 alignment: Alignment.center,
                 child: Text('${index + 1}',
-                    style: AppTheme.display(size: 14, color: isFilled ? AppColors.white : AppColors.mutedPurple)),
+                    style: AppTheme.display(
+                        size: 14,
+                        color: isFilled
+                            ? AppColors.white
+                            : AppColors.mutedPurple)),
               ),
             );
           }),
@@ -444,12 +499,20 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
         GestureDetector(
           onTap: () => context.go('/home'),
           child: Container(
-            width: 40, height: 40,
+            width: 40,
+            height: 40,
             decoration: BoxDecoration(
-              color: AppColors.white, shape: BoxShape.circle,
-              boxShadow: const [BoxShadow(color: AppColors.pinkSoft, offset: Offset(0, 3), blurRadius: 0)],
+              color: AppColors.white,
+              shape: BoxShape.circle,
+              boxShadow: const [
+                BoxShadow(
+                    color: AppColors.pinkSoft,
+                    offset: Offset(0, 3),
+                    blurRadius: 0)
+              ],
             ),
-            child: const Icon(Icons.close, color: AppColors.deepPurple, size: 20),
+            child:
+                const Icon(Icons.close, color: AppColors.deepPurple, size: 20),
           ),
         ),
       ],
@@ -467,18 +530,30 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
       final currentQ = _lesson!.exercises[_currentQuestion];
       final userId = ref.read(userIdProvider) ?? '';
       WrongAnswerStorage.record(WrongAnswer(
-        exerciseId: currentQ.id, lessonId: widget.lessonId, subjectId: widget.subjectId,
-        questionVi: currentQ.questionVi, questionEn: currentQ.questionEn,
-        hintVi: currentQ.hintVi, hintEn: currentQ.hintEn,
-        options: currentQ.options, correctIndex: currentQ.correctIndex,
-        wrongCount: 1, lastWrongAt: DateTime.now(),
+        exerciseId: currentQ.id,
+        lessonId: widget.lessonId,
+        subjectId: widget.subjectId,
+        questionVi: currentQ.questionVi,
+        questionEn: currentQ.questionEn,
+        hintVi: currentQ.hintVi,
+        hintEn: currentQ.hintEn,
+        options: currentQ.options,
+        correctIndex: currentQ.correctIndex,
+        wrongCount: 1,
+        lastWrongAt: DateTime.now(),
       ));
       if (userId.isNotEmpty) {
         ReviewApi.recordWrong(
-          userId: userId, exerciseId: currentQ.id, lessonId: widget.lessonId,
-          subjectId: widget.subjectId, questionVi: currentQ.questionVi,
-          questionEn: currentQ.questionEn, hintVi: currentQ.hintVi, hintEn: currentQ.hintEn,
-          options: currentQ.options, correctIndex: currentQ.correctIndex,
+          userId: userId,
+          exerciseId: currentQ.id,
+          lessonId: widget.lessonId,
+          subjectId: widget.subjectId,
+          questionVi: currentQ.questionVi,
+          questionEn: currentQ.questionEn,
+          hintVi: currentQ.hintVi,
+          hintEn: currentQ.hintEn,
+          options: currentQ.options,
+          correctIndex: currentQ.correctIndex,
         );
       }
     }
@@ -490,14 +565,21 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
   }
 
   void _resetQuestion() {
-    setState(() { _selectedAnswer = null; _isCorrect = false; _showHint = false; });
+    setState(() {
+      _selectedAnswer = null;
+      _isCorrect = false;
+      _showHint = false;
+    });
   }
 
   void _advanceQuestion() {
     if (_lesson == null) return;
     if (_currentQuestion < _lesson!.exercises.length - 1) {
       setState(() {
-        _currentQuestion += 1; _selectedAnswer = null; _isCorrect = false; _showHint = false;
+        _currentQuestion += 1;
+        _selectedAnswer = null;
+        _isCorrect = false;
+        _showHint = false;
       });
     } else {
       _finishLesson();
@@ -516,7 +598,10 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
     final userId = ref.read(userIdProvider) ?? '';
     if (userId.isNotEmpty) {
       await ProgressApi.updateProgress(
-        userId: userId, lessonId: widget.lessonId, stars: 3, completed: true,
+        userId: userId,
+        lessonId: widget.lessonId,
+        stars: 3,
+        completed: true,
       );
       final updated = await ProgressApi.getDailyLimit(userId);
       if (updated != null && mounted) {
@@ -534,7 +619,9 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
   }
 
   void _showCorrectFeedback() {
-    Future.delayed(const Duration(milliseconds: 800), () { if (mounted) _advanceQuestion(); });
+    Future.delayed(const Duration(milliseconds: 800), () {
+      if (mounted) _advanceQuestion();
+    });
   }
 
   void _showIncorrectFeedback() {
@@ -546,7 +633,8 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
     if (!isEnabled) return;
     final currentQ = _lesson!.exercises[_currentQuestion];
     final locale = ref.read(localeProvider);
-    final text = locale.languageCode == 'en' ? currentQ.questionEn : currentQ.questionVi;
+    final text =
+        locale.languageCode == 'en' ? currentQ.questionEn : currentQ.questionVi;
     TtsService().speak(text, languageCode: locale.languageCode);
   }
 }

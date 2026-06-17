@@ -13,8 +13,8 @@ use utoipa_swagger_ui::SwaggerUi;
 
 use handlers::AppState;
 use models::{
-    AnswerPayload, AnswerResult, BktState, GenerateRequest, HintRequest, HintResponse, Kc, Question,
-    QuestionTemplate, RecordWrongPayload, RecordWrongResult, ReviewList, ReviewEntry,
+    AnswerPayload, AnswerResult, BktState, GenerateRequest, HintRequest, HintResponse, Kc,
+    Question, QuestionTemplate, RecordWrongPayload, RecordWrongResult, ReviewEntry, ReviewList,
 };
 
 #[derive(OpenApi)]

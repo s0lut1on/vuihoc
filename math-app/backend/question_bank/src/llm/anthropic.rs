@@ -64,7 +64,10 @@ Yêu cầu:
 - Phù hợp học sinh lớp {grade}
 - Chỉ trả về đề bài, không giải
 - Đảm bảo đáp án vẫn là {answer}"#,
-            grade = grade, bare_stem = bare_stem, answer = answer, domain = domain
+            grade = grade,
+            bare_stem = bare_stem,
+            answer = answer,
+            domain = domain
         );
 
         let req = AnthropicRequest {
@@ -105,7 +108,11 @@ Yêu cầu:
         answer_history: &[String],
         is_vietnamese: bool,
     ) -> Result<String> {
-        let language = if is_vietnamese { "Tiếng Việt" } else { "English" };
+        let language = if is_vietnamese {
+            "Tiếng Việt"
+        } else {
+            "English"
+        };
         let prompt = format!(
             r#"You are a friendly Vietnamese math tutor for 6-year-olds (Kindergarten).
 
@@ -175,7 +182,10 @@ mod tests {
     #[test]
     fn hint_contains_answer_detects_exact_match() {
         assert!(hint_contains_answer("The answer is 7", "7"));
-        assert!(hint_contains_answer("Try counting: 1,2,3,4,5,6,7 fingers!", "7"));
+        assert!(hint_contains_answer(
+            "Try counting: 1,2,3,4,5,6,7 fingers!",
+            "7"
+        ));
     }
 
     #[test]
@@ -185,7 +195,10 @@ mod tests {
 
     #[test]
     fn hint_does_not_contain_answer() {
-        assert!(!hint_contains_answer("Count the objects in the picture", "7"));
+        assert!(!hint_contains_answer(
+            "Count the objects in the picture",
+            "7"
+        ));
         assert!(!hint_contains_answer("What comes after 3?", "4"));
     }
 
@@ -229,7 +242,10 @@ mod tests {
 
     #[test]
     fn hint_contains_answer_returns_false_for_unrelated() {
-        assert!(!hint_contains_answer("Count the apples in the picture", "42"));
+        assert!(!hint_contains_answer(
+            "Count the apples in the picture",
+            "42"
+        ));
         assert!(!hint_contains_answer("What comes after 3?", "4"));
     }
 

@@ -25,14 +25,22 @@ class LessonTile extends StatelessWidget {
     String icon;
     switch (state) {
       case LessonState.done:
-        bg = AppColors.greenSoft; border = AppColors.mint;
-        textColor = AppColors.green; icon = '✅'; break;
+        bg = AppColors.greenSoft;
+        border = AppColors.mint;
+        textColor = AppColors.green;
+        icon = '✅';
+        break;
       case LessonState.current:
-        bg = AppColors.pinkSoft; border = AppColors.pink;
-        icon = '▶'; break;
+        bg = AppColors.pinkSoft;
+        border = AppColors.pink;
+        icon = '▶';
+        break;
       case LessonState.locked:
-        bg = AppColors.grayBg; border = AppColors.divider;
-        textColor = const Color(0xFF9CA3AF); icon = '🔒'; break;
+        bg = AppColors.grayBg;
+        border = AppColors.divider;
+        textColor = const Color(0xFF9CA3AF);
+        icon = '🔒';
+        break;
     }
     return InkWell(
       onTap: onTap,
@@ -42,7 +50,8 @@ class LessonTile extends StatelessWidget {
         decoration: BoxDecoration(
           color: bg,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: border, width: state == LessonState.current ? 3 : 2),
+          border: Border.all(
+              color: border, width: state == LessonState.current ? 3 : 2),
         ),
         child: Row(
           children: [
@@ -52,10 +61,13 @@ class LessonTile extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: AppTheme.display(size: 16, color: textColor)),
+                  Text(title,
+                      style: AppTheme.display(size: 16, color: textColor)),
                   if (subtitle.isNotEmpty) ...[
                     const SizedBox(height: 2),
-                    Text(subtitle, style: AppTheme.body(size: 12, color: AppColors.mutedPurple)),
+                    Text(subtitle,
+                        style: AppTheme.body(
+                            size: 12, color: AppColors.mutedPurple)),
                   ],
                 ],
               ),
