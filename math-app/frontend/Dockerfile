@@ -4,11 +4,14 @@ COPY . .
 RUN flutter pub get
 
 ARG GOOGLE_CLIENT_ID
+# Default to 'dev' when no APP_VERSION is passed (local builds).
+ARG APP_VERSION=dev
 RUN if [ -n "$GOOGLE_CLIENT_ID" ]; then \
       sed -i "s/\$GOOGLE_CLIENT_ID/$GOOGLE_CLIENT_ID/g" web/index.html; \
     fi
 RUN flutter build web --release --no-tree-shake-icons \
     --dart-define=GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID \
+    --dart-define=APP_VERSION=$APP_VERSION \
     --dart-define=FLUTTER_WEB_CANVASKIT_URL=https://www.gstatic.com/flutter-canvaskit/
 
 RUN rm -rf /app/build/web/canvaskit

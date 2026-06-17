@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../core/app_colors.dart';
 import '../core/app_theme.dart';
+import '../core/build_info.dart';
 import '../l10n/app_localizations.dart';
 import '../providers/app_providers.dart';
 import '../widgets/bubble_button.dart';
@@ -156,6 +157,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           c.maxWidth > 1100 ? 4 : (c.maxWidth > 700 ? 3 : 2);
                       return _subjectsGrid(cols);
                     }),
+                    const SizedBox(height: 24),
+                    const _BuildVersionFooter(),
                   ],
                 ),
               ),
@@ -369,6 +372,40 @@ class _Stat extends StatelessWidget {
               textAlign: TextAlign.center,
               style: AppTheme.body(size: 12, color: AppColors.mutedPurple)),
         ],
+      ),
+    );
+  }
+}
+
+/// Subtle build-identifier strip at the bottom of the home screen. Lets
+/// the user (and us, when triaging a bug report) verify which build is
+/// actually deployed — critical when the CDN edge or browser cache is
+/// serving an older bundle than `main`.
+class _BuildVersionFooter extends StatelessWidget {
+  const _BuildVersionFooter();
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        decoration: BoxDecoration(
+          color: AppColors.white.withValues(alpha: 0.6),
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(color: AppColors.divider, width: 1),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('🐸', style: TextStyle(fontSize: 11)),
+            const SizedBox(width: 6),
+            Text(
+              'HocVui $kBuildVersion',
+              style: AppTheme.body(
+                  size: 11, color: AppColors.mutedPurple, weight: FontWeight.w600),
+            ),
+          ],
+        ),
       ),
     );
   }

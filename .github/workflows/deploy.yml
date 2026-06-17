@@ -61,6 +61,7 @@ jobs:
           push: true
           build-args: |
             GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
+            APP_VERSION=${{ github.sha }}
           tags: |
             ${{ env.IMAGE_PREFIX }}/flutter-web:${{ github.sha }}
             ${{ env.IMAGE_PREFIX }}/flutter-web:latest
