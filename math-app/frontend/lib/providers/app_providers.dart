@@ -94,6 +94,15 @@ class UserNotifier extends StateNotifier<AsyncValue<User?>> {
     }
   }
 
+  /// Sync-update the in-memory user without reloading from the server.
+  /// Use after updateGrade / updatePersona where we already have the
+  /// authoritative User from the response body.
+  void setUser(User user) {
+    _ref.read(personaProvider.notifier).state = user.persona;
+    _ref.read(userIdProvider.notifier).state = user.id;
+    state = AsyncValue.data(user);
+  }
+
   Future<void> createUser({
     required String name,
     required Persona persona,

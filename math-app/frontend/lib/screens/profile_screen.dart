@@ -214,10 +214,27 @@ class ProfileScreen extends ConsumerWidget {
                       ? null
                       : () async {
                           try {
-                            await UserApi.updateGrade(g);
+                            final updated =
+                                await UserApi.updateGrade(g);
+                            // Push the new User straight into the
+                            // StateNotifier so the UI updates immediately.
+                            // Without this, userProvider stays at the
+                            // previous value (often null for guest users)
+                            // and the chip stays on grade 1.
                             if (context.mounted) {
-                              ref.invalidate(userProvider);
+                              ref
+                                  .read(userProvider.notifier)
+                                  .setUser(updated);
+                              // Invalidate everything that depends on grade
+                              // so subjects / curriculum / sub-subjects /
+                              // progress all reload for the new grade.
+                              // NOTE: do NOT invalidate userProvider here —
+                              // that creates a fresh StateNotifier that
+                              // doesn't know about our setUser call, and
+                              // the UI would flicker back to grade 1.
                               ref.invalidate(curriculumProvider(g));
+                              ref.invalidate(subjectsProvider(g));
+                              ref.invalidate(rawProgressProvider);
                               ScaffoldMessenger.of(context)
                                   .showSnackBar(SnackBar(
                                 content: Text(isVi
