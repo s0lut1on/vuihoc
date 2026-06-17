@@ -1,5 +1,7 @@
-use axum::{extract::{Path, State}, Extension, Json};
-use chrono::Utc;
+use axum::{
+    extract::{Path, State},
+    Extension, Json,
+};
 
 use crate::models::{AppState, CreateUserRequest, JoinClassroomRequest, User};
 
@@ -20,7 +22,10 @@ pub async fn get_user(
     match user {
         Ok(Some(u)) => shared::ApiResponse::ok(u),
         Ok(None) => {
-            tracing::info!("User not found, auto-creating default user for id={}", user_id);
+            tracing::info!(
+                "User not found, auto-creating default user for id={}",
+                user_id
+            );
             let new_user = sqlx::query_as::<_, User>(
                 "INSERT INTO users (id, name, persona, avatar, streak_days, gems, total_lessons, total_stars, grade, locale, subscription_tier) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *",
             )

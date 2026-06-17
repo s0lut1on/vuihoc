@@ -48,6 +48,7 @@ pub fn compute_new_interval_days(
 /// If the user just finished one, the same exercise will only come back
 /// tomorrow because the handler just bumped `next_review_at` to `now + interval`.
 /// This function is a small guard for callers that don't trust the database.
+#[allow(dead_code)]
 pub fn should_review_today(_last_review_at: chrono::DateTime<chrono::Utc>) -> bool {
     // We treat any review after midnight as a fresh day. Real schedule uses
     // the `next_review_at` field which is the authoritative gate.

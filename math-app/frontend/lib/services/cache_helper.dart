@@ -1,5 +1,4 @@
 import 'package:hive/hive.dart';
-import 'cache_helper.dart';
 
 const String _cacheBoxName = 'offline_cache';
 

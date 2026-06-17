@@ -8,10 +8,8 @@ import '../models/lesson_model.dart';
 import '../providers/app_providers.dart';
 import '../services/content_api.dart';
 import '../services/language_api.dart';
-import '../widgets/bubble_button.dart';
 import '../widgets/kid_card.dart';
 import '../widgets/kid_progress_bar.dart';
-import '../widgets/lesson_tile.dart';
 import '../widgets/mascot.dart';
 import '../widgets/unlock_animation_overlay.dart';
 

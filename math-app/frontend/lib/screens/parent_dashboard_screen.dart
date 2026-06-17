@@ -7,8 +7,6 @@ import '../l10n/app_localizations.dart';
 import '../providers/app_providers.dart';
 import '../services/language_api.dart';
 import '../services/local_storage_service.dart';
-import '../widgets/kid_card.dart';
-import '../widgets/kid_progress_bar.dart';
 import '../widgets/language_switcher.dart';
 import '../widgets/mascot.dart';
 
@@ -228,11 +226,9 @@ class _ParentDashboardScreenState extends ConsumerState<ParentDashboardScreen> {
 
   Widget _buildStatsCards(AppLocalizations l10n) {
     // Calculate real totals from subjects data
-    int totalLessons = 0;
     int totalCompleted = 0;
     int totalStars = 0;
     for (final s in _subjects) {
-      totalLessons += s['total_lessons'] as int? ?? 0;
       totalCompleted += s['completed_lessons'] as int? ?? 0;
       totalStars += s['stars_earned'] as int? ?? 0;
     }
@@ -461,12 +457,13 @@ class _ParentDashboardScreenState extends ConsumerState<ParentDashboardScreen> {
             },
           ),
           // Parent email preferences (Plan 5)
-          if (_emailInitialized) _EmailPreferencesTile(
-            emailController: _emailCtrl,
-            onEmailSaved: _saveEmail,
-            frequency: _emailFrequency,
-            onFrequencyChanged: _saveFrequency,
-          ),
+          if (_emailInitialized)
+            _EmailPreferencesTile(
+              emailController: _emailCtrl,
+              onEmailSaved: _saveEmail,
+              frequency: _emailFrequency,
+              onFrequencyChanged: _saveFrequency,
+            ),
           _settingTile(Icons.logout, l10n.parentDashboardLogout, ''),
         ],
       ),
@@ -554,9 +551,13 @@ class _EmailPreferencesTile extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text('Báo cáo hàng tuần cho phụ huynh',
-                        style: AppTheme.body(size: 14, color: AppColors.deepPurple, weight: FontWeight.w800)),
+                        style: AppTheme.body(
+                            size: 14,
+                            color: AppColors.deepPurple,
+                            weight: FontWeight.w800)),
                     Text('Tổng kết bài học, streak, điểm yếu',
-                        style: AppTheme.body(size: 11, color: AppColors.mutedPurple)),
+                        style: AppTheme.body(
+                            size: 11, color: AppColors.mutedPurple)),
                   ],
                 ),
               ),
@@ -568,7 +569,8 @@ class _EmailPreferencesTile extends StatelessWidget {
             keyboardType: TextInputType.emailAddress,
             decoration: const InputDecoration(
               hintText: 'email@example.com',
-              prefixIcon: Icon(Icons.email_outlined, color: AppColors.mutedPurple),
+              prefixIcon:
+                  Icon(Icons.email_outlined, color: AppColors.mutedPurple),
             ),
             onChanged: (_) => onEmailSaved(),
           ),
@@ -591,7 +593,8 @@ class _EmailPreferencesTile extends StatelessWidget {
     );
   }
 
-  Widget _freqChip(String value, String label, String selected, ValueChanged<String> onTap) {
+  Widget _freqChip(
+      String value, String label, String selected, ValueChanged<String> onTap) {
     final isOn = value == selected;
     return GestureDetector(
       onTap: () => onTap(value),
@@ -600,10 +603,14 @@ class _EmailPreferencesTile extends StatelessWidget {
         decoration: BoxDecoration(
           color: isOn ? AppColors.pink : AppColors.white,
           borderRadius: BorderRadius.circular(999),
-          border: Border.all(color: isOn ? AppColors.pink : AppColors.divider, width: 2),
+          border: Border.all(
+              color: isOn ? AppColors.pink : AppColors.divider, width: 2),
         ),
         child: Text(label,
-            style: AppTheme.body(size: 12, color: isOn ? AppColors.white : AppColors.deepPurple, weight: FontWeight.w800)),
+            style: AppTheme.body(
+                size: 12,
+                color: isOn ? AppColors.white : AppColors.deepPurple,
+                weight: FontWeight.w800)),
       ),
     );
   }

@@ -5,7 +5,6 @@ import '../core/app_theme.dart';
 import '../l10n/app_localizations.dart';
 import '../services/auth_service.dart';
 import '../widgets/bubble_button.dart';
-import '../widgets/kid_card.dart';
 import '../widgets/mascot.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -15,7 +14,8 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStateMixin {
+class _LoginScreenState extends State<LoginScreen>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _animController;
   bool _isSigningIn = false;
 
@@ -29,7 +29,10 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
   }
 
   @override
-  void dispose() { _animController.dispose(); super.dispose(); }
+  void dispose() {
+    _animController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,10 +62,12 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
             children: [
               const BigMascot(size: 160, float_: true),
               const SizedBox(height: 32),
-              Text(l10n.welcomeGreeting, textAlign: TextAlign.center,
+              Text(l10n.welcomeGreeting,
+                  textAlign: TextAlign.center,
                   style: AppTheme.display(size: 36)),
               const SizedBox(height: 8),
-              Text(l10n.welcomeSubtitle, textAlign: TextAlign.center,
+              Text(l10n.welcomeSubtitle,
+                  textAlign: TextAlign.center,
                   style: AppTheme.body(size: 16, color: AppColors.mutedPurple)),
               const SizedBox(height: 40),
               BubbleButton(
@@ -73,12 +78,16 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
               ),
               const SizedBox(height: 16),
               Row(children: [
-                const Expanded(child: Divider(color: AppColors.pinkSoft, thickness: 1)),
+                const Expanded(
+                    child: Divider(color: AppColors.pinkSoft, thickness: 1)),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 12),
-                  child: Text(l10n.welcomeOrDivider, style: AppTheme.body(size: 12, color: AppColors.mutedPurple)),
+                  child: Text(l10n.welcomeOrDivider,
+                      style: AppTheme.body(
+                          size: 12, color: AppColors.mutedPurple)),
                 ),
-                const Expanded(child: Divider(color: AppColors.pinkSoft, thickness: 1)),
+                const Expanded(
+                    child: Divider(color: AppColors.pinkSoft, thickness: 1)),
               ]),
               const SizedBox(height: 16),
               BubbleButton.secondary(
@@ -102,7 +111,8 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
             color: AppColors.pinkBg,
             child: Center(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 64, vertical: 60),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 64, vertical: 60),
                 child: FadeTransition(
                   opacity: _animController,
                   child: Column(
@@ -110,11 +120,14 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                     children: [
                       const BigMascot(size: 200, float_: true),
                       const SizedBox(height: 40),
-                      Text(l10n.welcomeGreeting, textAlign: TextAlign.center,
+                      Text(l10n.welcomeGreeting,
+                          textAlign: TextAlign.center,
                           style: AppTheme.display(size: 44)),
                       const SizedBox(height: 8),
-                      Text(l10n.welcomeSubtitle, textAlign: TextAlign.center,
-                          style: AppTheme.body(size: 16, color: AppColors.mutedPurple)),
+                      Text(l10n.welcomeSubtitle,
+                          textAlign: TextAlign.center,
+                          style: AppTheme.body(
+                              size: 16, color: AppColors.mutedPurple)),
                       const SizedBox(height: 48),
                       BubbleButton(
                         label: l10n.welcomeGoogleSignIn,
@@ -144,7 +157,8 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
-                    width: 360, height: 360,
+                    width: 360,
+                    height: 360,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: AppColors.pink.withValues(alpha: 0.10),
@@ -155,8 +169,10 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                   const SizedBox(height: 24),
                   Text(l10n.appTitle, style: AppTheme.display(size: 32)),
                   const SizedBox(height: 8),
-                  Text(l10n.welcomeSubtitle, textAlign: TextAlign.center,
-                      style: AppTheme.body(size: 16, color: AppColors.mutedPurple)),
+                  Text(l10n.welcomeSubtitle,
+                      textAlign: TextAlign.center,
+                      style: AppTheme.body(
+                          size: 16, color: AppColors.mutedPurple)),
                 ],
               ),
             ),

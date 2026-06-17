@@ -1,5 +1,3 @@
-import 'url_launcher_stub.dart'
-    if (dart.library.html) 'url_launcher_web.dart';
+import 'url_launcher_stub.dart' if (dart.library.html) 'url_launcher_web.dart';
 
-export 'url_launcher_stub.dart'
-    if (dart.library.html) 'url_launcher_web.dart';
+export 'url_launcher_stub.dart' if (dart.library.html) 'url_launcher_web.dart';

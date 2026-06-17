@@ -7,7 +7,6 @@ import '../core/app_theme.dart';
 import '../l10n/app_localizations.dart';
 import '../providers/app_providers.dart';
 import '../services/local_storage_service.dart';
-import '../widgets/bubble_button.dart';
 import '../widgets/kid_card.dart';
 import '../widgets/kid_progress_bar.dart';
 import '../widgets/mascot.dart';
@@ -31,7 +30,12 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen> {
       'options': [
         {'vi': 'Đếm đến 10', 'en': 'Up to 10', 'value': 10, 'emoji': '🔟'},
         {'vi': 'Đếm đến 50', 'en': 'Up to 50', 'value': 50, 'emoji': '5️⃣'},
-        {'vi': 'Đếm đến 100 hoặc hơn', 'en': 'Up to 100 or more', 'value': 100, 'emoji': '💯'},
+        {
+          'vi': 'Đếm đến 100 hoặc hơn',
+          'en': 'Up to 100 or more',
+          'value': 100,
+          'emoji': '💯'
+        },
       ],
     },
     {
@@ -59,9 +63,24 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen> {
       'en': 'What do you like most?',
       'icon': '💖',
       'options': [
-        {'vi': 'Được khen giỏi', 'en': 'Being praised', 'value': 0, 'emoji': '🏆'},
-        {'vi': 'Chơi game, nhận quà', 'en': 'Games and rewards', 'value': 1, 'emoji': '🎮'},
-        {'vi': 'Tự học một mình', 'en': 'Learning quietly', 'value': 2, 'emoji': '🤫'},
+        {
+          'vi': 'Được khen giỏi',
+          'en': 'Being praised',
+          'value': 0,
+          'emoji': '🏆'
+        },
+        {
+          'vi': 'Chơi game, nhận quà',
+          'en': 'Games and rewards',
+          'value': 1,
+          'emoji': '🎮'
+        },
+        {
+          'vi': 'Tự học một mình',
+          'en': 'Learning quietly',
+          'value': 2,
+          'emoji': '🤫'
+        },
       ],
     },
   ];
@@ -93,7 +112,8 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen> {
                   separatorBuilder: (_, __) => const SizedBox(height: 10),
                   itemBuilder: (context, index) {
                     final isSelected = _answers[_currentQuestion] == index;
-                    return _optionCard(options[index], isSelected, () => _selectAnswer(index));
+                    return _optionCard(
+                        options[index], isSelected, () => _selectAnswer(index));
                   },
                 ),
               ),
@@ -102,7 +122,8 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen> {
                   child: TextButton(
                     onPressed: () => context.go('/home'),
                     child: Text(l10n.assessmentSkip(answeredCount),
-                        style: AppTheme.body(size: 13, color: AppColors.mutedPurple)),
+                        style: AppTheme.body(
+                            size: 13, color: AppColors.mutedPurple)),
                   ),
                 ),
             ],
@@ -130,12 +151,20 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen> {
         GestureDetector(
           onTap: () => context.go('/home'),
           child: Container(
-            width: 40, height: 40,
+            width: 40,
+            height: 40,
             decoration: BoxDecoration(
-              color: AppColors.white, shape: BoxShape.circle,
-              boxShadow: const [BoxShadow(color: AppColors.pinkSoft, offset: Offset(0, 3), blurRadius: 0)],
+              color: AppColors.white,
+              shape: BoxShape.circle,
+              boxShadow: const [
+                BoxShadow(
+                    color: AppColors.pinkSoft,
+                    offset: Offset(0, 3),
+                    blurRadius: 0)
+              ],
             ),
-            child: const Icon(Icons.close, color: AppColors.deepPurple, size: 20),
+            child:
+                const Icon(Icons.close, color: AppColors.deepPurple, size: 20),
           ),
         ),
       ],
@@ -145,7 +174,8 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen> {
   Widget _buildProgressDots() {
     return KidProgressBar(
       value: (_currentQuestion + 1) / _questions.length,
-      color: AppColors.purple, height: 12,
+      color: AppColors.purple,
+      height: 12,
     );
   }
 
@@ -163,7 +193,10 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen> {
           Expanded(
             child: Text(
               questionText,
-              style: AppTheme.display(size: 20, color: AppColors.deepPurple, weight: FontWeight.w800),
+              style: AppTheme.display(
+                  size: 20,
+                  color: AppColors.deepPurple,
+                  weight: FontWeight.w800),
             ),
           ),
         ],
@@ -171,7 +204,8 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen> {
     );
   }
 
-  Widget _optionCard(Map<String, dynamic> option, bool isSelected, VoidCallback onTap) {
+  Widget _optionCard(
+      Map<String, dynamic> option, bool isSelected, VoidCallback onTap) {
     final locale = Localizations.localeOf(context);
     final optionText = option[locale.languageCode] as String;
     final emoji = option['emoji'] as String? ?? '✨';
@@ -190,7 +224,8 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen> {
           boxShadow: [
             BoxShadow(
               color: isSelected ? AppColors.pinkSoft : Colors.transparent,
-              offset: const Offset(0, 4), blurRadius: 0,
+              offset: const Offset(0, 4),
+              blurRadius: 0,
             ),
           ],
         ),
@@ -198,8 +233,11 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen> {
           children: [
             Text(emoji, style: const TextStyle(fontSize: 32)),
             const SizedBox(width: 12),
-            Expanded(child: Text(optionText, style: AppTheme.display(size: 16))),
-            if (isSelected) const Text('✓', style: TextStyle(fontSize: 24, color: AppColors.pink)),
+            Expanded(
+                child: Text(optionText, style: AppTheme.display(size: 16))),
+            if (isSelected)
+              const Text('✓',
+                  style: TextStyle(fontSize: 24, color: AppColors.pink)),
           ],
         ),
       ),
@@ -208,11 +246,16 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen> {
 
   String _getQuestionText(AppLocalizations l10n, int index) {
     switch (index) {
-      case 0: return l10n.assessmentQuestion1;
-      case 1: return l10n.assessmentQuestion2;
-      case 2: return l10n.assessmentQuestion3;
-      case 3: return l10n.assessmentQuestion4;
-      default: return l10n.assessmentQuestion1;
+      case 0:
+        return l10n.assessmentQuestion1;
+      case 1:
+        return l10n.assessmentQuestion2;
+      case 2:
+        return l10n.assessmentQuestion3;
+      case 3:
+        return l10n.assessmentQuestion4;
+      default:
+        return l10n.assessmentQuestion1;
     }
   }
 

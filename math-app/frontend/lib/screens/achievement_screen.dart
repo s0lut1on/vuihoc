@@ -6,7 +6,6 @@ import '../core/app_theme.dart';
 import '../models/achievement_model.dart';
 import '../services/achievement_service.dart';
 import '../providers/app_providers.dart';
-import '../widgets/kid_card.dart';
 import '../widgets/mascot.dart';
 
 class AchievementScreen extends ConsumerStatefulWidget {
@@ -80,24 +79,30 @@ class _AchievementScreenState extends ConsumerState<AchievementScreen> {
             _header(context, earned, _badges.length),
             Expanded(
               child: _loading
-                  ? const Center(child: CircularProgressIndicator(color: AppColors.pink))
+                  ? const Center(
+                      child: CircularProgressIndicator(color: AppColors.pink))
                   : _badges.isEmpty
-                      ? Center(child: Text('Chưa có huy chương nào',
-                          style: AppTheme.display(size: 20, color: AppColors.mutedPurple)))
-                  : GridView.builder(
-                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        mainAxisSpacing: 12,
-                        crossAxisSpacing: 12,
-                        childAspectRatio: 0.85,
-                      ),
-                      itemCount: _badges.length,
-                      itemBuilder: (context, i) => _BadgeTile(
-                        badge: _badges[i],
-                        onTap: _badges[i].isNew ? () => _markRead(_badges[i].badgeType) : null,
-                      ),
-                    ),
+                      ? Center(
+                          child: Text('Chưa có huy chương nào',
+                              style: AppTheme.display(
+                                  size: 20, color: AppColors.mutedPurple)))
+                      : GridView.builder(
+                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 3,
+                            mainAxisSpacing: 12,
+                            crossAxisSpacing: 12,
+                            childAspectRatio: 0.85,
+                          ),
+                          itemCount: _badges.length,
+                          itemBuilder: (context, i) => _BadgeTile(
+                            badge: _badges[i],
+                            onTap: _badges[i].isNew
+                                ? () => _markRead(_badges[i].badgeType)
+                                : null,
+                          ),
+                        ),
             ),
           ],
         ),
@@ -109,7 +114,10 @@ class _AchievementScreenState extends ConsumerState<AchievementScreen> {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
       decoration: const BoxDecoration(
-        gradient: LinearGradient(colors: [AppColors.orangeSoft, AppColors.pinkSoft], begin: Alignment.topLeft, end: Alignment.bottomRight),
+        gradient: LinearGradient(
+            colors: [AppColors.orangeSoft, AppColors.pinkSoft],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight),
         borderRadius: BorderRadius.vertical(bottom: Radius.circular(28)),
       ),
       child: Column(
@@ -117,9 +125,12 @@ class _AchievementScreenState extends ConsumerState<AchievementScreen> {
           Row(
             children: [
               _circleBtn(Icons.arrow_back, () {
-                if (widget.onBack != null) widget.onBack!();
-                else if (ctx.canPop()) ctx.pop();
-                else ctx.go('/home');
+                if (widget.onBack != null)
+                  widget.onBack!();
+                else if (ctx.canPop())
+                  ctx.pop();
+                else
+                  ctx.go('/home');
               }),
               const Spacer(),
               const BigMascot(size: 48, emoji: '🏅'),
@@ -141,10 +152,15 @@ class _AchievementScreenState extends ConsumerState<AchievementScreen> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 40, height: 40,
+        width: 40,
+        height: 40,
         decoration: BoxDecoration(
-          color: AppColors.white, shape: BoxShape.circle,
-          boxShadow: const [BoxShadow(color: AppColors.pinkSoft, offset: Offset(0, 3), blurRadius: 0)],
+          color: AppColors.white,
+          shape: BoxShape.circle,
+          boxShadow: const [
+            BoxShadow(
+                color: AppColors.pinkSoft, offset: Offset(0, 3), blurRadius: 0)
+          ],
         ),
         child: Icon(icon, color: AppColors.deepPurple, size: 20),
       ),
@@ -169,11 +185,14 @@ class _BadgeTile extends StatelessWidget {
           decoration: BoxDecoration(
             color: earned ? AppColors.cream : AppColors.white,
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: isNew ? AppColors.pink : AppColors.divider, width: isNew ? 3 : 2),
+            border: Border.all(
+                color: isNew ? AppColors.pink : AppColors.divider,
+                width: isNew ? 3 : 2),
             boxShadow: [
               BoxShadow(
                 color: earned ? AppColors.pinkSoft : Colors.transparent,
-                offset: const Offset(0, 4), blurRadius: 0,
+                offset: const Offset(0, 4),
+                blurRadius: 0,
               ),
             ],
           ),
@@ -186,25 +205,37 @@ class _BadgeTile extends StatelessWidget {
                   Text(badge.icon, style: const TextStyle(fontSize: 48)),
                   if (isNew)
                     Positioned(
-                      top: -8, right: -8,
+                      top: -8,
+                      right: -8,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
                           color: AppColors.pink,
                           borderRadius: BorderRadius.circular(999),
                         ),
                         child: Text('MỚI',
-                            style: AppTheme.body(size: 9, color: AppColors.white, weight: FontWeight.w800)),
+                            style: AppTheme.body(
+                                size: 9,
+                                color: AppColors.white,
+                                weight: FontWeight.w800)),
                       ),
                     ),
                 ],
               ),
               const SizedBox(height: 4),
-              Text(badge.name, maxLines: 1, overflow: TextOverflow.ellipsis,
+              Text(badge.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.center,
-                  style: AppTheme.display(size: 11, color: earned ? AppColors.deepPurple : AppColors.mutedText)),
+                  style: AppTheme.display(
+                      size: 11,
+                      color:
+                          earned ? AppColors.deepPurple : AppColors.mutedText)),
               const SizedBox(height: 2),
-              Text(badge.description, maxLines: 2, overflow: TextOverflow.ellipsis,
+              Text(badge.description,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.center,
                   style: AppTheme.body(size: 9, color: AppColors.mutedPurple)),
             ],

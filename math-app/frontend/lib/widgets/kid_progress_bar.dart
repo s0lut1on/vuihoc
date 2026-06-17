@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../core/app_colors.dart';
-import '../core/app_theme.dart';
 
 /// Cute pill-shaped progress bar with rounded "bubble" cap.
 class KidProgressBar extends StatelessWidget {
@@ -28,7 +27,8 @@ class KidProgressBar extends StatelessWidget {
         widthFactor: pct,
         child: Container(
           decoration: BoxDecoration(
-            gradient: LinearGradient(colors: [AppColors.pink, AppColors.orange]),
+            gradient:
+                LinearGradient(colors: [AppColors.pink, AppColors.orange]),
             borderRadius: BorderRadius.circular(height / 2),
           ),
         ),

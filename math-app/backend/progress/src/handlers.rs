@@ -356,14 +356,11 @@ pub async fn update_exercise_stat(
     let now = chrono::Utc::now();
     let next_review = if is_correct {
         let new_interval = match existing {
-            Ok(Some(ref stat)) => {
-                crate::spaced_repetition::compute_new_interval_days(
-                    stat.interval_days,
-                    true,
-                    stat.correct_count + 1,
-                )
-            }
-            Ok(None) | Err(_) => 1,
+            Ok(Some(ref stat)) => crate::spaced_repetition::compute_new_interval_days(
+                stat.interval_days,
+                true,
+                stat.correct_count + 1,
+            ),
             _ => 1,
         };
         now + chrono::Duration::days(new_interval as i64)

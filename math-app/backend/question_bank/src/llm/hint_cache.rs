@@ -10,7 +10,6 @@
 //! for a shared cache (Redis, Memcached) without changing the public API.
 
 use std::collections::HashMap;
-use std::hash::Hash;
 use std::time::{Duration, Instant};
 
 /// Result of an attempt to use the rate limiter.

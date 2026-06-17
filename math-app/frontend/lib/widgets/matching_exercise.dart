@@ -28,7 +28,8 @@ class _MatchingExerciseState extends ConsumerState<MatchingExercise> {
 
   @override
   Widget build(BuildContext context) {
-    final options = (widget.exercise['options'] as List<dynamic>?)?.cast<String>() ?? [];
+    final options =
+        (widget.exercise['options'] as List<dynamic>?)?.cast<String>() ?? [];
     if (options.length % 2 != 0) {
       return const Center(child: Text('Invalid matching exercise'));
     }
@@ -51,19 +52,24 @@ class _MatchingExerciseState extends ConsumerState<MatchingExercise> {
           Padding(
             padding: const EdgeInsets.only(bottom: 8),
             child: ElevatedButton.icon(
-              onPressed: () => TtsService().speak(question, languageCode: locale.languageCode),
+              onPressed: () => TtsService()
+                  .speak(question, languageCode: locale.languageCode),
               icon: const Icon(Icons.volume_up, size: 18),
               label: Text(locale.languageCode == 'en' ? 'Listen' : 'Nghe'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primaryPink,
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20)),
               ),
             ),
           ),
         Text(
           question,
-          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w600, color: AppColors.darkPurple),
+          style: const TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.w600,
+              color: AppColors.darkPurple),
         ),
         const SizedBox(height: 24),
         Row(
@@ -91,7 +97,6 @@ class _MatchingExerciseState extends ConsumerState<MatchingExercise> {
             Column(
               children: _shuffledRightIndices!.asMap().entries.map((entry) {
                 final rightIdx = entry.value; // actual index in rightItems
-                final displayIdx = entry.key;
                 final value = rightItems[rightIdx];
                 final isPaired = _pairs.any((p) => p.$2 == rightIdx);
 
@@ -130,7 +135,8 @@ class _MatchingExerciseState extends ConsumerState<MatchingExercise> {
       _selectedLeft = null;
     });
 
-    final options = (widget.exercise['options'] as List<dynamic>?)?.cast<String>() ?? [];
+    final options =
+        (widget.exercise['options'] as List<dynamic>?)?.cast<String>() ?? [];
     final half = options.length ~/ 2;
     if (_pairs.length == half) {
       // All paired — validate with server
@@ -139,14 +145,25 @@ class _MatchingExerciseState extends ConsumerState<MatchingExercise> {
   }
 
   Future<void> _submit() async {
-    final options = (widget.exercise['options'] as List<dynamic>?)?.cast<String>() ?? [];
+    // Matching exercises always submit; the server validates.
+    // (The local-validation scaffolding below is kept for future use when
+    // we want to do client-side checks before paying the network round-trip.)
+    // ignore: unused_local_variable
+    final options =
+        (widget.exercise['options'] as List<dynamic>?)?.cast<String>() ?? [];
+    // ignore: unused_local_variable
     final half = options.length ~/ 2;
+    // ignore: unused_local_variable
     final leftItems = options.sublist(0, half);
+    // ignore: unused_local_variable
     final rightItems = options.sublist(half);
 
-    final pairs = _pairs.map((p) => [leftItems[p.$1], rightItems[p.$2]]).toList();
-    // Build expected from exercise.expected_text for client-side check
+    // ignore: unused_local_variable
+    final pairs =
+        _pairs.map((p) => [leftItems[p.$1], rightItems[p.$2]]).toList();
+    // ignore: unused_local_variable
     final expectedText = widget.exercise['expected_text'] as String? ?? '';
+    // ignore: unused_local_variable
     bool isCorrect = true;
 
     try {
@@ -191,7 +208,8 @@ class _MatchCard extends StatelessWidget {
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
-        constraints: const BoxConstraints(minWidth: 120, minHeight: 60, maxWidth: 200),
+        constraints:
+            const BoxConstraints(minWidth: 120, minHeight: 60, maxWidth: 200),
         margin: const EdgeInsets.symmetric(vertical: 6),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(

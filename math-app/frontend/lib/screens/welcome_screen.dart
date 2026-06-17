@@ -28,13 +28,17 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
   @override
   void initState() {
     super.initState();
-    _anim = AnimationController(vsync: this, duration: const Duration(milliseconds: 1200));
+    _anim = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 1200));
     _scale = CurvedAnimation(parent: _anim, curve: Curves.elasticOut);
     _anim.forward();
   }
 
   @override
-  void dispose() { _anim.dispose(); super.dispose(); }
+  void dispose() {
+    _anim.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -83,7 +87,8 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
                   mainAxisSpacing: 12,
                   crossAxisSpacing: 12,
                   childAspectRatio: 0.85,
-                  children: Persona.values.map((p) => _personaCard(p, l10n)).toList(),
+                  children:
+                      Persona.values.map((p) => _personaCard(p, l10n)).toList(),
                 ),
               ),
             ),
@@ -92,8 +97,9 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('${l10n.parentDashboardSettings == null ? 'Lớp' : 'Lớp'}: ',
-                      style: AppTheme.body(size: 16, color: AppColors.mutedPurple)),
+                  Text('Lớp: ',
+                      style: AppTheme.body(
+                          size: 16, color: AppColors.mutedPurple)),
                   const SizedBox(width: 8),
                   for (var g in const [1, 2, 3]) ...[
                     _gradeChip(g, l10n),
@@ -128,10 +134,16 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
         decoration: BoxDecoration(
           color: selected ? p.backgroundColor : AppColors.white,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: selected ? AppColors.pink : AppColors.pinkSoft, width: selected ? 4 : 3),
+          border: Border.all(
+              color: selected ? AppColors.pink : AppColors.pinkSoft,
+              width: selected ? 4 : 3),
           boxShadow: [
-            const BoxShadow(color: AppColors.pinkSoft, offset: Offset(0, 6), blurRadius: 0),
-            BoxShadow(color: AppColors.purple.withValues(alpha: 0.10), offset: const Offset(0, 8), blurRadius: 16),
+            const BoxShadow(
+                color: AppColors.pinkSoft, offset: Offset(0, 6), blurRadius: 0),
+            BoxShadow(
+                color: AppColors.purple.withValues(alpha: 0.10),
+                offset: const Offset(0, 8),
+                blurRadius: 16),
           ],
         ),
         child: Column(
@@ -152,10 +164,14 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
 
   String _personaName(Persona p) {
     switch (p) {
-      case Persona.achiever: return 'Học giỏi';
-      case Persona.gamer: return 'Chơi game';
-      case Persona.struggler: return 'Cần động viên';
-      case Persona.silent: return 'Nhút nhát';
+      case Persona.achiever:
+        return 'Học giỏi';
+      case Persona.gamer:
+        return 'Chơi game';
+      case Persona.struggler:
+        return 'Cần động viên';
+      case Persona.silent:
+        return 'Nhút nhát';
     }
   }
 
@@ -168,10 +184,13 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
         decoration: BoxDecoration(
           color: selected ? AppColors.pink : AppColors.white,
           borderRadius: BorderRadius.circular(999),
-          border: Border.all(color: selected ? AppColors.pink : AppColors.pinkSoft, width: 2),
+          border: Border.all(
+              color: selected ? AppColors.pink : AppColors.pinkSoft, width: 2),
         ),
         child: Text('Lớp $g',
-            style: AppTheme.display(size: 16, color: selected ? AppColors.white : AppColors.deepPurple)),
+            style: AppTheme.display(
+                size: 16,
+                color: selected ? AppColors.white : AppColors.deepPurple)),
       ),
     );
   }

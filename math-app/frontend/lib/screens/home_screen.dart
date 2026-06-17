@@ -4,10 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../core/app_colors.dart';
 import '../core/app_theme.dart';
 import '../l10n/app_localizations.dart';
-import '../models/persona_model.dart';
 import '../providers/app_providers.dart';
-import '../services/progress_api.dart';
-import '../services/user_api.dart';
 import '../widgets/bubble_button.dart';
 import '../widgets/kid_card.dart';
 import '../widgets/kid_nav_bar.dart';
@@ -39,7 +36,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   StreakBadge(
-                    days: (streakAsync.valueOrNull?['current_streak'] as int?) ?? 0,
+                    days:
+                        (streakAsync.valueOrNull?['current_streak'] as int?) ??
+                            0,
                     onTap: () => context.go('/achievements'),
                   ),
                   const SizedBox(width: 8),
@@ -87,7 +86,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     const SizedBox(height: 12),
                     // 4-up stat row
                     LayoutBuilder(builder: (context, c) {
-                      final wide = c.maxWidth > 900;
                       final cards = [
                         _Stat(
                             emoji: '🏆',

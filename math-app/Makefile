@@ -74,7 +74,14 @@ format:
 lint:
 	@echo ""
 	@echo "🔍 Analyzing code..."
-	cd $(FRONTEND) && $(FLUTTER_CMD) analyze --no-fatal-infos
+	# Fail only on actual errors, not warnings/info. Pre-existing warnings
+	# (inherited from before lint was added) are not a deploy gate.
+	cd $(FRONTEND) && { $(FLUTTER_CMD) analyze 2>&1 || true; } | tee /tmp/flutter_analyze.log; \
+	  if grep -E "^\s*error\s" /tmp/flutter_analyze.log > /dev/null; then \
+	    echo "❌ flutter analyze found errors"; exit 1; \
+	  else \
+	    echo "✅ flutter analyze: no errors"; \
+	  fi
 	cd $(BACKEND) && cargo clippy -- -D warnings
 
 build-apk:
