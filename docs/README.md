@@ -108,6 +108,34 @@ The script is idempotent — safe to re-run. It generates a fresh `.env`
 only on the first run; subsequent runs skip the generation and just
 refresh the cron + apt packages.
 
+### Locked out after bootstrap? Run vps-unlock from the console
+
+If `vps-bootstrap.sh` left you unable to SSH back in (most common
+cause: fail2ban auto-banned your IP after the git clone's failed SSH
+handshake, OR ufw activated with wrong rules), you need to recover
+from your VPS provider's web console (Hetzner Cloud Console, DO
+Droplet Console, AWS Lightsail Terminal, etc — anywhere you can get a
+shell without going through SSH).
+
+```bash
+# From the VPS console (NOT over SSH):
+curl -sSL https://raw.githubusercontent.com/s0lut1on/vuihoc/main/math-app/scripts/vps-unlock.sh | bash
+# or if you have the repo cloned:
+cd /root/math-app/math-app && bash scripts/vps-unlock.sh
+```
+
+`vps-unlock.sh` will:
+1. Disable ufw (if accidentally enabled)
+2. Unban all fail2ban IPs
+3. Verify sshd is running + listening on port 22
+4. Regenerate missing host keys
+5. Verify `~/.ssh/authorized_keys` has at least one key (most common
+   cause of "permission denied" — ssh-copy-id failed silently)
+6. Restore a safe `sshd_config` if yours got corrupted
+7. Restart sshd safely
+
+Then retry SSH from your laptop.
+
 ### Or: run on the VPS directly
 
 ```bash

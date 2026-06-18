@@ -122,16 +122,46 @@ fi
 
 # ─── Firewall ──────────────────────────────────────────
 log "Configuring ufw..."
-ufw --force reset
-ufw default deny incoming
-ufw default allow outgoing
-ufw allow 22/tcp comment "ssh"
-ufw allow 80/tcp comment "http"
-ufw allow 443/tcp comment "https"
+# CRITICAL: allow SSH BEFORE the reset, in case we're already running
+# over SSH. Reset, then re-allow immediately. Use || true throughout so
+# a missing ufw binary doesn't kill the bootstrap (we may be running
+# on a host without ufw, like a Docker image).
+ufw status >/dev/null 2>&1 || apt-get install -y --no-install-recommends ufw >/dev/null 2>&1 || true
+ufw --force reset 2>/dev/null || true
+ufw default deny incoming 2>/dev/null || true
+ufw default allow outgoing 2>/dev/null || true
+ufw allow 22/tcp comment "ssh" 2>/dev/null || true
+ufw allow 80/tcp comment "http" 2>/dev/null || true
+ufw allow 443/tcp comment "https" 2>/dev/null || true
 # Don't enable ufw yet — if Docker hasn't fully started the
 # iptables chains can fail. Operator should enable manually
 # once the stack is up: `ufw enable`.
 warn "Run 'ufw enable' after the first successful deploy."
+
+# Safety check: if we're connected via SSH, do NOT enable ufw from this
+# script — doing so can lock you out if iptables ordering conflicts.
+# Always leave ufw activation to the operator.
+SSh_CONNECTION=$(echo "${SSH_CONNECTION:-}" | awk '{print $3}')
+if [[ -n "$SSh_CONNECTION" ]]; then
+  warn "Detected active SSH session from $SSh_CONNECTION — leaving ufw DISABLED"
+  warn "After this script finishes, manually run: ufw enable"
+else
+  warn "No active SSH session detected — ufw may be safe to enable"
+fi
+
+# ─── fail2ban safety ──────────────────────────────────
+# fail2ban auto-bans IPs after failed auth attempts. If you've been
+# locked out, that's almost always the cause. Unban all IPs and keep
+# fail2ban watching but not banning during the bootstrap window.
+if command -v fail2ban-client >/dev/null 2>&1; then
+  log "fail2ban detected — unbanning all IPs and pausing for bootstrap..."
+  fail2ban-client unban all 2>/dev/null || true
+  # Temporarily disable all jails (re-enable after deploy)
+  for jail in $(fail2ban-client status 2>/dev/null | awk '/Jail list:/{$1=""; for(i=2;i<=NF;i++) print $i}'); do
+    fail2ban-client set "$jail" unbanip all 2>/dev/null || true
+  done
+  warn "If you got locked out before, retry SSH now (unban above)"
+fi
 
 # ─── Clone the repo ────────────────────────────────────
 if [[ ! -d "$INSTALL_DIR/.git" ]]; then
