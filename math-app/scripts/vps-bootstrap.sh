@@ -4,7 +4,7 @@
 # What it does:
 #   1. Installs Docker Engine + Compose plugin v2 (if missing)
 #   2. Installs git, openssh-server, ufw, fail2ban, ca-certificates, curl
-#   3. Clones the repo to /root/math-app/math-app
+#   3. Clones the repo to /root/math-app/math-app (SSH or HTTPS)
 #   4. Creates a deploy-friendly .env from .env.example with random
 #      passwords for the 8 PostgreSQL databases and the Redis URL
 #   5. Opens firewall ports 22, 80, 443
@@ -14,12 +14,33 @@
 #   7. Prints the generated .env contents so you can copy them to
 #      GitHub Secrets
 #
-# Usage (run once on a fresh VPS):
-#   ssh root@YOUR_VPS
-#   curl -sSL https://raw.githubusercontent.com/s0lut1on/vuihoc/main/math-app/scripts/vps-bootstrap.sh | bash
-#   # or, if you have the repo already cloned:
-#   cd math-app/math-app
-#   bash scripts/vps-bootstrap.sh
+# ─── PRIVATE REPOS ──────────────────────────────────────────
+# The repo `s0lut1on/vuihoc` is private. `curl | bash` won't work for
+# cloning because GitHub refuses to clone a private repo without
+# credentials. Two options:
+#
+# Option A: SSH (recommended) — generate a key first, push it to the
+#   VPS, then run the bootstrap with REPO_URL=git@github.com:...
+#   1. On your laptop:
+#        ssh-keygen -t ed25519 -f ~/.ssh/math_app_deploy -C "vps-deploy"
+#        ssh-copy-id -i ~/.ssh/math_app_deploy.pub root@YOUR_VPS
+#        cat ~/.ssh/math_app_deploy    # copy this private key
+#   2. SSH into the VPS:
+#        ssh root@YOUR_VPS
+#        mkdir -p ~/.ssh && chmod 700 ~/.ssh
+#        # paste the private key from step 1:
+#        nano ~/.ssh/math_app_deploy    # paste, Ctrl-O, Ctrl-X
+#        chmod 600 ~/.ssh/math_app_deploy
+#        # Test the key works:
+#        ssh -i ~/.ssh/math_app_deploy -T git@github.com
+#   3. Run the bootstrap:
+#        REPO_URL=git@github.com:s0lut1on/vuihoc.git \
+#        bash scripts/vps-bootstrap.sh
+#
+# Option B: HTTPS + Personal Access Token — embed a PAT in the URL
+#   (less secure; the token ends up in shell history and ps aux).
+#        REPO_URL=https://<PAT>@github.com/s0lut1on/vuihoc.git \
+#        bash scripts/vps-bootstrap.sh
 #
 # After this script finishes:
 #   - Run `./scripts/deploy-local.sh` once to build + start the stack
@@ -29,7 +50,9 @@
 
 set -euo pipefail
 
-REPO_URL="${REPO_URL:-https://github.com/s0lut1on/vuihoc.git}"
+REPO_URL="${REPO_URL:-git@github.com:s0lut1on/vuihoc.git}"
+# To use HTTPS instead (with a Personal Access Token embedded):
+#   REPO_URL=https://<PAT>@github.com/s0lut1on/vuihoc.git
 REPO_BRANCH="${REPO_BRANCH:-main}"
 INSTALL_DIR="${INSTALL_DIR:-/root/math-app/math-app}"
 

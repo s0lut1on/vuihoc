@@ -60,20 +60,39 @@ For a fresh VPS that has nothing installed, run the bootstrap script
 once to install Docker, clone the repo, generate `.env` with random
 passwords, and schedule a daily auto-deploy cron.
 
+**The repo is private**, so you need to set up SSH key auth FIRST
+(GitHub won't clone a private repo over HTTPS without a Personal
+Access Token):
+
 ```bash
-# From your laptop, after a fresh VPS is reachable via SSH:
-ssh root@NEW_VPS
-curl -sSL https://raw.githubusercontent.com/s0lut1on/vuihoc/main/math-app/scripts/vps-bootstrap.sh | bash
+# On your laptop (one-time):
+ssh-keygen -t ed25519 -f ~/.ssh/math_app_deploy -C "vps-deploy"
+ssh-copy-id -i ~/.ssh/math_app_deploy.pub root@YOUR_NEW_VPS
+
+# SSH into VPS:
+ssh root@YOUR_NEW_VPS
+
+# Now run the bootstrap (default REPO_URL is git@github.com:...):
+bash scripts/vps-bootstrap.sh
+# Or pull from a raw URL after pushing your SSH key to the VPS:
+#   curl -sSL https://raw.githubusercontent.com/s0lut1on/vuihoc/main/math-app/scripts/vps-bootstrap.sh | bash
+
 # Then start the stack:
 cd /root/math-app/math-app
 bash scripts/deploy-local.sh
+
 # Enable firewall once the stack is up:
 ufw enable
 ```
 
-The bootstrap script is idempotent — safe to re-run. It generates a
-fresh `.env` only on the first run; subsequent runs skip the
-generation and just refresh the cron + apt packages.
+The bootstrap script defaults to `REPO_URL=git@github.com:s0lut1on/vuihoc.git`
+(SSH — assumes the deploying user's key is in `/root/.ssh/`). Override
+with `REPO_URL=https://<PAT>@github.com/...` for HTTPS if you'd rather
+embed a Personal Access Token.
+
+The script is idempotent — safe to re-run. It generates a fresh `.env`
+only on the first run; subsequent runs skip the generation and just
+refresh the cron + apt packages.
 
 ### Or: run on the VPS directly
 
