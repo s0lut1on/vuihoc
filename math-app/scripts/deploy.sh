@@ -96,7 +96,19 @@ if [[ -z "$FLUTTER_BIN" ]]; then
   warn "flutter not on PATH and not found in standard locations — frontend build will skip"
 fi
 
-ssh_run "docker --version && docker compose version" >/dev/null || err "VPS unreachable or docker compose missing (check ssh-agent has VPS key)"
+ssh_run "docker --version && docker compose version" >/dev/null || {
+  # Diagnose: is port 22 reachable at all?
+  if ! nc -z -w 5 "$VPS_HOST" 22 2>/dev/null; then
+    err "VPS port 22 is unreachable. Likely fail2ban/iptables block from too many auth attempts.
+  Recover via VPS provider's web console:
+    fail2ban-client set sshd unbanip <your-ip>
+    OR systemctl restart sshd
+  OR wait for fail2ban timeout (default 10 min)."
+  fi
+  err "VPS auth failed. Check ssh-agent has a key authorized for $VPS_USER@$VPS_HOST:
+  ssh-add -l                              # list loaded keys
+  ssh -v $VPS_USER@$VPS_HOST 'echo ok'    # verbose to see which key was rejected"
+}
 
 # ─── Step 1: Build Flutter web locally ────────────────────────────────────
 if ! $SKIP_FRONTEND; then
