@@ -163,6 +163,57 @@ if command -v fail2ban-client >/dev/null 2>&1; then
   warn "If you got locked out before, retry SSH now (unban above)"
 fi
 
+# ─── Pre-flight: SSH auth check (for private repos) ──────
+# If REPO_URL is SSH (git@github.com:...), make sure this VPS has a
+# private key that GitHub will accept BEFORE we try to clone. Saves a
+# confused user from "Permission denied" with no idea why.
+if [[ "$REPO_URL" =~ ^git@github\.com: ]] && [[ ! -d "$INSTALL_DIR/.git" ]]; then
+  log "Pre-flight: testing SSH auth to GitHub..."
+  # The "Permission denied (publickey)" error means the private key
+  # matching the pubkey you registered on GitHub isn't at /root/.ssh/.
+  # We don't fail the script — we just tell the user what's wrong and
+  # what to do — but we DO refuse to clone silently.
+  ssh_test_output=$(ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new \
+    -T git@github.com 2>&1 || true)
+  if echo "$ssh_test_output" | grep -q "successfully authenticated\|You've been authenticated"; then
+    ok "SSH auth to GitHub works — clone should succeed"
+  elif echo "$ssh_test_output" | grep -q "Permission denied (publickey)"; then
+    err "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    err " SSH auth to GitHub failed (Permission denied)"
+    err "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    err "Reason: the VPS has no private key that GitHub recognizes."
+    err ""
+    err "Fix on your LAPTOP, then retry on the VPS:"
+    err "  1. Generate a deploy key (if you haven't):"
+    err "       ssh-keygen -t ed25519 -f ~/.ssh/math_app_deploy -C \"vps-deploy\""
+    err ""
+    err "  2. Add the PUBKEY to GitHub (so the private key is authorized):"
+    err "       cat ~/.ssh/math_app_deploy.pub"
+    err "       paste at https://github.com/settings/keys"
+    err "     OR for repo-only access:"
+    err "       https://github.com/s0lut1on/vuihoc/settings/keys/new"
+    err "     (Allow write access: UNCHECKED)"
+    err ""
+    err "  3. Push the PRIVATE key to the VPS (so git on the VPS can use it):"
+    err "       scp ~/.ssh/math_app_deploy root@THIS_VPS:/root/.ssh/math_app_deploy"
+    err ""
+    err "  4. On the VPS, lock down perms and test:"
+    err "       ssh root@THIS_VPS"
+    err "       chmod 700 ~/.ssh && chmod 600 ~/.ssh/math_app_deploy"
+    err "       ssh -T git@github.com"
+    err "       # Should print: Hi <USER>! You've been authenticated."
+    err ""
+    err "  5. Retry bootstrap:"
+    err "       bash scripts/vps-bootstrap.sh"
+    err "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    err "Aborting — fix SSH auth first."
+    exit 7
+  else
+    warn "SSH test inconclusive: $ssh_test_output"
+    warn "Continuing — clone may fail with 'Permission denied'."
+  fi
+fi
+
 # ─── Clone the repo ────────────────────────────────────
 if [[ ! -d "$INSTALL_DIR/.git" ]]; then
   log "Cloning $REPO_URL (branch $REPO_BRANCH) into $INSTALL_DIR..."
