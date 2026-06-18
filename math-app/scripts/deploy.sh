@@ -62,33 +62,54 @@ ok()   { printf "${GRN}✅${NC} %s\n" "$*"; }
 warn() { printf "${YEL}⚠️${NC}  %s\n" "$*"; }
 err()  { printf "${RED}❌${NC} %s\n" "$*" >&2; exit 1; }
 
-SSH_OPTS=(-o ConnectTimeout=10 -o ServerAliveInterval=30)
-[[ -f "$SSH_KEY" ]] && SSH_OPTS+=(-i "$SSH_KEY")
+SSH_OPTS=(-o ConnectTimeout=10 -o ServerAliveInterval=30 -o BatchMode=yes)
+# Only force a specific key when user explicitly set VPS_SSH_KEY.
+# Otherwise let ssh pick from agent (which has the authorized keys).
+[[ -n "${VPS_SSH_KEY:-}" && -f "${VPS_SSH_KEY}" ]] && SSH_OPTS+=(-i "${VPS_SSH_KEY}")
 
 ssh_run() { ssh "${SSH_OPTS[@]}" "$VPS_USER@$VPS_HOST" "$@"; }
-rsync_to() { rsync -az --delete "$@" "$VPS_USER@$VPS_HOST:"; }
+rsync_to() { rsync -az --delete -e "ssh ${SSH_OPTS[*]}" "$@" "$VPS_USER@$VPS_HOST:"; }
+
+# Auto-detect flutter binary in well-known locations.
+find_flutter() {
+  if command -v flutter >/dev/null; then
+    command -v flutter
+    return
+  fi
+  for p in /home/s0lut1on/flutter/bin/flutter \
+           $HOME/flutter/bin/flutter \
+           /opt/flutter/bin/flutter \
+           /usr/local/flutter/bin/flutter; do
+    [[ -x "$p" ]] && { echo "$p"; return; }
+  done
+  return 1
+}
 
 # ─── Pre-flight ───────────────────────────────────────────────────────────
 step "Pre-flight checks"
 command -v docker >/dev/null || err "docker not on PATH (local)"
-command -v flutter >/dev/null || warn "flutter not on PATH — frontend build will skip"
 command -v rsync >/dev/null || err "rsync not on PATH"
 [[ -n "$GOOGLE_CLIENT_ID" ]] || err "GOOGLE_CLIENT_ID env var required (use --google-client-id)"
 
-ssh_run "docker --version && docker compose version" >/dev/null || err "VPS unreachable or docker compose missing"
+FLUTTER_BIN="$(find_flutter || true)"
+if [[ -z "$FLUTTER_BIN" ]]; then
+  warn "flutter not on PATH and not found in standard locations — frontend build will skip"
+fi
+
+ssh_run "docker --version && docker compose version" >/dev/null || err "VPS unreachable or docker compose missing (check ssh-agent has VPS key)"
 
 # ─── Step 1: Build Flutter web locally ────────────────────────────────────
 if ! $SKIP_FRONTEND; then
-  if command -v flutter >/dev/null; then
-    step "Building Flutter web (local)"
+  if [[ -n "$FLUTTER_BIN" ]]; then
+    step "Building Flutter web (local) using $FLUTTER_BIN"
     (cd "$LOCAL_FRONTEND" && \
-      flutter build web --release \
+      "$FLUTTER_BIN" build web --release \
         --dart-define=GOOGLE_CLIENT_ID="$GOOGLE_CLIENT_ID" \
         --no-tree-shake-icons) \
       || err "Flutter build failed"
     ok "Flutter web built → build/web/"
   else
-    warn "flutter not on PATH; skipping build (using existing build/web/)"
+    warn "flutter not found; skipping build (using existing build/web/ if present)"
   fi
 
   step "Syncing build/web to VPS"
