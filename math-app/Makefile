@@ -93,7 +93,7 @@ build-web:
 	@echo ""
 	@echo "🌐 Building web app..."
 	@GOOGLE_CLIENT_ID=$$(grep GOOGLE_CLIENT_ID .env 2>/dev/null | cut -d '=' -f2 | tr -d '[:space:]' || echo ""); \
-	@APP_VERSION=$$(git rev-parse --short HEAD 2>/dev/null || echo "dev"); \
+	APP_VERSION=$$(git rev-parse --short HEAD 2>/dev/null || echo "dev"); \
 	cd $(FRONTEND) && $(FLUTTER_CMD) build web --release --no-tree-shake-icons \
 		--dart-define=GOOGLE_CLIENT_ID=$$GOOGLE_CLIENT_ID \
 		--dart-define=APP_VERSION=$$APP_VERSION \
