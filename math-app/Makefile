@@ -191,7 +191,6 @@ docker-stop:
 deploy-vps:
 	@echo ""
 	@echo "🚀 Deploying to VPS (local build, no CI)..."
-	@echo "This script must be run ON the VPS, not from your laptop."
 	@echo ""
 	@if [ -z "$(VPS_HOST)" ]; then \
 		echo "❌ Set VPS_HOST=user@host before running"; \
@@ -200,8 +199,12 @@ deploy-vps:
 	fi
 	@if [ -z "$(VPS_SSH_KEY)" ]; then \
 		echo "❌ Set VPS_SSH_KEY=/path/to/key before running"; \
+		echo "   e.g. VPS_SSH_KEY=~/.ssh/id_ed25519_vps"; \
 		exit 1; \
 	fi
+	@VPS_DIR=$${VPS_DIR:-/root/math-app/math-app}; \
+	echo "📍 VPS_DIR=$$VPS_DIR (override with VPS_DIR=...)"; \
 	APP_VERSION=$$(git rev-parse --short HEAD); \
-	scp -i "$(VPS_SSH_KEY)" scripts/deploy-local.sh $(VPS_HOST):~/math-app/math-app/scripts/deploy-local.sh; \
-	ssh -i "$(VPS_SSH_KEY)" $(VPS_HOST) "cd ~/math-app/math-app && APP_VERSION=$$APP_VERSION bash scripts/deploy-local.sh"
+	ssh -i "$(VPS_SSH_KEY)" $(VPS_HOST) "mkdir -p $$VPS_DIR/scripts"; \
+	scp -i "$(VPS_SSH_KEY)" scripts/deploy-local.sh $(VPS_HOST):$$VPS_DIR/scripts/deploy-local.sh; \
+	ssh -i "$(VPS_SSH_KEY)" $(VPS_HOST) "cd $$VPS_DIR && APP_VERSION=$$APP_VERSION bash scripts/deploy-local.sh"

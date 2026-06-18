@@ -14,7 +14,7 @@
 # Edit the two variables below before running.
 
 VPS_HOST="${VPS_HOST:-s0lut1on@sekklings.com}"
-VPS_DIR="${VPS_DIR:-~/math-app/math-app}"
+VPS_DIR="${VPS_DIR:-/root/math-app/math-app}"
 
 set -euo pipefail
 
