@@ -36,6 +36,45 @@ Override `VPS_HOST` if your VPS is elsewhere. The script auto-detects
 your local commit SHA and passes it as `APP_VERSION` so the Flutter
 home screen footer (`🐸 HocVui <sha>`) reflects the deployed build.
 
+### Faster deploy (push prebuilt bundle, no Docker build on VPS)
+
+For hotfixes when you don't want to rebuild the Flutter container on
+the VPS (saves 5-10 min), use the rsync-based script. It builds
+`build/web` locally and rsyncs it directly into the running nginx
+container.
+
+```bash
+GOOGLE_CLIENT_ID=<your-google-oauth-web-client-id> \
+VPS_HOST=s0lut1on@sekklings.com \
+VPS_SSH_KEY=~/.ssh/id_ed25519_vps \
+  bash math-app/scripts/deploy.sh
+```
+
+Flags: `--service NAME` (rebuild only one backend service),
+`--skip-frontend` (backend only), `--skip-backend` (frontend only),
+`--no-cache` (force rebuild from scratch).
+
+### Setting up a brand-new VPS
+
+For a fresh VPS that has nothing installed, run the bootstrap script
+once to install Docker, clone the repo, generate `.env` with random
+passwords, and schedule a daily auto-deploy cron.
+
+```bash
+# From your laptop, after a fresh VPS is reachable via SSH:
+ssh root@NEW_VPS
+curl -sSL https://raw.githubusercontent.com/s0lut1on/vuihoc/main/math-app/scripts/vps-bootstrap.sh | bash
+# Then start the stack:
+cd /root/math-app/math-app
+bash scripts/deploy-local.sh
+# Enable firewall once the stack is up:
+ufw enable
+```
+
+The bootstrap script is idempotent — safe to re-run. It generates a
+fresh `.env` only on the first run; subsequent runs skip the
+generation and just refresh the cron + apt packages.
+
 ### Or: run on the VPS directly
 
 ```bash

@@ -1,0 +1,224 @@
+#!/usr/bin/env bash
+# Bootstrap a brand-new VPS for the math-app stack.
+#
+# What it does:
+#   1. Installs Docker Engine + Compose plugin v2 (if missing)
+#   2. Installs git, openssh-server, ufw, fail2ban, ca-certificates, curl
+#   3. Clones the repo to /root/math-app/math-app
+#   4. Creates a deploy-friendly .env from .env.example with random
+#      passwords for the 8 PostgreSQL databases and the Redis URL
+#   5. Opens firewall ports 22, 80, 443
+#   6. Adds a daily cron that pulls the latest `main` and runs the
+#      deploy-local.sh script (so future VPS deploys work even if GH
+#      Actions stays broken)
+#   7. Prints the generated .env contents so you can copy them to
+#      GitHub Secrets
+#
+# Usage (run once on a fresh VPS):
+#   ssh root@YOUR_VPS
+#   curl -sSL https://raw.githubusercontent.com/s0lut1on/vuihoc/main/math-app/scripts/vps-bootstrap.sh | bash
+#   # or, if you have the repo already cloned:
+#   cd math-app/math-app
+#   bash scripts/vps-bootstrap.sh
+#
+# After this script finishes:
+#   - Run `./scripts/deploy-local.sh` once to build + start the stack
+#   - Open https://YOUR_VPS_HOST in a browser
+#   - Copy the printed .env values to GitHub Secrets so future
+#     CI deploys can authenticate
+
+set -euo pipefail
+
+REPO_URL="${REPO_URL:-https://github.com/s0lut1on/vuihoc.git}"
+REPO_BRANCH="${REPO_BRANCH:-main}"
+INSTALL_DIR="${INSTALL_DIR:-/root/math-app/math-app}"
+
+# ─── Colors ─────────────────────────────────────────────
+RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; BLUE='\033[0;34m'; NC='\033[0m'
+log()   { echo -e "${BLUE}[$(date +'%H:%M:%S')]${NC} $*"; }
+warn()  { echo -e "${YELLOW}[$(date +'%H:%M:%S')] WARN${NC} $*"; }
+err()   { echo -e "${RED}[$(date +'%H:%M:%S')] ERR${NC} $*" >&2; }
+ok()    { echo -e "${GREEN}[$(date +'%H:%M:%S')] OK${NC} $*"; }
+
+# ─── Pre-flight: must be root ───────────────────────────
+if [[ $EUID -ne 0 ]]; then
+  err "Must run as root (try: sudo bash $0)"
+  exit 1
+fi
+
+# ─── Detect OS ──────────────────────────────────────────
+. /etc/os-release
+log "OS: $PRETTY_NAME ($VERSION_CODENAME)"
+
+# ─── Install packages ──────────────────────────────────
+log "Installing required packages..."
+export DEBIAN_FRONTEND=noninteractive
+apt-get update -qq
+apt-get install -y --no-install-recommends \
+  ca-certificates curl gnupg lsb-release \
+  git openssh-server ufw fail2ban \
+  apache2-utils jq
+
+# Install Docker if missing
+if ! command -v docker >/dev/null 2>&1; then
+  log "Installing Docker Engine..."
+  install -m 0755 -d /etc/apt/keyrings
+  curl -fsSL "https://download.docker.com/linux/${ID}/gpg" \
+    | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+  chmod a+r /etc/apt/keyrings/docker.gpg
+  echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
+https://download.docker.com/linux/${ID} ${VERSION_CODENAME} stable" \
+    > /etc/apt/sources.list.d/docker.list
+  apt-get update -qq
+  apt-get install -y --no-install-recommends \
+    docker-ce docker-ce-cli containerd.io \
+    docker-buildx-plugin docker-compose-plugin
+  ok "Docker installed: $(docker --version)"
+else
+  ok "Docker already installed: $(docker --version)"
+fi
+
+# Install docker-compose v2 plugin if missing (already in docker-compose-plugin
+# on Ubuntu 24+, but be defensive on older releases).
+if ! docker compose version >/dev/null 2>&1; then
+  log "Installing docker-compose v2 plugin..."
+  mkdir -p /usr/local/lib/docker/cli-plugins
+  curl -sSL https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64 \
+    -o /usr/local/lib/docker/cli-plugins/docker-compose
+  chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
+  ok "docker compose plugin installed"
+fi
+
+# ─── Firewall ──────────────────────────────────────────
+log "Configuring ufw..."
+ufw --force reset
+ufw default deny incoming
+ufw default allow outgoing
+ufw allow 22/tcp comment "ssh"
+ufw allow 80/tcp comment "http"
+ufw allow 443/tcp comment "https"
+# Don't enable ufw yet — if Docker hasn't fully started the
+# iptables chains can fail. Operator should enable manually
+# once the stack is up: `ufw enable`.
+warn "Run 'ufw enable' after the first successful deploy."
+
+# ─── Clone the repo ────────────────────────────────────
+if [[ ! -d "$INSTALL_DIR/.git" ]]; then
+  log "Cloning $REPO_URL (branch $REPO_BRANCH) into $INSTALL_DIR..."
+  mkdir -p "$(dirname "$INSTALL_DIR")"
+  git clone --branch "$REPO_BRANCH" "$REPO_URL" "$INSTALL_DIR"
+  ok "Cloned to $INSTALL_DIR"
+else
+  log "Repo already exists at $INSTALL_DIR — pulling latest..."
+  (cd "$INSTALL_DIR" && git fetch origin && git checkout "$REPO_BRANCH" && git pull --rebase origin "$REPO_BRANCH")
+fi
+
+cd "$INSTALL_DIR"
+
+# ─── Generate .env from .env.example ───────────────────
+if [[ ! -f .env ]]; then
+  log "Generating .env with random passwords..."
+
+  random_secret() { openssl rand -hex "${1:-32}"; }
+
+  cat > .env <<ENVEOF
+# Auto-generated by vps-bootstrap.sh on $(date -u +'%Y-%m-%dT%H:%M:%SZ')
+
+# ─── Public ────────────────────────────────────────
+DOMAIN=${DOMAIN:-$(hostname -f 2>/dev/null || hostname)}
+LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL:-admin@${DOMAIN}}
+
+# ─── GHCR (only needed if you push via CI; local deploys
+#     build from source, so this is optional) ───────
+GHCR_PAT=${GHCR_PAT:-}
+GITHUB_ACTOR=${GITHUB_ACTOR:-}
+
+# ─── Google OAuth (frontend) ───────────────────────
+GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
+
+# ─── Database passwords (one per service) ───────────
+POSTGRES_PASSWORD=$(random_secret 24)
+AUTH_DB_PASSWORD=$(random_secret 24)
+USER_DB_PASSWORD=$(random_secret 24)
+CONTENT_DB_PASSWORD=$(random_secret 24)
+PROGRESS_DB_PASSWORD=$(random_secret 24)
+NOTIFICATION_DB_PASSWORD=$(random_secret 24)
+MEDIA_DB_PASSWORD=$(random_secret 24)
+QUESTION_BANK_DB_PASSWORD=$(random_secret 24)
+LANGUAGE_DB_PASSWORD=$(random_secret 24)
+
+# ─── Compose-style URLs (referenced by docker-compose.prod.yml) ───
+AUTH_DB_URL=postgresql+asyncpg://auth_user:${AUTH_DB_PASSWORD}@auth-db:5432/auth_db
+USER_DB_URL=postgresql+asyncpg://user_user:${USER_DB_PASSWORD}@user-db:5432/user_db
+CONTENT_DB_URL=postgresql+asyncpg://content_user:${CONTENT_DB_PASSWORD}@content-db:5432/content_db
+PROGRESS_DB_URL=postgresql+asyncpg://progress_user:${PROGRESS_DB_PASSWORD}@progress-db:5432/progress_db
+NOTIFICATION_DB_URL=postgresql+asyncpg://notification_user:${NOTIFICATION_DB_PASSWORD}@notification-db:5432/notification_db
+MEDIA_DB_URL=postgresql+asyncpg://media_user:${MEDIA_DB_PASSWORD}@media-db:5432/media_db
+QUESTION_BANK_DB_URL=postgresql+asyncpg://qb_user:${QUESTION_BANK_DB_PASSWORD}@question_bank-db:5432/question_bank_db
+LANGUAGE_DB_URL=postgresql+asyncpg://lang_user:${LANGUAGE_DB_PASSWORD}@language-db:5432/language_db
+LANGUAGE_SERVICE_DB_URL=postgresql+asyncpg://lang_user:${LANGUAGE_DB_PASSWORD}@language-db:5432/language_db
+
+# ─── Redis ─────────────────────────────────────────
+REDIS_PASSWORD=$(random_secret 24)
+REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
+
+# ─── MinIO ─────────────────────────────────────────
+MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY:-minioadmin}
+MINIO_SECRET_KEY=$(random_secret 24)
+
+# ─── JWT ───────────────────────────────────────────
+JWT_SECRET=$(random_secret 48)
+
+# ─── Anthropic (question bank hints) ───────────────
+ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+ENVEOF
+  chmod 600 .env
+  ok "Generated .env (chmod 600)"
+else
+  warn ".env already exists — not overwriting. Edit it manually if needed."
+fi
+
+# ─── Permissions on scripts/ ─────────────────────────
+chmod +x scripts/*.sh 2>/dev/null || true
+
+# ─── Daily auto-deploy cron ───────────────────────────
+log "Installing daily auto-deploy cron (03:00 UTC)..."
+CRON_LINE="0 3 * * * cd $INSTALL_DIR && APP_VERSION=\$(git rev-parse --short HEAD) bash scripts/deploy-local.sh SKIP_PULL=1 >> /var/log/math-app-deploy.log 2>&1"
+( crontab -l 2>/dev/null | grep -v 'scripts/deploy-local.sh' || true; echo "$CRON_LINE" ) | crontab -
+ok "Cron installed. Logs at /var/log/math-app-deploy.log"
+
+# ─── Summary ──────────────────────────────────────────
+cat <<SUMMARY
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ✅ VPS bootstrap complete
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Next steps (in order):
+
+  1. Review .env:              cat $INSTALL_DIR/.env
+  2. (optional) Edit domain:   sed -i 's/^DOMAIN=.*/DOMAIN=sekklings.com/' $INSTALL_DIR/.env
+  3. (optional) Add Google OAuth: echo 'GOOGLE_CLIENT_ID=xxx' >> $INSTALL_DIR/.env
+  4. Start the stack:          cd $INSTALL_DIR && bash scripts/deploy-local.sh
+  5. Enable firewall:          ufw enable
+  6. Open in browser:          https://$DOMAIN
+
+Save these for GitHub Secrets (Settings → Secrets and variables → Actions):
+  VPS_HOST          = (this VPS's public IP or hostname)
+  VPS_USER          = root
+  VPS_SSH_PRIVATE_KEY = (contents of the private key for the SSH user)
+  GHCR_PAT          = (Personal Access Token with read:packages scope)
+  GOOGLE_CLIENT_ID  = (OAuth web client id)
+
+To deploy later from your laptop:
+  VPS_HOST=$DOMAIN make deploy-vps
+
+To deploy on the VPS directly:
+  cd $INSTALL_DIR
+  bash scripts/deploy-local.sh
+
+To disable the daily cron:
+  crontab -e   # then delete the scripts/deploy-local.sh line
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SUMMARY
