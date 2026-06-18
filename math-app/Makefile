@@ -6,7 +6,7 @@ FLUTTER_ROOT = $(CURDIR)/$(FRONTEND)/flutter_sdk
 FLUTTER_CMD = $(if $(wildcard $(FLUTTER_ROOT)),$(FLUTTER_ROOT)/bin/flutter,$(shell which flutter 2>/dev/null || echo flutter))
 DART_CMD    = $(if $(findstring /,$(FLUTTER_CMD)),$(dir $(FLUTTER_CMD))dart,dart)
 
-.PHONY: help setup test test-cov watch format lint changelog-check build-apk build-web build-rust test-rust check-rust test-all clean deploy docker-test docker-dev docker-stop e2e-setup e2e-test
+.PHONY: help setup test test-cov watch format lint changelog-check build-apk build-web build-rust test-rust check-rust test-all clean deploy docker-test docker-dev docker-stop e2e-setup e2e-test deploy-vps
 
 help:
 	@echo "Math App - Local Development"
@@ -187,3 +187,21 @@ docker-stop:
 	@echo ""
 	@echo "🛑 Stopping Docker dev services..."
 	docker compose down
+
+deploy-vps:
+	@echo ""
+	@echo "🚀 Deploying to VPS (local build, no CI)..."
+	@echo "This script must be run ON the VPS, not from your laptop."
+	@echo ""
+	@if [ -z "$(VPS_HOST)" ]; then \
+		echo "❌ Set VPS_HOST=user@host before running"; \
+		echo "   e.g. make deploy-vps VPS_HOST=s0lut1on@sekklings.com"; \
+		exit 1; \
+	fi
+	@if [ -z "$(VPS_SSH_KEY)" ]; then \
+		echo "❌ Set VPS_SSH_KEY=/path/to/key before running"; \
+		exit 1; \
+	fi
+	APP_VERSION=$$(git rev-parse --short HEAD); \
+	scp -i "$(VPS_SSH_KEY)" scripts/deploy-local.sh $(VPS_HOST):~/math-app/math-app/scripts/deploy-local.sh; \
+	ssh -i "$(VPS_SSH_KEY)" $(VPS_HOST) "cd ~/math-app/math-app && APP_VERSION=$$APP_VERSION bash scripts/deploy-local.sh"

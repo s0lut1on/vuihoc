@@ -60,6 +60,7 @@ services:
       dockerfile: Dockerfile
       args:
         GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+        APP_VERSION: ${APP_VERSION:-local-dev}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.flutter-web.rule=Host(`${DOMAIN}`) || Host(`www.${DOMAIN}`)"
