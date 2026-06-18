@@ -64,14 +64,35 @@ passwords, and schedule a daily auto-deploy cron.
 (GitHub won't clone a private repo over HTTPS without a Personal
 Access Token, and won't accept a key that doesn't exist on the VPS):
 
+The simplest one-liner flow uses `setup-deploy-key.sh` from your
+laptop — it generates the key, pushes it to the VPS, and tests the
+result:
+
+```bash
+# On your LAPTOP (one-time, takes ~1 minute):
+VPS_HOST=root@YOUR_NEW_VPS \
+  bash math-app/scripts/setup-deploy-key.sh
+# The script will print the pubkey — paste it into
+#   https://github.com/settings/keys  (account-level)
+#   OR https://github.com/s0lut1on/vuihoc/settings/keys/new  (repo-only)
+# Then press ENTER in the script to continue.
+
+# SSH into VPS, run bootstrap, build stack:
+ssh root@YOUR_NEW_VPS
+bash scripts/vps-bootstrap.sh
+cd /root/math-app/math-app && bash scripts/deploy-local.sh
+ufw enable
+```
+
+If you'd rather do each step manually:
+
 ```bash
 # On your LAPTOP (one-time):
 ssh-keygen -t ed25519 -f ~/.ssh/math_app_deploy -C "vps-deploy"
 
-# Add the PUBKEY to GitHub so the private key can authenticate later.
-# Easiest: paste at https://github.com/settings/keys (account-level).
-# Tighter: paste at https://github.com/s0lut1on/vuihoc/settings/keys/new
-# (repo-level, "Allow write access" UNCHECKED).
+# Add the PUBKEY to GitHub so it's authorized to read the private repo.
+# Easiest: copy pubkey and paste at https://github.com/settings/keys
+cat ~/.ssh/math_app_deploy.pub
 
 # Push the PRIVATE key to the VPS so git on the VPS can use it
 # (ssh-copy-id only adds to authorized_keys, not the git-side keychain):
@@ -103,6 +124,8 @@ embed a Personal Access Token.
 usually means step 3 (private key on VPS) was skipped. The pubkey
 gets you INTO the VPS via `ssh-copy-id`, but git on the VPS needs the
 **private** key at `/root/.ssh/`. Fix: scp the private key + chmod 600.
+Easiest path: just re-run `setup-deploy-key.sh` and it does all 6
+steps including the verification.
 
 The script is idempotent — safe to re-run. It generates a fresh `.env`
 only on the first run; subsequent runs skip the generation and just
