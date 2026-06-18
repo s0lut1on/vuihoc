@@ -40,7 +40,7 @@ home screen footer (`🐸 HocVui <sha>`) reflects the deployed build.
 
 ```bash
 ssh USER@HOST
-cd ~/math-app/math-app   # (or wherever you cloned it)
+cd /root/math-app/math-app   # (or wherever you cloned it — override with VPS_DIR=/your/path)
 git pull
 ./scripts/deploy-local.sh
 ```
@@ -53,6 +53,7 @@ git pull
 | `SKIP_BUILD=1` | skip `docker compose build` (only restart containers) |
 | `SKIP_HEALTH_CHECK=1` | skip post-deploy health probe |
 | `APP_VERSION=<sha>` | override version stamp (default: `git rev-parse --short HEAD`) |
+| `VPS_DIR=<path>` | override remote project dir (default: `/root/math-app/math-app`) |
 
 ### Make target
 
