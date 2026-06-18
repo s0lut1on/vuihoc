@@ -214,17 +214,14 @@ class ProfileScreen extends ConsumerWidget {
                       ? null
                       : () async {
                           try {
-                            final updated =
-                                await UserApi.updateGrade(g);
+                            final updated = await UserApi.updateGrade(g);
                             // Push the new User straight into the
                             // StateNotifier so the UI updates immediately.
                             // Without this, userProvider stays at the
                             // previous value (often null for guest users)
                             // and the chip stays on grade 1.
                             if (context.mounted) {
-                              ref
-                                  .read(userProvider.notifier)
-                                  .setUser(updated);
+                              ref.read(userProvider.notifier).setUser(updated);
                               // Invalidate everything that depends on grade
                               // so subjects / curriculum / sub-subjects /
                               // progress all reload for the new grade.

@@ -402,7 +402,9 @@ class _BuildVersionFooter extends StatelessWidget {
             Text(
               'HocVui $kBuildVersion',
               style: AppTheme.body(
-                  size: 11, color: AppColors.mutedPurple, weight: FontWeight.w600),
+                  size: 11,
+                  color: AppColors.mutedPurple,
+                  weight: FontWeight.w600),
             ),
           ],
         ),

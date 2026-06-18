@@ -65,7 +65,8 @@ void main() {
       expect(container.read(userProvider).valueOrNull?.grade, 2);
     });
 
-    test('curriculum + subjects family providers can be invalidated safely', () {
+    test('curriculum + subjects family providers can be invalidated safely',
+        () {
       final container = ProviderContainer();
       addTearDown(container.dispose);
 
