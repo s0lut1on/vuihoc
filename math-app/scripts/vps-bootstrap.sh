@@ -19,23 +19,31 @@
 # cloning because GitHub refuses to clone a private repo without
 # credentials. Two options:
 #
-# Option A: SSH (recommended) — generate a key first, push it to the
-#   VPS, then run the bootstrap with REPO_URL=git@github.com:...
-#   1. On your laptop:
+# Option A: SSH (recommended) — deploy key pair, pubkey on GitHub +
+#   matching private key on the VPS
+#   1. On your laptop, generate a fresh key (don't reuse your personal
+#      one — deploy keys should be single-purpose):
 #        ssh-keygen -t ed25519 -f ~/.ssh/math_app_deploy -C "vps-deploy"
-#        ssh-copy-id -i ~/.ssh/math_app_deploy.pub root@YOUR_VPS
-#        cat ~/.ssh/math_app_deploy    # copy this private key
-#   2. SSH into the VPS:
+#   2. Add the pubkey to GitHub (Settings → SSH and GPG keys):
+#        cat ~/.ssh/math_app_deploy.pub
+#      Or, for tighter scoping: add as a repo deploy key at
+#        https://github.com/s0lut1on/vuihoc/settings/keys/new
+#      with "Allow write access" UNCHECKED.
+#   3. Push the matching private key to the VPS:
+#        scp ~/.ssh/math_app_deploy root@YOUR_VPS:/root/.ssh/math_app_deploy
+#   4. On the VPS, lock down perms:
 #        ssh root@YOUR_VPS
-#        mkdir -p ~/.ssh && chmod 700 ~/.ssh
-#        # paste the private key from step 1:
-#        nano ~/.ssh/math_app_deploy    # paste, Ctrl-O, Ctrl-X
-#        chmod 600 ~/.ssh/math_app_deploy
-#        # Test the key works:
-#        ssh -i ~/.ssh/math_app_deploy -T git@github.com
-#   3. Run the bootstrap:
-#        REPO_URL=git@github.com:s0lut1on/vuihoc.git \
+#        chmod 700 ~/.ssh && chmod 600 ~/.ssh/math_app_deploy
+#        ssh -T git@github.com    # should print "Hi USER! ..."
+#   5. Run the bootstrap (default REPO_URL is git@github.com:...):
 #        bash scripts/vps-bootstrap.sh
+#
+#   Why we need step 3: `ssh-copy-id` only adds the pubkey to the VPS's
+#   authorized_keys (so YOU can ssh in as root). For git on the VPS to
+#   authenticate to GitHub, the private key has to live at
+#   /root/.ssh/<name> too — that's the key ssh-agent + git use when
+#   you see the host-key prompt and then "Permission denied (publickey)"
+#   in the same breath (host known, but no matching key to auth with).
 #
 # Option B: HTTPS + Personal Access Token — embed a PAT in the URL
 #   (less secure; the token ends up in shell history and ps aux).

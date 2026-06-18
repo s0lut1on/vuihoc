@@ -62,20 +62,29 @@ passwords, and schedule a daily auto-deploy cron.
 
 **The repo is private**, so you need to set up SSH key auth FIRST
 (GitHub won't clone a private repo over HTTPS without a Personal
-Access Token):
+Access Token, and won't accept a key that doesn't exist on the VPS):
 
 ```bash
-# On your laptop (one-time):
+# On your LAPTOP (one-time):
 ssh-keygen -t ed25519 -f ~/.ssh/math_app_deploy -C "vps-deploy"
-ssh-copy-id -i ~/.ssh/math_app_deploy.pub root@YOUR_NEW_VPS
 
-# SSH into VPS:
+# Add the PUBKEY to GitHub so the private key can authenticate later.
+# Easiest: paste at https://github.com/settings/keys (account-level).
+# Tighter: paste at https://github.com/s0lut1on/vuihoc/settings/keys/new
+# (repo-level, "Allow write access" UNCHECKED).
+
+# Push the PRIVATE key to the VPS so git on the VPS can use it
+# (ssh-copy-id only adds to authorized_keys, not the git-side keychain):
+scp ~/.ssh/math_app_deploy root@YOUR_NEW_VPS:/root/.ssh/math_app_deploy
+
+# ssh into VPS, lock down perms, and test the key:
 ssh root@YOUR_NEW_VPS
+chmod 700 ~/.ssh
+chmod 600 ~/.ssh/math_app_deploy
+ssh -T git@github.com    # should print "Hi <USER>! You've been authenticated."
 
-# Now run the bootstrap (default REPO_URL is git@github.com:...):
+# Run the bootstrap (default REPO_URL is git@github.com:...):
 bash scripts/vps-bootstrap.sh
-# Or pull from a raw URL after pushing your SSH key to the VPS:
-#   curl -sSL https://raw.githubusercontent.com/s0lut1on/vuihoc/main/math-app/scripts/vps-bootstrap.sh | bash
 
 # Then start the stack:
 cd /root/math-app/math-app
@@ -89,6 +98,11 @@ The bootstrap script defaults to `REPO_URL=git@github.com:s0lut1on/vuihoc.git`
 (SSH — assumes the deploying user's key is in `/root/.ssh/`). Override
 with `REPO_URL=https://<PAT>@github.com/...` for HTTPS if you'd rather
 embed a Personal Access Token.
+
+**Common error**: `git@github.com: Permission denied (publickey)` —
+usually means step 3 (private key on VPS) was skipped. The pubkey
+gets you INTO the VPS via `ssh-copy-id`, but git on the VPS needs the
+**private** key at `/root/.ssh/`. Fix: scp the private key + chmod 600.
 
 The script is idempotent — safe to re-run. It generates a fresh `.env`
 only on the first run; subsequent runs skip the generation and just
