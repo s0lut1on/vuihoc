@@ -32,12 +32,23 @@ grep github.com /root/.ssh/known_hosts | awk '{print "  " $1, $2, $3}' || true
 
 echo ""
 echo "=== Fix 3: show the pubkey GitHub should have ==="
+# The .pub may not exist on the VPS (scp only copied the private key).
+# If missing, regenerate from the private key. The resulting .pub
+# MUST match the public key registered on GitHub — these are a
+# matched pair, so if the private key matches GitHub's records, the
+# derived .pub will too.
+if [[ ! -f "$KEY_PATH.pub" ]]; then
+  echo "  (no .pub on VPS — regenerating from private key)"
+  ssh-keygen -y -f "$KEY_PATH" > "$KEY_PATH.pub" 2>/dev/null
+  chmod 644 "$KEY_PATH.pub"
+fi
+echo ""
 echo "If your pubkey on https://github.com/settings/keys does NOT match this,"
 echo "delete the one on GitHub and paste THIS one:"
 echo ""
 cat "$KEY_PATH.pub"
 echo ""
-echo "Fingerprint:"
+echo "Fingerprint (must match the one shown on GitHub):"
 ssh-keygen -lf "$KEY_PATH"
 
 echo ""
