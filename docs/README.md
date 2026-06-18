@@ -14,6 +14,83 @@ make deploy   # Full CI pipeline (format, lint, test, build, e2e)
 
 See [`math-app/README.md`](docs/math-app/README.md) for detailed setup, architecture, and API docs.
 
+## Manual Deploy to VPS
+
+GitHub Actions is the default deploy path, but if the workflow fails
+silently (VPS keeps serving an old bundle even though pushes land on
+`main`) use these scripts instead. Both bypass GHCR and build everything
+locally on the VPS from source.
+
+### One-shot: paste from your laptop
+
+The simplest path — runs `git push` + SSHes into the VPS + builds +
+restarts, all in one go. Defaults to `s0lut1on@sekklings.com`.
+
+```bash
+cd math
+VPS_HOST=s0lut1on@sekklings.com \
+  bash math-app/scripts/deploy-vps-one-shot.sh
+```
+
+Override `VPS_HOST` if your VPS is elsewhere. The script auto-detects
+your local commit SHA and passes it as `APP_VERSION` so the Flutter
+home screen footer (`🐸 HocVui <sha>`) reflects the deployed build.
+
+### Or: run on the VPS directly
+
+```bash
+ssh USER@HOST
+cd ~/math-app/math-app   # (or wherever you cloned it)
+git pull
+./scripts/deploy-local.sh
+```
+
+`deploy-local.sh` supports skip flags for faster iteration:
+
+| Env var | Effect |
+|---|---|
+| `SKIP_PULL=1` | skip `git pull` (you've already done it) |
+| `SKIP_BUILD=1` | skip `docker compose build` (only restart containers) |
+| `SKIP_HEALTH_CHECK=1` | skip post-deploy health probe |
+| `APP_VERSION=<sha>` | override version stamp (default: `git rev-parse --short HEAD`) |
+
+### Make target
+
+If you prefer Make:
+
+```bash
+export VPS_HOST=s0lut1on@sekklings.com
+export VPS_SSH_KEY=~/.ssh/id_ed25519_vps
+make deploy-vps
+```
+
+This `scp`s the script to the VPS and SSH-executes it.
+
+### Verifying a successful deploy
+
+Open `https://<your-domain>`, sign in, scroll to the bottom of the
+home screen — the footer should read:
+
+    🐸 HocVui <7-char-git-sha>
+
+Compare against `git log --oneline | head -1` locally to confirm the
+deployed bundle matches `main`. If the footer shows an older SHA,
+hard-refresh the browser (`Cmd-Shift-R`) to clear the Cloudflare edge
+cache.
+
+### Troubleshooting
+
+| Symptom | Likely cause |
+|---|---|
+| Footer says `HocVui dev` | Local dev build — `APP_VERSION` wasn't passed |
+| Footer shows old SHA after `make deploy-vps` | Cloudflare cache — hard refresh browser |
+| GitHub Actions workflow doesn't run on push | Workflow trigger broken — use the manual scripts above |
+| VPS out of disk | `docker system prune -af` then re-run |
+
+
+After deploy, `scripts/health-check.sh` runs automatically against all
+backend services.
+
 ## Project Layout
 
 ```
@@ -48,6 +125,7 @@ See [`math-app/README.md`](docs/math-app/README.md) for detailed setup, architec
 - **Profile Widget** — Avatar dropdown with settings/logout in desktop nav
 - **Free / Premium Tiers** — Flag-based subscription: free users limited to **50 lessons per day**; premium unlimited. Admin flips `subscription_tier` in DB
 - **Token Validation on Resume** — `silentSignIn()` validates cached JWT on app startup; clears stale tokens automatically
+- **Build Version Footer** — home screen shows `🐸 HocVui <git-sha>` so you can verify which build is actually deployed
 
 ## Tech Stack
 
@@ -58,7 +136,7 @@ See [`math-app/README.md`](docs/math-app/README.md) for detailed setup, architec
 | Databases | PostgreSQL (per service), Redis |
 | Storage | MinIO |
 | Proxy | Traefik |
-| Testing | Flutter tests (76), Rust tests (52), Playwright E2E (44) |
+| Testing | Flutter tests (146), Rust tests (159), Playwright E2E (15+) |
 
 ## License
 
