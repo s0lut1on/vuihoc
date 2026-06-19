@@ -6,7 +6,7 @@ FLUTTER_ROOT = $(CURDIR)/$(FRONTEND)/flutter_sdk
 FLUTTER_CMD = $(if $(wildcard $(FLUTTER_ROOT)),$(FLUTTER_ROOT)/bin/flutter,$(shell which flutter 2>/dev/null || echo flutter))
 DART_CMD    = $(if $(findstring /,$(FLUTTER_CMD)),$(dir $(FLUTTER_CMD))dart,dart)
 
-.PHONY: help setup test test-cov watch format lint changelog-check build-apk build-web build-rust test-rust check-rust test-all clean deploy docker-test docker-dev docker-stop e2e-setup e2e-test deploy-vps
+.PHONY: help setup test test-cov watch format lint changelog-check build-apk build-web build-rust test-rust check-rust test-all clean deploy docker-test docker-dev docker-stop e2e-setup e2e-test deploy-vps deploy-vps-config deploy-vps-sync deploy-vps-build deploy-vps-up deploy-vps-status deploy-vps-logs deploy-vps-shell deploy-vps-restart
 
 help:
 	@echo "Math App - Local Development"
@@ -37,6 +37,17 @@ help:
 	@echo "  make docker-test   Run all tests in Docker (no local install)"
 	@echo "  make docker-dev    Start dev services in Docker"
 	@echo "  make docker-stop   Stop Docker dev services"
+	@echo ""
+	@echo "  VPS deploy (no CI/CD):"
+	@echo "  make deploy-vps-config   Create .env.deploy from template (first time)"
+	@echo "  make deploy-vps          Full: sync + build + up + health"
+	@echo "  make deploy-vps-sync     rsync source + Flutter build to VPS"
+	@echo "  make deploy-vps-build    Rebuild Docker images on VPS"
+	@echo "  make deploy-vps-up       Restart containers on VPS"
+	@echo "  make deploy-vps-status   Show running containers + version"
+	@echo "  make deploy-vps-logs     Tail logs (SERVICES=auth-service)"
+	@echo "  make deploy-vps-shell    SSH into VPS"
+	@echo "  make deploy-vps-restart  Restart all (or one) containers"
 	@echo ""
 	@echo "  Or use npm:  npm run test        npm run build"
 
@@ -188,23 +199,52 @@ docker-stop:
 	@echo "🛑 Stopping Docker dev services..."
 	docker compose down
 
+# ─── VPS deploy (no CI/CD) ─────────────────────────────────────
+# Stage-based: each target is independently usable. `make deploy-vps`
+# runs all of them. Config in .env.deploy (gitignored) or pass inline.
+# SSH: uses ssh-agent by default; set VPS_SSH_KEY in .env.deploy to force.
+#
+# Examples:
+#   make deploy-vps                           # full deploy
+#   make deploy-vps-sync                      # rsync source only
+#   make deploy-vps-build SERVICES=auth-service
+#   make deploy-vps-logs SERVICES=auth-service
+#   make deploy-vps-shell                     # SSH into VPS
+#   make deploy-vps-restart SERVICES=auth-service
+#
+# First-time setup:
+#   make deploy-vps-config    # creates .env.deploy from template
+#   $EDITOR .env.deploy       # fill in VPS_HOST etc.
+
+deploy-vps-config:
+	@if [ ! -f .env.deploy ]; then \
+		cp .env.deploy.example .env.deploy; \
+		echo "✅ Created .env.deploy from template"; \
+		echo "   Edit it: $$EDITOR .env.deploy"; \
+	else \
+		echo "ℹ️  .env.deploy already exists — not overwriting"; \
+	fi
+
 deploy-vps:
-	@echo ""
-	@echo "🚀 Deploying to VPS (local build, no CI)..."
-	@echo ""
-	@if [ -z "$(VPS_HOST)" ]; then \
-		echo "❌ Set VPS_HOST=user@host before running"; \
-		echo "   e.g. make deploy-vps VPS_HOST=s0lut1on@sekklings.com"; \
-		exit 1; \
-	fi
-	@if [ -z "$(VPS_SSH_KEY)" ]; then \
-		echo "❌ Set VPS_SSH_KEY=/path/to/key before running"; \
-		echo "   e.g. VPS_SSH_KEY=~/.ssh/id_ed25519_vps"; \
-		exit 1; \
-	fi
-	@VPS_DIR=$${VPS_DIR:-/root/math-app/math-app}; \
-	echo "📍 VPS_DIR=$$VPS_DIR (override with VPS_DIR=...)"; \
-	APP_VERSION=$$(git rev-parse --short HEAD); \
-	ssh -i "$(VPS_SSH_KEY)" $(VPS_HOST) "mkdir -p $$VPS_DIR/scripts"; \
-	scp -i "$(VPS_SSH_KEY)" scripts/deploy-local.sh $(VPS_HOST):$$VPS_DIR/scripts/deploy-local.sh; \
-	ssh -i "$(VPS_SSH_KEY)" $(VPS_HOST) "cd $$VPS_DIR && APP_VERSION=$$APP_VERSION bash scripts/deploy-local.sh"
+	@./scripts/deploy-vps.sh all
+
+deploy-vps-sync:
+	@./scripts/deploy-vps.sh sync
+
+deploy-vps-build:
+	@./scripts/deploy-vps.sh build
+
+deploy-vps-up:
+	@./scripts/deploy-vps.sh up
+
+deploy-vps-status:
+	@./scripts/deploy-vps.sh status
+
+deploy-vps-logs:
+	@./scripts/deploy-vps.sh logs
+
+deploy-vps-shell:
+	@./scripts/deploy-vps.sh shell
+
+deploy-vps-restart:
+	@./scripts/deploy-vps.sh restart

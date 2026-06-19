@@ -3,6 +3,8 @@
 .env.local
 .env.production
 .env.*.local
+.env.deploy
+.env.deploy.local
 
 # Secrets
 *.key
