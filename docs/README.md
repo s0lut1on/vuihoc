@@ -18,41 +18,42 @@ See [`math-app/README.md`](docs/math-app/README.md) for detailed setup, architec
 
 GitHub Actions is the default deploy path, but if the workflow fails
 silently (VPS keeps serving an old bundle even though pushes land on
-`main`) use these scripts instead. Both bypass GHCR and build everything
-locally on the VPS from source.
+`main`) use the stage-based Make targets instead. All targets bypass
+GHCR — they rsync source from your laptop to the VPS and build
+everything locally on the VPS from source.
 
-### One-shot: paste from your laptop
-
-The simplest path — runs `git push` + SSHes into the VPS + builds +
-restarts, all in one go. Defaults to `s0lut1on@sekklings.com`.
+### First time: create your config
 
 ```bash
-cd math
-VPS_HOST=s0lut1on@sekklings.com \
-  bash math-app/scripts/deploy-vps-one-shot.sh
+cd math-app
+make deploy-vps-config   # creates .env.deploy from .env.deploy.example
+$EDITOR .env.deploy      # fill in VPS_HOST, VPS_DIR, etc. (defaults are fine)
 ```
 
-Override `VPS_HOST` if your VPS is elsewhere. The script auto-detects
-your local commit SHA and passes it as `APP_VERSION` so the Flutter
-home screen footer (`🐸 HocVui <sha>`) reflects the deployed build.
+`.env.deploy` is gitignored. SSH uses your `ssh-agent` by default — make
+sure your VPS key is loaded (`ssh-add -l`). Set `VPS_SSH_KEY=/path` in
+the file if your key isn't in the agent.
 
-### Faster deploy (push prebuilt bundle, no Docker build on VPS)
-
-For hotfixes when you don't want to rebuild the Flutter container on
-the VPS (saves 5-10 min), use the rsync-based script. It builds
-`build/web` locally and rsyncs it directly into the running nginx
-container.
+### Daily use
 
 ```bash
-GOOGLE_CLIENT_ID=<your-google-oauth-web-client-id> \
-VPS_HOST=s0lut1on@sekklings.com \
-VPS_SSH_KEY=~/.ssh/id_ed25519_vps \
-  bash math-app/scripts/deploy.sh
+# Full deploy: sync + build + up + health check
+make deploy-vps
+
+# Or run stages individually for debugging
+make deploy-vps-sync      # rsync source + Flutter build to VPS
+make deploy-vps-build     # rebuild Docker images on VPS
+make deploy-vps-up        # restart containers on VPS
+make deploy-vps-status    # show running containers + version
+make deploy-vps-shell     # SSH into VPS
+make deploy-vps-logs SERVICES=auth-service   # tail logs
+make deploy-vps-restart SERVICES=auth-service  # restart one service
 ```
 
-Flags: `--service NAME` (rebuild only one backend service),
-`--skip-frontend` (backend only), `--skip-backend` (frontend only),
-`--no-cache` (force rebuild from scratch).
+`make deploy-vps` auto-detects your local commit SHA and passes it as
+`APP_VERSION` so the Flutter home-screen footer (`🐸 HocVui <sha>`)
+reflects the deployed build. Override with `APP_VERSION=foo make
+deploy-vps` if needed.
 
 ### Setting up a brand-new VPS
 
