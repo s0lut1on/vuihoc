@@ -150,6 +150,12 @@ preflight() {
 cmd_sync() {
   preflight
 
+  # Ensure target dir exists on VPS (idempotent). Tilde expands on the
+  # remote shell, so VPS_DIR='~/foo/bar' becomes /home/<user>/foo/bar.
+  log "Ensuring remote dir exists: $VPS_DIR"
+  ssh_run "mkdir -p $VPS_DIR && echo ok" >/dev/null \
+    || die "Could not create $VPS_DIR on VPS. Check VPS_PASSWORD / permissions."
+
   # Build Flutter web locally on laptop (fast, ~30-60s)
   if [[ ! "${SKIP_FRONTEND:-0}" = "1" && -x "$FLUTTER_BIN" ]]; then
     log "Building Flutter web locally with $FLUTTER_BIN"
