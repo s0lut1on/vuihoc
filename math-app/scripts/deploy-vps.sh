@@ -271,6 +271,71 @@ cmd_all() {
   cmd_status
 }
 
+# ─── Subcommand: bootstrap ──────────────────────────────────────────
+# One-shot setup for a fresh VPS:
+#   1. Install Docker + Compose (via get.docker.com)
+#   2. Install git, ufw, fail2ban, openssh-server
+#   3. Clone the repo to $VPS_DIR
+#   4. Generate .env from .env.example with random passwords
+# Requires password auth (no SSH key yet) and GitHub credentials
+# (deploy key or PAT) for cloning the private repo.
+cmd_bootstrap() {
+  log "Bootstrapping fresh VPS: $VPS_HOST"
+  log "This installs Docker, clones the repo, and generates .env."
+  log ""
+
+  if ! use_password; then
+    warn "Bootstrap is designed for password auth (fresh VPS = no SSH key yet)."
+    warn "If you already set up keys, just run the existing vps-bootstrap.sh on VPS."
+  fi
+
+  if [[ -t 0 ]]; then
+    read -r -p "Continue? This will run apt installs on $VPS_HOST [y/N] " ans
+    [[ "$ans" =~ ^[Yy] ]] || die "aborted"
+  fi
+
+  local repo_url="${VPS_REPO_URL:-git@github.com:s0lut1on/vuihoc.git}"
+  log "Repo: $repo_url (override with VPS_REPO_URL=https://<PAT>@...)"
+
+  ssh_run "set -euo pipefail; \
+    export DEBIAN_FRONTEND=noninteractive; \
+    echo '── 1/4 Installing Docker + plugins ──'; \
+    if ! command -v docker >/dev/null 2>&1; then \
+      curl -fsSL https://get.docker.com | sh; \
+      systemctl enable --now docker; \
+    else \
+      echo 'docker already installed'; \
+    fi; \
+    echo '── 2/4 Installing system packages ──'; \
+    apt-get update -qq; \
+    apt-get install -y -qq git openssh-server ufw fail2ban ca-certificates curl rsync 2>&1 | tail -3; \
+    echo '── 3/4 Cloning repo to $VPS_DIR ──'; \
+    mkdir -p \\$(dirname $VPS_DIR); \
+    if [[ -d $VPS_DIR/.git ]]; then \
+      echo 'repo already cloned'; \
+    else \
+      git clone $repo_url $VPS_DIR; \
+    fi; \
+    echo '── 4/4 Generating .env from .env.example ──'; \
+    cd $VPS_DIR; \
+    if [[ -f .env ]]; then \
+      echo '.env already exists — not overwriting'; \
+    else \
+      cp .env.example .env && chmod 600 .env; \
+      sed -i \"s|change-this-to-a-random-256-bit-key-in-production|\$(openssl rand -hex 32)|g\" .env; \
+      for var in AUTH_DB_PASS USER_DB_PASS CONTENT_DB_PASS PROGRESS_DB_PASS NOTIFICATION_DB_PASS MEDIA_DB_PASS QUESTION_BANK_DB_PASS LANGUAGE_DB_PASS; do \
+        sed -i \"s|^\\\${var}=.*|\${var}=\$(openssl rand -hex 16)|g\" .env; \
+      done; \
+      echo '.env generated with random passwords'; \
+    fi; \
+    echo ''; \
+    echo '✅ Bootstrap complete'; \
+    echo '   Next: cd $VPS_DIR && bash scripts/deploy-local.sh' \
+    " || die "bootstrap failed (probably need GitHub SSH key or PAT for private repo clone)"
+
+  ok "Bootstrap done. Now run: make deploy-vps-askpass"
+}
+
 # ─── Help ───────────────────────────────────────────────────────────
 cmd_help() {
   sed -n '2,25p' "$0" | sed 's/^# \{0,1\}//'
@@ -285,6 +350,7 @@ cmd_help() {
   echo "  SERVICES=auth-service (limit build/restart to one service)"
   echo "  SKIP_FRONTEND=1, SKIP_BACKEND=1, NO_CACHE=1"
   echo "  APP_VERSION=$APP_VERSION"
+  echo "  VPS_REPO_URL= (for bootstrap, default: git@github.com:s0lut1on/vuihoc.git)"
   echo ""
   echo "Auth modes (priority order):"
   echo "  1. VPS_PASSWORD=...     password via sshpass (no key required)"
@@ -295,6 +361,7 @@ cmd_help() {
   echo ""
   echo "Examples:"
   echo "  ./scripts/deploy-vps.sh              # all (uses ssh-agent)"
+  echo "  ./scripts/deploy-vps.sh bootstrap    # first-time setup for fresh VPS"
   echo "  ./scripts/deploy-vps.sh sync         # rsync only"
   echo "  ./scripts/deploy-vps.sh build        # build only"
   echo "  SERVICES=auth-service ./scripts/deploy-vps.sh build"
@@ -341,14 +408,15 @@ if [[ -n "${SERVICES:-}" && $# -gt 0 ]]; then
 fi
 
 case "$subcmd" in
-  sync)    cmd_sync "$@" ;;
-  build)   cmd_build "$@" ;;
-  up)      cmd_up "$@" ;;
-  status)  cmd_status "$@" ;;
-  logs)    cmd_logs "$@" ;;
-  shell)   cmd_shell "$@" ;;
-  restart) cmd_restart "$@" ;;
-  all)     cmd_all "$@" ;;
+  sync)      cmd_sync "$@" ;;
+  build)     cmd_build "$@" ;;
+  up)        cmd_up "$@" ;;
+  status)    cmd_status "$@" ;;
+  logs)      cmd_logs "$@" ;;
+  shell)     cmd_shell "$@" ;;
+  restart)   cmd_restart "$@" ;;
+  bootstrap) cmd_bootstrap "$@" ;;
+  all)       cmd_all "$@" ;;
   help|-h|--help) cmd_help ;;
   *) err "Unknown subcommand: $subcmd"; cmd_help; exit 1 ;;
 esac

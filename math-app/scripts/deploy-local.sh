@@ -75,15 +75,27 @@ fi
 
 # Validate docker
 log "Checking Docker..."
-if ! command -v docker >/dev/null 2>&1; then
-  err "docker not found in PATH"
+# SSH non-interactive sessions don't source .bashrc, so PATH may be
+# minimal. Check common locations explicitly, not just PATH.
+DOCKER_BIN=""
+for candidate in docker /usr/bin/docker /usr/local/bin/docker /snap/bin/docker; do
+  if command -v "$candidate" >/dev/null 2>&1; then
+    DOCKER_BIN="$candidate"
+    break
+  fi
+done
+if [[ -z "$DOCKER_BIN" ]]; then
+  err "docker not found in PATH or common locations.
+  If this is a fresh VPS, install Docker first:
+    curl -fsSL https://get.docker.com | sh
+  Or run scripts/vps-bootstrap.sh from this repo (idempotent)."
   exit 1
 fi
-if ! docker compose version >/dev/null 2>&1; then
-  err "'docker compose' (v2) not available"
+if ! $DOCKER_BIN compose version >/dev/null 2>&1; then
+  err "'docker compose' (v2) not available at $DOCKER_BIN"
   exit 1
 fi
-ok "Docker $(docker --version)"
+ok "Docker $($DOCKER_BIN --version) at $DOCKER_BIN"
 
 # Validate compose file exists
 COMPOSE_PATH="$APP_DIR/$COMPOSE_FILE"
@@ -109,16 +121,16 @@ if [[ "${SKIP_BUILD:-0}" != "1" ]]; then
   export APP_VERSION
 
   # --no-cache so we always pick up code changes. Drop if iterating fast.
-  if ! docker compose -f "$COMPOSE_FILE" build --no-cache flutter-web; then
+  if !  $DOCKER_BIN compose -f "$COMPOSE_FILE" build --no-cache flutter-web; then
     err "flutter-web build failed"
     exit 3
   fi
 
   # Build the backend services. Matrix here would be nice but keep simple.
   for svc in auth-service user-service content-service progress-service notification-service media-service question-bank-service language-service; do
-    if docker compose -f "$COMPOSE_FILE" config --services | grep -qx "$svc"; then
+    if  $DOCKER_BIN compose -f "$COMPOSE_FILE" config --services | grep -qx "$svc"; then
       log "Building $svc..."
-      if ! docker compose -f "$COMPOSE_FILE" build --no-cache "$svc"; then
+      if !  $DOCKER_BIN compose -f "$COMPOSE_FILE" build --no-cache "$svc"; then
         err "$svc build failed"
         exit 3
       fi
@@ -135,7 +147,7 @@ log "Recreating containers..."
 export APP_VERSION
 
 # Pull everything up. --no-deps so unrelated services don't restart.
-if ! docker compose -f "$COMPOSE_FILE" up -d --no-deps --force-recreate; then
+if !  $DOCKER_BIN compose -f "$COMPOSE_FILE" up -d --no-deps --force-recreate; then
   err "docker compose up failed"
   exit 4
 fi
@@ -153,7 +165,7 @@ if [[ "${SKIP_HEALTH_CHECK:-0}" != "1" ]]; then
       ok "Health check passed"
     else
       err "Health check failed"
-      warn "Inspect logs with: docker compose -f $COMPOSE_FILE logs --tail=200 <service>"
+      warn "Inspect logs with: $DOCKER_BIN compose -f $COMPOSE_FILE logs --tail=200 <service>"
       exit 5
     fi
   else
