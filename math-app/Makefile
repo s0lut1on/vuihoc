@@ -6,7 +6,7 @@ FLUTTER_ROOT = $(CURDIR)/$(FRONTEND)/flutter_sdk
 FLUTTER_CMD = $(if $(wildcard $(FLUTTER_ROOT)),$(FLUTTER_ROOT)/bin/flutter,$(shell which flutter 2>/dev/null || echo flutter))
 DART_CMD    = $(if $(findstring /,$(FLUTTER_CMD)),$(dir $(FLUTTER_CMD))dart,dart)
 
-.PHONY: help setup test test-cov watch format lint changelog-check build-apk build-web build-rust test-rust check-rust test-all clean deploy docker-test docker-dev docker-stop e2e-setup e2e-test deploy-vps deploy-vps-config deploy-vps-sync deploy-vps-build deploy-vps-up deploy-vps-status deploy-vps-logs deploy-vps-shell deploy-vps-restart deploy-vps-askpass deploy-vps-bootstrap
+.PHONY: help setup test test-cov watch format lint changelog-check build-apk build-web build-rust test-rust check-rust test-all clean deploy docker-test docker-dev docker-stop e2e-setup e2e-test deploy-vps deploy-vps-config deploy-vps-sync deploy-vps-build deploy-vps-up deploy-vps-status deploy-vps-logs deploy-vps-shell deploy-vps-restart deploy-vps-askpass deploy-vps-install deploy-vps-bootstrap
 
 help:
 	@echo "Math App - Local Development"
@@ -49,7 +49,8 @@ help:
 	@echo "  make deploy-vps-shell    SSH into VPS"
 	@echo "  make deploy-vps-restart  Restart all (or one) containers"
 	@echo "  make deploy-vps-askpass  Password auth (prompts, no SSH key needed)"
-	@echo "  make deploy-vps-bootstrap Fresh VPS setup (Docker + clone + .env)"
+	@echo "  make deploy-vps-install  Fresh VPS: install Docker + system libs (no clone)"
+	@echo "  make deploy-vps-bootstrap Fresh VPS: install + clone repo + gen .env (full)"
 	@echo ""
 	@echo "  Or use npm:  npm run test        npm run build"
 
@@ -263,8 +264,14 @@ deploy-vps-restart:
 deploy-vps-askpass:
 	@./scripts/deploy-vps.sh --ask-pass all
 
-# One-shot setup for a fresh VPS: install Docker, clone repo, gen .env.
-# Uses password auth (SSH keys not set up yet). Requires GitHub
-# credentials (deploy key or PAT) for cloning the private repo.
+# Install Docker + system libs on a fresh VPS. No clone, no .env.
+# After this, make deploy-vps-askpass will rsync source from your
+# laptop + build + run. Best fit for the rsync-based deploy flow.
+deploy-vps-install:
+	@./scripts/deploy-vps.sh install $(ARGS)
+
+# Full one-shot setup for a fresh VPS: install + clone repo + gen .env.
+# Use only if you want a traditional git-pull-based deploy on the VPS
+# (instead of the rsync-based flow). Requires GitHub credentials.
 deploy-vps-bootstrap:
 	@./scripts/deploy-vps.sh bootstrap $(ARGS)

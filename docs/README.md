@@ -32,19 +32,27 @@ $EDITOR .env.deploy      # fill in VPS_HOST, VPS_DIR, etc. (defaults are fine)
 
 ### First time: bootstrap a fresh VPS
 
-If your VPS is brand-new (no Docker, no repo cloned), use the
-bootstrap subcommand. It installs Docker, clones the repo, and
-generates `.env` with random passwords — all over password SSH,
-no SSH key needed.
+If your VPS is brand-new (no Docker, no repo cloned), pick the
+right setup for your workflow:
+
+**A. You want the rsync-based deploy (recommended)** — your laptop
+uploads source to VPS each time, so no `git clone` on VPS needed.
+You only need Docker + system libs installed:
 
 ```bash
-# From your laptop (uses --ask-pass for password):
-make deploy-vps-bootstrap
+make deploy-vps-install   # installs Docker, git, ufw, fail2ban, …
+# then
+make deploy-vps-askpass   # rsyncs source + builds + runs
+```
 
-# Or inline with password + HTTPS repo URL (if no deploy key on GitHub):
-VPS_PASSWORD='your-vps-root-pw' \
-  VPS_REPO_URL='https://<PAT>@github.com/s0lut1on/vuihoc.git' \
-  make deploy-vps-bootstrap
+**B. You want a traditional git-pull deploy** — VPS has the repo
+cloned and pulls on every deploy. Needs GitHub credentials on VPS:
+
+```bash
+make deploy-vps-bootstrap   # install + clone + .env with random passwords
+# then either
+make deploy-vps-askpass     # or
+# (on VPS) cd $VPS_DIR && bash scripts/deploy-local.sh
 ```
 
 The bootstrap step needs GitHub credentials (deploy key on the VPS
@@ -53,8 +61,6 @@ clone` fails with "Permission denied (publickey)", add a deploy key
 to https://github.com/s0lut1on/vuihoc/settings/keys/new and copy
 the private key to `/root/.ssh/` on the VPS, OR pass `VPS_REPO_URL`
 with a PAT.
-
-After bootstrap, run `make deploy-vps-askpass` to deploy.
 
 `.env.deploy` is gitignored. SSH uses your `ssh-agent` by default — make
 sure your VPS key is loaded (`ssh-add -l`). Set `VPS_SSH_KEY=/path` in

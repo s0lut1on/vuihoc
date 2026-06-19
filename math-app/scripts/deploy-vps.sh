@@ -271,52 +271,63 @@ cmd_all() {
   cmd_status
 }
 
-# ─── Subcommand: bootstrap ──────────────────────────────────────────
-# One-shot setup for a fresh VPS:
-#   1. Install Docker + Compose (via get.docker.com)
-#   2. Install git, ufw, fail2ban, openssh-server
-#   3. Clone the repo to $VPS_DIR
-#   4. Generate .env from .env.example with random passwords
-# Requires password auth (no SSH key yet) and GitHub credentials
-# (deploy key or PAT) for cloning the private repo.
-cmd_bootstrap() {
-  log "Bootstrapping fresh VPS: $VPS_HOST"
-  log "This installs Docker, clones the repo, and generates .env."
-  log ""
-
-  if ! use_password; then
-    warn "Bootstrap is designed for password auth (fresh VPS = no SSH key yet)."
-    warn "If you already set up keys, just run the existing vps-bootstrap.sh on VPS."
-  fi
+# ─── Subcommand: install ───────────────────────────────────────────
+# Install Docker + system libs on a fresh VPS. No clone, no .env.
+# This is what the rsync-based deploy-vps-askpass needs to work —
+# it uploads source from your laptop each time, so no git clone on VPS.
+cmd_install() {
+  log "Installing system libs on fresh VPS: $VPS_HOST"
+  log "(Docker, git, ufw, fail2ban, openssh-server, rsync, …)"
 
   if [[ -t 0 ]]; then
     read -r -p "Continue? This will run apt installs on $VPS_HOST [y/N] " ans
     [[ "$ans" =~ ^[Yy] ]] || die "aborted"
   fi
 
-  local repo_url="${VPS_REPO_URL:-git@github.com:s0lut1on/vuihoc.git}"
-  log "Repo: $repo_url (override with VPS_REPO_URL=https://<PAT>@...)"
-
   ssh_run "set -euo pipefail; \
     export DEBIAN_FRONTEND=noninteractive; \
-    echo '── 1/4 Installing Docker + plugins ──'; \
+    echo '── 1/2 Installing Docker + plugins ──'; \
     if ! command -v docker >/dev/null 2>&1; then \
       curl -fsSL https://get.docker.com | sh; \
       systemctl enable --now docker; \
     else \
       echo 'docker already installed'; \
     fi; \
-    echo '── 2/4 Installing system packages ──'; \
+    echo '── 2/2 Installing system packages ──'; \
     apt-get update -qq; \
     apt-get install -y -qq git openssh-server ufw fail2ban ca-certificates curl rsync 2>&1 | tail -3; \
-    echo '── 3/4 Cloning repo to $VPS_DIR ──'; \
+    echo ''; \
+    echo '✅ Install complete'; \
+    echo '   Next: make deploy-vps-askpass  (rsyncs source + builds + runs)' \
+    " || die "install failed"
+
+  ok "Install done. Now run: make deploy-vps-askpass"
+}
+
+# ─── Subcommand: bootstrap ──────────────────────────────────────────
+# Full one-shot setup for a fresh VPS:
+#   1. Install Docker + system libs (calls cmd_install)
+#   2. Clone the repo to $VPS_DIR
+#   3. Generate .env from .env.example with random passwords
+# Use this if you DON'T plan to use the rsync-based deploy and
+# instead want a traditional git-pull-based deploy on the VPS.
+# Requires GitHub credentials (deploy key on VPS or PAT in VPS_REPO_URL).
+cmd_bootstrap() {
+  cmd_install
+  log "Continuing bootstrap: cloning repo + generating .env"
+
+  local repo_url="${VPS_REPO_URL:-git@github.com:s0lut1on/vuihoc.git}"
+  log "Repo: $repo_url (override with VPS_REPO_URL=https://<PAT>@...)"
+
+  ssh_run "set -euo pipefail; \
+    echo '── Cloning repo to $VPS_DIR ──'; \
     mkdir -p \\$(dirname $VPS_DIR); \
     if [[ -d $VPS_DIR/.git ]]; then \
       echo 'repo already cloned'; \
     else \
       git clone $repo_url $VPS_DIR; \
     fi; \
-    echo '── 4/4 Generating .env from .env.example ──'; \
+    echo '── Generating .env from .env.example ──'; \
     cd $VPS_DIR; \
     if [[ -f .env ]]; then \
       echo '.env already exists — not overwriting'; \
@@ -333,14 +344,14 @@ cmd_bootstrap() {
     echo '   Next: cd $VPS_DIR && bash scripts/deploy-local.sh' \
     " || die "bootstrap failed (probably need GitHub SSH key or PAT for private repo clone)"
 
-  ok "Bootstrap done. Now run: make deploy-vps-askpass"
+  ok "Bootstrap done. Now run: make deploy-vps-askpass (or use scripts/deploy-local.sh on VPS)"
 }
 
 # ─── Help ───────────────────────────────────────────────────────────
 cmd_help() {
   sed -n '2,25p' "$0" | sed 's/^# \{0,1\}//'
   echo ""
-  echo "Subcommands: sync build up status logs shell restart all help"
+  echo "Subcommands: sync build up status logs shell restart install bootstrap all help"
   echo ""
   echo "Common env vars (set in .env.deploy or inline):"
   echo "  VPS_HOST=$VPS_HOST"
@@ -361,7 +372,8 @@ cmd_help() {
   echo ""
   echo "Examples:"
   echo "  ./scripts/deploy-vps.sh              # all (uses ssh-agent)"
-  echo "  ./scripts/deploy-vps.sh bootstrap    # first-time setup for fresh VPS"
+  echo "  ./scripts/deploy-vps.sh install      # install Docker + libs on fresh VPS (no clone)"
+  echo "  ./scripts/deploy-vps.sh bootstrap    # install + clone repo + gen .env (full setup)"
   echo "  ./scripts/deploy-vps.sh sync         # rsync only"
   echo "  ./scripts/deploy-vps.sh build        # build only"
   echo "  SERVICES=auth-service ./scripts/deploy-vps.sh build"
@@ -415,6 +427,7 @@ case "$subcmd" in
   logs)      cmd_logs "$@" ;;
   shell)     cmd_shell "$@" ;;
   restart)   cmd_restart "$@" ;;
+  install)   cmd_install "$@" ;;
   bootstrap) cmd_bootstrap "$@" ;;
   all)       cmd_all "$@" ;;
   help|-h|--help) cmd_help ;;
