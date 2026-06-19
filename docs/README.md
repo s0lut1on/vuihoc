@@ -63,15 +63,20 @@ If you don't want to deal with SSH keys (or your key isn't in
 Auth-mode priority: `VPS_PASSWORD` > `VPS_SSH_KEY` > ssh-agent.
 
 ```bash
+# Shortcut target (prompts for password)
+make deploy-vps-askpass
+
 # Inline (least safe — password in shell history)
 VPS_PASSWORD='your-vps-root-password' make deploy-vps
-
-# Prompt each time (safest, no key required)
-make deploy-vps --ask-pass     # or: ./scripts/deploy-vps.sh --ask-pass all
 
 # From a 600-perm file (best for repeated use)
 echo 'your-vps-root-password' > ~/.math-app-vps-pass && chmod 600 ~/.math-app-vps-pass
 VPS_PASSWORD=$(cat ~/.math-app-vps-pass) make deploy-vps
+
+# Forward any flag via ARGS (since make doesn't pass unknown flags through)
+make deploy-vps ARGS="--ask-pass"
+# Or call the script directly to skip the Make wrapper:
+./scripts/deploy-vps.sh --ask-pass all
 ```
 
 Or persist it in `.env.deploy` (already gitignored). Note: this

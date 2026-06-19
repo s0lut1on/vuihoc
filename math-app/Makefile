@@ -6,7 +6,7 @@ FLUTTER_ROOT = $(CURDIR)/$(FRONTEND)/flutter_sdk
 FLUTTER_CMD = $(if $(wildcard $(FLUTTER_ROOT)),$(FLUTTER_ROOT)/bin/flutter,$(shell which flutter 2>/dev/null || echo flutter))
 DART_CMD    = $(if $(findstring /,$(FLUTTER_CMD)),$(dir $(FLUTTER_CMD))dart,dart)
 
-.PHONY: help setup test test-cov watch format lint changelog-check build-apk build-web build-rust test-rust check-rust test-all clean deploy docker-test docker-dev docker-stop e2e-setup e2e-test deploy-vps deploy-vps-config deploy-vps-sync deploy-vps-build deploy-vps-up deploy-vps-status deploy-vps-logs deploy-vps-shell deploy-vps-restart
+.PHONY: help setup test test-cov watch format lint changelog-check build-apk build-web build-rust test-rust check-rust test-all clean deploy docker-test docker-dev docker-stop e2e-setup e2e-test deploy-vps deploy-vps-config deploy-vps-sync deploy-vps-build deploy-vps-up deploy-vps-status deploy-vps-logs deploy-vps-shell deploy-vps-restart deploy-vps-askpass
 
 help:
 	@echo "Math App - Local Development"
@@ -48,6 +48,7 @@ help:
 	@echo "  make deploy-vps-logs     Tail logs (SERVICES=auth-service)"
 	@echo "  make deploy-vps-shell    SSH into VPS"
 	@echo "  make deploy-vps-restart  Restart all (or one) containers"
+	@echo "  make deploy-vps-askpass  Password auth (prompts, no SSH key needed)"
 	@echo ""
 	@echo "  Or use npm:  npm run test        npm run build"
 
@@ -202,19 +203,27 @@ docker-stop:
 # ─── VPS deploy (no CI/CD) ─────────────────────────────────────
 # Stage-based: each target is independently usable. `make deploy-vps`
 # runs all of them. Config in .env.deploy (gitignored) or pass inline.
-# SSH: uses ssh-agent by default; set VPS_SSH_KEY in .env.deploy to force.
+# SSH: uses ssh-agent by default; set VPS_SSH_KEY in .env.deploy to force,
+# or VPS_PASSWORD=... / ARGS="--ask-pass" for password auth (no key needed).
 #
 # Examples:
-#   make deploy-vps                           # full deploy
+#   make deploy-vps                           # full deploy (ssh-agent)
 #   make deploy-vps-sync                      # rsync source only
 #   make deploy-vps-build SERVICES=auth-service
 #   make deploy-vps-logs SERVICES=auth-service
 #   make deploy-vps-shell                     # SSH into VPS
 #   make deploy-vps-restart SERVICES=auth-service
 #
+# Password auth (no SSH key):
+#   make deploy-vps-askpass                   # prompt for password
+#   VPS_PASSWORD='pw' make deploy-vps         # inline
+#   make deploy-vps ARGS="--ask-pass"         # forward flag to script
+#
 # First-time setup:
 #   make deploy-vps-config    # creates .env.deploy from template
 #   $EDITOR .env.deploy       # fill in VPS_HOST etc.
+
+ARGS ?=
 
 deploy-vps-config:
 	@if [ ! -f .env.deploy ]; then \
@@ -226,25 +235,29 @@ deploy-vps-config:
 	fi
 
 deploy-vps:
-	@./scripts/deploy-vps.sh all
+	@./scripts/deploy-vps.sh all $(ARGS)
 
 deploy-vps-sync:
-	@./scripts/deploy-vps.sh sync
+	@./scripts/deploy-vps.sh sync $(ARGS)
 
 deploy-vps-build:
-	@./scripts/deploy-vps.sh build
+	@./scripts/deploy-vps.sh build $(ARGS)
 
 deploy-vps-up:
-	@./scripts/deploy-vps.sh up
+	@./scripts/deploy-vps.sh up $(ARGS)
 
 deploy-vps-status:
-	@./scripts/deploy-vps.sh status
+	@./scripts/deploy-vps.sh status $(ARGS)
 
 deploy-vps-logs:
-	@./scripts/deploy-vps.sh logs
+	@./scripts/deploy-vps.sh logs $(ARGS)
 
 deploy-vps-shell:
-	@./scripts/deploy-vps.sh shell
+	@./scripts/deploy-vps.sh shell $(ARGS)
 
 deploy-vps-restart:
-	@./scripts/deploy-vps.sh restart
+	@./scripts/deploy-vps.sh restart $(ARGS)
+
+# Shortcut: password auth, no key needed. Prompts for VPS password.
+deploy-vps-askpass:
+	@./scripts/deploy-vps.sh --ask-pass all
