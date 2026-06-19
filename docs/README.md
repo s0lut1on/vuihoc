@@ -32,7 +32,8 @@ $EDITOR .env.deploy      # fill in VPS_HOST, VPS_DIR, etc. (defaults are fine)
 
 `.env.deploy` is gitignored. SSH uses your `ssh-agent` by default — make
 sure your VPS key is loaded (`ssh-add -l`). Set `VPS_SSH_KEY=/path` in
-the file if your key isn't in the agent.
+the file if your key isn't in the agent. **Don't want to manage SSH
+keys?** Use password auth instead — see below.
 
 ### Daily use
 
@@ -54,6 +55,29 @@ make deploy-vps-restart SERVICES=auth-service  # restart one service
 `APP_VERSION` so the Flutter home-screen footer (`🐸 HocVui <sha>`)
 reflects the deployed build. Override with `APP_VERSION=foo make
 deploy-vps` if needed.
+
+### No-key password auth
+
+If you don't want to deal with SSH keys (or your key isn't in
+`ssh-agent`), use password auth via `sshpass` (already installed).
+Auth-mode priority: `VPS_PASSWORD` > `VPS_SSH_KEY` > ssh-agent.
+
+```bash
+# Inline (least safe — password in shell history)
+VPS_PASSWORD='your-vps-root-password' make deploy-vps
+
+# Prompt each time (safest, no key required)
+make deploy-vps --ask-pass     # or: ./scripts/deploy-vps.sh --ask-pass all
+
+# From a 600-perm file (best for repeated use)
+echo 'your-vps-root-password' > ~/.math-app-vps-pass && chmod 600 ~/.math-app-vps-pass
+VPS_PASSWORD=$(cat ~/.math-app-vps-pass) make deploy-vps
+```
+
+Or persist it in `.env.deploy` (already gitignored). Note: this
+requires the VPS to allow password auth
+(`PasswordAuthentication yes` in `/etc/ssh/sshd_config` — default on
+most VPS images, but some harden it off).
 
 ### Setting up a brand-new VPS
 

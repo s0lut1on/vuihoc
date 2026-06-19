@@ -37,6 +37,7 @@ done
 VPS_HOST="${VPS_HOST:-deploy@194.233.94.167}"
 VPS_DIR="${VPS_DIR:-~/math-app/math-app}"
 VPS_SSH_KEY="${VPS_SSH_KEY:-}"
+VPS_PASSWORD="${VPS_PASSWORD:-}"
 GOOGLE_CLIENT_ID="${GOOGLE_CLIENT_ID:-1026978886898-cpqjll5m4b2ds8h7udb2i0j3ogq1u5um.apps.googleusercontent.com}"
 FLUTTER_BIN="${FLUTTER_BIN:-/home/s0lut1on/flutter/bin/flutter}"
 APP_VERSION="${APP_VERSION:-$(git -C "$APP_DIR" rev-parse --short HEAD 2>/dev/null || echo local-dev)}"
@@ -49,22 +50,56 @@ err()  { echo "${RED}[$(date +'%H:%M:%S')] ERROR${NC} $*" >&2; }
 ok()   { echo "${GREEN}[$(date +'%H:%M:%S')] OK${NC}    $*"; }
 die()  { err "$*"; exit 1; }
 
+# ─── Auth mode selection ─────────────────────────────────────────────
+# Priority: VPS_PASSWORD (sshpass) > VPS_SSH_KEY (forced key) > ssh-agent.
+# Set VPS_PASSWORD (or pass --ask-pass / VPS_PASSWORD=foo) to skip key setup.
+# BatchMode=yes is incompatible with password auth, so we drop it then.
+use_password() { [[ -n "$VPS_PASSWORD" ]]; }
+ssh_batch() {
+  if use_password; then echo "no"; else echo "yes"; fi
+}
+
 # ─── SSH helper ──────────────────────────────────────────────────────
-# Uses ssh-agent by default; if VPS_SSH_KEY is set, force that key only.
+# Wraps ssh/sshpass so callers don't have to think about auth mode.
+# Usage: ssh_run "remote command" or ssh_run_tty "remote command"
 ssh_run() {
-  local -a opts=(-o ConnectTimeout=10 -o BatchMode=yes -o ServerAliveInterval=30)
+  local -a opts=(-o ConnectTimeout=10 -o ServerAliveInterval=30)
+  local batch; batch=$(ssh_batch)
+  if [[ "$batch" == "yes" ]]; then opts+=(-o BatchMode=yes); fi
   if [[ -n "$VPS_SSH_KEY" ]]; then
-    opts=(-i "$VPS_SSH_KEY" -o IdentitiesOnly=yes "${opts[@]}")
+    opts+=(-i "$VPS_SSH_KEY" -o IdentitiesOnly=yes)
   fi
-  ssh "${opts[@]}" "$VPS_HOST" "$@"
+  if use_password; then
+    SSHPASS="$VPS_PASSWORD" sshpass -e ssh "${opts[@]}" "$VPS_HOST" "$@"
+  else
+    ssh "${opts[@]}" "$VPS_HOST" "$@"
+  fi
 }
 
 ssh_run_tty() {
   local -a opts=(-o ConnectTimeout=10 -o ServerAliveInterval=30)
   if [[ -n "$VPS_SSH_KEY" ]]; then
-    opts=(-i "$VPS_SSH_KEY" -o IdentitiesOnly=yes "${opts[@]}")
+    opts+=(-i "$VPS_SSH_KEY" -o IdentitiesOnly=yes)
   fi
-  ssh "${opts[@]}" -t "$VPS_HOST" "$@"
+  if use_password; then
+    SSHPASS="$VPS_PASSWORD" sshpass -e ssh "${opts[@]}" -t "$VPS_HOST" "$@"
+  else
+    ssh "${opts[@]}" -t "$VPS_HOST" "$@"
+  fi
+}
+
+# rsync helper that respects auth mode
+rsync_run() {
+  local -a ssh_args=(-o ConnectTimeout=10 -o ServerAliveInterval=30)
+  if [[ -n "$VPS_SSH_KEY" ]]; then
+    ssh_args+=(-i "$VPS_SSH_KEY" -o IdentitiesOnly=yes)
+  fi
+  if use_password; then
+    SSHPASS="$VPS_PASSWORD" sshpass -e rsync -a --delete \
+      -e "ssh ${ssh_args[*]}" "$@"
+  else
+    rsync -a --delete -e "ssh ${ssh_args[*]}" "$@"
+  fi
 }
 
 # ─── Pre-flight ──────────────────────────────────────────────────────
@@ -79,12 +114,14 @@ preflight() {
   log "VPS_HOST=$VPS_HOST"
   log "VPS_DIR=$VPS_DIR  (resolved to: $(ssh_run "echo ${VPS_DIR/#\~/\$HOME}" 2>/dev/null || echo '?') )"
   log "APP_VERSION=$APP_VERSION"
-  if [[ -n "$VPS_SSH_KEY" ]]; then
+  if use_password; then
+    log "SSH: password auth (sshpass)"
+  elif [[ -n "$VPS_SSH_KEY" ]]; then
     log "SSH: forced key $VPS_SSH_KEY"
   elif [[ -n "${SSH_AUTH_SOCK:-}" ]] && ssh-add -l >/dev/null 2>&1; then
     log "SSH: ssh-agent ($(ssh-add -l | wc -l) keys loaded)"
   else
-    warn "SSH: no agent and no VPS_SSH_KEY — auth will probably fail"
+    warn "SSH: no agent, no VPS_SSH_KEY, no VPS_PASSWORD — auth will probably fail"
   fi
 
   # Test SSH + port 22 separately for clearer error messages
@@ -97,7 +134,13 @@ preflight() {
   fi
 
   if ! ssh_run "true" 2>/dev/null; then
-    die "SSH auth failed for $VPS_HOST. Check ssh-agent (ssh-add -l) or VPS_SSH_KEY."
+    if use_password; then
+      die "SSH password auth failed for $VPS_HOST. Check VPS_PASSWORD is correct and
+  that the VPS allows password auth (PasswordAuthentication yes in sshd_config)."
+    else
+      die "SSH auth failed for $VPS_HOST. Check ssh-agent (ssh-add -l), VPS_SSH_KEY,
+  or set VPS_PASSWORD=... (or pass --ask-pass) to use password auth instead."
+    fi
   fi
   ok "SSH to $VPS_HOST works"
 }
@@ -132,9 +175,8 @@ cmd_sync() {
     --exclude='.env.deploy' --exclude='.env.deploy.local'
     --exclude='**/*.log'
   )
-  rsync -a --delete "${excludes[@]}" \
-    -e "ssh $([[ -n "$VPS_SSH_KEY" ]] && echo "-i $VPS_SSH_KEY -o IdentitiesOnly=yes")" \
-    "$APP_DIR/" "$VPS_HOST:$VPS_DIR/" || die "rsync failed"
+  rsync_run "${excludes[@]}" "$APP_DIR/" "$VPS_HOST:$VPS_DIR/" \
+    || die "rsync failed"
   ok "Source synced to VPS"
 }
 
@@ -233,21 +275,57 @@ cmd_help() {
   echo "  VPS_HOST=$VPS_HOST"
   echo "  VPS_DIR=$VPS_DIR"
   echo "  VPS_SSH_KEY= (empty = use ssh-agent)"
+  echo "  VPS_PASSWORD= (set to use password auth via sshpass — no key needed)"
   echo "  SERVICES=auth-service (limit build/restart to one service)"
   echo "  SKIP_FRONTEND=1, SKIP_BACKEND=1, NO_CACHE=1"
   echo "  APP_VERSION=$APP_VERSION"
   echo ""
+  echo "Auth modes (priority order):"
+  echo "  1. VPS_PASSWORD=...     password via sshpass (no key required)"
+  echo "  2. VPS_SSH_KEY=/path    force a specific key (skip ssh-agent)"
+  echo "  3. (default)            ssh-agent"
+  echo ""
+  echo "Flags: --ask-pass prompts for password (then uses sshpass, doesn't store it)"
+  echo ""
   echo "Examples:"
-  echo "  ./scripts/deploy-vps.sh              # all"
+  echo "  ./scripts/deploy-vps.sh              # all (uses ssh-agent)"
   echo "  ./scripts/deploy-vps.sh sync         # rsync only"
   echo "  ./scripts/deploy-vps.sh build        # build only"
   echo "  SERVICES=auth-service ./scripts/deploy-vps.sh build"
   echo "  ./scripts/deploy-vps.sh status"
   echo "  SERVICES=auth-service ./scripts/deploy-vps.sh logs"
   echo "  ./scripts/deploy-vps.sh shell        # SSH into VPS"
+  echo ""
+  echo "No-key password auth (no SSH key setup required):"
+  echo "  VPS_PASSWORD='your-vps-password' ./scripts/deploy-vps.sh status"
+  echo "  ./scripts/deploy-vps.sh --ask-pass status"
+  echo "  echo 'your-vps-password' > ~/.math-app-vps-pass"
+  echo "  VPS_PASSWORD=\$(cat ~/.math-app-vps-pass) ./scripts/deploy-vps.sh status"
 }
 
 # ─── Dispatch ───────────────────────────────────────────────────────
+# Pre-scan for --ask-pass / --password=PASS (so it works as the very first arg)
+new_args=()
+for arg in "$@"; do
+  case "$arg" in
+    --ask-pass)
+      if [[ -z "$VPS_PASSWORD" ]]; then
+        if [[ -t 0 ]]; then
+          read -r -s -p "VPS password for $VPS_HOST: " VPS_PASSWORD
+          echo
+        else
+          die "--ask-pass requires a TTY (interactive terminal). Set VPS_PASSWORD=... instead."
+        fi
+      fi
+      ;;
+    --password=*)
+      VPS_PASSWORD="${arg#--password=}"
+      ;;
+    *) new_args+=("$arg") ;;
+  esac
+done
+set -- "${new_args[@]}"
+
 subcmd="${1:-all}"
 shift || true
 
