@@ -325,11 +325,13 @@ cmd_bootstrap() {
     if [[ -d $VPS_DIR/.git ]]; then \
       echo 'repo already cloned'; \
     else \
-      if [[ -d $VPS_DIR ]] && [[ -n \"\\$(ls -A $VPS_DIR 2>/dev/null)\" ]]; then \
-        bak=\"$VPS_DIR.bak.\\$(date +%s)\"; \
-        echo \"dir exists but has no .git — moving to \\\$bak\"; \
-        mv $VPS_DIR \"\\\$bak\"; \
+      if [[ -d $VPS_DIR ]] && [[ -n \"\$(ls -A $VPS_DIR 2>/dev/null)\" ]]; then \
+        remote_bak=\"$VPS_DIR.bak.\$(date +%s)\"; \
+        echo \"dir exists but has no .git — moving to \$remote_bak\"; \
+        mv $VPS_DIR \"\$remote_bak\"; \
       fi; \
+      git clone $repo_url $VPS_DIR; \
+    fi; \
       git clone $repo_url $VPS_DIR; \
     fi; \
     echo '── Generating .env from .env.example ──'; \
