@@ -366,8 +366,6 @@ cmd_bootstrap() {
       fi; \
       git clone $repo_url $VPS_DIR; \
     fi; \
-      git clone $repo_url $VPS_DIR; \
-    fi; \
     echo '── Generating .env from .env.example ──'; \
     cd $VPS_DIR; \
     if [[ -f .env ]]; then \
