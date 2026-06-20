@@ -159,11 +159,18 @@ cmd_sync() {
   # Build Flutter web locally on laptop (fast, ~30-60s)
   if [[ ! "${SKIP_FRONTEND:-0}" = "1" && -x "$FLUTTER_BIN" ]]; then
     log "Building Flutter web locally with $FLUTTER_BIN"
+    # The Dockerfile does this sed for the Docker build path; we must
+    # do it here too, otherwise the rendered index.html keeps the
+    # literal "$GOOGLE_CLIENT_ID" and the browser sends an invalid
+    # client_id to Google (Error 401: invalid_client).
+    if [[ -n "$GOOGLE_CLIENT_ID" ]]; then
+      sed -i "s|\$GOOGLE_CLIENT_ID|$GOOGLE_CLIENT_ID|g" "$APP_DIR/frontend/web/index.html"
+    fi
     (cd "$APP_DIR/frontend" && \
       "$FLUTTER_BIN" build web --release \
         --dart-define=GOOGLE_CLIENT_ID="$GOOGLE_CLIENT_ID" \
         --no-tree-shake-icons) || die "Flutter build failed"
-    ok "Flutter build/web/ ready"
+    ok "Flutter build/web/ ready (GOOGLE_CLIENT_ID baked into index.html)"
   elif [[ "${SKIP_FRONTEND:-0}" = "1" ]]; then
     log "Skipping Flutter build (SKIP_FRONTEND=1)"
   else
