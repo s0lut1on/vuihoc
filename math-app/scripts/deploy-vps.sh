@@ -286,16 +286,50 @@ cmd_install() {
 
   ssh_run "set -euo pipefail; \
     export DEBIAN_FRONTEND=noninteractive; \
-    echo '── 1/2 Installing Docker + plugins ──'; \
+    echo '── 1/3 Installing Docker + plugins ──'; \
     if ! command -v docker >/dev/null 2>&1; then \
       curl -fsSL https://get.docker.com | sh; \
       systemctl enable --now docker; \
     else \
       echo 'docker already installed'; \
     fi; \
-    echo '── 2/2 Installing system packages ──'; \
+    echo '── 2/3 Installing system packages ──'; \
     apt-get update -qq; \
     apt-get install -y -qq git openssh-server ufw fail2ban ca-certificates curl rsync 2>&1 | tail -3; \
+    echo '── 3/3 Pre-configuring ufw + fail2ban (so SSH never gets blocked) ──'; \
+    echo ''; \
+    echo '--- ufw: pre-add allow rules for 22/80/443 (NOT enabled yet) ---'; \
+    if command -v ufw >/dev/null 2>&1; then \
+      ufw --force reset >/dev/null 2>&1 || true; \
+      ufw default deny incoming >/dev/null 2>&1 || true; \
+      ufw default allow outgoing >/dev/null 2>&1 || true; \
+      ufw allow 22/tcp comment 'ssh' >/dev/null 2>&1 || true; \
+      ufw allow 80/tcp comment 'http' >/dev/null 2>&1 || true; \
+      ufw allow 443/tcp comment 'https' >/dev/null 2>&1 || true; \
+      ufw allow from 127.0.0.1 >/dev/null 2>&1 || true; \
+      echo 'ufw rules: 22, 80, 443 + loopback allowed; default deny incoming'; \
+      echo 'TO ACTIVATE: run \`ufw enable\` ONCE after the first deploy succeeds'; \
+    fi; \
+    echo ''; \
+    echo '--- fail2ban: raise thresholds + whitelist this client IP ---'; \
+    if command -v fail2ban-client >/dev/null 2>&1; then \
+      client_ip=\$(echo \$SSH_CONNECTION | awk '{print \$1}'); \
+      echo \"detected client IP from SSH_CONNECTION: \${client_ip:-<none>}\"; \
+      printf '%s\n' \
+        '[DEFAULT]' \
+        'maxretry = 10' \
+        'bantime = 1h' \
+        'findtime = 10m' \
+        \"ignoreip = 127.0.0.1/8 ::1 \${client_ip:-}\" \
+        '[sshd]' \
+        'enabled = true' \
+        > /etc/fail2ban/jail.local; \
+      chmod 644 /etc/fail2ban/jail.local; \
+      systemctl enable --now fail2ban >/dev/null 2>&1 || true; \
+      systemctl reload fail2ban 2>/dev/null || fail2ban-client reload 2>/dev/null || true; \
+      fail2ban-client unban all >/dev/null 2>&1 || true; \
+      echo 'fail2ban: maxretry=10, bantime=1h, all currently-banned IPs unbanned'; \
+    fi; \
     echo ''; \
     echo '✅ Install complete'; \
     echo '   Next: make deploy-vps-askpass  (rsyncs source + builds + runs)' \
