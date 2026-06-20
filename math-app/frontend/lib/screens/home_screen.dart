@@ -5,6 +5,7 @@ import '../core/app_colors.dart';
 import '../core/app_theme.dart';
 import '../core/build_info.dart';
 import '../l10n/app_localizations.dart';
+import '../models/lesson_model.dart';
 import '../providers/app_providers.dart';
 import '../widgets/bubble_button.dart';
 import '../widgets/kid_card.dart';
@@ -26,6 +27,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final l10n = AppLocalizations.of(context)!;
     final user = ref.watch(userProvider).value;
     final streakAsync = ref.watch(streakProvider);
+    // React to grade changes — this refetches the curriculum for the
+    // new grade, which in turn refreshes the lesson counts shown in
+    // each SubjectTile and the Continue card.
+    final userGrade = user?.grade ?? 1;
+    final curriculumAsync = ref.watch(curriculumProvider(userGrade));
     return Scaffold(
       backgroundColor: AppColors.pinkBg,
       body: SafeArea(
@@ -155,7 +161,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     LayoutBuilder(builder: (context, c) {
                       final cols =
                           c.maxWidth > 1100 ? 4 : (c.maxWidth > 700 ? 3 : 2);
-                      return _subjectsGrid(cols);
+                      return _subjectsGrid(cols, curriculumAsync);
                     }),
                     const SizedBox(height: 24),
                     const _BuildVersionFooter(),
@@ -169,8 +175,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  Widget _subjectsGrid(int cols) {
-    final subjects = _buildSubjects();
+  Widget _subjectsGrid(int cols, AsyncValue<List<ApiLesson>> curriculum) {
+    final subjects = _buildSubjects(curriculum.valueOrNull ?? const []);
     return GridView.count(
       crossAxisCount: cols,
       mainAxisSpacing: 12,
@@ -182,28 +188,36 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  List<Widget> _buildSubjects() {
+  List<Widget> _buildSubjects(List<ApiLesson> lessons) {
+    // Group curriculum lessons by subject_id so the tiles show real
+    // per-grade counts. When the user changes grade in Profile, this
+    // rebuilds with the new grade's curriculum (curriculumProvider is
+    // a family keyed on grade).
+    final bySubject = <String, int>{};
+    for (final l in lessons) {
+      bySubject[l.subjectId] = (bySubject[l.subjectId] ?? 0) + 1;
+    }
     return [
       SubjectTile(
           id: 'numbers',
           emoji: '🔢',
           nameVi: 'Số học',
           nameEn: 'Numbers',
-          lessonCount: 24,
+          lessonCount: bySubject['numbers'] ?? 0,
           onTap: () => context.go('/subject/numbers')),
       SubjectTile(
           id: 'geometry',
           emoji: '📐',
           nameVi: 'Hình học',
           nameEn: 'Geometry',
-          lessonCount: 18,
+          lessonCount: bySubject['geometry'] ?? 0,
           onTap: () => context.go('/subject/geometry')),
       SubjectTile(
           id: 'measurement',
           emoji: '📏',
           nameVi: 'Đo lường',
           nameEn: 'Measurement',
-          lessonCount: 20,
+          lessonCount: bySubject['measurement'] ?? 0,
           onTap: () => context.go('/subject/measurement')),
       SubjectTile(
           id: 'logic',
