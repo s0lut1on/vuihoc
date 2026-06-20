@@ -266,19 +266,22 @@ deploy-vps-askpass:
 	@./scripts/deploy-vps.sh --ask-pass all
 
 # Install Docker + system libs on a fresh VPS. No clone, no .env.
+# Prompts for VPS password (fresh VPS = no SSH key yet).
 # After this, make deploy-vps-askpass will rsync source from your
 # laptop + build + run. Best fit for the rsync-based deploy flow.
 deploy-vps-install:
-	@./scripts/deploy-vps.sh install $(ARGS)
+	@./scripts/deploy-vps.sh --ask-pass install $(ARGS)
 
 # Generate .env on laptop from .env.example with random passwords,
 # then upload to VPS. Use after `install` (rsync-based deploy).
 # You still need to edit GOOGLE_CLIENT_ID, DOMAIN, etc. on the VPS.
 deploy-vps-env:
-	@./scripts/deploy-vps.sh env $(ARGS)
+	@./scripts/deploy-vps.sh --ask-pass env $(ARGS)
 
 # Full one-shot setup for a fresh VPS: install + clone repo + gen .env.
-# Use only if you want a traditional git-pull-based deploy on the VPS
-# (instead of the rsync-based flow). Requires GitHub credentials.
+# Prompts for VPS password. Requires GitHub credentials (deploy key or
+# PAT in VPS_REPO_URL) for the private repo clone. Use only if you
+# want a traditional git-pull-based deploy on the VPS instead of the
+# rsync-based flow.
 deploy-vps-bootstrap:
-	@./scripts/deploy-vps.sh bootstrap $(ARGS)
+	@./scripts/deploy-vps.sh --ask-pass bootstrap $(ARGS)
