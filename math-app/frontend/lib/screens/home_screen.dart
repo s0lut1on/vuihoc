@@ -161,7 +161,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     LayoutBuilder(builder: (context, c) {
                       final cols =
                           c.maxWidth > 1100 ? 4 : (c.maxWidth > 700 ? 3 : 2);
-                      return _subjectsGrid(cols, curriculumAsync);
+                      return _subjectsGrid(cols, curriculumAsync, userGrade);
                     }),
                     const SizedBox(height: 24),
                     const _BuildVersionFooter(),
@@ -175,8 +175,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  Widget _subjectsGrid(int cols, AsyncValue<List<ApiLesson>> curriculum) {
-    final subjects = _buildSubjects(curriculum.valueOrNull ?? const []);
+  Widget _subjectsGrid(int cols, AsyncValue<List<ApiLesson>> curriculum, int userGrade) {
+    final subjects = _buildSubjects(curriculum.valueOrNull ?? const [], userGrade);
     return GridView.count(
       crossAxisCount: cols,
       mainAxisSpacing: 12,
@@ -188,7 +188,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  List<Widget> _buildSubjects(List<ApiLesson> lessons) {
+  List<Widget> _buildSubjects(List<ApiLesson> lessons, int userGrade) {
     // Group curriculum lessons by subject_id so the tiles show real
     // per-grade counts. When the user changes grade in Profile, this
     // rebuilds with the new grade's curriculum (curriculumProvider is
@@ -197,65 +197,103 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     for (final l in lessons) {
       bySubject[l.subjectId] = (bySubject[l.subjectId] ?? 0) + 1;
     }
-    return [
-      SubjectTile(
+    // Each subject has a `gradeMin` — the lowest grade that can take
+    // it. Tiles below the user's grade are hidden entirely; tiles at
+    // or above the user's grade are shown. Lesson counts come from the
+    // backend (live curriculum).
+    final all = [
+      _SubjectMeta(
           id: 'numbers',
           emoji: '🔢',
           nameVi: 'Số học',
           nameEn: 'Numbers',
-          lessonCount: bySubject['numbers'] ?? 0,
-          onTap: () => context.go('/subject/numbers')),
-      SubjectTile(
+          gradeMin: 1,
+          path: '/subject/numbers'),
+      _SubjectMeta(
           id: 'geometry',
           emoji: '📐',
           nameVi: 'Hình học',
           nameEn: 'Geometry',
-          lessonCount: bySubject['geometry'] ?? 0,
-          onTap: () => context.go('/subject/geometry')),
-      SubjectTile(
+          gradeMin: 1,
+          path: '/subject/geometry'),
+      _SubjectMeta(
           id: 'measurement',
           emoji: '📏',
           nameVi: 'Đo lường',
           nameEn: 'Measurement',
-          lessonCount: bySubject['measurement'] ?? 0,
-          onTap: () => context.go('/subject/measurement')),
-      SubjectTile(
+          gradeMin: 1,
+          path: '/subject/measurement'),
+      _SubjectMeta(
           id: 'logic',
           emoji: '🧩',
           nameVi: 'Tư duy',
           nameEn: 'Logic',
-          lessonCount: 15,
-          onTap: () => context.go('/subject/logic')),
-      SubjectTile(
+          gradeMin: 1,
+          path: '/subject/logic'),
+      // Grade 2 unlocks: algebra (extends Numbers with variables & equations).
+      _SubjectMeta(
+          id: 'algebra',
+          emoji: '🅰️',
+          nameVi: 'Đại số',
+          nameEn: 'Algebra',
+          gradeMin: 2,
+          path: '/subject/algebra'),
+      // Grade 3 unlocks: trigonometry (extends Geometry with sin/cos/tan).
+      _SubjectMeta(
+          id: 'trigonometry',
+          emoji: '📐',
+          nameVi: 'Lượng giác',
+          nameEn: 'Trigonometry',
+          gradeMin: 3,
+          path: '/subject/trigonometry'),
+      _SubjectMeta(
           id: 'vietnamese',
           emoji: '🇻🇳',
           nameVi: 'Tiếng Việt',
           nameEn: 'Vietnamese',
-          lessonCount: 40,
-          onTap: () => context.go('/subject/vietnamese')),
-      SubjectTile(
+          gradeMin: 1,
+          path: '/subject/vietnamese'),
+      _SubjectMeta(
           id: 'english',
           emoji: '🇬🇧',
           nameVi: 'Tiếng Anh',
           nameEn: 'English',
-          lessonCount: 40,
-          onTap: () => context.go('/subject/english')),
-      SubjectTile(
-          id: 'science',
-          emoji: '🔒',
-          nameVi: 'Sắp ra mắt',
-          nameEn: 'Coming soon',
-          lessonCount: 0,
-          locked: true),
-      SubjectTile(
-          id: 'music',
-          emoji: '🔒',
-          nameVi: 'Sắp ra mắt',
-          nameEn: 'Coming soon',
-          lessonCount: 0,
-          locked: true),
+          gradeMin: 1,
+          path: '/subject/english'),
+    ];
+    return [
+      for (final s in all.where((s) => s.gradeMin <= userGrade))
+        SubjectTile(
+            id: s.id,
+            emoji: s.emoji,
+            nameVi: s.nameVi,
+            nameEn: s.nameEn,
+            lessonCount: bySubject[s.id] ?? 0,
+            gradeMin: s.gradeMin,
+            onTap: () => context.go(s.path)),
     ];
   }
+}
+
+/// Lightweight metadata for the home-screen subject grid. Kept here
+/// (not in a model file) because this list is the single source of
+/// truth for what subjects are in the home grid; backend models don't
+/// duplicate this decision.
+class _SubjectMeta {
+  final String id;
+  final String emoji;
+  final String nameVi;
+  final String nameEn;
+  final int gradeMin;
+  final String path;
+  const _SubjectMeta({
+    required this.id,
+    required this.emoji,
+    required this.nameVi,
+    required this.nameEn,
+    required this.gradeMin,
+    required this.path,
+  });
 }
 
 class _NavRight extends ConsumerWidget {

@@ -12,6 +12,11 @@ class SubjectTile extends StatelessWidget {
   final int lessonCount;
   final VoidCallback? onTap;
   final bool locked;
+
+  /// Minimum grade (inclusive) at which this subject is available.
+  /// When the user's grade is below this, the tile renders as
+  /// greyed-out with a "Lớp N+" badge so kids can see what's coming.
+  final int gradeMin;
   const SubjectTile({
     super.key,
     required this.id,
@@ -21,6 +26,7 @@ class SubjectTile extends StatelessWidget {
     required this.lessonCount,
     this.onTap,
     this.locked = false,
+    this.gradeMin = 1,
   });
 
   @override
@@ -33,7 +39,26 @@ class SubjectTile extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(emoji, style: const TextStyle(fontSize: 56)),
+          Row(
+            children: [
+              Text(emoji, style: const TextStyle(fontSize: 56)),
+              const Spacer(),
+              if (locked)
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: AppColors.pinkSoft,
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: Text('Lớp $gradeMin+',
+                      style: AppTheme.body(
+                          size: 10,
+                          color: AppColors.deepPurple,
+                          weight: FontWeight.w800)),
+                ),
+            ],
+          ),
           const SizedBox(height: 8),
           Text(nameVi,
               style: AppTheme.display(
@@ -41,7 +66,7 @@ class SubjectTile extends StatelessWidget {
                   color:
                       locked ? const Color(0xFF9CA3AF) : AppColors.deepPurple)),
           const SizedBox(height: 2),
-          Text('$lessonCount bài',
+          Text(locked ? 'Sắp ra mắt' : '$lessonCount bài',
               style: AppTheme.body(size: 13, color: AppColors.mutedPurple)),
         ],
       ),
