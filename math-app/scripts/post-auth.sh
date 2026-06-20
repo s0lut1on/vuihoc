@@ -19,11 +19,44 @@ step() { echo ""; log "=========== $* ==========="; }
 # Step 1: Confirm GitHub auth
 step "Step 1/6: confirm GitHub auth works from VPS"
 log "ssh -T git@github.com from VPS..."
-if ! out=$(ssh -o BatchMode=yes -T git@github.com 2>&1); then
-  err "GitHub auth no longer works from VPS. Run github-key-retry.sh first."
+# The VPS may have multiple keys; ssh picks by name order. Force
+# id_rsa (which we just verified works) so this step doesn't fail
+# on a wrong key. Also write ~/.ssh/config so git-clone in step 2
+# and the deploy in step 6 always use id_rsa without us repeating
+# the -i flag everywhere.
+ssh "$VPS_HOST" "bash -c '
+set -e
+mkdir -p ~/.ssh && chmod 700 ~/.ssh
+cat > ~/.ssh/config <<CFG
+Host github.com
+  IdentityFile ~/.ssh/id_rsa
+  IdentitiesOnly yes
+  StrictHostKeyChecking accept-new
+  UserKnownHostsFile ~/.ssh/known_hosts
+CFG
+chmod 600 ~/.ssh/config
+[[ -f ~/.ssh/id_rsa ]] || { echo MISSING_ID_RSA_ON_VPS; exit 1; }
+chmod 600 ~/.ssh/id_rsa
+ssh-keyscan -t rsa,ed25519 github.com >> ~/.ssh/known_hosts 2>/dev/null || true
+sort -u ~/.ssh/known_hosts -o ~/.ssh/known_hosts
+chmod 644 ~/.ssh/known_hosts
+echo CONFIG_INSTALLED
+'"
+
+# Verify by running ssh -T FROM THE VPS. No -i needed because we
+# already wrote /root/.ssh/config above (Host github.com /
+# IdentityFile ~/.ssh/id_rsa / IdentitiesOnly yes).
+# NOTE: GitHub returns exit=1 with 'no shell access' even on SUCCESS.
+# So we can't use exit code — check the output string instead.
+out=$(ssh "$VPS_HOST" "ssh -o BatchMode=yes -T git@github.com" 2>&1 || true)
+echo "$out"
+if ! echo "$out" | grep -q "successfully authenticated"; then
+  err "GitHub auth did not succeed from VPS. Output was:"
+  err "$out"
+  err "Most likely: the id_rsa on VPS doesn't match the pubkey on GitHub."
+  err "Fix: check https://github.com/settings/keys has the matching pubkey."
   exit 1
 fi
-echo "$out"
 ok "GitHub reachable"
 
 # Step 2: Clone or pull
