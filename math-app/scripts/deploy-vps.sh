@@ -338,6 +338,58 @@ cmd_install() {
   ok "Install done. Now run: make deploy-vps-askpass"
 }
 
+# ─── Subcommand: env ───────────────────────────────────────────────
+# Generate .env on the laptop from .env.example with random passwords,
+# then upload to $VPS_DIR/.env. Use after `install` if you don't want
+# to clone the repo (rsync-based deploy).
+# User must still edit VPS-side: GOOGLE_CLIENT_ID, ANTHROPIC_API_KEY,
+# DOMAIN, ALLOWED_ORIGINS, and any other non-random values.
+cmd_env() {
+  local env_example="$APP_DIR/.env.example"
+  local env_local="$APP_DIR/.env"
+
+  [[ -f "$env_example" ]] || die ".env.example not found at $env_example"
+
+  log "Generating $env_local from .env.example with random passwords"
+  cp "$env_example" "$env_local"
+  chmod 600 "$env_local"
+
+  sed -i "s|REPLACE_THIS_WITH_A_STRONG_256_BIT_KEY_MIN_32_CHARS|$(openssl rand -hex 32)|" "$env_local"
+  sed -i "s|strong_random_access_key_min_8_chars|$(openssl rand -hex 16)|" "$env_local"
+  sed -i "s|strong_random_secret_key_min_8_chars|$(openssl rand -hex 16)|" "$env_local"
+
+  for db_var in AUTH_DB_PASS USER_DB_PASS CONTENT_DB_PASS PROGRESS_DB_PASS \
+                NOTIFICATION_DB_PASS MEDIA_DB_PASS QUESTION_BANK_DB_PASS \
+                LANGUAGE_DB_PASS; do
+    sed -i "s|^${db_var}=.*|${db_var}=$(openssl rand -hex 16)|" "$env_local"
+  done
+
+  if grep -q "^REDIS_PASSWORD=" "$env_local"; then
+    sed -i "s|^REDIS_PASSWORD=.*|REDIS_PASSWORD=$(openssl rand -hex 16)|" "$env_local"
+  fi
+
+  ok "Generated $env_local"
+
+  preflight
+  ssh_run "mkdir -p $VPS_DIR" >/dev/null || die "could not create $VPS_DIR on VPS"
+
+  log "Uploading $env_local → $VPS_HOST:$VPS_DIR/.env"
+  rsync_run "$env_local" "$VPS_HOST:$VPS_DIR/.env" \
+    || die "rsync of .env failed"
+  ssh_run "chmod 600 $VPS_DIR/.env && echo 'remote .env permissions set to 600'" \
+    || die "could not chmod .env on VPS"
+
+  echo ""
+  warn "REMEMBER: edit values that need to be specific, not random:"
+  warn "  GOOGLE_CLIENT_ID    (your Google OAuth client ID)"
+  warn "  ANTHROPIC_API_KEY   (optional, for AI question gen)"
+  warn "  DOMAIN              (your VPS domain, e.g. sekklings.com)"
+  warn "  ALLOWED_ORIGINS     (CORS — usually https://\$DOMAIN)"
+  warn ""
+  warn "Edit on VPS: ssh $VPS_HOST '$EDITOR $VPS_DIR/.env'"
+  ok "Done. Next: make deploy-vps-askpass"
+}
+
 # ─── Subcommand: bootstrap ──────────────────────────────────────────
 # Full one-shot setup for a fresh VPS:
 #   1. Install Docker + system libs (calls cmd_install)
@@ -390,7 +442,7 @@ cmd_bootstrap() {
 cmd_help() {
   sed -n '2,25p' "$0" | sed 's/^# \{0,1\}//'
   echo ""
-  echo "Subcommands: sync build up status logs shell restart install bootstrap all help"
+  echo "Subcommands: sync build up status logs shell restart env install bootstrap all help"
   echo ""
   echo "Common env vars (set in .env.deploy or inline):"
   echo "  VPS_HOST=$VPS_HOST"
@@ -412,6 +464,7 @@ cmd_help() {
   echo "Examples:"
   echo "  ./scripts/deploy-vps.sh              # all (uses ssh-agent)"
   echo "  ./scripts/deploy-vps.sh install      # install Docker + libs on fresh VPS (no clone)"
+  echo "  ./scripts/deploy-vps.sh env          # generate .env with random passwords + upload"
   echo "  ./scripts/deploy-vps.sh bootstrap    # install + clone repo + gen .env (full setup)"
   echo "  ./scripts/deploy-vps.sh sync         # rsync only"
   echo "  ./scripts/deploy-vps.sh build        # build only"
@@ -466,6 +519,7 @@ case "$subcmd" in
   logs)      cmd_logs "$@" ;;
   shell)     cmd_shell "$@" ;;
   restart)   cmd_restart "$@" ;;
+  env)       cmd_env "$@" ;;
   install)   cmd_install "$@" ;;
   bootstrap) cmd_bootstrap "$@" ;;
   all)       cmd_all "$@" ;;
