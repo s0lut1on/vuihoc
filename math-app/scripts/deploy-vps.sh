@@ -185,7 +185,7 @@ cmd_sync() {
     --exclude='backend/target/' --exclude='backend/target'
     --exclude='frontend/flutter_sdk/' --exclude='frontend/flutter_sdk'
     --exclude='node_modules/' --exclude='node_modules'
-    --exclude='.env.deploy' --exclude='.env.deploy.local'
+    --exclude='.env' --exclude='.env.deploy' --exclude='.env.deploy.local'
     --exclude='**/*.log'
   )
   rsync_run "${excludes[@]}" "$APP_DIR/" "$VPS_HOST:$VPS_DIR/" \
