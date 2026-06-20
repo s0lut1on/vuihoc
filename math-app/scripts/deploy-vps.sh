@@ -358,10 +358,22 @@ cmd_env() {
   sed -i "s|strong_random_access_key_min_8_chars|$(openssl rand -hex 16)|" "$env_local"
   sed -i "s|strong_random_secret_key_min_8_chars|$(openssl rand -hex 16)|" "$env_local"
 
-  for db_var in AUTH_DB_PASS USER_DB_PASS CONTENT_DB_PASS PROGRESS_DB_PASS \
-                NOTIFICATION_DB_PASS MEDIA_DB_PASS QUESTION_BANK_DB_PASS \
-                LANGUAGE_DB_PASS; do
-    sed -i "s|^${db_var}=.*|${db_var}=$(openssl rand -hex 16)|" "$env_local"
+  declare -A url_pass_map=(
+    [AUTH_DB_URL]=AUTH_DB_PASS
+    [USER_DB_URL]=USER_DB_PASS
+    [CONTENT_DB_URL]=CONTENT_DB_PASS
+    [PROGRESS_DB_URL]=PROGRESS_DB_PASS
+    [NOTIFICATION_DB_URL]=NOTIFICATION_DB_PASS
+    [MEDIA_DB_URL]=MEDIA_DB_PASS
+    [QB_DB_URL]=QB_DB_PASS
+    [LANGUAGE_DB_URL]=LANGUAGE_DB_PASS
+  )
+
+  for db_var in "${!url_pass_map[@]}"; do
+    pass_var="${url_pass_map[$db_var]}"
+    new_pass=$(openssl rand -hex 16)
+    sed -i "s|^${pass_var}=.*|${pass_var}=${new_pass}|" "$env_local"
+    sed -i -E "s|(^${db_var}=postgres://[^:]+:)[^@]+(@.*)|\\1${new_pass}\\2|" "$env_local"
   done
 
   if grep -q "^REDIS_PASSWORD=" "$env_local"; then
