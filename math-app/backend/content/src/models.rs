@@ -203,7 +203,14 @@ impl AppState {
                 e.hint_en as ex_hint_en,
                 e.exercise_order as ex_exercise_order
             FROM subjects s
-            LEFT JOIN lessons l ON l.subject_id = s.id AND l.grade = $1
+            -- Return lessons for the user's grade PLUS lessons marked
+            -- 'shared' (grade = 0) so the grade-2/3 seeders and the
+            -- grade-1 mass-curriculum both surface. Migration 003
+            -- (mass curriculum) inserted ~1700 lessons without a
+            -- grade, defaulting to 1 — without OR l.grade = 0 those
+            -- would be hidden from grade-2/3 users.
+            LEFT JOIN lessons l ON l.subject_id = s.id
+                                  AND (l.grade = $1 OR l.grade = 0)
             LEFT JOIN exercises e ON e.lesson_id = l.id
             WHERE s.grade_min <= $1 AND s.grade_max >= $1
             ORDER BY s.display_order, l.lesson_order, e.exercise_order"#,
