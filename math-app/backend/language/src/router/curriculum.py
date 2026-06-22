@@ -98,11 +98,15 @@ async def get_curriculum(
     db: AsyncSession = Depends(get_db)
 ):
     # Build base query
+    # NOTE: lessons with grade=0 are treated as 'shared across all
+    # grades' — they appear in every user's curriculum regardless of
+    # grade. This is how seed_*.sql lessons (which never set a grade
+    # column) become accessible to grade-2/3 users.
     query = (
         select(LanguageSubject, LanguageLesson, LanguageExercise, LanguageSubSubject)
-        .outerjoin(LanguageLesson, 
-            (LanguageLesson.subject_id == LanguageSubject.id) & 
-            (LanguageLesson.grade == grade)
+        .outerjoin(LanguageLesson,
+            (LanguageLesson.subject_id == LanguageSubject.id) &
+            ((LanguageLesson.grade == grade) | (LanguageLesson.grade == 0))
         )
         .outerjoin(LanguageSubSubject, LanguageSubSubject.id == LanguageLesson.sub_subject_id)
         .outerjoin(LanguageExercise, LanguageExercise.lesson_id == LanguageLesson.id)
