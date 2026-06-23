@@ -246,6 +246,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           nameEn: 'Trigonometry',
           gradeMin: 3,
           path: '/subject/trigonometry'),
+      // Grade 4 unlocks: statistics (Thống kê — data tables, charts, mean).
+      _SubjectMeta(
+          id: 'statistics',
+          emoji: '📊',
+          nameVi: 'Thống kê',
+          nameEn: 'Statistics',
+          gradeMin: 4,
+          path: '/subject/statistics'),
       _SubjectMeta(
           id: 'vietnamese',
           emoji: '🇻🇳',

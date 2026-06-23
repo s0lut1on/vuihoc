@@ -101,9 +101,9 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
                       style: AppTheme.body(
                           size: 16, color: AppColors.mutedPurple)),
                   const SizedBox(width: 8),
-                  for (var g in const [1, 2, 3]) ...[
+                  for (var g in const [1, 2, 3, 4, 5]) ...[
                     _gradeChip(g, l10n),
-                    if (g != 3) const SizedBox(width: 8),
+                    if (g != 5) const SizedBox(width: 8),
                   ],
                 ],
               ),

@@ -207,7 +207,7 @@ class ProfileScreen extends ConsumerWidget {
             child: Text(isVi ? 'Lớp học' : 'Grade',
                 style: AppTheme.display(size: 16)),
           ),
-          ...[1, 2, 3].map((g) => Padding(
+          ...[1, 2, 3, 4, 5].map((g) => Padding(
                 padding: const EdgeInsets.only(left: 6),
                 child: GestureDetector(
                   onTap: g == grade
