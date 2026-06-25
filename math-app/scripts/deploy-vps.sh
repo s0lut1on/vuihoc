@@ -54,6 +54,9 @@ die()  { err "$*"; exit 1; }
 # Priority: VPS_PASSWORD (sshpass) > VPS_SSH_KEY (forced key) > ssh-agent.
 # Set VPS_PASSWORD (or pass --ask-pass / VPS_PASSWORD=foo) to skip key setup.
 # BatchMode=yes is incompatible with password auth, so we drop it then.
+# PreferredAuthentications=password + PubkeyAuthentication=no is required
+# in password mode, otherwise ssh tries every agent key first and hits
+# the server's MaxAuthTries limit before the password is even tried.
 use_password() { [[ -n "$VPS_PASSWORD" ]]; }
 ssh_batch() {
   if use_password; then echo "no"; else echo "yes"; fi
@@ -70,6 +73,7 @@ ssh_run() {
     opts+=(-i "$VPS_SSH_KEY" -o IdentitiesOnly=yes)
   fi
   if use_password; then
+    opts+=(-o PreferredAuthentications=password -o PubkeyAuthentication=no)
     SSHPASS="$VPS_PASSWORD" sshpass -e ssh "${opts[@]}" "$VPS_HOST" "$@"
   else
     ssh "${opts[@]}" "$VPS_HOST" "$@"
