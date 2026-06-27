@@ -14,6 +14,74 @@ make deploy   # Full CI pipeline (format, lint, test, build, e2e)
 
 See [`math-app/README.md`](docs/math-app/README.md) for detailed setup, architecture, and API docs.
 
+## SSH to VPS
+
+Key-based auth (no password prompt). The VPS is configured for
+`PermitRootLogin prohibit-password` — root login works **only** with
+your SSH key.
+
+```bash
+# Default (uses ~/.ssh/id_rsa, must be loaded or readable)
+ssh root@194.233.94.167
+
+# Explicit key path (works even if key isn't in ssh-agent)
+ssh -i ~/.ssh/id_rsa root@194.233.94.167
+```
+
+**One-time setup** (already done on this VPS, but for a fresh machine):
+
+```bash
+# On laptop: copy your public key to the VPS
+ssh-copy-id -i ~/.ssh/id_rsa.pub root@194.233.94.167
+
+# Or, if ssh-copy-id isn't available, paste it manually:
+cat ~/.ssh/id_rsa.pub | ssh root@194.233.94.167 \
+  'mkdir -p ~/.ssh && chmod 700 ~/.ssh && \
+   cat >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys'
+```
+
+**Emergency fallback** — if you ever lose the key file, the root
+password is stored locally at `~/.math-app-secrets/vps-root.txt`
+(chmod 600). Use it via the **VPS web console** (browser terminal),
+not SSH — `PasswordAuthentication no` means password from outside
+won't work:
+
+```bash
+# In VPS provider's web console (Hetzner Cloud, DO, Vultr, etc.):
+cat /etc/ssh/sshd_config.d/99-no-password.conf
+# (shows the override config; remove to re-enable password auth)
+```
+
+## Deploy to VPS
+
+From your laptop, with the project at `~/project/learning/math/math-app`:
+
+```bash
+cd math-app
+make deploy-vps          # full: sync source + build + restart + health check
+```
+
+No password prompt — uses `~/.ssh/id_rsa` via `.env.deploy`.
+
+**Other targets**:
+
+```bash
+make deploy-vps-status    # show running containers + APP_VERSION
+make deploy-vps-logs SERVICES=auth-service   # tail logs
+make deploy-vps-shell     # open SSH shell on VPS
+make deploy-vps-restart SERVICES=auth-service  # restart one container
+```
+
+**First-time setup on a new laptop**: `make deploy-vps-config`
+creates `math-app/.env.deploy` from template — fill in
+`VPS_HOST`, `VPS_SSH_KEY` (defaults to `~/.ssh/id_rsa`), and
+`GOOGLE_CLIENT_ID`.
+
+**One-time setup on a fresh VPS**: `make deploy-vps-install`
+(install Docker + libs + ufw/fail2ban), then `make deploy-vps-env`
+(upload `.env`), then `make deploy-vps`. See [Manual Deploy to
+VPS](#manual-deploy-to-vps) below for full details.
+
 ## Manual Deploy to VPS
 
 GitHub Actions is the default deploy path, but if the workflow fails
