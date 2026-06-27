@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../core/app_colors.dart';
 import '../core/app_theme.dart';
+import '../utils/url_launcher.dart';
 import 'mascot.dart';
 
 /// Top navigation bar. Optional active label, optional avatar slot on right.
@@ -33,7 +34,11 @@ class KidNavBar extends StatelessWidget {
             children: [
               _navLink('Chủ đề', activeLabel == 'Chủ đề'),
               _navLink('Bảng giá', activeLabel == 'Bảng giá'),
-              _navLink('Liên hệ', activeLabel == 'Liên hệ'),
+              _navLink(
+                'Liên hệ',
+                activeLabel == 'Liên hệ',
+                url: 'https://www.facebook.com/profile.php?id=100064784463812',
+              ),
             ],
           ),
           const Spacer(),
@@ -43,8 +48,8 @@ class KidNavBar extends StatelessWidget {
     );
   }
 
-  Widget _navLink(String label, bool active) {
-    return Padding(
+  Widget _navLink(String label, bool active, {String? url}) {
+    final child = Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Text(
         label,
@@ -55,5 +60,15 @@ class KidNavBar extends StatelessWidget {
         ),
       ),
     );
+    if (url != null) {
+      return GestureDetector(
+        onTap: () => openExternalUrl(url),
+        child: MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: child,
+        ),
+      );
+    }
+    return child;
   }
 }
