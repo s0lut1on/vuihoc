@@ -30,6 +30,34 @@
   - `Users` model updated with `email`, `locale`, `subscription_tier`, `classroom_code` fields
   - New models: `JoinClassroomRequest`, `LeaderboardEntry`
 
+- **Grade 4 & Grade 5 curriculum + new `statistics` (Thống kê) subject**
+  - Bumps subject grade range from `1-3` → `1-5` across all existing subjects (numbers, geometry, measurement, logic, algebra, trigonometry, vietnamese, english)
+  - New subject `statistics` (📊, grade 4-5) — `INSERT INTO subjects` + 60 lessons (10 topics × 3 lessons × 2 grades)
+  - 540 new math lessons: 9 subjects × 2 grades × 30 lessons each (10 topics × 3 per topic)
+  - 120 new language lessons: 2 subjects × 2 grades × 30 lessons (Vietnamese + English)
+  - Backend: `user/handlers.rs::update_grade` clamps input to `1..=5` (was unbounded)
+  - Frontend: grade chips `1-5` in `WelcomeScreen` + `ProfileScreen`; new `statistics` tile added to `HomeScreen` subjects grid (grade 4+)
+
+- **Algebra + Trigonometry subjects** (grade 2+, grade 3+)
+  - New subject `algebra` (🅰️, grade 2-5): 25 lessons — variables, simple equations, two-step equations, factoring, polynomial expressions, linear graphs
+  - New subject `trigonometry` (📐, grade 3-5): 10 lessons — right triangle basics, Pythagorean theorem, sin/cos/tan, 30-60-90 / 45-45-90 triangles
+  - Visible on `HomeScreen` subject grid; lessons load via existing `/subject/:id` route
+
+- **HomeScreen unlocks subjects when grade changes** (#6)
+  - Subjects grid now re-queries when user changes grade in profile/welcome
+  - Filters `subjects` by current user's `grade` (`grade_min`..=`grade_max`)
+
+- **bust-flutter-cache.sh** — 3-layer Flutter web cache invalidation
+  - Dockerfile `sed` timestamp bump on `main.dart.js` / `flutter_bootstrap.js`
+  - NGINX `Cache-Control: no-cache` headers
+  - Flutter SW-unregister script in `index.html`
+  - Diagnoses stale deploys: `curl https://HOST/main.dart.js | grep HocVui <sha>`
+
+- **Content migration fixes**
+  - `0710b21` — share migration-003 lessons across all grades (was pinned to grade 1)
+  - `ceda4eb` — share seed language lessons across all grades
+  - `d3fffd1` — HomeScreen subject list reflects new grade after grade change
+
 ### [Earlier changes]
 ...
 
