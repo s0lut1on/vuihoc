@@ -9,6 +9,7 @@ import '../services/user_api.dart';
 import '../services/content_api.dart';
 import '../services/progress_api.dart';
 import '../services/lesson_unlock.dart';
+import '../services/language_api.dart';
 
 final apiServiceProvider =
     Provider<ApiService>((ref) => ApiService()..initialize());
@@ -57,6 +58,12 @@ final curriculumProvider = FutureProvider.family<List<ApiLesson>, int>(
 
 final subjectsProvider = FutureProvider.family<List<Map<String, dynamic>>, int>(
     (ref, grade) => ContentApi.getSubjects(grade: grade));
+
+/// Language subjects (Vietnamese + English) with per-grade lesson counts.
+/// Used by the home screen to fill lesson counts for language tiles.
+final languageSubjectsProvider =
+    FutureProvider.family<List<Map<String, dynamic>>, int>(
+        (ref, grade) => LanguageApi.getSubjects(grade: grade));
 
 /// Cached raw progress rows for the current user.
 /// All derived progress providers read from this to avoid duplicate API calls.

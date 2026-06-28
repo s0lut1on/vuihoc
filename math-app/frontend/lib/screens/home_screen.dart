@@ -32,6 +32,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     // each SubjectTile and the Continue card.
     final userGrade = user?.grade ?? 1;
     final curriculumAsync = ref.watch(curriculumProvider(userGrade));
+    final languageSubjectsAsync = ref.watch(languageSubjectsProvider(userGrade));
     return Scaffold(
       backgroundColor: AppColors.pinkBg,
       body: SafeArea(
@@ -161,7 +162,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     LayoutBuilder(builder: (context, c) {
                       final cols =
                           c.maxWidth > 1100 ? 4 : (c.maxWidth > 700 ? 3 : 2);
-                      return _subjectsGrid(cols, curriculumAsync, userGrade);
+                      return _subjectsGrid(cols, curriculumAsync, languageSubjectsAsync, userGrade);
                     }),
                     const SizedBox(height: 24),
                     const _BuildVersionFooter(),
@@ -175,8 +176,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  Widget _subjectsGrid(int cols, AsyncValue<List<ApiLesson>> curriculum, int userGrade) {
-    final subjects = _buildSubjects(curriculum.valueOrNull ?? const [], userGrade);
+  Widget _subjectsGrid(int cols, AsyncValue<List<ApiLesson>> curriculum, AsyncValue<List<Map<String, dynamic>>> languageSubjects, int userGrade) {
+    final subjects = _buildSubjects(curriculum.valueOrNull ?? const [], languageSubjects.valueOrNull ?? const [], userGrade);
     return GridView.count(
       crossAxisCount: cols,
       mainAxisSpacing: 12,
@@ -188,7 +189,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  List<Widget> _buildSubjects(List<ApiLesson> lessons, int userGrade) {
+  List<Widget> _buildSubjects(List<ApiLesson> lessons, List<Map<String, dynamic>> languageSubjects, int userGrade) {
     // Group curriculum lessons by subject_id so the tiles show real
     // per-grade counts. When the user changes grade in Profile, this
     // rebuilds with the new grade's curriculum (curriculumProvider is
@@ -196,6 +197,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final bySubject = <String, int>{};
     for (final l in lessons) {
       bySubject[l.subjectId] = (bySubject[l.subjectId] ?? 0) + 1;
+    }
+    // Merge language subjects (Vietnamese / English) counts from the
+    // language API. Keys are 'vietnamese' and 'english' matching tile ids.
+    for (final s in languageSubjects) {
+      final id = s['id'] as String?;
+      final count = s['lesson_count'] as int?;
+      if (id != null && count != null) {
+        bySubject[id] = count;
+      }
     }
     // Each subject has a `gradeMin` — the lowest grade that can take
     // it. Tiles below the user's grade are hidden entirely; tiles at

@@ -23,9 +23,9 @@ const pages = [
   const page = await ctx.newPage();
   for (const p of pages) {
     try {
-      await page.goto(`http://localhost:9997/?demo=true#${p.path}`, { waitUntil: 'load', timeout: 15000 });
+      await page.goto(`http://localhost:8099/?demo=true#${p.path}`, { waitUntil: 'load', timeout: 15000 });
       await page.waitForTimeout(3500);
-      await page.screenshot({ path: `/home/s0lut1on/project/learning/math/math-app/design-html/${p.out}` });
+      await page.screenshot({ path: `/home/s0lut1on/project/learning/math/math-app/tmp/flutter-shots/${p.out}` });
       console.log(`OK  ${p.name}`);
     } catch (e) {
       console.log(`ERR ${p.name}: ${e.message.split('\n')[0]}`);

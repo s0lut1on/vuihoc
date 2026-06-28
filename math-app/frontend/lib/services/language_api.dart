@@ -32,6 +32,20 @@ class LanguageApi {
     }
   }
 
+  static Future<List<Map<String, dynamic>>> getSubjects({int grade = 1}) async {
+    final result = await withCache<List<Map<String, dynamic>>>(
+      key: 'language_subjects:$grade',
+      ttl: _subSubjectsCacheTtl,
+      network: () async {
+        final response = await _api.get('/subjects?grade=$grade');
+        final data = response['data'] as Map<String, dynamic>?;
+        final subjects = data?['subjects'] as List<dynamic>? ?? [];
+        return subjects.map((e) => e as Map<String, dynamic>).toList();
+      },
+    );
+    return result.value ?? <Map<String, dynamic>>[];
+  }
+
   static const _lessonCacheTtl = Duration(days: 7);
   static const _subSubjectsCacheTtl = Duration(days: 7);
 
