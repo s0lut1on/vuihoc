@@ -17,9 +17,11 @@ class LanguageApi {
       final data = response['data'] as Map<String, dynamic>?;
       final curriculum = data?['curriculum'] as List<dynamic>? ?? [];
       final result = curriculum.map((e) => e as Map<String, dynamic>).toList();
-      try {
-        _offlineCache().put(cacheKey, result);
-      } catch (_) {}
+      if (result.isNotEmpty) {
+        try {
+          _offlineCache().put(cacheKey, result);
+        } catch (_) {}
+      }
       return result;
     } catch (_) {
       final cached = _offlineCache().get(cacheKey);

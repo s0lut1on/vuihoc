@@ -1,4 +1,5 @@
 import 'package:hive/hive.dart';
+import '../core/build_info.dart';
 
 const String _cacheBoxName = 'offline_cache';
 
@@ -28,19 +29,26 @@ Future<CachedResult<T>> withCache<T>({
   required Duration ttl,
   required Future<T> Function() network,
 }) async {
-  final hiveKey = 'cache:$key';
   final box = _box();
+  final cacheVersion = box.get('__cache_version__') as String? ?? '';
+  if (cacheVersion != kBuildVersion) {
+    await box.clear();
+    await box.put('__cache_version__', kBuildVersion);
+  }
+  final hiveKey = 'cache:$key';
 
   // Try network first.
   try {
     final fresh = await network();
-    try {
-      await box.put(hiveKey, {
-        'value': fresh,
-        'savedAt': DateTime.now().toUtc().toIso8601String(),
-      });
-    } catch (_) {
-      // Box may be closed in tests; non-fatal.
+    if (fresh != null && (fresh is! List || fresh.isNotEmpty)) {
+      try {
+        await box.put(hiveKey, {
+          'value': fresh,
+          'savedAt': DateTime.now().toUtc().toIso8601String(),
+        });
+      } catch (_) {
+        // Box may be closed in tests; non-fatal.
+      }
     }
     return CachedResult(fresh);
   } catch (_) {
