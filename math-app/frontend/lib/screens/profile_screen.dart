@@ -232,12 +232,14 @@ class ProfileScreen extends ConsumerWidget {
                               ref.invalidate(curriculumProvider(g));
                               ref.invalidate(subjectsProvider(g));
                               ref.invalidate(rawProgressProvider);
+                              ref.invalidate(languageSubjectsProvider(g));
                               ScaffoldMessenger.of(context)
                                   .showSnackBar(SnackBar(
                                 content: Text(isVi
                                     ? 'Đã chuyển sang lớp $g'
                                     : 'Grade $g'),
                               ));
+                              context.go('/');
                             }
                           } catch (_) {
                             if (context.mounted) {
