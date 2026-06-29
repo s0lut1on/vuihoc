@@ -239,7 +239,7 @@ class ProfileScreen extends ConsumerWidget {
                                     ? 'Đã chuyển sang lớp $g'
                                     : 'Grade $g'),
                               ));
-                              context.go('/');
+                              context.go('/home');
                             }
                           } catch (_) {
                             if (context.mounted) {
