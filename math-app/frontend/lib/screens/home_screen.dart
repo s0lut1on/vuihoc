@@ -281,14 +281,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     ];
     return [
       for (final s in all.where((s) => s.gradeMin <= userGrade))
-        SubjectTile(
-            id: s.id,
-            emoji: s.emoji,
-            nameVi: s.nameVi,
-            nameEn: s.nameEn,
-            lessonCount: bySubject[s.id] ?? 0,
-            gradeMin: s.gradeMin,
-            onTap: () => context.go(s.path)),
+        if ((bySubject[s.id] ?? 0) > 0)
+          SubjectTile(
+              id: s.id,
+              emoji: s.emoji,
+              nameVi: s.nameVi,
+              nameEn: s.nameEn,
+              lessonCount: bySubject[s.id] ?? 0,
+              gradeMin: s.gradeMin,
+              onTap: () => context.go(s.path)),
     ];
   }
 }
