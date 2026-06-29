@@ -94,17 +94,17 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+              child: Wrap(
+                alignment: WrapAlignment.center,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 8,
+                runSpacing: 8,
                 children: [
                   Text('Lớp: ',
                       style: AppTheme.body(
                           size: 16, color: AppColors.mutedPurple)),
-                  const SizedBox(width: 8),
-                  for (var g in const [1, 2, 3, 4, 5]) ...[
+                  for (var g in const [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
                     _gradeChip(g, l10n),
-                    if (g != 5) const SizedBox(width: 8),
-                  ],
                 ],
               ),
             ),

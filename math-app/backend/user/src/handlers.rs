@@ -211,10 +211,10 @@ pub async fn update_grade(
     State(state): State<AppState>,
     Json(body): Json<crate::models::UpdateGradeRequest>,
 ) -> shared::ApiResponse<serde_json::Value> {
-    // Clamp to supported grades (1-5). Frontend ships chips for 1-5;
+    // Clamp to supported grades (1-12). Frontend ships chips for 1-12;
     // backend rejects out-of-range to avoid DB drift.
-    if !(1..=5).contains(&body.grade) {
-        return shared::ApiResponse::err("grade must be 1..=5");
+    if !(1..=12).contains(&body.grade) {
+        return shared::ApiResponse::err("grade must be 1..=12");
     }
     let result = sqlx::query("UPDATE users SET grade = $1")
         .bind(body.grade)

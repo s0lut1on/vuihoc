@@ -191,25 +191,34 @@ class ProfileScreen extends ConsumerWidget {
 
     return KidCard(
       padding: const EdgeInsets.all(16),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-                color: AppColors.pinkSoft,
-                borderRadius: BorderRadius.circular(14)),
-            child: const Icon(Icons.school_outlined,
-                color: AppColors.deepPurple, size: 24),
+          Row(
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                    color: AppColors.pinkSoft,
+                    borderRadius: BorderRadius.circular(14)),
+                child: const Icon(Icons.school_outlined,
+                    color: AppColors.deepPurple, size: 24),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(isVi ? 'Lớp học' : 'Grade',
+                    style: AppTheme.display(size: 16)),
+              ),
+            ],
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(isVi ? 'Lớp học' : 'Grade',
-                style: AppTheme.display(size: 16)),
-          ),
-          ...[1, 2, 3, 4, 5].map((g) => Padding(
-                padding: const EdgeInsets.only(left: 6),
-                child: GestureDetector(
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: [
+              for (var g in const [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+                GestureDetector(
                   onTap: g == grade
                       ? null
                       : () async {
@@ -263,15 +272,18 @@ class ProfileScreen extends ConsumerWidget {
                               g == grade ? AppColors.pink : AppColors.divider,
                           width: 2),
                     ),
-                    child: Text('$g',
-                        style: AppTheme.display(
-                            size: 14,
-                            color: g == grade
-                                ? AppColors.white
-                                : AppColors.deepPurple)),
+                    child: Text(
+                      '$g',
+                      style: AppTheme.display(
+                          size: 14,
+                          color: g == grade
+                              ? AppColors.white
+                              : AppColors.deepPurple),
+                    ),
                   ),
                 ),
-              )),
+            ],
+          ),
         ],
       ),
     );
