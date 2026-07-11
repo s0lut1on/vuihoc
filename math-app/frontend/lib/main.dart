@@ -12,9 +12,11 @@ import 'services/auth_service.dart';
 import 'services/connectivity_service.dart';
 import 'services/local_storage_service.dart';
 import 'l10n/app_localizations.dart';
+import 'data/pricing.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await PricingConfig.load();
   await Hive.initFlutter();
   await Hive.openBox('offline_cache');
   await Hive.openBox('pending_sync');

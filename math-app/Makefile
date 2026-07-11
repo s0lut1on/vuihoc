@@ -6,7 +6,7 @@ FLUTTER_ROOT = $(CURDIR)/$(FRONTEND)/flutter_sdk
 FLUTTER_CMD = $(if $(wildcard $(FLUTTER_ROOT)),$(FLUTTER_ROOT)/bin/flutter,$(shell which flutter 2>/dev/null || echo flutter))
 DART_CMD    = $(if $(findstring /,$(FLUTTER_CMD)),$(dir $(FLUTTER_CMD))dart,dart)
 
-.PHONY: help setup test test-cov watch format lint changelog-check build-apk build-web build-rust test-rust check-rust test-all clean deploy docker-test docker-dev docker-stop e2e-setup e2e-test deploy-vps deploy-vps-config deploy-vps-sync deploy-vps-build deploy-vps-up deploy-vps-status deploy-vps-logs deploy-vps-shell deploy-vps-restart deploy-vps-askpass deploy-vps-install deploy-vps-env deploy-vps-bootstrap
+.PHONY: help setup test test-cov watch format lint changelog-check build-apk build-web build-rust test-rust check-rust test-all clean deploy docker-test docker-dev docker-stop e2e-setup e2e-test deploy-vps deploy-vps-config deploy-vps-sync deploy-vps-build deploy-vps-up deploy-vps-status deploy-vps-logs deploy-vps-shell deploy-vps-restart deploy-vps-askpass deploy-vps-install deploy-vps-env deploy-vps-bootstrap validate-pricing sync-pricing
 
 help:
 	@echo "Math App - Local Development"
@@ -107,6 +107,7 @@ build-apk:
 build-web:
 	@echo ""
 	@echo "🌐 Building web app..."
+	@bash $(FRONTEND)/scripts/sync_pricing.sh
 	@GOOGLE_CLIENT_ID=$$(grep GOOGLE_CLIENT_ID .env 2>/dev/null | cut -d '=' -f2 | tr -d '[:space:]' || echo ""); \
 	APP_VERSION=$$(git rev-parse --short HEAD 2>/dev/null || echo "dev"); \
 	cd $(FRONTEND) && $(FLUTTER_CMD) build web --release --no-tree-shake-icons \
@@ -120,6 +121,16 @@ build-rust:
 	@echo ""
 	@echo "🔧 Building Rust backend..."
 	cd $(BACKEND) && cargo build
+
+validate-pricing:
+	@echo ""
+	@echo "✅ Validating math-app/pricing.json..."
+	@python3 scripts/validate_pricing.py
+
+sync-pricing: validate-pricing
+	@echo ""
+	@echo "🔄 Syncing pricing.json to Flutter assets..."
+	@bash $(FRONTEND)/scripts/sync_pricing.sh
 
 test-rust:
 	@echo ""

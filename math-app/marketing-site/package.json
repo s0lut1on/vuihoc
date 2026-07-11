@@ -8,8 +8,9 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
+    "validate:pricing": "python3 ../scripts/validate_pricing.py",
     "fetch:lessons": "python3 scripts/fetch_lessons.py && python3 scripts/enrich_lessons.py && python3 scripts/gen_subject_content.py",
-    "prebuild": "python3 scripts/fetch_lessons.py && python3 scripts/enrich_lessons.py && python3 scripts/gen_subject_content.py"
+    "prebuild": "npm run validate:pricing && python3 scripts/fetch_lessons.py && python3 scripts/enrich_lessons.py && python3 scripts/gen_subject_content.py"
   },
   "dependencies": {
     "@astrojs/mdx": "^4.0.3",

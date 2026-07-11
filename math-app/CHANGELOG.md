@@ -47,6 +47,19 @@
   - `marketing-site/docs/SEO_OPS.md` — operational runbook (Cloudflare, GSC, Umami, deploy)
   - `docs/PLAN_HOCVUI_SEO.md` — full 5-phase plan, all decisions locked
 
+- **Pricing — single source of truth (Phase A of `docs/PLAN_PRICING_AND_BANNER.md`)**
+  - New `math-app/pricing.json` — canonical pricing data (3 tiers, 14 features, 7 compare rows), vi + en strings, versioned
+  - New `math-app/scripts/validate_pricing.py` — build-time schema validator; fails the marketing-site prebuild + Flutter build on bad data
+  - `marketing-site/src/pages/pricing.astro` refactored to import `pricing.json` (3 tiers now visible: Free / Premium monthly / Premium yearly with 17% savings)
+  - `marketing-site/package.json` — prebuild runs `npm run validate:pricing` before `fetch_lessons`
+  - `frontend/assets/pricing.json` — generated copy (gitignored), bundled into Flutter web at build time via `pubspec.yaml`
+  - `frontend/scripts/sync_pricing.sh` — keeps the asset in sync with the canonical source; called by `make build-web`
+  - `frontend/lib/data/pricing.dart` — typed accessors (`PricingConfig.instance`, `tiers`, `tierById`, `featureText`, `tierName`, `pricePeriod`, `formatPrice`, `contactEmail`)
+  - `frontend/lib/main.dart` — calls `PricingConfig.load()` at startup
+  - `frontend/lib/screens/pricing_screen.dart` — refactored to read from `PricingConfig`, renders locale-aware (vi by default, en when app locale is en); tier cards + 7-row compare table + mailto CTA
+  - `Makefile` — new targets `validate-pricing`, `sync-pricing`; `build-web` runs `sync_pricing.sh` first
+  - `.gitignore` — excludes `frontend/assets/pricing.json` (regenerated each build)
+
 ### Changed
 - **Course content**: padded every (subject, grade) cell to ≥ 50 lessons via migration 012_pad_to_50.sql
   - Migration applied live on VPS (no down time)

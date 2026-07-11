@@ -57,3 +57,4 @@ flutter:
     - assets/audio/vi/
     - assets/audio/en/
     - assets/fonts/
+    - assets/pricing.json
