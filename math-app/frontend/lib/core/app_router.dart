@@ -10,6 +10,7 @@ import '../screens/celebration_screen.dart';
 import '../screens/pin_gate_screen.dart';
 import '../screens/subject_screen.dart';
 import '../screens/parent_dashboard_screen.dart';
+import '../screens/pricing_screen.dart';
 import '../screens/profile_screen.dart';
 import '../screens/review_screen.dart';
 import '../screens/achievement_screen.dart';
@@ -57,6 +58,10 @@ class AppRouter {
       GoRoute(
         path: '/home',
         builder: (context, state) => const HomeScreen(),
+      ),
+      GoRoute(
+        path: '/pricing',
+        builder: (context, state) => const PricingScreen(),
       ),
       GoRoute(
         path: '/subject/:subjectId',

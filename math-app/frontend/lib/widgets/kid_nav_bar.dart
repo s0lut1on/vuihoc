@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../core/app_colors.dart';
 import '../core/app_theme.dart';
 import '../utils/url_launcher.dart';
@@ -33,7 +34,11 @@ class KidNavBar extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               _navLink('Chủ đề', activeLabel == 'Chủ đề'),
-              _navLink('Bảng giá', activeLabel == 'Bảng giá'),
+              _navLink(
+                'Bảng giá',
+                activeLabel == 'Bảng giá',
+                onTap: () => context.push('/pricing'),
+              ),
               _navLink(
                 'Liên hệ',
                 activeLabel == 'Liên hệ',
@@ -48,7 +53,7 @@ class KidNavBar extends StatelessWidget {
     );
   }
 
-  Widget _navLink(String label, bool active, {String? url}) {
+  Widget _navLink(String label, bool active, {String? url, VoidCallback? onTap}) {
     final child = Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Text(
@@ -60,6 +65,15 @@ class KidNavBar extends StatelessWidget {
         ),
       ),
     );
+    if (onTap != null) {
+      return GestureDetector(
+        onTap: onTap,
+        child: MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: child,
+        ),
+      );
+    }
     if (url != null) {
       return GestureDetector(
         onTap: () => openExternalUrl(url),
