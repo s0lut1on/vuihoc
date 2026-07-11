@@ -390,4 +390,62 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get contactLabel => 'Liên hệ';
+
+  @override
+  String get pricingHeaderTitle => 'Bảng giá HocVui';
+
+  @override
+  String get pricingHeaderSubtitle =>
+      'Học vui mỗi ngày, miễn phí hoặc nâng cấp Premium';
+
+  @override
+  String get pricingCurrentBadge => 'Đang dùng';
+
+  @override
+  String get pricingPopularBadge => 'Phổ biến';
+
+  @override
+  String pricingYearlySubtitle(String yearlyPrice) {
+    return 'hoặc $yearlyPrice/năm (tiết kiệm 17%)';
+  }
+
+  @override
+  String get pricingCtaUpgrade => 'Nâng cấp ngay 🚀';
+
+  @override
+  String get pricingCtaGetStarted => 'Bắt đầu';
+
+  @override
+  String get pricingCtaStartFree => 'Bắt đầu miễn phí';
+
+  @override
+  String get pricingCtaSave => 'Tiết kiệm ngay';
+
+  @override
+  String get pricingCtaUpgradeShort => 'Nâng cấp ngay';
+
+  @override
+  String get pricingCompareTitle => 'So sánh chi tiết';
+
+  @override
+  String get pricingCompareFeatureCol => 'Tính năng';
+
+  @override
+  String get pricingCompareFreeCol => 'Free';
+
+  @override
+  String get pricingComparePremiumCol => 'Premium';
+
+  @override
+  String pricingFooterNote(String email) {
+    return 'Thanh toán online chưa tích hợp. Bé đang dùng gói Premium? Liên hệ $email — admin sẽ kích hoạt trong 24h.';
+  }
+
+  @override
+  String get pricingFooterBrand => 'HocVui • Học vui mỗi ngày';
+
+  @override
+  String pricingEmailSubject(String tier) {
+    return 'Nâng cấp HocVui $tier';
+  }
 }

@@ -60,6 +60,12 @@
   - `Makefile` — new targets `validate-pricing`, `sync-pricing`; `build-web` runs `sync_pricing.sh` first
   - `.gitignore` — excludes `frontend/assets/pricing.json` (regenerated each build)
 
+- **Pricing — EN version (Phase B of `docs/PLAN_PRICING_AND_BANNER.md`)**
+  - `marketing-site/src/pages/en/pricing.astro` — refactored to import `pricing.json`; renders English strings + USD prices; Product JSON-LD in en
+  - `app_vi.arb` + `app_en.arb` — added 15 pricing l10n keys: `pricingHeaderTitle`, `pricingHeaderSubtitle`, `pricingCurrentBadge`, `pricingPopularBadge`, `pricingYearlySubtitle(yearlyPrice)`, `pricingCtaUpgrade`, `pricingCtaGetStarted`, `pricingCtaStartFree`, `pricingCtaSave`, `pricingCtaUpgradeShort`, `pricingCompareTitle`, `pricingCompareFeatureCol`, `pricingCompareFreeCol`, `pricingComparePremiumCol`, `pricingFooterNote(email)`, `pricingFooterBrand`, `pricingEmailSubject(tier)`
+  - `app_localizations*.dart` regenerated via `flutter gen-l10n`
+  - `pricing_screen.dart` refactored to `StatelessWidget` (no longer `ConsumerWidget` — locale read from `Localizations.localeOf(context)`), uses `AppLocalizations.of(context)` for chrome (header / buttons / table / footer / brand); tier + feature data still from JSON
+
 ### Changed
 - **Course content**: padded every (subject, grade) cell to ≥ 50 lessons via migration 012_pad_to_50.sql
   - Migration applied live on VPS (no down time)

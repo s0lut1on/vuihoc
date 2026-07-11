@@ -388,4 +388,62 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get contactLabel => 'Contact';
+
+  @override
+  String get pricingHeaderTitle => 'HocVui Pricing';
+
+  @override
+  String get pricingHeaderSubtitle =>
+      'Learn joyfully every day — free or upgrade to Premium';
+
+  @override
+  String get pricingCurrentBadge => 'Current plan';
+
+  @override
+  String get pricingPopularBadge => 'Popular';
+
+  @override
+  String pricingYearlySubtitle(String yearlyPrice) {
+    return 'or $yearlyPrice/year (save 17%)';
+  }
+
+  @override
+  String get pricingCtaUpgrade => 'Upgrade now 🚀';
+
+  @override
+  String get pricingCtaGetStarted => 'Get started';
+
+  @override
+  String get pricingCtaStartFree => 'Start free';
+
+  @override
+  String get pricingCtaSave => 'Save 17%';
+
+  @override
+  String get pricingCtaUpgradeShort => 'Upgrade now';
+
+  @override
+  String get pricingCompareTitle => 'Detailed comparison';
+
+  @override
+  String get pricingCompareFeatureCol => 'Feature';
+
+  @override
+  String get pricingCompareFreeCol => 'Free';
+
+  @override
+  String get pricingComparePremiumCol => 'Premium';
+
+  @override
+  String pricingFooterNote(String email) {
+    return 'Online payment is not yet integrated. Need Premium? Email $email — admin activates within 24h.';
+  }
+
+  @override
+  String get pricingFooterBrand => 'HocVui • Learn joyfully every day';
+
+  @override
+  String pricingEmailSubject(String tier) {
+    return 'Upgrade HocVui $tier';
+  }
 }

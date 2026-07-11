@@ -155,5 +155,38 @@
   "leaderboardWeeklyStars": "{count} ⭐ tuần này",
   "leaderboardRank": "Hạng {rank}",
   "offlineBanner": "Bạn đang ngoại tuyến. Dữ liệu sẽ được đồng bộ sau.",
-  "contactLabel": "Liên hệ"
+  "contactLabel": "Liên hệ",
+
+  "pricingHeaderTitle": "Bảng giá HocVui",
+  "pricingHeaderSubtitle": "Học vui mỗi ngày, miễn phí hoặc nâng cấp Premium",
+  "pricingCurrentBadge": "Đang dùng",
+  "pricingPopularBadge": "Phổ biến",
+  "pricingYearlySubtitle": "hoặc {yearlyPrice}/năm (tiết kiệm 17%)",
+  "@pricingYearlySubtitle": {
+    "placeholders": {
+      "yearlyPrice": {"type": "String"}
+    }
+  },
+  "pricingCtaUpgrade": "Nâng cấp ngay 🚀",
+  "pricingCtaGetStarted": "Bắt đầu",
+  "pricingCtaStartFree": "Bắt đầu miễn phí",
+  "pricingCtaSave": "Tiết kiệm ngay",
+  "pricingCtaUpgradeShort": "Nâng cấp ngay",
+  "pricingCompareTitle": "So sánh chi tiết",
+  "pricingCompareFeatureCol": "Tính năng",
+  "pricingCompareFreeCol": "Free",
+  "pricingComparePremiumCol": "Premium",
+  "pricingFooterNote": "Thanh toán online chưa tích hợp. Bé đang dùng gói Premium? Liên hệ {email} — admin sẽ kích hoạt trong 24h.",
+  "@pricingFooterNote": {
+    "placeholders": {
+      "email": {"type": "String"}
+    }
+  },
+  "pricingFooterBrand": "HocVui • Học vui mỗi ngày",
+  "pricingEmailSubject": "Nâng cấp HocVui {tier}",
+  "@pricingEmailSubject": {
+    "placeholders": {
+      "tier": {"type": "String"}
+    }
+  }
 }

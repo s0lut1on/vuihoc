@@ -155,5 +155,38 @@
   "leaderboardWeeklyStars": "{count} ⭐ this week",
   "leaderboardRank": "#{rank}",
   "offlineBanner": "You are offline. Changes will sync later.",
-  "contactLabel": "Contact"
+  "contactLabel": "Contact",
+
+  "pricingHeaderTitle": "HocVui Pricing",
+  "pricingHeaderSubtitle": "Learn joyfully every day — free or upgrade to Premium",
+  "pricingCurrentBadge": "Current plan",
+  "pricingPopularBadge": "Popular",
+  "pricingYearlySubtitle": "or {yearlyPrice}/year (save 17%)",
+  "@pricingYearlySubtitle": {
+    "placeholders": {
+      "yearlyPrice": {"type": "String"}
+    }
+  },
+  "pricingCtaUpgrade": "Upgrade now 🚀",
+  "pricingCtaGetStarted": "Get started",
+  "pricingCtaStartFree": "Start free",
+  "pricingCtaSave": "Save 17%",
+  "pricingCtaUpgradeShort": "Upgrade now",
+  "pricingCompareTitle": "Detailed comparison",
+  "pricingCompareFeatureCol": "Feature",
+  "pricingCompareFreeCol": "Free",
+  "pricingComparePremiumCol": "Premium",
+  "pricingFooterNote": "Online payment is not yet integrated. Need Premium? Email {email} — admin activates within 24h.",
+  "@pricingFooterNote": {
+    "placeholders": {
+      "email": {"type": "String"}
+    }
+  },
+  "pricingFooterBrand": "HocVui • Learn joyfully every day",
+  "pricingEmailSubject": "Upgrade HocVui {tier}",
+  "@pricingEmailSubject": {
+    "placeholders": {
+      "tier": {"type": "String"}
+    }
+  }
 }

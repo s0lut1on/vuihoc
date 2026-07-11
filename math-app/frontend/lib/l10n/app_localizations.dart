@@ -823,6 +823,108 @@ abstract class AppLocalizations {
   /// In vi, this message translates to:
   /// **'Liên hệ'**
   String get contactLabel;
+
+  /// No description provided for @pricingHeaderTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Bảng giá HocVui'**
+  String get pricingHeaderTitle;
+
+  /// No description provided for @pricingHeaderSubtitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Học vui mỗi ngày, miễn phí hoặc nâng cấp Premium'**
+  String get pricingHeaderSubtitle;
+
+  /// No description provided for @pricingCurrentBadge.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đang dùng'**
+  String get pricingCurrentBadge;
+
+  /// No description provided for @pricingPopularBadge.
+  ///
+  /// In vi, this message translates to:
+  /// **'Phổ biến'**
+  String get pricingPopularBadge;
+
+  /// No description provided for @pricingYearlySubtitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'hoặc {yearlyPrice}/năm (tiết kiệm 17%)'**
+  String pricingYearlySubtitle(String yearlyPrice);
+
+  /// No description provided for @pricingCtaUpgrade.
+  ///
+  /// In vi, this message translates to:
+  /// **'Nâng cấp ngay 🚀'**
+  String get pricingCtaUpgrade;
+
+  /// No description provided for @pricingCtaGetStarted.
+  ///
+  /// In vi, this message translates to:
+  /// **'Bắt đầu'**
+  String get pricingCtaGetStarted;
+
+  /// No description provided for @pricingCtaStartFree.
+  ///
+  /// In vi, this message translates to:
+  /// **'Bắt đầu miễn phí'**
+  String get pricingCtaStartFree;
+
+  /// No description provided for @pricingCtaSave.
+  ///
+  /// In vi, this message translates to:
+  /// **'Tiết kiệm ngay'**
+  String get pricingCtaSave;
+
+  /// No description provided for @pricingCtaUpgradeShort.
+  ///
+  /// In vi, this message translates to:
+  /// **'Nâng cấp ngay'**
+  String get pricingCtaUpgradeShort;
+
+  /// No description provided for @pricingCompareTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'So sánh chi tiết'**
+  String get pricingCompareTitle;
+
+  /// No description provided for @pricingCompareFeatureCol.
+  ///
+  /// In vi, this message translates to:
+  /// **'Tính năng'**
+  String get pricingCompareFeatureCol;
+
+  /// No description provided for @pricingCompareFreeCol.
+  ///
+  /// In vi, this message translates to:
+  /// **'Free'**
+  String get pricingCompareFreeCol;
+
+  /// No description provided for @pricingComparePremiumCol.
+  ///
+  /// In vi, this message translates to:
+  /// **'Premium'**
+  String get pricingComparePremiumCol;
+
+  /// No description provided for @pricingFooterNote.
+  ///
+  /// In vi, this message translates to:
+  /// **'Thanh toán online chưa tích hợp. Bé đang dùng gói Premium? Liên hệ {email} — admin sẽ kích hoạt trong 24h.'**
+  String pricingFooterNote(String email);
+
+  /// No description provided for @pricingFooterBrand.
+  ///
+  /// In vi, this message translates to:
+  /// **'HocVui • Học vui mỗi ngày'**
+  String get pricingFooterBrand;
+
+  /// No description provided for @pricingEmailSubject.
+  ///
+  /// In vi, this message translates to:
+  /// **'Nâng cấp HocVui {tier}'**
+  String pricingEmailSubject(String tier);
 }
 
 class _AppLocalizationsDelegate

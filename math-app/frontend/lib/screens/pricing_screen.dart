@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../core/app_colors.dart';
 import '../core/app_theme.dart';
 import '../data/pricing.dart';
-import '../providers/app_providers.dart';
+import '../l10n/app_localizations.dart';
 import '../utils/url_launcher.dart';
 import '../widgets/bubble_button.dart';
 import '../widgets/kid_nav_bar.dart';
@@ -12,16 +11,17 @@ import '../widgets/mascot.dart';
 
 /// Bảng giá (Pricing) — Free vs Premium tier comparison.
 /// Data is read from `assets/pricing.json` (synced from `math-app/pricing.json`).
-/// Strings are locale-aware: shows Vietnamese when the app locale is vi,
-/// English when the locale is en. Hardcoded headers + buttons are VI-only
-/// for now; Phase B moves them to the l10n system.
-class PricingScreen extends ConsumerWidget {
+/// Chrome (header, buttons, table labels, footer) uses the l10n system so
+/// both Vietnamese and English are supported. Feature text comes from
+/// the JSON's per-locale fields (`text_vi` / `text_en`).
+class PricingScreen extends StatelessWidget {
   const PricingScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final pricing = PricingConfig.instance;
-    final isEn = ref.watch(localeProvider).languageCode == 'en';
+    final isEn = Localizations.localeOf(context).languageCode == 'en';
 
     final free = pricing.tierById('free')!;
     final premium = pricing.tierById('premium_monthly')!;
@@ -45,21 +45,21 @@ class PricingScreen extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    _buildHeader(isEn),
+                    _buildHeader(l10n),
                     const SizedBox(height: 20),
-                    _buildTierCard(context, free, isEn: isEn, currentBadge: true),
+                    _buildTierCard(context, l10n, free, isEn: isEn, currentBadge: true),
                     const SizedBox(height: 16),
-                    _buildTierCard(context, premium, isEn: isEn, popular: true, currentBadge: false),
+                    _buildTierCard(context, l10n, premium, isEn: isEn, popular: true, currentBadge: false),
                     const SizedBox(height: 16),
-                    _buildTierCard(context, yearly, isEn: isEn, currentBadge: false),
+                    _buildTierCard(context, l10n, yearly, isEn: isEn, currentBadge: false),
                     const SizedBox(height: 16),
-                    _buildCompareTable(context, pricing, isEn: isEn),
+                    _buildCompareTable(context, l10n, pricing, isEn: isEn),
                     const SizedBox(height: 24),
-                    _buildUpgradeCta(context, isEn: isEn),
+                    _buildUpgradeCta(context, l10n),
                     const SizedBox(height: 16),
-                    _buildFooterNote(context, isEn: isEn),
+                    _buildFooterNote(context, l10n, isEn: isEn),
                     const SizedBox(height: 16),
-                    _buildBuildVersionFooter(),
+                    _buildBuildVersionFooter(l10n),
                   ],
                 ),
               ),
@@ -70,20 +70,18 @@ class PricingScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildHeader(bool isEn) {
+  Widget _buildHeader(AppLocalizations? l10n) {
     return Column(
       children: [
         const BigMascot(size: 90, emoji: '⭐'),
         const SizedBox(height: 8),
         Text(
-          isEn ? 'HocVui Pricing' : 'Bảng giá HocVui',
+          l10n?.pricingHeaderTitle ?? 'Bảng giá HocVui',
           style: AppTheme.display(size: 30),
         ),
         const SizedBox(height: 4),
         Text(
-          isEn
-              ? 'Learn joyfully every day — free or upgrade to Premium'
-              : 'Học vui mỗi ngày, miễn phí hoặc nâng cấp Premium',
+          l10n?.pricingHeaderSubtitle ?? 'Học vui mỗi ngày, miễn phí hoặc nâng cấp Premium',
           textAlign: TextAlign.center,
           style: AppTheme.body(size: 14, color: AppColors.mutedPurple),
         ),
@@ -93,6 +91,7 @@ class PricingScreen extends ConsumerWidget {
 
   Widget _buildTierCard(
     BuildContext context,
+    AppLocalizations? l10n,
     Map<String, dynamic> tier, {
     required bool isEn,
     bool popular = false,
@@ -144,7 +143,7 @@ class PricingScreen extends ConsumerWidget {
               const SizedBox(width: 12),
               Text(pricing.tierName(tier, isEn), style: AppTheme.display(size: 22)),
               const Spacer(),
-              if (currentBadge) _CurrentBadge(isEn: isEn),
+              if (currentBadge) _CurrentBadge(l10n: l10n),
               if (popular)
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -153,7 +152,7 @@ class PricingScreen extends ConsumerWidget {
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
-                    isEn ? 'Popular' : 'Phổ biến',
+                    l10n?.pricingPopularBadge ?? 'Phổ biến',
                     style: AppTheme.body(
                         size: 12,
                         color: AppColors.white,
@@ -180,9 +179,10 @@ class PricingScreen extends ConsumerWidget {
           if (isPremium) ...[
             const SizedBox(height: 4),
             Text(
-              isEn
-                  ? 'or ${pricing.formatPrice(pricing.tierById('premium_yearly')!['price'] as num, en: true)}/year (save 17%)'
-                  : 'hoặc ${pricing.formatPrice(pricing.tierById('premium_yearly')!['price'] as num, en: false)}/năm (tiết kiệm 17%)',
+              l10n?.pricingYearlySubtitle(pricing.formatPrice(
+                  pricing.tierById('premium_yearly')!['price'] as num,
+                  en: isEn)) ??
+                  'or \$1.99M/year (save 17%)',
               style: AppTheme.body(size: 13, color: AppColors.pinkDark),
             ),
           ],
@@ -196,18 +196,17 @@ class PricingScreen extends ConsumerWidget {
           if (!currentBadge) ...[
             const SizedBox(height: 18),
             BubbleButton(
-              label: isEn
-                  ? (popular
-                      ? 'Upgrade now 🚀'
-                      : (tier['id'] == 'premium_yearly' ? 'Save 17%' : 'Get started'))
-                  : (popular
-                      ? 'Nâng cấp ngay 🚀'
-                      : (tier['id'] == 'premium_yearly' ? 'Tiết kiệm ngay' : 'Bắt đầu')),
+              label: _ctaLabelFor(tier['id'] as String, isEn, l10n),
               minWidth: double.infinity,
               height: 48,
               fontSize: 15,
-              onPressed: () => openExternalUrl(
-                  'mailto:${PricingConfig.instance.contactEmail}?subject=${isEn ? 'Upgrade' : 'Nâng cấp'} HocVui ${pricing.tierName(tier, isEn)}'),
+              onPressed: () {
+                final tierName = pricing.tierName(tier, isEn);
+                final subject = l10n?.pricingEmailSubject(tierName) ??
+                    'Upgrade HocVui $tierName';
+                openExternalUrl(
+                    'mailto:${PricingConfig.instance.contactEmail}?subject=${Uri.encodeComponent(subject)}');
+              },
             ),
           ],
         ],
@@ -215,7 +214,19 @@ class PricingScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildCompareTable(BuildContext context, PricingConfig pricing, {required bool isEn}) {
+  String _ctaLabelFor(String tierId, bool isEn, AppLocalizations? l10n) {
+    if (tierId == 'premium_yearly') {
+      return l10n?.pricingCtaSave ?? 'Save 17%';
+    }
+    if (tierId == 'premium_monthly') {
+      return l10n?.pricingCtaUpgradeShort ?? 'Upgrade now';
+    }
+    return l10n?.pricingCtaStartFree ?? 'Start free';
+  }
+
+  Widget _buildCompareTable(
+      BuildContext context, AppLocalizations? l10n, PricingConfig pricing,
+      {required bool isEn}) {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.white,
@@ -229,11 +240,36 @@ class PricingScreen extends ConsumerWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
             child: Text(
-              isEn ? 'Detailed comparison' : 'So sánh chi tiết',
+              l10n?.pricingCompareTitle ?? 'So sánh chi tiết',
               style: AppTheme.display(size: 18),
             ),
           ),
           const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
+            child: Row(
+              children: [
+                Expanded(
+                  flex: 4,
+                  child: Text(l10n?.pricingCompareFeatureCol ?? 'Tính năng',
+                      style: AppTheme.body(size: 12, color: AppColors.mutedPurple, weight: FontWeight.w700)),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: Text(l10n?.pricingCompareFreeCol ?? 'Free',
+                      textAlign: TextAlign.center,
+                      style: AppTheme.body(size: 12, color: AppColors.mutedPurple, weight: FontWeight.w700)),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: Text(l10n?.pricingComparePremiumCol ?? 'Premium',
+                      textAlign: TextAlign.center,
+                      style: AppTheme.body(size: 12, color: AppColors.mutedPurple, weight: FontWeight.w700)),
+                ),
+              ],
+            ),
+          ),
+          const Divider(height: 1, color: AppColors.pinkSoft),
           ...pricing.compareRows.map((row) {
             return Padding(
               padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
@@ -271,18 +307,19 @@ class PricingScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildUpgradeCta(BuildContext context, {required bool isEn}) {
+  Widget _buildUpgradeCta(BuildContext context, AppLocalizations? l10n) {
     return BubbleButton(
-      label: isEn ? 'Upgrade now 🚀' : 'Nâng cấp ngay 🚀',
+      label: l10n?.pricingCtaUpgrade ?? 'Nâng cấp ngay 🚀',
       minWidth: double.infinity,
       height: 56,
       fontSize: 17,
       onPressed: () => openExternalUrl(
-          'mailto:${PricingConfig.instance.contactEmail}?subject=${isEn ? 'Upgrade' : 'Nâng cấp'} HocVui Premium'),
+          'mailto:${PricingConfig.instance.contactEmail}?subject=${Uri.encodeComponent(l10n?.pricingEmailSubject('Premium') ?? 'Upgrade HocVui Premium')}'),
     );
   }
 
-  Widget _buildFooterNote(BuildContext context, {required bool isEn}) {
+  Widget _buildFooterNote(BuildContext context, AppLocalizations? l10n,
+      {required bool isEn}) {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.cream,
@@ -297,9 +334,8 @@ class PricingScreen extends ConsumerWidget {
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              isEn
-                  ? 'Online payment is not yet integrated. Need Premium? Email ${PricingConfig.instance.contactEmail} — admin activates within 24h.'
-                  : 'Thanh toán online chưa tích hợp. Bé đang dùng gói Premium? Liên hệ ${PricingConfig.instance.contactEmail} — admin sẽ kích hoạt trong 24h.',
+              l10n?.pricingFooterNote(PricingConfig.instance.contactEmail) ??
+                  'Thanh toán online chưa tích hợp. Liên hệ ${PricingConfig.instance.contactEmail}',
               style: AppTheme.body(size: 12, color: AppColors.deepPurple),
             ),
           ),
@@ -308,10 +344,10 @@ class PricingScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildBuildVersionFooter() {
+  Widget _buildBuildVersionFooter(AppLocalizations? l10n) {
     return Center(
       child: Text(
-        'HocVui • Học vui mỗi ngày',
+        l10n?.pricingFooterBrand ?? 'HocVui • Học vui mỗi ngày',
         style: AppTheme.body(size: 11, color: AppColors.mutedText),
       ),
     );
@@ -346,8 +382,8 @@ class PricingScreen extends ConsumerWidget {
 }
 
 class _CurrentBadge extends StatelessWidget {
-  final bool isEn;
-  const _CurrentBadge({required this.isEn});
+  final AppLocalizations? l10n;
+  const _CurrentBadge({required this.l10n});
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -357,7 +393,7 @@ class _CurrentBadge extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: AppColors.successGreen, width: 1),
       ),
-      child: Text(isEn ? 'Current plan' : 'Đang dùng',
+      child: Text(l10n?.pricingCurrentBadge ?? 'Đang dùng',
           style: AppTheme.body(size: 12, color: AppColors.successGreen, weight: FontWeight.w800)),
     );
   }
