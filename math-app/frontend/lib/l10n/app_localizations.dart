@@ -925,6 +925,30 @@ abstract class AppLocalizations {
   /// In vi, this message translates to:
   /// **'Nâng cấp HocVui {tier}'**
   String pricingEmailSubject(String tier);
+
+  /// No description provided for @pricingBannerTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Bạn đã học hôm nay rồi!'**
+  String get pricingBannerTitle;
+
+  /// No description provided for @pricingBannerBody.
+  ///
+  /// In vi, this message translates to:
+  /// **'Nâng cấp Premium để học không giới hạn mỗi ngày.'**
+  String get pricingBannerBody;
+
+  /// No description provided for @pricingBannerCta.
+  ///
+  /// In vi, this message translates to:
+  /// **'Xem gói học'**
+  String get pricingBannerCta;
+
+  /// No description provided for @pricingBannerRemindLater.
+  ///
+  /// In vi, this message translates to:
+  /// **'Nhắc tôi sau'**
+  String get pricingBannerRemindLater;
 }
 
 class _AppLocalizationsDelegate

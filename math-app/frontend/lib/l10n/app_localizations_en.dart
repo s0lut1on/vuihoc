@@ -446,4 +446,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String pricingEmailSubject(String tier) {
     return 'Upgrade HocVui $tier';
   }
+
+  @override
+  String get pricingBannerTitle => 'You\'ve hit today\'s lesson limit!';
+
+  @override
+  String get pricingBannerBody =>
+      'Upgrade to Premium for unlimited lessons every day.';
+
+  @override
+  String get pricingBannerCta => 'View pricing';
+
+  @override
+  String get pricingBannerRemindLater => 'Remind me later';
 }

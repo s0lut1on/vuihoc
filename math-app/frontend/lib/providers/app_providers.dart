@@ -163,6 +163,14 @@ final streakProvider = FutureProvider<Map<String, dynamic>?>((ref) async {
   return ProgressApi.getStreak(userId);
 });
 
+/// Daily lesson limit (count + tier) from /progress/daily-limit/{userId}.
+/// Returns null until user is signed in.
+final dailyLimitProvider = FutureProvider<Map<String, dynamic>?>((ref) async {
+  final userId = ref.watch(userIdProvider);
+  if (userId == null || userId.isEmpty) return null;
+  return ProgressApi.getDailyLimit(userId);
+});
+
 /// Total stars earned across all completed lessons.
 final totalStarsProvider = FutureProvider<int>((ref) async {
   final rows = await ref.watch(rawProgressProvider.future);

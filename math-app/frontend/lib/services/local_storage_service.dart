@@ -111,4 +111,20 @@ class LocalStorageService {
     final box = await Hive.openBox(_settingsBox);
     return box.get('emailFrequency', defaultValue: 'never') as String;
   }
+
+  /// Phase C: "Nhắc tôi sau" banner on home.
+  /// Stores the timestamp of the last dismiss. The banner re-shows after
+  /// 24h. We store the timestamp (int millis since epoch) rather than a
+  /// boolean so we can compute the elapsed duration in app-local time.
+  static Future<void> savePricingBannerDismissedAt(DateTime at) async {
+    final box = await Hive.openBox(_settingsBox);
+    await box.put('pricingBannerDismissedAt', at.millisecondsSinceEpoch);
+  }
+
+  static Future<DateTime?> getPricingBannerDismissedAt() async {
+    final box = await Hive.openBox(_settingsBox);
+    final v = box.get('pricingBannerDismissedAt');
+    if (v == null) return null;
+    return DateTime.fromMillisecondsSinceEpoch(v as int);
+  }
 }

@@ -188,5 +188,10 @@
     "placeholders": {
       "tier": {"type": "String"}
     }
-  }
+  },
+
+  "pricingBannerTitle": "You've hit today's lesson limit!",
+  "pricingBannerBody": "Upgrade to Premium for unlimited lessons every day.",
+  "pricingBannerCta": "View pricing",
+  "pricingBannerRemindLater": "Remind me later"
 }

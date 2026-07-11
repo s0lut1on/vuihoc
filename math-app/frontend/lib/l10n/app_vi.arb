@@ -188,5 +188,10 @@
     "placeholders": {
       "tier": {"type": "String"}
     }
-  }
+  },
+
+  "pricingBannerTitle": "Bạn đã học hôm nay rồi!",
+  "pricingBannerBody": "Nâng cấp Premium để học không giới hạn mỗi ngày.",
+  "pricingBannerCta": "Xem gói học",
+  "pricingBannerRemindLater": "Nhắc tôi sau"
 }

@@ -448,4 +448,17 @@ class AppLocalizationsVi extends AppLocalizations {
   String pricingEmailSubject(String tier) {
     return 'Nâng cấp HocVui $tier';
   }
+
+  @override
+  String get pricingBannerTitle => 'Bạn đã học hôm nay rồi!';
+
+  @override
+  String get pricingBannerBody =>
+      'Nâng cấp Premium để học không giới hạn mỗi ngày.';
+
+  @override
+  String get pricingBannerCta => 'Xem gói học';
+
+  @override
+  String get pricingBannerRemindLater => 'Nhắc tôi sau';
 }

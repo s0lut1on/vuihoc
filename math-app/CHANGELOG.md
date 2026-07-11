@@ -66,6 +66,15 @@
   - `app_localizations*.dart` regenerated via `flutter gen-l10n`
   - `pricing_screen.dart` refactored to `StatelessWidget` (no longer `ConsumerWidget` — locale read from `Localizations.localeOf(context)`), uses `AppLocalizations.of(context)` for chrome (header / buttons / table / footer / brand); tier + feature data still from JSON
 
+- **Pricing banner on home (Phase C of `docs/PLAN_PRICING_AND_BANNER.md`)**
+  - New `lib/widgets/pricing_banner.dart` — soft dismissible banner shown when kid hits daily limit (not Premium, not dismissed in last 24h)
+  - New `LocalStorageService.savePricingBannerDismissedAt(at)` / `getPricingBannerDismissedAt()` — Hive-backed dismiss timer
+  - New `dailyLimitProvider` — wraps `ProgressApi.getDailyLimit(userId)`
+  - 4 new l10n keys: `pricingBannerTitle`, `pricingBannerBody`, `pricingBannerCta`, `pricingBannerRemindLater`
+  - Banner CTA → `/pricing` route (already added in Phase A)
+  - `home_screen.dart` — banner rendered at top of content area (above Continue card)
+  - Visibility logic: `shouldShowPricingBanner(dismissedAt, now, count, tier)` returns true if `tier != 'premium' && count >= 50 && (dismissedAt == null || elapsed > 24h)`
+
 ### Changed
 - **Course content**: padded every (subject, grade) cell to ≥ 50 lessons via migration 012_pad_to_50.sql
   - Migration applied live on VPS (no down time)

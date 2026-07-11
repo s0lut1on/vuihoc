@@ -7,10 +7,13 @@ import '../core/build_info.dart';
 import '../l10n/app_localizations.dart';
 import '../models/lesson_model.dart';
 import '../providers/app_providers.dart';
+import '../services/local_storage_service.dart';
+import '../services/daily_limit.dart';
 import '../widgets/bubble_button.dart';
 import '../widgets/kid_card.dart';
 import '../widgets/kid_nav_bar.dart';
 import '../widgets/mascot.dart';
+import '../widgets/pricing_banner.dart';
 import '../widgets/subject_tile.dart';
 import '../widgets/streak_badge.dart';
 
@@ -60,6 +63,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Phase C: dismissible pricing banner (visible when
+                    // daily limit hit + not Premium + last dismiss > 24h ago).
+                    const PricingBanner(),
                     // Continue card + 2 stats
                     LayoutBuilder(builder: (context, c) {
                       final wide = c.maxWidth > 900;
