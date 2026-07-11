@@ -1,0 +1,76 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+
+const posts = (await getCollection('blog'))
+  .filter((p) => !p.data.draft)
+  .sort((a, b) => new Date(b.data.publishedTime).getTime() - new Date(a.data.publishedTime).getTime());
+
+const formatDate = (iso: string) =>
+  new Date(iso).toLocaleDateString('vi-VN', { year: 'numeric', month: 'long', day: 'numeric' });
+---
+<BaseLayout
+  seo={{
+    title: 'Blog — Tips học Toán cho phụ huynh',
+    description: 'Cẩm nang học Toán cho phụ huynh có con 5–7 tuổi: bài tập, phương pháp, lộ trình, app học Toán miễn phí.',
+    path: '/blog',
+  }}
+  locale="vi"
+  pageJsonLd={[{
+    '@context': 'https://schema.org',
+    '@type': 'Blog',
+    name: 'HocVui Blog',
+    description: 'Cẩm nang học Toán cho phụ huynh có con 5–7 tuổi.',
+    publisher: { '@id': 'https://sekklings.com/#organization' },
+    inLanguage: 'vi-VN',
+  }]}
+>
+  <Header slot="nav" locale="vi" currentPath="/blog" />
+  <Fragment slot="footer"><Footer locale="vi" /></Fragment>
+
+  <section class="bg-gradient-to-b from-pink-soft to-pink-bg py-12 sm:py-16">
+    <div class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+      <h1 class="font-display text-4xl font-extrabold text-purple-deep sm:text-5xl">Blog</h1>
+      <p class="mt-3 max-w-2xl text-lg text-purple-deep/70">
+        Cẩm nang học Toán cho phụ huynh có con 5–7 tuổi. Cập nhật hàng tuần.
+      </p>
+      <a href="/blog/rss.xml" class="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-pink-dark hover:underline">
+        📡 RSS feed
+      </a>
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8">
+    {posts.length === 0 ? (
+      <div class="rounded-3xl border-2 border-dashed border-pink-soft bg-white p-12 text-center">
+        <p class="text-lg text-purple-deep/60">Chưa có bài viết nào. Quay lại sau nhé!</p>
+        <a href="/lessons" class="mt-4 inline-block font-bold text-pink-dark hover:underline">Xem bài học miễn phí →</a>
+      </div>
+    ) : (
+      <div class="space-y-6">
+        {posts.map((post) => (
+          <article class="rounded-3xl border-2 border-pink-soft bg-white p-6 transition hover:border-pink hover:shadow-chunky-sm">
+            <div class="flex items-center gap-3 text-xs text-purple-deep/60">
+              <time datetime={post.data.publishedTime}>{formatDate(post.data.publishedTime)}</time>
+              {post.data.tags.length > 0 && (
+                <>
+                  <span>·</span>
+                  <span>{post.data.tags.slice(0, 3).join(', ')}</span>
+                </>
+              )}
+            </div>
+            <h2 class="mt-2 font-display text-2xl font-extrabold text-purple-deep">
+              <a href={`/blog/${post.id}/`} class="hover:text-pink-dark">{post.data.title}</a>
+            </h2>
+            <p class="mt-2 text-purple-deep/80">{post.data.description}</p>
+            <a href={`/blog/${post.id}/`} class="mt-3 inline-flex items-center gap-1 text-sm font-bold text-pink-dark hover:underline">
+              Đọc tiếp →
+            </a>
+          </article>
+        ))}
+      </div>
+    )}
+  </section>
+</BaseLayout>

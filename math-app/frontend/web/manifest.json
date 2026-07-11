@@ -1,35 +1,20 @@
 {
-    "name": "math_app",
-    "short_name": "math_app",
-    "start_url": ".",
+    "name": "HocVui — Toán vui cho bé 5–7 tuổi",
+    "short_name": "HocVui",
+    "lang": "vi",
+    "start_url": "/app/",
+    "scope": "/app/",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#FFF5FA",
+    "theme_color": "#FF6B9D",
+    "description": "Ứng dụng học Toán song ngữ cho bé 5–7 tuổi. Hơn 6,000 bài học, 4 phong cách học, miễn phí.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
+    "categories": ["education", "kids"],
     "icons": [
-        {
-            "src": "icons/Icon-192.png",
-            "sizes": "192x192",
-            "type": "image/png"
-        },
-        {
-            "src": "icons/Icon-512.png",
-            "sizes": "512x512",
-            "type": "image/png"
-        },
-        {
-            "src": "icons/Icon-maskable-192.png",
-            "sizes": "192x192",
-            "type": "image/png",
-            "purpose": "maskable"
-        },
-        {
-            "src": "icons/Icon-maskable-512.png",
-            "sizes": "512x512",
-            "type": "image/png",
-            "purpose": "maskable"
-        }
+        { "src": "/brand/icon-192.png", "sizes": "192x192", "type": "image/png" },
+        { "src": "/brand/icon-512.png", "sizes": "512x512", "type": "image/png" },
+        { "src": "/brand/icon-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+        { "src": "/brand/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
     ]
 }

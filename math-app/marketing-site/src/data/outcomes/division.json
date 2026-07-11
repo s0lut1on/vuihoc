@@ -1,0 +1,12 @@
+{
+  "name_vi": "Phép chia",
+  "name_en": "Division",
+  "outcomes": [
+    "Hiểu phép chia là phép chia thành các nhóm bằng nhau",
+    "Chia có dư (12 chia 5 = 2 dư 2)",
+    "Quan hệ ngược của phép nhân (12 ÷ 3 = 4 vì 3 × 4 = 12)",
+    "Giải bài toán có lời văn về phép chia",
+    "Chia số có 2 chữ số cho số có 1 chữ số"
+  ],
+  "parent_tip": "Phép chia khó hơn phép nhân. Dùng đồ vật thật: 'Mẹ có 12 cái kẹo, muốn chia đều cho 3 bạn, mỗi bạn được mấy cái?' Bé thấy trực quan sẽ hiểu nhanh hơn."
+}

@@ -1,0 +1,11 @@
+{
+  "name_vi": "Cộng trừ 3 chữ số",
+  "name_en": "3-digit arithmetic",
+  "outcomes": [
+    "Cộng hai số có 3 chữ số (không nhớ, có nhớ)",
+    "Trừ hai số có 3 chữ số (không nhớ, có nhớ)",
+    "Tính nhẩm nhanh với số tròn trăm",
+    "Giải bài toán có lời văn nhiều bước"
+  ],
+  "parent_tip": "Bé đã vững 2 chữ số mới nên lên 3 chữ số. Luyện bằng cách cộng trừ tiền mua sắm: 'Mẹ mua 250K đồng rau, 350K đồng thịt, tổng bao nhiêu?'"
+}

@@ -1,0 +1,11 @@
+{
+  "name_vi": "Cộng trừ 2 chữ số",
+  "name_en": "2-digit arithmetic",
+  "types": [
+    "Tính cột dọc (đặt tính theo hàng dọc)",
+    "Tính nhẩm nhanh",
+    "Bài toán có lời văn",
+    "Sắp xếp phép tính theo thứ tự",
+    "Tìm lỗi sai trong phép tính"
+  ]
+}

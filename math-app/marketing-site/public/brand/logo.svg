@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 120.0" width="400" height="120.0">
+  <defs>
+    <radialGradient id="g" cx="0.3" cy="0.3" r="0.8">
+      <stop offset="0%" stop-color="#FFC1DA"/>
+      <stop offset="100%" stop-color="#FF6B9D"/>
+    </radialGradient>
+  </defs>
+  <circle cx="96.0" cy="200.0" r="72.0" fill="url(#g)" stroke="#C0266B" stroke-width="4.00"/>
+  <text x="96.0" y="200.0" text-anchor="middle" dominant-baseline="central"
+        font-size="88" font-family="Noto Color Emoji, Apple Color Emoji, Segoe UI Emoji, sans-serif">🐸</text>
+  <text x="196.0" y="60.0" dominant-baseline="central"
+        font-family="Noto Sans, Inter, system-ui, sans-serif" font-weight="900"
+        font-size="72.0" fill="#2D1B4E">HocVui</text>
+</svg>

@@ -1,0 +1,173 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import { SITE_DESCRIPTION_EN, SITE_TAGLINE_EN, SITE_NAME } from '../../lib/i18n';
+
+const features = [
+  { icon: '🎯', title: 'Persona-based learning', desc: '4 learning styles — Achiever, Gamer, Struggler, Silent — match your kid’s personality.' },
+  { icon: '🌐', title: 'Bilingual VI–EN', desc: 'Every lesson ships in both Vietnamese and English. Switch languages mid-lesson.' },
+  { icon: '⏰', title: 'Interactive clock', desc: 'CustomPaint analog clock for time-telling lessons. No videos — pure practice.' },
+  { icon: '📈', title: 'Adaptive BKT', desc: 'Bayesian Knowledge Tracing adjusts difficulty to the child’s real ability — never too easy, never too hard.' },
+  { icon: '🎓', title: 'Parent dashboard', desc: 'Weekly progress reports. PIN-gated for privacy.' },
+  { icon: '🆓', title: 'Free 50 lessons/day', desc: 'Free accounts get 50 lessons per day. Premium is unlimited.' },
+];
+
+const stats = [
+  { value: '6,060+', label: 'Lessons' },
+  { value: '1,730+', label: 'Exercises' },
+  { value: '4', label: 'Personas' },
+  { value: '12', label: 'Grades' },
+];
+---
+<BaseLayout
+  seo={{
+    title: SITE_TAGLINE_EN,
+    description: SITE_DESCRIPTION_EN,
+    path: '/en',
+  }}
+  locale="en"
+  pageJsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'WebPage',
+      '@id': 'https://sekklings.com/en#webpage',
+      url: 'https://sekklings.com/en',
+      name: SITE_NAME,
+      isPartOf: { '@id': 'https://sekklings.com/#website' },
+      inLanguage: 'en-US',
+    },
+  ]}
+>
+  <Header slot="nav" locale="en" currentPath="/" />
+  <Fragment slot="footer"><Footer locale="en" /></Fragment>
+
+  <!-- Hero -->
+  <section class="relative overflow-hidden">
+    <div class="absolute inset-0 -z-10 bg-gradient-to-br from-pink-soft via-pink-bg to-cream"></div>
+    <div class="mx-auto grid max-w-7xl gap-12 px-4 py-20 sm:px-6 md:grid-cols-2 md:items-center md:py-28 lg:px-8">
+      <div>
+        <span class="inline-flex items-center gap-2 rounded-full border border-pink-soft bg-white/70 px-3 py-1 text-xs font-bold text-pink-dark">
+          🐸 HocVui · Learn with joy
+        </span>
+        <h1 class="mt-5 font-display text-4xl font-extrabold leading-tight text-purple-deep sm:text-5xl lg:text-6xl">
+          Fun math for kids <span class="text-pink-dark">5–7</span>
+        </h1>
+        <p class="mt-5 max-w-xl text-lg leading-relaxed text-purple-deep/80">
+          6,000+ interactive lessons, bilingual Vietnamese–English, 4 learning personas
+          that match your kid. Math without tears, without giving up.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a
+            href="/app"
+            class="inline-flex items-center gap-2 rounded-full bg-pink px-6 py-3.5 text-base font-bold text-white shadow-chunky transition hover:bg-pink-dark active:translate-y-1 active:shadow-none"
+          >
+            Start learning free
+            <span aria-hidden="true">→</span>
+          </a>
+          <a
+            href="/en/lessons"
+            class="inline-flex items-center gap-2 rounded-full border-2 border-pink-soft bg-white px-6 py-3.5 text-base font-bold text-purple-deep transition hover:border-pink"
+          >
+            Browse lessons
+          </a>
+        </div>
+        <p class="mt-3 text-sm text-purple-deep/60">
+          No credit card required · Works on any device
+        </p>
+      </div>
+
+      <div class="relative">
+        <div class="relative grid grid-cols-2 gap-4">
+          <div class="rounded-3xl border-4 border-pink-soft bg-white p-6 shadow-chunky-sm">
+            <div class="grid h-16 w-16 place-items-center rounded-full bg-gradient-to-br from-[#FFC1DA] to-pink text-3xl">🐸</div>
+            <p class="mt-3 font-display text-2xl font-extrabold text-purple-deep">12</p>
+            <p class="text-sm text-purple-deep/60">Grades</p>
+          </div>
+          <div class="rounded-3xl border-4 border-pink-soft bg-white p-6 shadow-chunky-sm">
+            <p class="font-display text-2xl font-extrabold text-purple-deep">6,060+</p>
+            <p class="text-sm text-purple-deep/60">Lessons</p>
+            <div class="mt-3 flex gap-1">
+              <span class="h-2 w-2 rounded-full bg-pink"></span>
+              <span class="h-2 w-2 rounded-full bg-warning"></span>
+              <span class="h-2 w-2 rounded-full bg-success"></span>
+              <span class="h-2 w-2 rounded-full bg-purple"></span>
+            </div>
+          </div>
+          <div class="col-span-2 rounded-3xl border-4 border-pink-soft bg-white p-6 shadow-chunky-sm">
+            <p class="text-sm font-bold text-purple-deep/70">Personas</p>
+            <div class="mt-3 grid grid-cols-4 gap-2 text-center text-xs">
+              <div class="rounded-xl bg-achiever-bg px-2 py-3 font-bold text-achiever-text">Achiever</div>
+              <div class="rounded-xl bg-gamer-bg px-2 py-3 font-bold text-gamer-text">Gamer</div>
+              <div class="rounded-xl bg-struggler-bg px-2 py-3 font-bold text-struggler-text">Struggler</div>
+              <div class="rounded-xl bg-silent-bg px-2 py-3 font-bold text-silent-text">Silent</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats -->
+  <section class="border-y border-pink-soft bg-white/60">
+    <div class="mx-auto grid max-w-7xl grid-cols-2 gap-6 px-4 py-10 sm:px-6 md:grid-cols-4 lg:px-8">
+      {stats.map((s) => (
+        <div class="text-center">
+          <p class="font-display text-3xl font-extrabold text-pink-dark sm:text-4xl">{s.value}</p>
+          <p class="mt-1 text-sm font-semibold text-purple-deep/70">{s.label}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-2xl text-center">
+      <h2 class="font-display text-3xl font-extrabold text-purple-deep sm:text-4xl">
+        Why parents pick HocVui
+      </h2>
+      <p class="mt-3 text-base text-purple-deep/70">
+        Built by Vietnamese primary-school teachers and edtech engineers.
+      </p>
+    </div>
+
+    <div class="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {features.map((f) => (
+        <div class="rounded-3xl border-2 border-pink-soft bg-white p-6 transition hover:border-pink hover:shadow-chunky-sm">
+          <div class="grid h-12 w-12 place-items-center rounded-2xl bg-pink-soft text-2xl">{f.icon}</div>
+          <h3 class="mt-4 font-display text-lg font-bold text-purple-deep">{f.title}</h3>
+          <p class="mt-2 text-sm leading-relaxed text-purple-deep/70">{f.desc}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-pink to-purple p-10 sm:p-16">
+      <div class="relative grid items-center gap-8 md:grid-cols-2">
+        <div>
+          <h2 class="font-display text-3xl font-extrabold text-white sm:text-4xl">
+            Ready when your kid is
+          </h2>
+          <p class="mt-3 text-lg text-white/90">
+            Free account in 30 seconds. No credit card. 50 lessons per day.
+          </p>
+        </div>
+        <div class="flex flex-wrap gap-3 md:justify-end">
+          <a
+            href="/app"
+            class="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3.5 text-base font-bold text-pink-dark shadow-lg transition hover:bg-cream"
+          >
+            Open the app →
+          </a>
+          <a
+            href="/en/pricing"
+            class="inline-flex items-center gap-2 rounded-full border-2 border-white/40 bg-white/10 px-6 py-3.5 text-base font-bold text-white backdrop-blur transition hover:bg-white/20"
+          >
+            See pricing
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

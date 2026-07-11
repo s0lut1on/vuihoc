@@ -1,0 +1,12 @@
+{
+  "name_vi": "Đại số",
+  "name_en": "Algebra",
+  "outcomes": [
+    "Tìm quy luật trong dãy số",
+    "Điền số còn thiếu trong dãy số có quy luật",
+    "Phép tính với số chưa biết (tìm x)",
+    "Cộng trừ số âm (giới thiệu)",
+    "Biểu thức đơn giản (a + b, a - b)"
+  ],
+  "parent_tip": "Đại số không khó như tên gọi. Bắt đầu bằng các bài toán tìm quy luật trong dãy số, sau đó dần dần tới tìm x. Dùng đồ vật thật (kẹo, viên bi) để minh hoạ."
+}

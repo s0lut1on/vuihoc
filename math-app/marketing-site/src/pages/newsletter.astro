@@ -1,0 +1,45 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import Newsletter from '../components/Newsletter.astro';
+---
+<BaseLayout
+  seo={{
+    title: 'Đăng ký nhận tips học Toán mỗi tuần',
+    description: 'Nhận bài tập, phương pháp và lộ trình học Toán cho bé 5–7 tuổi qua email. Miễn phí, không quảng cáo.',
+    path: '/newsletter',
+  }}
+  locale="vi"
+>
+  <Header slot="nav" locale="vi" currentPath="/newsletter" />
+  <Fragment slot="footer"><Footer locale="vi" /></Fragment>
+
+  <section class="bg-gradient-to-b from-pink-soft to-pink-bg py-12 sm:py-20">
+    <div class="mx-auto max-w-3xl px-4 text-center sm:px-6 lg:px-8">
+      <span class="inline-flex items-center gap-2 rounded-full border border-pink-soft bg-white/70 px-3 py-1 text-xs font-bold text-pink-dark">
+        📬 Newsletter miễn phí
+      </span>
+      <h1 class="mt-5 font-display text-4xl font-extrabold leading-tight text-purple-deep sm:text-5xl">
+        Tips học Toán cho bé 5–7 tuổi<br />
+        <span class="text-pink-dark">mỗi tuần qua email</span>
+      </h1>
+      <p class="mx-auto mt-4 max-w-2xl text-lg text-purple-deep/80">
+        Đăng ký 1 lần, nhận 1 email mỗi tuần với:
+      </p>
+      <ul class="mx-auto mt-6 grid max-w-xl gap-2 text-left text-purple-deep/80 sm:grid-cols-2">
+        <li class="flex items-start gap-2"><span class="mt-0.5 text-pink-dark">✓</span><span>3 bài tập Toán mới mỗi tuần</span></li>
+        <li class="flex items-start gap-2"><span class="mt-0.5 text-pink-dark">✓</span><span>Phương pháp dạy con từ chuyên gia</span></li>
+        <li class="flex items-start gap-2"><span class="mt-0.5 text-pink-dark">✓</span><span>Lộ trình học theo từng độ tuổi</span></li>
+        <li class="flex items-start gap-2"><span class="mt-0.5 text-pink-dark">✓</span><span>Khuyến mãi Premium cho thành viên</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-2xl px-4 pb-12 sm:px-6 lg:px-8">
+    <Newsletter locale="vi" source="newsletter-page" />
+    <p class="mt-6 text-center text-sm text-purple-deep/60">
+      Hơn 500 phụ huynh đã đăng ký. Hủy bất cứ lúc nào qua link trong email.
+    </p>
+  </section>
+</BaseLayout>

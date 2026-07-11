@@ -1,0 +1,13 @@
+{
+  "subject": "multiplication",
+  "grades": [
+    {
+      "grade": 2,
+      "n_lessons": 50
+    },
+    {
+      "grade": 3,
+      "n_lessons": 50
+    }
+  ]
+}

@@ -1,0 +1,3 @@
+# Daily rollup of Traefik access log into per-day JSON stats.
+# Runs at 23:55 every day to capture the full day's traffic.
+55 23 * * * root /usr/bin/python3 /root/math-app/math-app/scripts/traffic_stats.py >> /var/log/traefik/stats/cron.log 2>&1

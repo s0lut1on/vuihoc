@@ -1,0 +1,9 @@
+{
+  "subject": "volume",
+  "grades": [
+    {
+      "grade": 3,
+      "n_lessons": 50
+    }
+  ]
+}

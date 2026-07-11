@@ -1,0 +1,79 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import subjects from '../../data/subjects.json';
+import lessons from '../../data/lessons.json';
+
+const SUBJECTS = subjects as Array<{ id: string; name_vi: string; name_en: string; icon: string; color: string; grade_min: number; grade_max: number }>;
+const LESSONS = lessons as Record<string, { n_lessons: number; grade: number; subject_id: string; sample_titles_vi: string[]; sample_titles_en: string[] }>;
+
+// Group by subject, then by grade
+const grouped = SUBJECTS.map((s) => ({
+  ...s,
+  grades: Array.from({ length: s.grade_max - s.grade_min + 1 }, (_, i) => s.grade_min + i)
+    .map((g) => LESSONS[`${s.id}|${g}`])
+    .filter(Boolean),
+}));
+
+const totalLessons = grouped.reduce((sum, s) => sum + s.grades.reduce((a, g) => a + g.n_lessons, 0), 0);
+---
+<BaseLayout
+  seo={{
+    title: 'Danh sách bài học Toán cho bé 5–7 tuổi',
+    description: 'Toán vui, toán tư duy, hình học, đo lường cho bé lớp 1–2. Hơn 6.000 bài học tương tác, song ngữ Việt–Anh.',
+    path: '/lessons',
+  }}
+  locale="vi"
+  pageJsonLd={grouped.map((s) => ({
+    '@context': 'https://schema.org',
+    '@type': 'Course',
+    name: `${s.name_vi} (Lớp ${s.grade_min}–${s.grade_max})`,
+    description: `Bài học ${s.name_vi} cho bé ${s.grade_min}–${s.grade_max} tuổi. ${s.grades.reduce((a, g) => a + g.n_lessons, 0)} bài học song ngữ.`,
+    provider: { '@type': 'Organization', name: 'HocVui', sameAs: 'https://sekklings.com' },
+    inLanguage: ['vi', 'en'],
+    educationalLevel: `Grade ${s.grade_min}-${s.grade_max}`,
+  }))}
+>
+  <Header slot="nav" locale="vi" currentPath="/lessons" />
+  <Fragment slot="footer"><Footer locale="vi" /></Fragment>
+
+  <section class="bg-gradient-to-b from-pink-soft to-pink-bg py-12 sm:py-16">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <h1 class="font-display text-4xl font-extrabold text-purple-deep sm:text-5xl">
+        Danh sách bài học
+      </h1>
+      <p class="mt-3 max-w-2xl text-base text-purple-deep/70">
+        Hơn {totalLessons.toLocaleString('vi-VN')} bài học Toán cho bé lớp 1–12, sắp xếp theo chủ đề.
+        Mỗi bài học đều có tiếng Việt và tiếng Anh.
+      </p>
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+    <div class="space-y-8">
+      {grouped.map((s) => (
+        <article class="rounded-3xl border-2 border-pink-soft bg-white p-6 sm:p-8">
+          <div class="flex items-center gap-3">
+            <span class="grid h-12 w-12 place-items-center rounded-2xl text-2xl" style={`background: ${s.color}`}>{s.icon}</span>
+            <div>
+              <h2 class="font-display text-2xl font-extrabold text-purple-deep">{s.name_vi}</h2>
+              <p class="text-sm text-purple-deep/60">{s.name_en} · Lớp {s.grade_min}–{s.grade_max}</p>
+            </div>
+          </div>
+          <div class="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
+            {s.grades.map((g) => (
+              <a
+                href={`/lessons/${s.id}/${g.grade}`}
+                class="group flex items-center justify-between rounded-2xl border-2 border-pink-soft bg-pink-bg px-3 py-2.5 text-sm font-semibold text-purple-deep transition hover:border-pink hover:bg-white"
+              >
+                <span>Lớp {g.grade}</span>
+                <span class="rounded-full bg-white px-2 py-0.5 text-xs font-bold text-pink-dark group-hover:bg-pink group-hover:text-white">{g.n_lessons}</span>
+              </a>
+            ))}
+          </div>
+        </article>
+      ))}
+    </div>
+  </section>
+</BaseLayout>

@@ -1,6 +1,71 @@
 ## [Unreleased]
 
 ### Added
+- **HocVui Marketing Site (sekklings.com)** — full SEO rebuild with marketing site at root + Flutter app at `/app/`
+  - **Marketing site (Astro + Tailwind)**: 240+ bilingual HTML pages (vi + en) at the root, including:
+    - Landing pages (`/`, `/en`) with hero, features, stats, FAQ JSON-LD
+    - Lessons catalog (`/lessons`, `/en/lessons`) — 20 subjects × 12 grades
+    - Per-subject pages (`/lessons/{subject}`, `/en/lessons/{subject}`) with outcomes
+    - Per-cell pages (`/lessons/{subject}/{grade}`, `/en/lessons/{subject}/{grade}`) with 800+ words of unique content, 7 learning outcomes, 6 exercise types, 6 sample lesson titles, parent tips, peer grades, cross-subject links, `Course` + `LearningResource` JSON-LD
+    - Personas (`/personas`, `/en/personas`), pricing, parents FAQ, about, privacy, terms, 404
+    - Blog infrastructure: content collections, `/blog` + `/blog/[slug]` + `/blog/rss.xml` (and EN equivalents), 1 sample post
+    - Newsletter page (`/newsletter`, `/en/newsletter`) + Buttondown embed form on 4 high-traffic spots
+    - Robots.txt (with AI-bot blocks), security.txt, `.well-known/security.txt`
+  - **Full SEO surface** on every page: title, meta description, OpenGraph (vi_VN / en_US), Twitter card, canonical URL, hreflang (vi/en/x-default), JSON-LD blocks (Organization, WebSite, SoftwareApplication, FAQPage, Course, LearningResource, BreadcrumbList, BlogPosting), theme-color, manifest
+  - **92 per-lesson OG images** (1200×630, ~35KB each) — one per (subject, grade) cell, branded with subject icon + name + lesson count
+  - **RSS feeds** at `/blog/rss.xml` + `/en/blog/rss.xml`
+  - **Branded assets**: 13 files (favicon, og-image-vi, og-image-en, icon-192/512, maskable variants, apple-touch-icon, logo SVG)
+
+- **Self-hosted Umami analytics** — cookie-free, GDPR-friendly
+  - New `umami` + `umami-db` services in `docker-compose.prod.yml`
+  - Traefik router: `Host(sekklings.com) && PathPrefix(/umami)` with `stripprefix` middleware
+  - Tracking script injected in marketing site BaseLayout + Flutter web index.html
+  - Website id: `2153c8a8-f486-4b72-9284-332c036d1c16` (env var `PUBLIC_UMAMI_WEBSITE_ID`)
+  - Admin password changed from default (see `marketing-site/docs/SEO_OPS.md`)
+
+- **Traefik routing overhaul** — three priority tiers
+  - Flutter web now at `/app/*` (priority 50, `stripprefix` strips `/app` before forwarding)
+  - API services at `/api/*` (priority 100, existing)
+  - Marketing site at root (priority 10, catches everything else)
+  - New `www-redirect` service redirects `www.sekklings.com` → apex (SEO canonical)
+  - Marketing site uses `bind mount` (not named volume) for dist/ — simpler deploys
+  - Compose files updated: `docker-compose.prod.yml`, `docker-compose.ghcr.yml`, `docker-compose.yml`
+
+- **Flutter web SEO** — branded shell
+  - `web/index.html` rewritten with HocVui title, description, OG tags, theme-color, manifest, Umami script
+  - `web/manifest.json` updated: HocVui name, scope=`/app/`, theme color, branded icons
+  - `<base href="/app/">` set so Flutter app loads assets from `/app/...`
+  - `<meta name="robots" content="noindex,nofollow">` on the SPA shell to avoid duplicate content
+
+- **SEO toolchain** — repeatable deploy + monitoring
+  - `scripts/deploy-marketing.sh` — build + rsync + restart + smoke test
+  - `scripts/purge-cloudflare.sh` — Cloudflare API cache purge
+  - `scripts/gen_brand_assets.py` — regenerate all 13 brand assets from `app_colors.dart`
+  - `scripts/gen_lesson_og.py` — regenerate all 92 per-lesson OG images
+  - `scripts/fetch_lessons.py` + `scripts/enrich_lessons.py` + `scripts/gen_subject_content.py` — build-time data pipeline
+  - `marketing-site/docs/WRITING_BLOG.md` — guide for blog content (10 proposed post titles + keyword targets)
+  - `marketing-site/docs/SEO_OPS.md` — operational runbook (Cloudflare, GSC, Umami, deploy)
+  - `docs/PLAN_HOCVUI_SEO.md` — full 5-phase plan, all decisions locked
+
+### Changed
+- **Course content**: padded every (subject, grade) cell to ≥ 50 lessons via migration 012_pad_to_50.sql
+  - Migration applied live on VPS (no down time)
+  - 4,125 → 6,060 lessons total (4,600 in the active catalog, 50 per cell × 92 cells)
+  - 0 cells under 50; all 91 active cells ≥ 50
+- **Docker compose files**: `Host(\`sekklings.com\`)` added to all routers in prod + ghcr; dev keeps `Host(\`localhost\`)`
+- **Marketing site** moved from project root to `math-app/marketing-site/` (gets included in deploy-vps.sh rsync)
+
+### Removed
+- Old `docker-compose.marketing.yml` overlay (rolled into base compose files)
+
+### Fixed
+- `cloudflare cache` was serving stale `A new Flutter project` shell HTML — now served marketing site
+- `favicon.ico` was 404 — now served from `/brand/favicon.ico`
+- `<title>` was `math_app` — now `HocVui — Toán vui cho bé 5–7 tuổi`
+- `<meta description>` was `A new Flutter project.` — now full Vietnamese description
+- Vietnamese translations missing for many EN pages — now have full vi+en parity on lessons/personas/pricing/parents/about/blog
+
+
 - **Language Subjects — Vietnamese & English** — new `language-service` backend + frontend widgets
   - New Python FastAPI service (`backend/language/`) with PostgreSQL `language_db`
   - Curriculum endpoints: `GET /api/language/curriculum`, `GET /api/language/lesson/:id`

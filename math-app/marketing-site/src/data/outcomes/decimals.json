@@ -1,0 +1,12 @@
+{
+  "name_vi": "Số thập phân",
+  "name_en": "Decimals",
+  "outcomes": [
+    "Hiểu số thập phân (0.5 = 1/2 = nửa)",
+    "Đọc và viết số thập phân có 1-2 chữ số sau dấu phẩy",
+    "So sánh số thập phân",
+    "Cộng trừ số thập phân",
+    "Liên hệ số thập phân với tiền tệ (1.5K = 1K500)"
+  ],
+  "parent_tip": "Dùng tiền Việt Nam để dạy số thập phân: 1500đ = 1.5K, 2500đ = 2.5K. Bé tự tính tiền mua sắm sẽ hiểu rất nhanh."
+}

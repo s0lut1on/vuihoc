@@ -1,0 +1,13 @@
+{
+  "name_vi": "Thống kê",
+  "name_en": "Statistics",
+  "outcomes": [
+    "Đếm và phân loại dữ liệu",
+    "Đọc bảng số liệu đơn giản",
+    "Vẽ biểu đồ cột, biểu đồ tròn cơ bản",
+    "Tính trung bình cộng của 2-3 số",
+    "So sánh các nhóm số liệu",
+    "Hiểu khái niệm 'nhiều nhất', 'ít nhất', 'bằng nhau'"
+  ],
+  "parent_tip": "Thống kê xung quanh ta. Cho bé đếm đồ vật, khảo sát gia đình 'ai thích ăn gì?', rồi cùng vẽ biểu đồ. Bé sẽ thấy Toán hữu ích trong đời sống."
+}

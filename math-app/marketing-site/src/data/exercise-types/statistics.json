@@ -1,0 +1,10 @@
+{
+  "name_vi": "Thống kê",
+  "name_en": "Statistics",
+  "types": [
+    "Đếm số lượng trái cây trong giỏ, vẽ biểu đồ cột",
+    "Khảo sát lớp: 'ai thích màu gì?' rồi vẽ biểu đồ",
+    "Tính điểm trung bình của các môn",
+    "So sánh chiều cao các bạn trong lớp"
+  ]
+}

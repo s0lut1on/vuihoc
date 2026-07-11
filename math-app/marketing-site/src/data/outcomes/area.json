@@ -1,0 +1,12 @@
+{
+  "name_vi": "Diện tích",
+  "name_en": "Area",
+  "outcomes": [
+    "Hiểu diện tích là phần bề mặt của hình",
+    "Tính diện tích hình chữ nhật (dài × rộng)",
+    "Tính diện tích hình vuông (cạnh × cạnh)",
+    "Đổi đơn vị (cm², m²)",
+    "So sánh diện tích hai hình"
+  ],
+  "parent_tip": "Bé hiểu chu vi rồi mới tới diện tích. Dùng giấy ô vuông (1cm × 1cm) để bé đếm số ô = diện tích. Trực quan, dễ hiểu."
+}

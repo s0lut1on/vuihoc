@@ -1,0 +1,14 @@
+{
+  "name_vi": "Thời gian & Tiền",
+  "name_en": "Time & Money",
+  "outcomes": [
+    "Đọc giờ trên đồng hồ kim (giờ, phút, giờ rưỡi)",
+    "Tính khoảng thời gian (1 tiếng rưỡi = 1h30)",
+    "Đọc lịch (ngày, tháng, năm)",
+    "Nhận biết các mệnh giá tiền Việt Nam (100đ, 200đ, 500đ, 1K, 2K, 5K, 10K, 20K, 50K, 100K, 200K, 500K)",
+    "Quy đổi tiền (1K = 1000đ, 10K = 10000đ)",
+    "Tính tổng tiền khi mua nhiều món",
+    "Trả lại tiền thừa"
+  ],
+  "parent_tip": "Đồng hồ tương tác CustomPaint trong app rất hiệu quả — bé kéo kim đồng hồ đến giờ bạn nói. Với tiền, cho bé đi chợ cùng và tự tính tiền."
+}

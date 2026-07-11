@@ -1,0 +1,231 @@
+---
+import BaseLayout from '../../../../layouts/BaseLayout.astro';
+import Header from '../../../../components/Header.astro';
+import Footer from '../../../../components/Footer.astro';
+
+export async function getStaticPaths() {
+  const subjectsData = (await import('../../../../data/subjects.json')).default;
+  const lessonsData = (await import('../../../../data/lessons.json')).default;
+  const subjects = subjectsData as any[];
+  const lessons = lessonsData as Record<string, any>;
+  const paths: Array<{ params: { subject: string; grade: string }; props: { subject: any; cell: any } }> = [];
+  for (const s of subjects) {
+    for (let g = s.grade_min; g <= s.grade_max; g++) {
+      const cell = lessons[`${s.id}|${g}`];
+      if (cell) paths.push({ params: { subject: s.id, grade: String(g) }, props: { subject: s, cell } });
+    }
+  }
+  return paths;
+}
+
+const { subject, cell } = Astro.props;
+const grade = cell.grade;
+const subjectId = subject.id;
+const peerGrades = Array.from({ length: subject.grade_max - subject.grade_min + 1 }, (_, i) => subject.grade_min + i);
+
+const allOutcomes = import.meta.glob('../../../../data/outcomes/*.json', { eager: true });
+const allTypes = import.meta.glob('../../../../data/exercise-types/*.json', { eager: true });
+const subjectsData = (await import('../../../../data/subjects.json')).default as any[];
+
+const outcomes = (allOutcomes[`../../../../data/outcomes/${subjectId}.json`] as any) ?? null;
+const types = (allTypes[`../../../../data/exercise-types/${subjectId}.json`] as any) ?? null;
+
+const otherSubjectsAtSameGrade = subjectsData.filter((s: any) => s.id !== subjectId && s.grade_min <= grade && s.grade_max >= grade);
+
+const ageFrom = grade + 4;
+const ageTo = grade + 6;
+const subjEn = (outcomes?.name_en ?? subject.name_en).toLowerCase();
+const pageDescription = `Learn ${subjEn} for grade ${grade} with ${cell.n_lessons} interactive lessons. Bilingual Vietnamese–English. For kids ${ageFrom}–${ageTo} years old.`;
+---
+<BaseLayout
+  seo={{
+    title: `${subject.name_en} Grade ${grade} — ${cell.n_lessons} lessons`,
+    description: pageDescription,
+    path: `/en/lessons/${subjectId}/${grade}`,
+    ogImage: `og-lessons/og-${subject.name_en.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}-grade-${grade}.png`,
+  }}
+  locale="en"
+  pageJsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Course',
+      name: `${subject.name_en} - Grade ${grade}`,
+      description: `${cell.n_lessons} interactive ${subjEn} lessons for grade ${grade}.`,
+      provider: { '@type': 'Organization', name: 'HocVui', sameAs: 'https://sekklings.com' },
+      inLanguage: ['en', 'vi'],
+      educationalLevel: `Grade ${grade}`,
+      hasCourseInstance: {
+        '@type': 'CourseInstance',
+        courseMode: 'online',
+        courseWorkload: `PT${cell.n_lessons}H`,
+      },
+      offers: {
+        '@type': 'Offer',
+        price: '0',
+        priceCurrency: 'USD',
+        availability: 'https://schema.org/InStock',
+      },
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'LearningResource',
+      name: `${subject.name_en} Grade ${grade}`,
+      description: pageDescription,
+      educationalLevel: `Grade ${grade}`,
+      learningResourceType: 'Interactive Lesson',
+      inLanguage: ['en', 'vi'],
+      isAccessibleForFree: true,
+      teaches: (outcomes && outcomes.outcomes) ? outcomes.outcomes.slice(0, 5) : [],
+      provider: { '@type': 'Organization', name: 'HocVui', sameAs: 'https://sekklings.com' },
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://sekklings.com/en' },
+        { '@type': 'ListItem', position: 2, name: 'Lessons', item: 'https://sekklings.com/en/lessons' },
+        { '@type': 'ListItem', position: 3, name: subject.name_en, item: `https://sekklings.com/en/lessons/${subjectId}` },
+        { '@type': 'ListItem', position: 4, name: `Grade ${grade}`, item: `https://sekklings.com/en/lessons/${subjectId}/${grade}` },
+      ],
+    },
+  ]}
+>
+  <Header slot="nav" locale="en" currentPath={`/lessons/${subjectId}/${grade}`} />
+  <Fragment slot="footer"><Footer locale="en" /></Fragment>
+
+  <nav class="mx-auto max-w-7xl px-4 pt-6 text-sm sm:px-6 lg:px-8" aria-label="Breadcrumb">
+    <ol class="flex flex-wrap items-center gap-1.5 text-purple-deep/60">
+      <li><a href="/en" class="hover:text-pink-dark">Home</a></li>
+      <li>/</li>
+      <li><a href="/en/lessons" class="hover:text-pink-dark">Lessons</a></li>
+      <li>/</li>
+      <li><a href={`/en/lessons/${subjectId}`} class="hover:text-pink-dark">{subject.name_en}</a></li>
+      <li>/</li>
+      <li class="font-semibold text-purple-deep">Grade {grade}</li>
+    </ol>
+  </nav>
+
+  <section class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+    <div class="rounded-3xl border-2 border-pink-soft bg-white p-6 sm:p-8">
+      <div class="flex flex-wrap items-center gap-4">
+        <span class="grid h-16 w-16 place-items-center rounded-2xl text-3xl" style={`background: ${subject.color}`}>{subject.icon}</span>
+        <div>
+          <p class="text-sm font-semibold text-purple-deep/60">{subject.name_vi}</p>
+          <h1 class="font-display text-3xl font-extrabold text-purple-deep sm:text-4xl">
+            {subject.name_en} · Grade {grade}
+          </h1>
+        </div>
+      </div>
+      <div class="mt-6 grid gap-4 sm:grid-cols-3">
+        <div class="rounded-2xl bg-pink-bg p-4">
+          <p class="text-sm text-purple-deep/60">Lessons</p>
+          <p class="mt-1 font-display text-2xl font-extrabold text-purple-deep">{cell.n_lessons}</p>
+        </div>
+        <div class="rounded-2xl bg-pink-bg p-4">
+          <p class="text-sm text-purple-deep/60">Age range</p>
+          <p class="mt-1 font-display text-2xl font-extrabold text-purple-deep">{ageFrom}–{ageTo}</p>
+        </div>
+        <div class="rounded-2xl bg-pink-bg p-4">
+          <p class="text-sm text-purple-deep/60">Languages</p>
+          <p class="mt-1 font-display text-2xl font-extrabold text-purple-deep">EN · VI</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {outcomes && (
+    <section class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <h2 class="font-display text-2xl font-extrabold text-purple-deep">What kids learn</h2>
+      <p class="mt-2 text-sm text-purple-deep/70">Aligned with the Vietnamese national curriculum (GDPT 2018).</p>
+      <ul class="mt-5 grid gap-3 sm:grid-cols-2">
+        {outcomes.outcomes.map((item: string) => (
+          <li class="flex items-start gap-2 rounded-2xl border border-pink-soft bg-white px-4 py-3 text-purple-deep/80">
+            <span class="mt-0.5 text-pink-dark">✓</span>
+            <span>{item}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
+
+  {types && (
+    <section class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <h2 class="font-display text-2xl font-extrabold text-purple-deep">Exercise types</h2>
+      <ul class="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {types.types.map((item: string) => (
+          <li class="flex items-start gap-2 rounded-2xl border border-pink-soft bg-pink-bg px-4 py-3 text-purple-deep/80">
+            <span class="mt-0.5 text-pink-dark">▸</span>
+            <span class="text-sm">{item}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
+
+  {cell.sample_titles_en && cell.sample_titles_en.length > 0 && (
+    <section class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <h2 class="font-display text-2xl font-extrabold text-purple-deep">Sample lessons</h2>
+      <ul class="mt-5 grid gap-2 sm:grid-cols-2">
+        {cell.sample_titles_en.map((title: string, i: number) => (
+          <li class="rounded-xl border border-pink-soft bg-white px-4 py-3 text-sm text-purple-deep/80">
+            <span class="font-bold text-pink-dark">Lesson {i + 1}:</span> {title}
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
+
+  {outcomes && outcomes.parent_tip && (
+    <section class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <div class="rounded-3xl border-2 border-pink-soft bg-cream p-6 sm:p-8">
+        <h2 class="font-display text-2xl font-extrabold text-purple-deep">A note for parents</h2>
+        <p class="mt-3 leading-relaxed text-purple-deep/80">{outcomes.parent_tip}</p>
+      </div>
+    </section>
+  )}
+
+  <section class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <h2 class="font-display text-2xl font-extrabold text-purple-deep">Other grades</h2>
+    <div class="mt-4 flex flex-wrap gap-2">
+      {peerGrades.map((g: number) => (
+        <a
+          href={`/en/lessons/${subjectId}/${g}`}
+          class={`rounded-full px-4 py-2 text-sm font-bold transition ${g === grade ? 'bg-pink text-white shadow-pill' : 'border-2 border-pink-soft bg-white text-purple-deep hover:border-pink'}`}
+        >Grade {g}</a>
+      ))}
+    </div>
+  </section>
+
+  {otherSubjectsAtSameGrade.length > 0 && (
+    <section class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <h2 class="font-display text-2xl font-extrabold text-purple-deep">Related subjects, grade {grade}</h2>
+      <div class="mt-4 grid gap-3 sm:grid-cols-2 md:grid-cols-3">
+        {otherSubjectsAtSameGrade.slice(0, 6).map((s: any) => (
+          <a
+            href={`/en/lessons/${s.id}/${grade}`}
+            class="group flex items-center gap-3 rounded-2xl border-2 border-pink-soft bg-white px-4 py-3 transition hover:border-pink"
+          >
+            <span class="grid h-10 w-10 place-items-center rounded-xl text-xl" style={`background: ${s.color}`}>{s.icon}</span>
+            <div>
+              <p class="text-xs text-purple-deep/60">{s.name_vi}</p>
+              <p class="font-bold text-purple-deep group-hover:text-pink-dark">{s.name_en}</p>
+            </div>
+          </a>
+        ))}
+      </div>
+    </section>
+  )}
+
+  <section class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-pink to-purple p-8 text-center sm:p-12">
+      <h2 class="font-display text-3xl font-extrabold text-white sm:text-4xl">
+        Start {subject.name_en} Grade {grade} now
+      </h2>
+      <p class="mt-3 text-white/90">Free. No credit card required.</p>
+      <a
+        href="/app"
+        class="mt-6 inline-flex items-center gap-2 rounded-full bg-white px-8 py-3.5 text-base font-bold text-pink-dark shadow-lg transition hover:bg-cream"
+      >Open the app →</a>
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,11 @@
+{
+  "name_vi": "Tốc độ",
+  "name_en": "Speed",
+  "outcomes": [
+    "Hiểu khái niệm tốc độ (quãng đường / thời gian)",
+    "Tính tốc độ khi biết quãng đường và thời gian",
+    "Đổi đơn vị tốc độ (km/h, m/s)",
+    "Bài toán thực tế: xe đi từ A đến B mất bao lâu?"
+  ],
+  "parent_tip": "Tốc độ là khái niệm đời sống — bé quen từ nhỏ. Hỏi bé: 'mẹ lái xe 50km/h, đi 100km mất mấy tiếng?' Bé sẽ thấy Toán ứng dụng rất thực tế."
+}

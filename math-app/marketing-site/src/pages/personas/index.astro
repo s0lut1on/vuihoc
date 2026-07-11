@@ -1,0 +1,61 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+
+const personas = [
+  { id: 'achiever', vi: 'Thành tích', en: 'Achiever', color: 'achiever', icon: '🏆', desc: 'Thích được khen, thích đạt mục tiêu. Cần tuyên dương thường xuyên và mục tiêu rõ ràng.', tips: 'Dùng streak, huy hiệu, bảng xếp hạng. Mỗi bài hoàn thành được cộng sao.' },
+  { id: 'gamer', vi: 'Game thủ', en: 'Gamer', color: 'gamer', icon: '🎮', desc: 'Thích thử thách, mini-game, điểm số. Học giỏi nhất qua chơi.', tips: 'Thêm game ngắn giữa bài học, streak, combo, đua top lớp.' },
+  { id: 'struggler', vi: 'Từng bước', en: 'Struggler', color: 'struggler', icon: '🪜', desc: 'Cần hỗ trợ, gặp khó khăn. Cần bài học nhỏ, làm chậm, không áp lực.', tips: 'Tự động chia nhỏ bài khó. Cho phép sai. Không hiển thị điểm số, chỉ khuyến khích.' },
+  { id: 'silent', vi: 'Im lặng', en: 'Silent', color: 'silent', icon: '🤫', desc: 'Tập trung sâu, ít nói, thích tự khám phá. Không thích bị khen quá nhiều.', tips: 'Tối giản âm thanh, confetti. Để bé tự làm, không hỏi liên tục.' },
+];
+---
+<BaseLayout
+  seo={{
+    title: '4 phong cách học Toán cho bé',
+    description: 'HocVui phù hợp từng bé với 4 phong cách học: Thành tích, Game thủ, Từng bước, Im lặng. Cá nhân hoá lộ trình học.',
+    path: '/personas',
+  }}
+  locale="vi"
+  pageJsonLd={personas.map((p) => ({
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: `Phong cách học ${p.vi} (${p.en})`,
+    description: p.desc,
+    author: { '@type': 'Organization', name: 'HocVui' },
+    publisher: { '@id': 'https://sekklings.com/#organization' },
+  }))}
+>
+  <Header slot="nav" locale="vi" currentPath="/personas" />
+  <Fragment slot="footer"><Footer locale="vi" /></Fragment>
+
+  <section class="bg-gradient-to-b from-pink-soft to-pink-bg py-12 sm:py-16">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <h1 class="font-display text-4xl font-extrabold text-purple-deep sm:text-5xl">4 phong cách học</h1>
+      <p class="mt-3 max-w-2xl text-lg text-purple-deep/70">
+        Mỗi bé học khác nhau. HocVui phù hợp nội dung, tốc độ và cách khuyến khích theo phong cách cá nhân.
+      </p>
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+    <div class="grid gap-6 sm:grid-cols-2">
+      {personas.map((p) => (
+        <article class={`rounded-3xl border-2 border-${p.color} bg-${p.color}-bg p-6`}>
+          <div class="flex items-center gap-3">
+            <span class="text-4xl">{p.icon}</span>
+            <div>
+              <h2 class="font-display text-2xl font-extrabold text-purple-deep">{p.vi}</h2>
+              <p class="text-sm font-semibold text-purple-deep/60">{p.en}</p>
+            </div>
+          </div>
+          <p class="mt-4 leading-relaxed text-purple-deep/80">{p.desc}</p>
+          <div class="mt-4 rounded-2xl bg-white/70 p-4">
+            <p class="text-xs font-bold uppercase tracking-wider text-purple-deep/60">Cách HocVui hỗ trợ</p>
+            <p class="mt-1 text-sm text-purple-deep/80">{p.tips}</p>
+          </div>
+        </article>
+      ))}
+    </div>
+  </section>
+</BaseLayout>

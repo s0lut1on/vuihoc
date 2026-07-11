@@ -1,0 +1,87 @@
+---
+import { Locale, t, type I18nEntry } from '../lib/i18n';
+
+interface Props {
+  locale: Locale;
+  variant?: 'inline' | 'card';
+  source?: string;
+  heading?: string;
+  description?: string;
+}
+
+const { locale, variant = 'card', source = 'page', heading, description } = Astro.props;
+const isEn = locale === 'en';
+const buttondownUser = import.meta.env.PUBLIC_BUTTONDOWN_USER || 'hocvui';
+const formAction = `https://buttondown.email/${buttondownUser}`;
+
+const headings: I18nEntry = {
+  vi: 'Nhận tips học Toán mỗi tuần',
+  en: 'Get weekly math tips',
+};
+const descriptions: I18nEntry = {
+  vi: 'Bài tập, phương pháp, lộ trình học Toán cho bé 5–7 tuổi. Miễn phí, không quảng cáo.',
+  en: 'Worksheets, methods, learning paths for kids 5–7. Free, no ads.',
+};
+const cta: I18nEntry = { vi: 'Đăng ký', en: 'Subscribe' };
+const emailPlaceholder: I18nEntry = { vi: 'Email của bạn', en: 'Your email' };
+const consent: I18nEntry = {
+  vi: 'Bằng cách đăng ký, bạn đồng ý nhận email từ HocVui. Hủy đăng ký bất cứ lúc nào.',
+  en: 'By subscribing, you agree to receive emails from HocVui. Unsubscribe anytime.',
+};
+---
+<div
+  class:list={[
+    'rounded-3xl',
+    variant === 'card' ? 'border-2 border-pink-soft bg-pink-bg p-6 sm:p-8' : 'py-8',
+  ]}
+  data-newsletter={source}
+>
+  {variant === 'card' && (
+    <h3 class="font-display text-2xl font-extrabold text-purple-deep">
+      {heading ?? t(headings, locale)}
+    </h3>
+  )}
+  {variant === 'card' && (
+    <p class="mt-2 text-purple-deep/80">{description ?? t(descriptions, locale)}</p>
+  )}
+  <form
+    action={formAction}
+    method="post"
+    target="_blank"
+    class:list={[
+      'mt-4 flex flex-col gap-3 sm:flex-row',
+      variant === 'inline' ? 'sm:items-center' : '',
+    ]}
+    data-newsletter-form
+  >
+    <input
+      type="email"
+      name="email"
+      id={`bd-email-${source}`}
+      placeholder={t(emailPlaceholder, locale)}
+      required
+      autocomplete="email"
+      class="flex-1 rounded-full border-2 border-pink-soft bg-white px-5 py-3 text-sm font-semibold text-purple-deep placeholder:text-purple-deep/40 focus:border-pink focus:outline-none"
+    />
+    <input type="hidden" name="tag" value={`hocvui-${source}`} />
+    <button
+      type="submit"
+      class="inline-flex items-center justify-center gap-2 rounded-full bg-pink px-6 py-3 text-sm font-bold text-white shadow-pill transition hover:bg-pink-dark active:translate-y-0.5 active:shadow-none"
+    >
+      {t(cta, locale)}
+      <span aria-hidden="true">→</span>
+    </button>
+  </form>
+  <p class="mt-3 text-xs text-purple-deep/60">{t(consent, locale)}</p>
+</div>
+
+<script>
+  document.querySelectorAll('form[data-newsletter-form]').forEach((form) => {
+    form.addEventListener('submit', () => {
+      const w = window as any;
+      w.umami?.track?.('newsletter_signup', {
+        source: (form.closest('[data-newsletter]') as HTMLElement | null)?.dataset?.newsletter ?? 'unknown',
+      });
+    });
+  });
+</script>

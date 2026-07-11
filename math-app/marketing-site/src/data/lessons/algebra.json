@@ -1,0 +1,49 @@
+{
+  "subject": "algebra",
+  "grades": [
+    {
+      "grade": 2,
+      "n_lessons": 50
+    },
+    {
+      "grade": 3,
+      "n_lessons": 50
+    },
+    {
+      "grade": 4,
+      "n_lessons": 50
+    },
+    {
+      "grade": 5,
+      "n_lessons": 50
+    },
+    {
+      "grade": 6,
+      "n_lessons": 50
+    },
+    {
+      "grade": 7,
+      "n_lessons": 50
+    },
+    {
+      "grade": 8,
+      "n_lessons": 50
+    },
+    {
+      "grade": 9,
+      "n_lessons": 50
+    },
+    {
+      "grade": 10,
+      "n_lessons": 50
+    },
+    {
+      "grade": 11,
+      "n_lessons": 50
+    },
+    {
+      "grade": 12,
+      "n_lessons": 50
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+---
+<BaseLayout seo={{ title: 'Chính sách bảo mật', description: 'Chính sách bảo mật HocVui — tuân thủ COPPA và GDPR-K.', path: '/privacy' }} locale="vi" noindex>
+  <Header slot="nav" locale="vi" currentPath="/privacy" />
+  <Fragment slot="footer"><Footer locale="vi" /></Fragment>
+  <section class="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8 prose prose-purple">
+    <h1>Chính sách bảo mật</h1>
+    <p>Cập nhật lần cuối: 10/07/2026</p>
+    <p>HocVui tuân thủ COPPA (Mỹ) và GDPR-K (châu Âu) cho trẻ em dưới 13 tuổi.</p>
+    <h2>Thông tin chúng tôi thu thập</h2>
+    <ul>
+      <li>Email (khi đăng ký)</li>
+      <li>Tiến bộ học tập: bài đã làm, điểm, phong cách học</li>
+      <li>Thông tin kỹ thuật: trình duyệt, hệ điều hành, ngôn ngữ (để tối ưu hoá UI)</li>
+    </ul>
+    <h2>Thông tin chúng tôi KHÔNG thu thập</h2>
+    <ul>
+      <li>Họ tên thật, địa chỉ, số điện thoại (không bắt buộc)</li>
+      <li>Dữ liệu cho mục đích quảng cáo hành vi</li>
+      <li>Chia sẻ với bên thứ ba cho mục đích tiếp thị</li>
+    </ul>
+    <h2>Quyền của phụ huynh</h2>
+    <ul>
+      <li>Xem dữ liệu của con</li>
+      <li>Sửa hoặc xoá dữ liệu</li>
+      <li>Yêu cầu xoá tài khoản vĩnh viễn</li>
+    </ul>
+    <p>Liên hệ: <a href="mailto:privacy@sekklings.com">privacy@sekklings.com</a></p>
+  </section>
+</BaseLayout>

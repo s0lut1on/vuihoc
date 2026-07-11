@@ -1,0 +1,72 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import Newsletter from '../components/Newsletter.astro';
+
+const faqs = [
+  { q: 'Bé mấy tuổi dùng được HocVui?', a: 'Phù hợp nhất cho bé 5–7 tuổi (lớp 1–2 tiểu học). Nội dung có tới lớp 12 nhưng giao diện tối ưu cho lứa tuổi mầm non và tiểu học.' },
+  { q: 'HocVui có miễn phí không?', a: 'Có. Tài khoản miễn phí học 50 bài mỗi ngày, không cần thẻ tín dụng. Nâng cấp Premium mở khóa không giới hạn.' },
+  { q: 'Con tôi không thích Toán. HocVui có giúp được không?', a: 'Có. 4 phong cách học (Thành tích, Game, Từng bước, Im lặng) phù hợp với tính cách từng bé. Phong cách "Từng bước" đặc biệt phù hợp với bé hay nản.' },
+  { q: 'Có tiếng Việt và tiếng Anh không?', a: 'Có. Mỗi bài học có cả tiếng Việt và tiếng Anh. Bé có thể chuyển ngôn ngữ bất cứ lúc nào trong bài học.' },
+  { q: 'Cần cài đặt gì?', a: 'Không cần cài. HocVui chạy trên trình duyệt web (Chrome, Safari, Edge) và Android. Có thể thêm vào màn hình chính như app.' },
+  { q: 'Làm sao theo dõi tiến bộ của bé?', a: 'Tài khoản có Dashboard phụ huynh, mã PIN bảo vệ. Premium có báo cáo chi tiết hơn qua email.' },
+  { q: 'Dữ liệu của bé có an toàn không?', a: 'HocVui tuân thủ COPPA và GDPR-K. Dữ liệu cá nhân mã hoá, không chia sẻ bên thứ ba, có thể xoá tài khoản bất cứ lúc nào.' },
+  { q: 'Có dùng được trên iPad/iPhone không?', a: 'Được. Thêm HocVui vào màn hình chính (Share → Add to Home Screen) để dùng như app.' },
+];
+---
+<BaseLayout
+  seo={{ title: 'Câu hỏi thường gặp từ phụ huynh', description: 'HocVui cho bé 5-7 tuổi: miễn phí, song ngữ, phù hợp từng bé. FAQ + hướng dẫn phụ huynh.', path: '/parents' }}
+  locale="vi"
+  pageJsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: faqs.map((f) => ({
+        '@type': 'Question',
+        name: f.q,
+        acceptedAnswer: { '@type': 'Answer', text: f.a },
+      })),
+    },
+  ]}
+>
+  <Header slot="nav" locale="vi" currentPath="/parents" />
+  <Fragment slot="footer"><Footer locale="vi" /></Fragment>
+
+  <section class="bg-gradient-to-b from-pink-soft to-pink-bg py-12 sm:py-16">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <h1 class="font-display text-4xl font-extrabold text-purple-deep sm:text-5xl">Dành cho phụ huynh</h1>
+      <p class="mt-3 max-w-2xl text-lg text-purple-deep/70">
+        Câu hỏi thường gặp, hướng dẫn và cam kết của chúng tôi về quyền riêng tư của bé.
+      </p>
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
+    <div class="space-y-3">
+      {faqs.map((f, i) => (
+        <details class="group rounded-2xl border-2 border-pink-soft bg-white open:bg-pink-bg">
+          <summary class="flex cursor-pointer items-center justify-between p-5 font-bold text-purple-deep">
+            <span>{f.q}</span>
+            <span class="text-2xl text-pink-dark transition group-open:rotate-45">+</span>
+          </summary>
+          <div class="px-5 pb-5 text-purple-deep/80">{f.a}</div>
+        </details>
+      ))}
+    </div>
+
+    <div class="mt-12 rounded-3xl border-2 border-pink-soft bg-white p-6 sm:p-8">
+      <h2 class="font-display text-2xl font-extrabold text-purple-deep">Cam kết quyền riêng tư</h2>
+      <p class="mt-3 text-purple-deep/80">
+        HocVui tuân thủ <strong>COPPA</strong> (Mỹ) và <strong>GDPR-K</strong> (châu Âu) cho trẻ em dưới 13 tuổi.
+        Chúng tôi không thu thập thông tin cá nhân ngoài những gì cần thiết cho việc học,
+        không chia sẻ với bên thứ ba cho mục đích quảng cáo, và phụ huynh có thể xoá tài khoản + dữ liệu
+        bất cứ lúc nào qua <a href="mailto:privacy@sekklings.com" class="font-bold text-pink-dark hover:underline">privacy@sekklings.com</a>.
+      </p>
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-2xl px-4 pb-12 sm:px-6 lg:px-8">
+    <Newsletter locale="vi" source="parents-page" />
+  </section>
+</BaseLayout>

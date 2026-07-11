@@ -1,0 +1,1902 @@
+{
+  "numbers|1": {
+    "subject_id": "numbers",
+    "grade": 1,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Đếm số từ 0–13",
+      "Cộng trong phạm vi 13",
+      "Trừ trong phạm vi 13",
+      "So sánh 5 và 4",
+      "Điền số còn thiếu: 5, ?, 4",
+      "Tìm số lớn nhất trong nhóm"
+    ],
+    "sample_titles_en": [
+      "Đếm số từ 0–13 (Grade 1)",
+      "Cộng trong phạm vi 13 (Grade 1)",
+      "Trừ trong phạm vi 13 (Grade 1)",
+      "So sánh 5 và 4 (Grade 1)",
+      "Điền số còn thiếu: 5, ?, 4 (Grade 1)",
+      "Tìm số lớn nhất trong nhóm (Grade 1)"
+    ]
+  },
+  "numbers|2": {
+    "subject_id": "numbers",
+    "grade": 2,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Đếm số từ 0–13",
+      "Cộng trong phạm vi 13",
+      "Trừ trong phạm vi 13",
+      "So sánh 5 và 4",
+      "Điền số còn thiếu: 5, ?, 4",
+      "Tìm số lớn nhất trong nhóm"
+    ],
+    "sample_titles_en": [
+      "Đếm số từ 0–13 (Grade 2)",
+      "Cộng trong phạm vi 13 (Grade 2)",
+      "Trừ trong phạm vi 13 (Grade 2)",
+      "So sánh 5 và 4 (Grade 2)",
+      "Điền số còn thiếu: 5, ?, 4 (Grade 2)",
+      "Tìm số lớn nhất trong nhóm (Grade 2)"
+    ]
+  },
+  "numbers|3": {
+    "subject_id": "numbers",
+    "grade": 3,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Đếm số từ 0–18",
+      "Cộng trong phạm vi 18",
+      "Trừ trong phạm vi 18",
+      "So sánh 7 và 5",
+      "Điền số còn thiếu: 7, ?, 5",
+      "Tìm số lớn nhất trong nhóm"
+    ],
+    "sample_titles_en": [
+      "Đếm số từ 0–18 (Grade 3)",
+      "Cộng trong phạm vi 18 (Grade 3)",
+      "Trừ trong phạm vi 18 (Grade 3)",
+      "So sánh 7 và 5 (Grade 3)",
+      "Điền số còn thiếu: 7, ?, 5 (Grade 3)",
+      "Tìm số lớn nhất trong nhóm (Grade 3)"
+    ]
+  },
+  "numbers|4": {
+    "subject_id": "numbers",
+    "grade": 4,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Đếm số từ 0–23",
+      "Cộng trong phạm vi 23",
+      "Trừ trong phạm vi 23",
+      "So sánh 9 và 6",
+      "Điền số còn thiếu: 9, ?, 6",
+      "Tìm số lớn nhất trong nhóm"
+    ],
+    "sample_titles_en": [
+      "Đếm số từ 0–23 (Grade 4)",
+      "Cộng trong phạm vi 23 (Grade 4)",
+      "Trừ trong phạm vi 23 (Grade 4)",
+      "So sánh 9 và 6 (Grade 4)",
+      "Điền số còn thiếu: 9, ?, 6 (Grade 4)",
+      "Tìm số lớn nhất trong nhóm (Grade 4)"
+    ]
+  },
+  "numbers|5": {
+    "subject_id": "numbers",
+    "grade": 5,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Đếm số từ 0–28",
+      "Cộng trong phạm vi 28",
+      "Trừ trong phạm vi 28",
+      "So sánh 11 và 7",
+      "Điền số còn thiếu: 11, ?, 7",
+      "Tìm số lớn nhất trong nhóm"
+    ],
+    "sample_titles_en": [
+      "Đếm số từ 0–28 (Grade 5)",
+      "Cộng trong phạm vi 28 (Grade 5)",
+      "Trừ trong phạm vi 28 (Grade 5)",
+      "So sánh 11 và 7 (Grade 5)",
+      "Điền số còn thiếu: 11, ?, 7 (Grade 5)",
+      "Tìm số lớn nhất trong nhóm (Grade 5)"
+    ]
+  },
+  "numbers|6": {
+    "subject_id": "numbers",
+    "grade": 6,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Đếm số từ 0–33",
+      "Cộng trong phạm vi 33",
+      "Trừ trong phạm vi 33",
+      "So sánh 13 và 8",
+      "Điền số còn thiếu: 13, ?, 8",
+      "Tìm số lớn nhất trong nhóm"
+    ],
+    "sample_titles_en": [
+      "Đếm số từ 0–33 (Grade 6)",
+      "Cộng trong phạm vi 33 (Grade 6)",
+      "Trừ trong phạm vi 33 (Grade 6)",
+      "So sánh 13 và 8 (Grade 6)",
+      "Điền số còn thiếu: 13, ?, 8 (Grade 6)",
+      "Tìm số lớn nhất trong nhóm (Grade 6)"
+    ]
+  },
+  "numbers|7": {
+    "subject_id": "numbers",
+    "grade": 7,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Đếm số từ 0–38",
+      "Cộng trong phạm vi 38",
+      "Trừ trong phạm vi 38",
+      "So sánh 15 và 9",
+      "Điền số còn thiếu: 15, ?, 9",
+      "Tìm số lớn nhất trong nhóm"
+    ],
+    "sample_titles_en": [
+      "Đếm số từ 0–38 (Grade 7)",
+      "Cộng trong phạm vi 38 (Grade 7)",
+      "Trừ trong phạm vi 38 (Grade 7)",
+      "So sánh 15 và 9 (Grade 7)",
+      "Điền số còn thiếu: 15, ?, 9 (Grade 7)",
+      "Tìm số lớn nhất trong nhóm (Grade 7)"
+    ]
+  },
+  "numbers|8": {
+    "subject_id": "numbers",
+    "grade": 8,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Đếm số từ 0–43",
+      "Cộng trong phạm vi 43",
+      "Trừ trong phạm vi 43",
+      "So sánh 17 và 10",
+      "Điền số còn thiếu: 17, ?, 10",
+      "Tìm số lớn nhất trong nhóm"
+    ],
+    "sample_titles_en": [
+      "Đếm số từ 0–43 (Grade 8)",
+      "Cộng trong phạm vi 43 (Grade 8)",
+      "Trừ trong phạm vi 43 (Grade 8)",
+      "So sánh 17 và 10 (Grade 8)",
+      "Điền số còn thiếu: 17, ?, 10 (Grade 8)",
+      "Tìm số lớn nhất trong nhóm (Grade 8)"
+    ]
+  },
+  "numbers|9": {
+    "subject_id": "numbers",
+    "grade": 9,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Đếm số từ 0–48",
+      "Cộng trong phạm vi 48",
+      "Trừ trong phạm vi 48",
+      "So sánh 19 và 11",
+      "Điền số còn thiếu: 19, ?, 11",
+      "Tìm số lớn nhất trong nhóm"
+    ],
+    "sample_titles_en": [
+      "Đếm số từ 0–48 (Grade 9)",
+      "Cộng trong phạm vi 48 (Grade 9)",
+      "Trừ trong phạm vi 48 (Grade 9)",
+      "So sánh 19 và 11 (Grade 9)",
+      "Điền số còn thiếu: 19, ?, 11 (Grade 9)",
+      "Tìm số lớn nhất trong nhóm (Grade 9)"
+    ]
+  },
+  "numbers|10": {
+    "subject_id": "numbers",
+    "grade": 10,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Đếm số từ 0–53",
+      "Cộng trong phạm vi 53",
+      "Trừ trong phạm vi 53",
+      "So sánh 21 và 12",
+      "Điền số còn thiếu: 21, ?, 12",
+      "Tìm số lớn nhất trong nhóm"
+    ],
+    "sample_titles_en": [
+      "Đếm số từ 0–53 (Grade 10)",
+      "Cộng trong phạm vi 53 (Grade 10)",
+      "Trừ trong phạm vi 53 (Grade 10)",
+      "So sánh 21 và 12 (Grade 10)",
+      "Điền số còn thiếu: 21, ?, 12 (Grade 10)",
+      "Tìm số lớn nhất trong nhóm (Grade 10)"
+    ]
+  },
+  "numbers|11": {
+    "subject_id": "numbers",
+    "grade": 11,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Đếm số từ 0–58",
+      "Cộng trong phạm vi 58",
+      "Trừ trong phạm vi 58",
+      "So sánh 23 và 13",
+      "Điền số còn thiếu: 23, ?, 13",
+      "Tìm số lớn nhất trong nhóm"
+    ],
+    "sample_titles_en": [
+      "Đếm số từ 0–58 (Grade 11)",
+      "Cộng trong phạm vi 58 (Grade 11)",
+      "Trừ trong phạm vi 58 (Grade 11)",
+      "So sánh 23 và 13 (Grade 11)",
+      "Điền số còn thiếu: 23, ?, 13 (Grade 11)",
+      "Tìm số lớn nhất trong nhóm (Grade 11)"
+    ]
+  },
+  "numbers|12": {
+    "subject_id": "numbers",
+    "grade": 12,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Đếm số từ 0–63",
+      "Cộng trong phạm vi 63",
+      "Trừ trong phạm vi 63",
+      "So sánh 25 và 14",
+      "Điền số còn thiếu: 25, ?, 14",
+      "Tìm số lớn nhất trong nhóm"
+    ],
+    "sample_titles_en": [
+      "Đếm số từ 0–63 (Grade 12)",
+      "Cộng trong phạm vi 63 (Grade 12)",
+      "Trừ trong phạm vi 63 (Grade 12)",
+      "So sánh 25 và 14 (Grade 12)",
+      "Điền số còn thiếu: 25, ?, 14 (Grade 12)",
+      "Tìm số lớn nhất trong nhóm (Grade 12)"
+    ]
+  },
+  "geometry|1": {
+    "subject_id": "geometry",
+    "grade": 1,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Nhận biết hình vuông",
+      "Đếm số cạnh của hình vuông",
+      "Tìm hình ẩn trong tranh",
+      "Vẽ hình vuông theo mẫu",
+      "Ghép hình từ mảnh nhỏ",
+      "Tìm hình trong đồ vật xung quanh"
+    ],
+    "sample_titles_en": [
+      "Nhận biết hình vuông (Grade 1)",
+      "Đếm số cạnh của hình vuông (Grade 1)",
+      "Tìm hình ẩn trong tranh (Grade 1)",
+      "Vẽ hình vuông theo mẫu (Grade 1)",
+      "Ghép hình từ mảnh nhỏ (Grade 1)",
+      "Tìm hình trong đồ vật xung quanh (Grade 1)"
+    ]
+  },
+  "geometry|2": {
+    "subject_id": "geometry",
+    "grade": 2,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Nhận biết hình vuông",
+      "Đếm số cạnh của hình vuông",
+      "Tìm hình ẩn trong tranh",
+      "Vẽ hình vuông theo mẫu",
+      "Ghép hình từ mảnh nhỏ",
+      "Tìm hình trong đồ vật xung quanh"
+    ],
+    "sample_titles_en": [
+      "Nhận biết hình vuông (Grade 2)",
+      "Đếm số cạnh của hình vuông (Grade 2)",
+      "Tìm hình ẩn trong tranh (Grade 2)",
+      "Vẽ hình vuông theo mẫu (Grade 2)",
+      "Ghép hình từ mảnh nhỏ (Grade 2)",
+      "Tìm hình trong đồ vật xung quanh (Grade 2)"
+    ]
+  },
+  "geometry|3": {
+    "subject_id": "geometry",
+    "grade": 3,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Nhận biết hình tam giác",
+      "Đếm số cạnh của hình tam giác",
+      "Tìm hình ẩn trong tranh",
+      "Vẽ hình tam giác theo mẫu",
+      "Ghép hình từ mảnh nhỏ",
+      "Tìm hình trong đồ vật xung quanh"
+    ],
+    "sample_titles_en": [
+      "Nhận biết hình tam giác (Grade 3)",
+      "Đếm số cạnh của hình tam giác (Grade 3)",
+      "Tìm hình ẩn trong tranh (Grade 3)",
+      "Vẽ hình tam giác theo mẫu (Grade 3)",
+      "Ghép hình từ mảnh nhỏ (Grade 3)",
+      "Tìm hình trong đồ vật xung quanh (Grade 3)"
+    ]
+  },
+  "geometry|4": {
+    "subject_id": "geometry",
+    "grade": 4,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Nhận biết hình tam giác",
+      "Đếm số cạnh của hình tam giác",
+      "Tìm hình ẩn trong tranh",
+      "Vẽ hình tam giác theo mẫu",
+      "Ghép hình từ mảnh nhỏ",
+      "Tìm hình trong đồ vật xung quanh"
+    ],
+    "sample_titles_en": [
+      "Nhận biết hình tam giác (Grade 4)",
+      "Đếm số cạnh của hình tam giác (Grade 4)",
+      "Tìm hình ẩn trong tranh (Grade 4)",
+      "Vẽ hình tam giác theo mẫu (Grade 4)",
+      "Ghép hình từ mảnh nhỏ (Grade 4)",
+      "Tìm hình trong đồ vật xung quanh (Grade 4)"
+    ]
+  },
+  "geometry|5": {
+    "subject_id": "geometry",
+    "grade": 5,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Nhận biết hình tam giác",
+      "Đếm số cạnh của hình tam giác",
+      "Tìm hình ẩn trong tranh",
+      "Vẽ hình tam giác theo mẫu",
+      "Ghép hình từ mảnh nhỏ",
+      "Tìm hình trong đồ vật xung quanh"
+    ],
+    "sample_titles_en": [
+      "Nhận biết hình tam giác (Grade 5)",
+      "Đếm số cạnh của hình tam giác (Grade 5)",
+      "Tìm hình ẩn trong tranh (Grade 5)",
+      "Vẽ hình tam giác theo mẫu (Grade 5)",
+      "Ghép hình từ mảnh nhỏ (Grade 5)",
+      "Tìm hình trong đồ vật xung quanh (Grade 5)"
+    ]
+  },
+  "geometry|6": {
+    "subject_id": "geometry",
+    "grade": 6,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Nhận biết hình tam giác",
+      "Đếm số cạnh của hình tam giác",
+      "Tìm hình ẩn trong tranh",
+      "Vẽ hình tam giác theo mẫu",
+      "Ghép hình từ mảnh nhỏ",
+      "Tìm hình trong đồ vật xung quanh"
+    ],
+    "sample_titles_en": [
+      "Nhận biết hình tam giác (Grade 6)",
+      "Đếm số cạnh của hình tam giác (Grade 6)",
+      "Tìm hình ẩn trong tranh (Grade 6)",
+      "Vẽ hình tam giác theo mẫu (Grade 6)",
+      "Ghép hình từ mảnh nhỏ (Grade 6)",
+      "Tìm hình trong đồ vật xung quanh (Grade 6)"
+    ]
+  },
+  "geometry|7": {
+    "subject_id": "geometry",
+    "grade": 7,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Nhận biết hình tam giác",
+      "Đếm số cạnh của hình tam giác",
+      "Tìm hình ẩn trong tranh",
+      "Vẽ hình tam giác theo mẫu",
+      "Ghép hình từ mảnh nhỏ",
+      "Tìm hình trong đồ vật xung quanh"
+    ],
+    "sample_titles_en": [
+      "Nhận biết hình tam giác (Grade 7)",
+      "Đếm số cạnh của hình tam giác (Grade 7)",
+      "Tìm hình ẩn trong tranh (Grade 7)",
+      "Vẽ hình tam giác theo mẫu (Grade 7)",
+      "Ghép hình từ mảnh nhỏ (Grade 7)",
+      "Tìm hình trong đồ vật xung quanh (Grade 7)"
+    ]
+  },
+  "geometry|8": {
+    "subject_id": "geometry",
+    "grade": 8,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Nhận biết hình tam giác",
+      "Đếm số cạnh của hình tam giác",
+      "Tìm hình ẩn trong tranh",
+      "Vẽ hình tam giác theo mẫu",
+      "Ghép hình từ mảnh nhỏ",
+      "Tìm hình trong đồ vật xung quanh"
+    ],
+    "sample_titles_en": [
+      "Nhận biết hình tam giác (Grade 8)",
+      "Đếm số cạnh của hình tam giác (Grade 8)",
+      "Tìm hình ẩn trong tranh (Grade 8)",
+      "Vẽ hình tam giác theo mẫu (Grade 8)",
+      "Ghép hình từ mảnh nhỏ (Grade 8)",
+      "Tìm hình trong đồ vật xung quanh (Grade 8)"
+    ]
+  },
+  "geometry|9": {
+    "subject_id": "geometry",
+    "grade": 9,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Nhận biết hình tam giác",
+      "Đếm số cạnh của hình tam giác",
+      "Tìm hình ẩn trong tranh",
+      "Vẽ hình tam giác theo mẫu",
+      "Ghép hình từ mảnh nhỏ",
+      "Tìm hình trong đồ vật xung quanh"
+    ],
+    "sample_titles_en": [
+      "Nhận biết hình tam giác (Grade 9)",
+      "Đếm số cạnh của hình tam giác (Grade 9)",
+      "Tìm hình ẩn trong tranh (Grade 9)",
+      "Vẽ hình tam giác theo mẫu (Grade 9)",
+      "Ghép hình từ mảnh nhỏ (Grade 9)",
+      "Tìm hình trong đồ vật xung quanh (Grade 9)"
+    ]
+  },
+  "geometry|10": {
+    "subject_id": "geometry",
+    "grade": 10,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Nhận biết hình tam giác",
+      "Đếm số cạnh của hình tam giác",
+      "Tìm hình ẩn trong tranh",
+      "Vẽ hình tam giác theo mẫu",
+      "Ghép hình từ mảnh nhỏ",
+      "Tìm hình trong đồ vật xung quanh"
+    ],
+    "sample_titles_en": [
+      "Nhận biết hình tam giác (Grade 10)",
+      "Đếm số cạnh của hình tam giác (Grade 10)",
+      "Tìm hình ẩn trong tranh (Grade 10)",
+      "Vẽ hình tam giác theo mẫu (Grade 10)",
+      "Ghép hình từ mảnh nhỏ (Grade 10)",
+      "Tìm hình trong đồ vật xung quanh (Grade 10)"
+    ]
+  },
+  "geometry|11": {
+    "subject_id": "geometry",
+    "grade": 11,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Nhận biết hình tam giác",
+      "Đếm số cạnh của hình tam giác",
+      "Tìm hình ẩn trong tranh",
+      "Vẽ hình tam giác theo mẫu",
+      "Ghép hình từ mảnh nhỏ",
+      "Tìm hình trong đồ vật xung quanh"
+    ],
+    "sample_titles_en": [
+      "Nhận biết hình tam giác (Grade 11)",
+      "Đếm số cạnh của hình tam giác (Grade 11)",
+      "Tìm hình ẩn trong tranh (Grade 11)",
+      "Vẽ hình tam giác theo mẫu (Grade 11)",
+      "Ghép hình từ mảnh nhỏ (Grade 11)",
+      "Tìm hình trong đồ vật xung quanh (Grade 11)"
+    ]
+  },
+  "geometry|12": {
+    "subject_id": "geometry",
+    "grade": 12,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Nhận biết hình tam giác",
+      "Đếm số cạnh của hình tam giác",
+      "Tìm hình ẩn trong tranh",
+      "Vẽ hình tam giác theo mẫu",
+      "Ghép hình từ mảnh nhỏ",
+      "Tìm hình trong đồ vật xung quanh"
+    ],
+    "sample_titles_en": [
+      "Nhận biết hình tam giác (Grade 12)",
+      "Đếm số cạnh của hình tam giác (Grade 12)",
+      "Tìm hình ẩn trong tranh (Grade 12)",
+      "Vẽ hình tam giác theo mẫu (Grade 12)",
+      "Ghép hình từ mảnh nhỏ (Grade 12)",
+      "Tìm hình trong đồ vật xung quanh (Grade 12)"
+    ]
+  },
+  "measurement|1": {
+    "subject_id": "measurement",
+    "grade": 1,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Đo độ dài bằng thước (cm)",
+      "So sánh nặng/nhẹ",
+      "Đong nước bằng cốc (ml)",
+      "Xem giờ trên đồng hồ",
+      "Đếm tiền Việt Nam",
+      "Đo nhiệt độ (độ C)"
+    ],
+    "sample_titles_en": [
+      "Đo độ dài bằng thước (cm) (Grade 1)",
+      "So sánh nặng/nhẹ (Grade 1)",
+      "Đong nước bằng cốc (ml) (Grade 1)",
+      "Xem giờ trên đồng hồ (Grade 1)",
+      "Đếm tiền Việt Nam (Grade 1)",
+      "Đo nhiệt độ (độ C) (Grade 1)"
+    ]
+  },
+  "measurement|2": {
+    "subject_id": "measurement",
+    "grade": 2,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Đo độ dài bằng thước (cm)",
+      "So sánh nặng/nhẹ",
+      "Đong nước bằng cốc (ml)",
+      "Xem giờ trên đồng hồ",
+      "Đếm tiền Việt Nam",
+      "Đo nhiệt độ (độ C)"
+    ],
+    "sample_titles_en": [
+      "Đo độ dài bằng thước (cm) (Grade 2)",
+      "So sánh nặng/nhẹ (Grade 2)",
+      "Đong nước bằng cốc (ml) (Grade 2)",
+      "Xem giờ trên đồng hồ (Grade 2)",
+      "Đếm tiền Việt Nam (Grade 2)",
+      "Đo nhiệt độ (độ C) (Grade 2)"
+    ]
+  },
+  "measurement|3": {
+    "subject_id": "measurement",
+    "grade": 3,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Đo độ dài bằng thước (cm)",
+      "So sánh nặng/nhẹ",
+      "Đong nước bằng cốc (ml)",
+      "Xem giờ trên đồng hồ",
+      "Đếm tiền Việt Nam",
+      "Đo nhiệt độ (độ C)"
+    ],
+    "sample_titles_en": [
+      "Đo độ dài bằng thước (cm) (Grade 3)",
+      "So sánh nặng/nhẹ (Grade 3)",
+      "Đong nước bằng cốc (ml) (Grade 3)",
+      "Xem giờ trên đồng hồ (Grade 3)",
+      "Đếm tiền Việt Nam (Grade 3)",
+      "Đo nhiệt độ (độ C) (Grade 3)"
+    ]
+  },
+  "measurement|4": {
+    "subject_id": "measurement",
+    "grade": 4,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Đo độ dài bằng thước (cm)",
+      "So sánh nặng/nhẹ",
+      "Đong nước bằng cốc (ml)",
+      "Xem giờ trên đồng hồ",
+      "Đếm tiền Việt Nam",
+      "Đo nhiệt độ (độ C)"
+    ],
+    "sample_titles_en": [
+      "Đo độ dài bằng thước (cm) (Grade 4)",
+      "So sánh nặng/nhẹ (Grade 4)",
+      "Đong nước bằng cốc (ml) (Grade 4)",
+      "Xem giờ trên đồng hồ (Grade 4)",
+      "Đếm tiền Việt Nam (Grade 4)",
+      "Đo nhiệt độ (độ C) (Grade 4)"
+    ]
+  },
+  "measurement|5": {
+    "subject_id": "measurement",
+    "grade": 5,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Đo độ dài bằng thước (cm)",
+      "So sánh nặng/nhẹ",
+      "Đong nước bằng cốc (ml)",
+      "Xem giờ trên đồng hồ",
+      "Đếm tiền Việt Nam",
+      "Đo nhiệt độ (độ C)"
+    ],
+    "sample_titles_en": [
+      "Đo độ dài bằng thước (cm) (Grade 5)",
+      "So sánh nặng/nhẹ (Grade 5)",
+      "Đong nước bằng cốc (ml) (Grade 5)",
+      "Xem giờ trên đồng hồ (Grade 5)",
+      "Đếm tiền Việt Nam (Grade 5)",
+      "Đo nhiệt độ (độ C) (Grade 5)"
+    ]
+  },
+  "measurement|6": {
+    "subject_id": "measurement",
+    "grade": 6,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Đo độ dài bằng thước (cm)",
+      "So sánh nặng/nhẹ",
+      "Đong nước bằng cốc (ml)",
+      "Xem giờ trên đồng hồ",
+      "Đếm tiền Việt Nam",
+      "Đo nhiệt độ (độ C)"
+    ],
+    "sample_titles_en": [
+      "Đo độ dài bằng thước (cm) (Grade 6)",
+      "So sánh nặng/nhẹ (Grade 6)",
+      "Đong nước bằng cốc (ml) (Grade 6)",
+      "Xem giờ trên đồng hồ (Grade 6)",
+      "Đếm tiền Việt Nam (Grade 6)",
+      "Đo nhiệt độ (độ C) (Grade 6)"
+    ]
+  },
+  "measurement|7": {
+    "subject_id": "measurement",
+    "grade": 7,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Đo độ dài bằng thước (cm)",
+      "So sánh nặng/nhẹ",
+      "Đong nước bằng cốc (ml)",
+      "Xem giờ trên đồng hồ",
+      "Đếm tiền Việt Nam",
+      "Đo nhiệt độ (độ C)"
+    ],
+    "sample_titles_en": [
+      "Đo độ dài bằng thước (cm) (Grade 7)",
+      "So sánh nặng/nhẹ (Grade 7)",
+      "Đong nước bằng cốc (ml) (Grade 7)",
+      "Xem giờ trên đồng hồ (Grade 7)",
+      "Đếm tiền Việt Nam (Grade 7)",
+      "Đo nhiệt độ (độ C) (Grade 7)"
+    ]
+  },
+  "measurement|8": {
+    "subject_id": "measurement",
+    "grade": 8,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Đo độ dài bằng thước (cm)",
+      "So sánh nặng/nhẹ",
+      "Đong nước bằng cốc (ml)",
+      "Xem giờ trên đồng hồ",
+      "Đếm tiền Việt Nam",
+      "Đo nhiệt độ (độ C)"
+    ],
+    "sample_titles_en": [
+      "Đo độ dài bằng thước (cm) (Grade 8)",
+      "So sánh nặng/nhẹ (Grade 8)",
+      "Đong nước bằng cốc (ml) (Grade 8)",
+      "Xem giờ trên đồng hồ (Grade 8)",
+      "Đếm tiền Việt Nam (Grade 8)",
+      "Đo nhiệt độ (độ C) (Grade 8)"
+    ]
+  },
+  "measurement|9": {
+    "subject_id": "measurement",
+    "grade": 9,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Đo độ dài bằng thước (cm)",
+      "So sánh nặng/nhẹ",
+      "Đong nước bằng cốc (ml)",
+      "Xem giờ trên đồng hồ",
+      "Đếm tiền Việt Nam",
+      "Đo nhiệt độ (độ C)"
+    ],
+    "sample_titles_en": [
+      "Đo độ dài bằng thước (cm) (Grade 9)",
+      "So sánh nặng/nhẹ (Grade 9)",
+      "Đong nước bằng cốc (ml) (Grade 9)",
+      "Xem giờ trên đồng hồ (Grade 9)",
+      "Đếm tiền Việt Nam (Grade 9)",
+      "Đo nhiệt độ (độ C) (Grade 9)"
+    ]
+  },
+  "measurement|10": {
+    "subject_id": "measurement",
+    "grade": 10,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Đo độ dài bằng thước (cm)",
+      "So sánh nặng/nhẹ",
+      "Đong nước bằng cốc (ml)",
+      "Xem giờ trên đồng hồ",
+      "Đếm tiền Việt Nam",
+      "Đo nhiệt độ (độ C)"
+    ],
+    "sample_titles_en": [
+      "Đo độ dài bằng thước (cm) (Grade 10)",
+      "So sánh nặng/nhẹ (Grade 10)",
+      "Đong nước bằng cốc (ml) (Grade 10)",
+      "Xem giờ trên đồng hồ (Grade 10)",
+      "Đếm tiền Việt Nam (Grade 10)",
+      "Đo nhiệt độ (độ C) (Grade 10)"
+    ]
+  },
+  "measurement|11": {
+    "subject_id": "measurement",
+    "grade": 11,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Đo độ dài bằng thước (cm)",
+      "So sánh nặng/nhẹ",
+      "Đong nước bằng cốc (ml)",
+      "Xem giờ trên đồng hồ",
+      "Đếm tiền Việt Nam",
+      "Đo nhiệt độ (độ C)"
+    ],
+    "sample_titles_en": [
+      "Đo độ dài bằng thước (cm) (Grade 11)",
+      "So sánh nặng/nhẹ (Grade 11)",
+      "Đong nước bằng cốc (ml) (Grade 11)",
+      "Xem giờ trên đồng hồ (Grade 11)",
+      "Đếm tiền Việt Nam (Grade 11)",
+      "Đo nhiệt độ (độ C) (Grade 11)"
+    ]
+  },
+  "measurement|12": {
+    "subject_id": "measurement",
+    "grade": 12,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Đo độ dài bằng thước (cm)",
+      "So sánh nặng/nhẹ",
+      "Đong nước bằng cốc (ml)",
+      "Xem giờ trên đồng hồ",
+      "Đếm tiền Việt Nam",
+      "Đo nhiệt độ (độ C)"
+    ],
+    "sample_titles_en": [
+      "Đo độ dài bằng thước (cm) (Grade 12)",
+      "So sánh nặng/nhẹ (Grade 12)",
+      "Đong nước bằng cốc (ml) (Grade 12)",
+      "Xem giờ trên đồng hồ (Grade 12)",
+      "Đếm tiền Việt Nam (Grade 12)",
+      "Đo nhiệt độ (độ C) (Grade 12)"
+    ]
+  },
+  "logic|1": {
+    "subject_id": "logic",
+    "grade": 1,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Tìm quy luật: 5, 4, ?, 6",
+      "Tìm hình khác biệt",
+      "Sắp xếp theo thứ tự",
+      "Phân loại đồ vật",
+      "Câu đố logic",
+      "Puzzle ghép hình"
+    ],
+    "sample_titles_en": [
+      "Tìm quy luật: 5, 4, ?, 6 (Grade 1)",
+      "Tìm hình khác biệt (Grade 1)",
+      "Sắp xếp theo thứ tự (Grade 1)",
+      "Phân loại đồ vật (Grade 1)",
+      "Câu đố logic (Grade 1)",
+      "Puzzle ghép hình (Grade 1)"
+    ]
+  },
+  "logic|2": {
+    "subject_id": "logic",
+    "grade": 2,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Tìm quy luật: 5, 4, ?, 6",
+      "Tìm hình khác biệt",
+      "Sắp xếp theo thứ tự",
+      "Phân loại đồ vật",
+      "Câu đố logic",
+      "Puzzle ghép hình"
+    ],
+    "sample_titles_en": [
+      "Tìm quy luật: 5, 4, ?, 6 (Grade 2)",
+      "Tìm hình khác biệt (Grade 2)",
+      "Sắp xếp theo thứ tự (Grade 2)",
+      "Phân loại đồ vật (Grade 2)",
+      "Câu đố logic (Grade 2)",
+      "Puzzle ghép hình (Grade 2)"
+    ]
+  },
+  "logic|3": {
+    "subject_id": "logic",
+    "grade": 3,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Tìm quy luật: 7, 5, ?, 9",
+      "Tìm hình khác biệt",
+      "Sắp xếp theo thứ tự",
+      "Phân loại đồ vật",
+      "Câu đố logic",
+      "Puzzle ghép hình"
+    ],
+    "sample_titles_en": [
+      "Tìm quy luật: 7, 5, ?, 9 (Grade 3)",
+      "Tìm hình khác biệt (Grade 3)",
+      "Sắp xếp theo thứ tự (Grade 3)",
+      "Phân loại đồ vật (Grade 3)",
+      "Câu đố logic (Grade 3)",
+      "Puzzle ghép hình (Grade 3)"
+    ]
+  },
+  "logic|4": {
+    "subject_id": "logic",
+    "grade": 4,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Tìm quy luật: 9, 6, ?, 12",
+      "Tìm hình khác biệt",
+      "Sắp xếp theo thứ tự",
+      "Phân loại đồ vật",
+      "Câu đố logic",
+      "Puzzle ghép hình"
+    ],
+    "sample_titles_en": [
+      "Tìm quy luật: 9, 6, ?, 12 (Grade 4)",
+      "Tìm hình khác biệt (Grade 4)",
+      "Sắp xếp theo thứ tự (Grade 4)",
+      "Phân loại đồ vật (Grade 4)",
+      "Câu đố logic (Grade 4)",
+      "Puzzle ghép hình (Grade 4)"
+    ]
+  },
+  "logic|5": {
+    "subject_id": "logic",
+    "grade": 5,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Tìm quy luật: 11, 7, ?, 15",
+      "Tìm hình khác biệt",
+      "Sắp xếp theo thứ tự",
+      "Phân loại đồ vật",
+      "Câu đố logic",
+      "Puzzle ghép hình"
+    ],
+    "sample_titles_en": [
+      "Tìm quy luật: 11, 7, ?, 15 (Grade 5)",
+      "Tìm hình khác biệt (Grade 5)",
+      "Sắp xếp theo thứ tự (Grade 5)",
+      "Phân loại đồ vật (Grade 5)",
+      "Câu đố logic (Grade 5)",
+      "Puzzle ghép hình (Grade 5)"
+    ]
+  },
+  "logic|6": {
+    "subject_id": "logic",
+    "grade": 6,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Tìm quy luật: 13, 8, ?, 18",
+      "Tìm hình khác biệt",
+      "Sắp xếp theo thứ tự",
+      "Phân loại đồ vật",
+      "Câu đố logic",
+      "Puzzle ghép hình"
+    ],
+    "sample_titles_en": [
+      "Tìm quy luật: 13, 8, ?, 18 (Grade 6)",
+      "Tìm hình khác biệt (Grade 6)",
+      "Sắp xếp theo thứ tự (Grade 6)",
+      "Phân loại đồ vật (Grade 6)",
+      "Câu đố logic (Grade 6)",
+      "Puzzle ghép hình (Grade 6)"
+    ]
+  },
+  "logic|7": {
+    "subject_id": "logic",
+    "grade": 7,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Tìm quy luật: 15, 9, ?, 21",
+      "Tìm hình khác biệt",
+      "Sắp xếp theo thứ tự",
+      "Phân loại đồ vật",
+      "Câu đố logic",
+      "Puzzle ghép hình"
+    ],
+    "sample_titles_en": [
+      "Tìm quy luật: 15, 9, ?, 21 (Grade 7)",
+      "Tìm hình khác biệt (Grade 7)",
+      "Sắp xếp theo thứ tự (Grade 7)",
+      "Phân loại đồ vật (Grade 7)",
+      "Câu đố logic (Grade 7)",
+      "Puzzle ghép hình (Grade 7)"
+    ]
+  },
+  "logic|8": {
+    "subject_id": "logic",
+    "grade": 8,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Tìm quy luật: 17, 10, ?, 24",
+      "Tìm hình khác biệt",
+      "Sắp xếp theo thứ tự",
+      "Phân loại đồ vật",
+      "Câu đố logic",
+      "Puzzle ghép hình"
+    ],
+    "sample_titles_en": [
+      "Tìm quy luật: 17, 10, ?, 24 (Grade 8)",
+      "Tìm hình khác biệt (Grade 8)",
+      "Sắp xếp theo thứ tự (Grade 8)",
+      "Phân loại đồ vật (Grade 8)",
+      "Câu đố logic (Grade 8)",
+      "Puzzle ghép hình (Grade 8)"
+    ]
+  },
+  "logic|9": {
+    "subject_id": "logic",
+    "grade": 9,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Tìm quy luật: 19, 11, ?, 27",
+      "Tìm hình khác biệt",
+      "Sắp xếp theo thứ tự",
+      "Phân loại đồ vật",
+      "Câu đố logic",
+      "Puzzle ghép hình"
+    ],
+    "sample_titles_en": [
+      "Tìm quy luật: 19, 11, ?, 27 (Grade 9)",
+      "Tìm hình khác biệt (Grade 9)",
+      "Sắp xếp theo thứ tự (Grade 9)",
+      "Phân loại đồ vật (Grade 9)",
+      "Câu đố logic (Grade 9)",
+      "Puzzle ghép hình (Grade 9)"
+    ]
+  },
+  "logic|10": {
+    "subject_id": "logic",
+    "grade": 10,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Tìm quy luật: 21, 12, ?, 30",
+      "Tìm hình khác biệt",
+      "Sắp xếp theo thứ tự",
+      "Phân loại đồ vật",
+      "Câu đố logic",
+      "Puzzle ghép hình"
+    ],
+    "sample_titles_en": [
+      "Tìm quy luật: 21, 12, ?, 30 (Grade 10)",
+      "Tìm hình khác biệt (Grade 10)",
+      "Sắp xếp theo thứ tự (Grade 10)",
+      "Phân loại đồ vật (Grade 10)",
+      "Câu đố logic (Grade 10)",
+      "Puzzle ghép hình (Grade 10)"
+    ]
+  },
+  "logic|11": {
+    "subject_id": "logic",
+    "grade": 11,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Tìm quy luật: 23, 13, ?, 33",
+      "Tìm hình khác biệt",
+      "Sắp xếp theo thứ tự",
+      "Phân loại đồ vật",
+      "Câu đố logic",
+      "Puzzle ghép hình"
+    ],
+    "sample_titles_en": [
+      "Tìm quy luật: 23, 13, ?, 33 (Grade 11)",
+      "Tìm hình khác biệt (Grade 11)",
+      "Sắp xếp theo thứ tự (Grade 11)",
+      "Phân loại đồ vật (Grade 11)",
+      "Câu đố logic (Grade 11)",
+      "Puzzle ghép hình (Grade 11)"
+    ]
+  },
+  "logic|12": {
+    "subject_id": "logic",
+    "grade": 12,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Tìm quy luật: 25, 14, ?, 36",
+      "Tìm hình khác biệt",
+      "Sắp xếp theo thứ tự",
+      "Phân loại đồ vật",
+      "Câu đố logic",
+      "Puzzle ghép hình"
+    ],
+    "sample_titles_en": [
+      "Tìm quy luật: 25, 14, ?, 36 (Grade 12)",
+      "Tìm hình khác biệt (Grade 12)",
+      "Sắp xếp theo thứ tự (Grade 12)",
+      "Phân loại đồ vật (Grade 12)",
+      "Câu đố logic (Grade 12)",
+      "Puzzle ghép hình (Grade 12)"
+    ]
+  },
+  "algebra|2": {
+    "subject_id": "algebra",
+    "grade": 2,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Tìm quy luật dãy số",
+      "Tìm x: x + 5 = 4",
+      "Tìm x: x − 5 = 4",
+      "Cân bằng phương trình đơn giản",
+      "Tính giá trị biểu thức",
+      "Điền số vào bảng số"
+    ],
+    "sample_titles_en": [
+      "Tìm quy luật dãy số (Grade 2)",
+      "Tìm x: x + 5 = 4 (Grade 2)",
+      "Tìm x: x − 5 = 4 (Grade 2)",
+      "Cân bằng phương trình đơn giản (Grade 2)",
+      "Tính giá trị biểu thức (Grade 2)",
+      "Điền số vào bảng số (Grade 2)"
+    ]
+  },
+  "algebra|3": {
+    "subject_id": "algebra",
+    "grade": 3,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Tìm quy luật dãy số",
+      "Tìm x: x + 7 = 5",
+      "Tìm x: x − 7 = 5",
+      "Cân bằng phương trình đơn giản",
+      "Tính giá trị biểu thức",
+      "Điền số vào bảng số"
+    ],
+    "sample_titles_en": [
+      "Tìm quy luật dãy số (Grade 3)",
+      "Tìm x: x + 7 = 5 (Grade 3)",
+      "Tìm x: x − 7 = 5 (Grade 3)",
+      "Cân bằng phương trình đơn giản (Grade 3)",
+      "Tính giá trị biểu thức (Grade 3)",
+      "Điền số vào bảng số (Grade 3)"
+    ]
+  },
+  "algebra|4": {
+    "subject_id": "algebra",
+    "grade": 4,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Tìm quy luật dãy số",
+      "Tìm x: x + 9 = 6",
+      "Tìm x: x − 9 = 6",
+      "Cân bằng phương trình đơn giản",
+      "Tính giá trị biểu thức",
+      "Điền số vào bảng số"
+    ],
+    "sample_titles_en": [
+      "Tìm quy luật dãy số (Grade 4)",
+      "Tìm x: x + 9 = 6 (Grade 4)",
+      "Tìm x: x − 9 = 6 (Grade 4)",
+      "Cân bằng phương trình đơn giản (Grade 4)",
+      "Tính giá trị biểu thức (Grade 4)",
+      "Điền số vào bảng số (Grade 4)"
+    ]
+  },
+  "algebra|5": {
+    "subject_id": "algebra",
+    "grade": 5,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Tìm quy luật dãy số",
+      "Tìm x: x + 11 = 7",
+      "Tìm x: x − 11 = 7",
+      "Cân bằng phương trình đơn giản",
+      "Tính giá trị biểu thức",
+      "Điền số vào bảng số"
+    ],
+    "sample_titles_en": [
+      "Tìm quy luật dãy số (Grade 5)",
+      "Tìm x: x + 11 = 7 (Grade 5)",
+      "Tìm x: x − 11 = 7 (Grade 5)",
+      "Cân bằng phương trình đơn giản (Grade 5)",
+      "Tính giá trị biểu thức (Grade 5)",
+      "Điền số vào bảng số (Grade 5)"
+    ]
+  },
+  "algebra|6": {
+    "subject_id": "algebra",
+    "grade": 6,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Tìm quy luật dãy số",
+      "Tìm x: x + 13 = 8",
+      "Tìm x: x − 13 = 8",
+      "Cân bằng phương trình đơn giản",
+      "Tính giá trị biểu thức",
+      "Điền số vào bảng số"
+    ],
+    "sample_titles_en": [
+      "Tìm quy luật dãy số (Grade 6)",
+      "Tìm x: x + 13 = 8 (Grade 6)",
+      "Tìm x: x − 13 = 8 (Grade 6)",
+      "Cân bằng phương trình đơn giản (Grade 6)",
+      "Tính giá trị biểu thức (Grade 6)",
+      "Điền số vào bảng số (Grade 6)"
+    ]
+  },
+  "algebra|7": {
+    "subject_id": "algebra",
+    "grade": 7,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Tìm quy luật dãy số",
+      "Tìm x: x + 15 = 9",
+      "Tìm x: x − 15 = 9",
+      "Cân bằng phương trình đơn giản",
+      "Tính giá trị biểu thức",
+      "Điền số vào bảng số"
+    ],
+    "sample_titles_en": [
+      "Tìm quy luật dãy số (Grade 7)",
+      "Tìm x: x + 15 = 9 (Grade 7)",
+      "Tìm x: x − 15 = 9 (Grade 7)",
+      "Cân bằng phương trình đơn giản (Grade 7)",
+      "Tính giá trị biểu thức (Grade 7)",
+      "Điền số vào bảng số (Grade 7)"
+    ]
+  },
+  "algebra|8": {
+    "subject_id": "algebra",
+    "grade": 8,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Tìm quy luật dãy số",
+      "Tìm x: x + 17 = 10",
+      "Tìm x: x − 17 = 10",
+      "Cân bằng phương trình đơn giản",
+      "Tính giá trị biểu thức",
+      "Điền số vào bảng số"
+    ],
+    "sample_titles_en": [
+      "Tìm quy luật dãy số (Grade 8)",
+      "Tìm x: x + 17 = 10 (Grade 8)",
+      "Tìm x: x − 17 = 10 (Grade 8)",
+      "Cân bằng phương trình đơn giản (Grade 8)",
+      "Tính giá trị biểu thức (Grade 8)",
+      "Điền số vào bảng số (Grade 8)"
+    ]
+  },
+  "algebra|9": {
+    "subject_id": "algebra",
+    "grade": 9,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Tìm quy luật dãy số",
+      "Tìm x: x + 19 = 11",
+      "Tìm x: x − 19 = 11",
+      "Cân bằng phương trình đơn giản",
+      "Tính giá trị biểu thức",
+      "Điền số vào bảng số"
+    ],
+    "sample_titles_en": [
+      "Tìm quy luật dãy số (Grade 9)",
+      "Tìm x: x + 19 = 11 (Grade 9)",
+      "Tìm x: x − 19 = 11 (Grade 9)",
+      "Cân bằng phương trình đơn giản (Grade 9)",
+      "Tính giá trị biểu thức (Grade 9)",
+      "Điền số vào bảng số (Grade 9)"
+    ]
+  },
+  "algebra|10": {
+    "subject_id": "algebra",
+    "grade": 10,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Tìm quy luật dãy số",
+      "Tìm x: x + 21 = 12",
+      "Tìm x: x − 21 = 12",
+      "Cân bằng phương trình đơn giản",
+      "Tính giá trị biểu thức",
+      "Điền số vào bảng số"
+    ],
+    "sample_titles_en": [
+      "Tìm quy luật dãy số (Grade 10)",
+      "Tìm x: x + 21 = 12 (Grade 10)",
+      "Tìm x: x − 21 = 12 (Grade 10)",
+      "Cân bằng phương trình đơn giản (Grade 10)",
+      "Tính giá trị biểu thức (Grade 10)",
+      "Điền số vào bảng số (Grade 10)"
+    ]
+  },
+  "algebra|11": {
+    "subject_id": "algebra",
+    "grade": 11,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Tìm quy luật dãy số",
+      "Tìm x: x + 23 = 13",
+      "Tìm x: x − 23 = 13",
+      "Cân bằng phương trình đơn giản",
+      "Tính giá trị biểu thức",
+      "Điền số vào bảng số"
+    ],
+    "sample_titles_en": [
+      "Tìm quy luật dãy số (Grade 11)",
+      "Tìm x: x + 23 = 13 (Grade 11)",
+      "Tìm x: x − 23 = 13 (Grade 11)",
+      "Cân bằng phương trình đơn giản (Grade 11)",
+      "Tính giá trị biểu thức (Grade 11)",
+      "Điền số vào bảng số (Grade 11)"
+    ]
+  },
+  "algebra|12": {
+    "subject_id": "algebra",
+    "grade": 12,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Tìm quy luật dãy số",
+      "Tìm x: x + 25 = 14",
+      "Tìm x: x − 25 = 14",
+      "Cân bằng phương trình đơn giản",
+      "Tính giá trị biểu thức",
+      "Điền số vào bảng số"
+    ],
+    "sample_titles_en": [
+      "Tìm quy luật dãy số (Grade 12)",
+      "Tìm x: x + 25 = 14 (Grade 12)",
+      "Tìm x: x − 25 = 14 (Grade 12)",
+      "Cân bằng phương trình đơn giản (Grade 12)",
+      "Tính giá trị biểu thức (Grade 12)",
+      "Điền số vào bảng số (Grade 12)"
+    ]
+  },
+  "trigonometry|3": {
+    "subject_id": "trigonometry",
+    "grade": 3,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Vẽ và đo góc 18°",
+      "Tính sin(18°)",
+      "Tính cos(18°)",
+      "Tính tan(18°)",
+      "Giải tam giác vuông",
+      "Bài toán chiều cao toà nhà"
+    ],
+    "sample_titles_en": [
+      "Vẽ và đo góc 18° (Grade 3)",
+      "Tính sin(18°) (Grade 3)",
+      "Tính cos(18°) (Grade 3)",
+      "Tính tan(18°) (Grade 3)",
+      "Giải tam giác vuông (Grade 3)",
+      "Bài toán chiều cao toà nhà (Grade 3)"
+    ]
+  },
+  "trigonometry|4": {
+    "subject_id": "trigonometry",
+    "grade": 4,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Vẽ và đo góc 23°",
+      "Tính sin(23°)",
+      "Tính cos(23°)",
+      "Tính tan(23°)",
+      "Giải tam giác vuông",
+      "Bài toán chiều cao toà nhà"
+    ],
+    "sample_titles_en": [
+      "Vẽ và đo góc 23° (Grade 4)",
+      "Tính sin(23°) (Grade 4)",
+      "Tính cos(23°) (Grade 4)",
+      "Tính tan(23°) (Grade 4)",
+      "Giải tam giác vuông (Grade 4)",
+      "Bài toán chiều cao toà nhà (Grade 4)"
+    ]
+  },
+  "trigonometry|5": {
+    "subject_id": "trigonometry",
+    "grade": 5,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Vẽ và đo góc 28°",
+      "Tính sin(28°)",
+      "Tính cos(28°)",
+      "Tính tan(28°)",
+      "Giải tam giác vuông",
+      "Bài toán chiều cao toà nhà"
+    ],
+    "sample_titles_en": [
+      "Vẽ và đo góc 28° (Grade 5)",
+      "Tính sin(28°) (Grade 5)",
+      "Tính cos(28°) (Grade 5)",
+      "Tính tan(28°) (Grade 5)",
+      "Giải tam giác vuông (Grade 5)",
+      "Bài toán chiều cao toà nhà (Grade 5)"
+    ]
+  },
+  "trigonometry|6": {
+    "subject_id": "trigonometry",
+    "grade": 6,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Vẽ và đo góc 33°",
+      "Tính sin(33°)",
+      "Tính cos(33°)",
+      "Tính tan(33°)",
+      "Giải tam giác vuông",
+      "Bài toán chiều cao toà nhà"
+    ],
+    "sample_titles_en": [
+      "Vẽ và đo góc 33° (Grade 6)",
+      "Tính sin(33°) (Grade 6)",
+      "Tính cos(33°) (Grade 6)",
+      "Tính tan(33°) (Grade 6)",
+      "Giải tam giác vuông (Grade 6)",
+      "Bài toán chiều cao toà nhà (Grade 6)"
+    ]
+  },
+  "trigonometry|7": {
+    "subject_id": "trigonometry",
+    "grade": 7,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Vẽ và đo góc 38°",
+      "Tính sin(38°)",
+      "Tính cos(38°)",
+      "Tính tan(38°)",
+      "Giải tam giác vuông",
+      "Bài toán chiều cao toà nhà"
+    ],
+    "sample_titles_en": [
+      "Vẽ và đo góc 38° (Grade 7)",
+      "Tính sin(38°) (Grade 7)",
+      "Tính cos(38°) (Grade 7)",
+      "Tính tan(38°) (Grade 7)",
+      "Giải tam giác vuông (Grade 7)",
+      "Bài toán chiều cao toà nhà (Grade 7)"
+    ]
+  },
+  "trigonometry|8": {
+    "subject_id": "trigonometry",
+    "grade": 8,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Vẽ và đo góc 43°",
+      "Tính sin(43°)",
+      "Tính cos(43°)",
+      "Tính tan(43°)",
+      "Giải tam giác vuông",
+      "Bài toán chiều cao toà nhà"
+    ],
+    "sample_titles_en": [
+      "Vẽ và đo góc 43° (Grade 8)",
+      "Tính sin(43°) (Grade 8)",
+      "Tính cos(43°) (Grade 8)",
+      "Tính tan(43°) (Grade 8)",
+      "Giải tam giác vuông (Grade 8)",
+      "Bài toán chiều cao toà nhà (Grade 8)"
+    ]
+  },
+  "trigonometry|9": {
+    "subject_id": "trigonometry",
+    "grade": 9,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Vẽ và đo góc 48°",
+      "Tính sin(48°)",
+      "Tính cos(48°)",
+      "Tính tan(48°)",
+      "Giải tam giác vuông",
+      "Bài toán chiều cao toà nhà"
+    ],
+    "sample_titles_en": [
+      "Vẽ và đo góc 48° (Grade 9)",
+      "Tính sin(48°) (Grade 9)",
+      "Tính cos(48°) (Grade 9)",
+      "Tính tan(48°) (Grade 9)",
+      "Giải tam giác vuông (Grade 9)",
+      "Bài toán chiều cao toà nhà (Grade 9)"
+    ]
+  },
+  "trigonometry|10": {
+    "subject_id": "trigonometry",
+    "grade": 10,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Vẽ và đo góc 53°",
+      "Tính sin(53°)",
+      "Tính cos(53°)",
+      "Tính tan(53°)",
+      "Giải tam giác vuông",
+      "Bài toán chiều cao toà nhà"
+    ],
+    "sample_titles_en": [
+      "Vẽ và đo góc 53° (Grade 10)",
+      "Tính sin(53°) (Grade 10)",
+      "Tính cos(53°) (Grade 10)",
+      "Tính tan(53°) (Grade 10)",
+      "Giải tam giác vuông (Grade 10)",
+      "Bài toán chiều cao toà nhà (Grade 10)"
+    ]
+  },
+  "trigonometry|11": {
+    "subject_id": "trigonometry",
+    "grade": 11,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Vẽ và đo góc 58°",
+      "Tính sin(58°)",
+      "Tính cos(58°)",
+      "Tính tan(58°)",
+      "Giải tam giác vuông",
+      "Bài toán chiều cao toà nhà"
+    ],
+    "sample_titles_en": [
+      "Vẽ và đo góc 58° (Grade 11)",
+      "Tính sin(58°) (Grade 11)",
+      "Tính cos(58°) (Grade 11)",
+      "Tính tan(58°) (Grade 11)",
+      "Giải tam giác vuông (Grade 11)",
+      "Bài toán chiều cao toà nhà (Grade 11)"
+    ]
+  },
+  "trigonometry|12": {
+    "subject_id": "trigonometry",
+    "grade": 12,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Vẽ và đo góc 63°",
+      "Tính sin(63°)",
+      "Tính cos(63°)",
+      "Tính tan(63°)",
+      "Giải tam giác vuông",
+      "Bài toán chiều cao toà nhà"
+    ],
+    "sample_titles_en": [
+      "Vẽ và đo góc 63° (Grade 12)",
+      "Tính sin(63°) (Grade 12)",
+      "Tính cos(63°) (Grade 12)",
+      "Tính tan(63°) (Grade 12)",
+      "Giải tam giác vuông (Grade 12)",
+      "Bài toán chiều cao toà nhà (Grade 12)"
+    ]
+  },
+  "statistics|4": {
+    "subject_id": "statistics",
+    "grade": 4,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Đếm và phân loại dữ liệu",
+      "Vẽ biểu đồ cột",
+      "Vẽ biểu đồ tròn",
+      "Tính trung bình cộng",
+      "Khảo sát và ghi chép",
+      "So sánh nhóm số liệu"
+    ],
+    "sample_titles_en": [
+      "Đếm và phân loại dữ liệu (Grade 4)",
+      "Vẽ biểu đồ cột (Grade 4)",
+      "Vẽ biểu đồ tròn (Grade 4)",
+      "Tính trung bình cộng (Grade 4)",
+      "Khảo sát và ghi chép (Grade 4)",
+      "So sánh nhóm số liệu (Grade 4)"
+    ]
+  },
+  "statistics|5": {
+    "subject_id": "statistics",
+    "grade": 5,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Đếm và phân loại dữ liệu",
+      "Vẽ biểu đồ cột",
+      "Vẽ biểu đồ tròn",
+      "Tính trung bình cộng",
+      "Khảo sát và ghi chép",
+      "So sánh nhóm số liệu"
+    ],
+    "sample_titles_en": [
+      "Đếm và phân loại dữ liệu (Grade 5)",
+      "Vẽ biểu đồ cột (Grade 5)",
+      "Vẽ biểu đồ tròn (Grade 5)",
+      "Tính trung bình cộng (Grade 5)",
+      "Khảo sát và ghi chép (Grade 5)",
+      "So sánh nhóm số liệu (Grade 5)"
+    ]
+  },
+  "statistics|6": {
+    "subject_id": "statistics",
+    "grade": 6,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Đếm và phân loại dữ liệu",
+      "Vẽ biểu đồ cột",
+      "Vẽ biểu đồ tròn",
+      "Tính trung bình cộng",
+      "Khảo sát và ghi chép",
+      "So sánh nhóm số liệu"
+    ],
+    "sample_titles_en": [
+      "Đếm và phân loại dữ liệu (Grade 6)",
+      "Vẽ biểu đồ cột (Grade 6)",
+      "Vẽ biểu đồ tròn (Grade 6)",
+      "Tính trung bình cộng (Grade 6)",
+      "Khảo sát và ghi chép (Grade 6)",
+      "So sánh nhóm số liệu (Grade 6)"
+    ]
+  },
+  "statistics|7": {
+    "subject_id": "statistics",
+    "grade": 7,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Đếm và phân loại dữ liệu",
+      "Vẽ biểu đồ cột",
+      "Vẽ biểu đồ tròn",
+      "Tính trung bình cộng",
+      "Khảo sát và ghi chép",
+      "So sánh nhóm số liệu"
+    ],
+    "sample_titles_en": [
+      "Đếm và phân loại dữ liệu (Grade 7)",
+      "Vẽ biểu đồ cột (Grade 7)",
+      "Vẽ biểu đồ tròn (Grade 7)",
+      "Tính trung bình cộng (Grade 7)",
+      "Khảo sát và ghi chép (Grade 7)",
+      "So sánh nhóm số liệu (Grade 7)"
+    ]
+  },
+  "statistics|8": {
+    "subject_id": "statistics",
+    "grade": 8,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Đếm và phân loại dữ liệu",
+      "Vẽ biểu đồ cột",
+      "Vẽ biểu đồ tròn",
+      "Tính trung bình cộng",
+      "Khảo sát và ghi chép",
+      "So sánh nhóm số liệu"
+    ],
+    "sample_titles_en": [
+      "Đếm và phân loại dữ liệu (Grade 8)",
+      "Vẽ biểu đồ cột (Grade 8)",
+      "Vẽ biểu đồ tròn (Grade 8)",
+      "Tính trung bình cộng (Grade 8)",
+      "Khảo sát và ghi chép (Grade 8)",
+      "So sánh nhóm số liệu (Grade 8)"
+    ]
+  },
+  "statistics|9": {
+    "subject_id": "statistics",
+    "grade": 9,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Đếm và phân loại dữ liệu",
+      "Vẽ biểu đồ cột",
+      "Vẽ biểu đồ tròn",
+      "Tính trung bình cộng",
+      "Khảo sát và ghi chép",
+      "So sánh nhóm số liệu"
+    ],
+    "sample_titles_en": [
+      "Đếm và phân loại dữ liệu (Grade 9)",
+      "Vẽ biểu đồ cột (Grade 9)",
+      "Vẽ biểu đồ tròn (Grade 9)",
+      "Tính trung bình cộng (Grade 9)",
+      "Khảo sát và ghi chép (Grade 9)",
+      "So sánh nhóm số liệu (Grade 9)"
+    ]
+  },
+  "statistics|10": {
+    "subject_id": "statistics",
+    "grade": 10,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Đếm và phân loại dữ liệu",
+      "Vẽ biểu đồ cột",
+      "Vẽ biểu đồ tròn",
+      "Tính trung bình cộng",
+      "Khảo sát và ghi chép",
+      "So sánh nhóm số liệu"
+    ],
+    "sample_titles_en": [
+      "Đếm và phân loại dữ liệu (Grade 10)",
+      "Vẽ biểu đồ cột (Grade 10)",
+      "Vẽ biểu đồ tròn (Grade 10)",
+      "Tính trung bình cộng (Grade 10)",
+      "Khảo sát và ghi chép (Grade 10)",
+      "So sánh nhóm số liệu (Grade 10)"
+    ]
+  },
+  "statistics|11": {
+    "subject_id": "statistics",
+    "grade": 11,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Đếm và phân loại dữ liệu",
+      "Vẽ biểu đồ cột",
+      "Vẽ biểu đồ tròn",
+      "Tính trung bình cộng",
+      "Khảo sát và ghi chép",
+      "So sánh nhóm số liệu"
+    ],
+    "sample_titles_en": [
+      "Đếm và phân loại dữ liệu (Grade 11)",
+      "Vẽ biểu đồ cột (Grade 11)",
+      "Vẽ biểu đồ tròn (Grade 11)",
+      "Tính trung bình cộng (Grade 11)",
+      "Khảo sát và ghi chép (Grade 11)",
+      "So sánh nhóm số liệu (Grade 11)"
+    ]
+  },
+  "statistics|12": {
+    "subject_id": "statistics",
+    "grade": 12,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Đếm và phân loại dữ liệu",
+      "Vẽ biểu đồ cột",
+      "Vẽ biểu đồ tròn",
+      "Tính trung bình cộng",
+      "Khảo sát và ghi chép",
+      "So sánh nhóm số liệu"
+    ],
+    "sample_titles_en": [
+      "Đếm và phân loại dữ liệu (Grade 12)",
+      "Vẽ biểu đồ cột (Grade 12)",
+      "Vẽ biểu đồ tròn (Grade 12)",
+      "Tính trung bình cộng (Grade 12)",
+      "Khảo sát và ghi chép (Grade 12)",
+      "So sánh nhóm số liệu (Grade 12)"
+    ]
+  },
+  "arithmetic_2digit|2": {
+    "subject_id": "arithmetic_2digit",
+    "grade": 2,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "5 + 4 = ? (không nhớ)",
+      "5 + 4 = ? (có nhớ)",
+      "5 − 4 = ? (không nhớ)",
+      "5 − 4 = ? (có nhớ)",
+      "Đặt tính rồi tính: 5 + 4",
+      "Đặt tính rồi tính: 5 − 4"
+    ],
+    "sample_titles_en": [
+      "5 + 4 = ? (không nhớ) (Grade 2)",
+      "5 + 4 = ? (có nhớ) (Grade 2)",
+      "5 − 4 = ? (không nhớ) (Grade 2)",
+      "5 − 4 = ? (có nhớ) (Grade 2)",
+      "Đặt tính rồi tính: 5 + 4 (Grade 2)",
+      "Đặt tính rồi tính: 5 − 4 (Grade 2)"
+    ]
+  },
+  "arithmetic_3digit|3": {
+    "subject_id": "arithmetic_3digit",
+    "grade": 3,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "7 + 5 (có nhớ)",
+      "7 − 5 (có nhớ)",
+      "Tính nhanh số tròn trăm",
+      "Bài toán: cửa hàng có 7K, bán 5K, còn ?"
+    ],
+    "sample_titles_en": [
+      "7 + 5 (có nhớ) (Grade 3)",
+      "7 − 5 (có nhớ) (Grade 3)",
+      "Tính nhanh số tròn trăm (Grade 3)",
+      "Bài toán: cửa hàng có 7K, bán 5K, còn ? (Grade 3)"
+    ]
+  },
+  "multiplication|2": {
+    "subject_id": "multiplication",
+    "grade": 2,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Bảng cửu chương 13",
+      "5 × 4 = ?",
+      "Đếm nhóm: 5 nhóm × 4 cái",
+      "Bài toán: 5 hộp, mỗi hộp 4 cái, tổng ?",
+      "Tìm thừa số: 6 ÷ ? = 4",
+      "So sánh: 5 × 4 và 6 × 9"
+    ],
+    "sample_titles_en": [
+      "Bảng cửu chương 13 (Grade 2)",
+      "5 × 4 = ? (Grade 2)",
+      "Đếm nhóm: 5 nhóm × 4 cái (Grade 2)",
+      "Bài toán: 5 hộp, mỗi hộp 4 cái, tổng ? (Grade 2)",
+      "Tìm thừa số: 6 ÷ ? = 4 (Grade 2)",
+      "So sánh: 5 × 4 và 6 × 9 (Grade 2)"
+    ]
+  },
+  "multiplication|3": {
+    "subject_id": "multiplication",
+    "grade": 3,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Bảng cửu chương 18",
+      "7 × 5 = ?",
+      "Đếm nhóm: 7 nhóm × 5 cái",
+      "Bài toán: 7 hộp, mỗi hộp 5 cái, tổng ?",
+      "Tìm thừa số: 9 ÷ ? = 5",
+      "So sánh: 7 × 5 và 9 × 13"
+    ],
+    "sample_titles_en": [
+      "Bảng cửu chương 18 (Grade 3)",
+      "7 × 5 = ? (Grade 3)",
+      "Đếm nhóm: 7 nhóm × 5 cái (Grade 3)",
+      "Bài toán: 7 hộp, mỗi hộp 5 cái, tổng ? (Grade 3)",
+      "Tìm thừa số: 9 ÷ ? = 5 (Grade 3)",
+      "So sánh: 7 × 5 và 9 × 13 (Grade 3)"
+    ]
+  },
+  "division|3": {
+    "subject_id": "division",
+    "grade": 3,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "7 ÷ 5 (chia hết)",
+      "7 ÷ 5 (có dư)",
+      "Chia đồ vật thành 5 nhóm",
+      "Bài toán: 7 cái kẹo chia cho 5 bạn",
+      "Tìm thương và số dư"
+    ],
+    "sample_titles_en": [
+      "7 ÷ 5 (chia hết) (Grade 3)",
+      "7 ÷ 5 (có dư) (Grade 3)",
+      "Chia đồ vật thành 5 nhóm (Grade 3)",
+      "Bài toán: 7 cái kẹo chia cho 5 bạn (Grade 3)",
+      "Tìm thương và số dư (Grade 3)"
+    ]
+  },
+  "fractions|3": {
+    "subject_id": "fractions",
+    "grade": 3,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Tô màu 1/18 hình",
+      "So sánh 1/7 và 1/5",
+      "1/7 + 1/5 (cùng mẫu)",
+      "1/7 − 1/5 (cùng mẫu)",
+      "Đổi phân số: 1/7 = ?/5",
+      "Bài toán: cắt bánh thành 18 phần bằng nhau"
+    ],
+    "sample_titles_en": [
+      "Tô màu 1/18 hình (Grade 3)",
+      "So sánh 1/7 và 1/5 (Grade 3)",
+      "1/7 + 1/5 (cùng mẫu) (Grade 3)",
+      "1/7 − 1/5 (cùng mẫu) (Grade 3)",
+      "Đổi phân số: 1/7 = ?/5 (Grade 3)",
+      "Bài toán: cắt bánh thành 18 phần bằng nhau (Grade 3)"
+    ]
+  },
+  "decimals|3": {
+    "subject_id": "decimals",
+    "grade": 3,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Đổi: 1/18 = 0.1",
+      "So sánh 0.7 và 0.5",
+      "7.5 + 9.13 (cộng số thập phân)",
+      "7.5 − 9.13 (trừ số thập phân)",
+      "Tính tiền: 7K18 + 5K21"
+    ],
+    "sample_titles_en": [
+      "Đổi: 1/18 = 0.1 (Grade 3)",
+      "So sánh 0.7 và 0.5 (Grade 3)",
+      "7.5 + 9.13 (cộng số thập phân) (Grade 3)",
+      "7.5 − 9.13 (trừ số thập phân) (Grade 3)",
+      "Tính tiền: 7K18 + 5K21 (Grade 3)"
+    ]
+  },
+  "perimeter|2": {
+    "subject_id": "perimeter",
+    "grade": 2,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Chu vi hình vuông cạnh 13cm",
+      "Chu vi hình chữ nhật 5cm × 4cm",
+      "Chu vi hình tam giác cân",
+      "Bài toán: rào sân 5m × 4m"
+    ],
+    "sample_titles_en": [
+      "Chu vi hình vuông cạnh 13cm (Grade 2)",
+      "Chu vi hình chữ nhật 5cm × 4cm (Grade 2)",
+      "Chu vi hình tam giác cân (Grade 2)",
+      "Bài toán: rào sân 5m × 4m (Grade 2)"
+    ]
+  },
+  "area|3": {
+    "subject_id": "area",
+    "grade": 3,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Diện tích hình vuông cạnh 18cm",
+      "Diện tích hình chữ nhật 7cm × 5cm",
+      "So sánh diện tích hai hình",
+      "Bài toán: lát gạch phòng 7m × 5m"
+    ],
+    "sample_titles_en": [
+      "Diện tích hình vuông cạnh 18cm (Grade 3)",
+      "Diện tích hình chữ nhật 7cm × 5cm (Grade 3)",
+      "So sánh diện tích hai hình (Grade 3)",
+      "Bài toán: lát gạch phòng 7m × 5m (Grade 3)"
+    ]
+  },
+  "angles|3": {
+    "subject_id": "angles",
+    "grade": 3,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Đo góc 18° bằng thước",
+      "Phân biệt góc nhọn, vuông, tù",
+      "Tìm góc vuông trong phòng",
+      "Tổng 3 góc trong tam giác (= 180°)",
+      "Bài toán: góc còn thiếu trong tam giác"
+    ],
+    "sample_titles_en": [
+      "Đo góc 18° bằng thước (Grade 3)",
+      "Phân biệt góc nhọn, vuông, tù (Grade 3)",
+      "Tìm góc vuông trong phòng (Grade 3)",
+      "Tổng 3 góc trong tam giác (= 180°) (Grade 3)",
+      "Bài toán: góc còn thiếu trong tam giác (Grade 3)"
+    ]
+  },
+  "time_money|2": {
+    "subject_id": "time_money",
+    "grade": 2,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Xem giờ: 10:14",
+      "Bài toán: bây giờ 10:14, sau 30 phút là mấy giờ?",
+      "Đếm tiền: 5K + 4K = ?",
+      "Mua 5 cái kẹo, mỗi cái 4K, trả 6K, được thối ?",
+      "Quy đổi: 5K = ? đồng"
+    ],
+    "sample_titles_en": [
+      "Xem giờ: 10:14 (Grade 2)",
+      "Bài toán: bây giờ 10:14, sau 30 phút là mấy giờ? (Grade 2)",
+      "Đếm tiền: 5K + 4K = ? (Grade 2)",
+      "Mua 5 cái kẹo, mỗi cái 4K, trả 6K, được thối ? (Grade 2)",
+      "Quy đổi: 5K = ? đồng (Grade 2)"
+    ]
+  },
+  "volume|3": {
+    "subject_id": "volume",
+    "grade": 3,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Đong nước: cốc 7ml × 5 cốc = ?ml",
+      "Thể tích hộp 7cm × 5cm × 9cm",
+      "Bài toán: bể nước 7m × 5m × 9m chứa bao nhiêu lít?",
+      "So sánh thể tích hai hộp"
+    ],
+    "sample_titles_en": [
+      "Đong nước: cốc 7ml × 5 cốc = ?ml (Grade 3)",
+      "Thể tích hộp 7cm × 5cm × 9cm (Grade 3)",
+      "Bài toán: bể nước 7m × 5m × 9m chứa bao nhiêu lít? (Grade 3)",
+      "So sánh thể tích hai hộp (Grade 3)"
+    ]
+  },
+  "speed|3": {
+    "subject_id": "speed",
+    "grade": 3,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Tính tốc độ: đi 7km trong 5 giờ",
+      "Đổi: 7km/h = ? m/s",
+      "Bài toán: xe đi 7km/h, trong 5 giờ đi được bao nhiêu km?",
+      "So sánh tốc độ: xe đạp 7km/h vs ô tô 5km/h"
+    ],
+    "sample_titles_en": [
+      "Tính tốc độ: đi 7km trong 5 giờ (Grade 3)",
+      "Đổi: 7km/h = ? m/s (Grade 3)",
+      "Bài toán: xe đi 7km/h, trong 5 giờ đi được bao nhiêu km? (Grade 3)",
+      "So sánh tốc độ: xe đạp 7km/h vs ô tô 5km/h (Grade 3)"
+    ]
+  },
+  "word_problems|2": {
+    "subject_id": "word_problems",
+    "grade": 2,
+    "n_lessons": 50,
+    "sample_titles_vi": [
+      "Bài toán mua bán: mua 5 cái, mỗi cái 4K, trả 6K",
+      "Bài toán thời gian: từ 9:30 đến 10:45 là bao lâu?",
+      "Bài toán 2 bước: gấp 5 lần rồi trừ 4",
+      "Bài toán ngược: kết quả là 6, tìm phép tính"
+    ],
+    "sample_titles_en": [
+      "Bài toán mua bán: mua 5 cái, mỗi cái 4K, trả 6K (Grade 2)",
+      "Bài toán thời gian: từ 9:30 đến 10:45 là bao lâu? (Grade 2)",
+      "Bài toán 2 bước: gấp 5 lần rồi trừ 4 (Grade 2)",
+      "Bài toán ngược: kết quả là 6, tìm phép tính (Grade 2)"
+    ]
+  }
+}

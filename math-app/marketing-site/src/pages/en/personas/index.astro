@@ -1,0 +1,46 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import Header from '../../../components/Header.astro';
+import Footer from '../../../components/Footer.astro';
+
+const personas = [
+  { id: 'achiever', en: 'Achiever', icon: '🏆', desc: 'Loves praise, clear goals, leaderboards. Needs frequent wins and visible progress.', tips: 'Use streaks, badges, classroom leaderboards. Every completed lesson adds a star.' },
+  { id: 'gamer', en: 'Gamer', icon: '🎮', desc: 'Loves challenges, mini-games, scores. Learns best through play.', tips: 'Insert quick games between lessons, streaks, combos, class-vs-class races.' },
+  { id: 'struggler', en: 'Struggler', icon: '🪜', desc: 'Needs support, hits walls. Needs small chunks, no time pressure, lots of encouragement.', tips: 'Auto-decompose hard problems. Allow mistakes. Hide scores, show only encouragement.' },
+  { id: 'silent', en: 'Silent', icon: '🤫', desc: 'Deep focus, prefers to explore alone. Doesn’t want loud celebrations.', tips: 'Minimize sound and confetti. Let them work through, no constant questions.' },
+];
+---
+<BaseLayout
+  seo={{ title: '4 learning personas', description: '4 learning styles for kids 5-7.', path: '/en/personas' }}
+  locale="en"
+>
+  <Header slot="nav" locale="en" currentPath="/personas" />
+  <Fragment slot="footer"><Footer locale="en" /></Fragment>
+
+  <section class="bg-gradient-to-b from-pink-soft to-pink-bg py-12 sm:py-16">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <h1 class="font-display text-4xl font-extrabold text-purple-deep sm:text-5xl">4 learning personas</h1>
+      <p class="mt-3 max-w-2xl text-lg text-purple-deep/70">
+        Every kid learns differently. HocVui tailors content, pace, and encouragement per persona.
+      </p>
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+    <div class="grid gap-6 sm:grid-cols-2">
+      {personas.map((p) => (
+        <article class={`rounded-3xl border-2 border-${p.id} bg-${p.id}-bg p-6`}>
+          <div class="flex items-center gap-3">
+            <span class="text-4xl">{p.icon}</span>
+            <h2 class="font-display text-2xl font-extrabold text-purple-deep">{p.en}</h2>
+          </div>
+          <p class="mt-4 leading-relaxed text-purple-deep/80">{p.desc}</p>
+          <div class="mt-4 rounded-2xl bg-white/70 p-4">
+            <p class="text-xs font-bold uppercase tracking-wider text-purple-deep/60">How HocVui supports</p>
+            <p class="mt-1 text-sm text-purple-deep/80">{p.tips}</p>
+          </div>
+        </article>
+      ))}
+    </div>
+  </section>
+</BaseLayout>

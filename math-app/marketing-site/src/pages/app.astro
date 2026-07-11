@@ -1,0 +1,30 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+// /app — Flutter web app entry. We do a client-side redirect so Google doesn't index
+// the Flutter shell (which is also reachable under /app/* but with noindex set in its head).
+// The Flutter web app actually serves its own index.html at /app via Traefik.
+---
+<BaseLayout
+  seo={{
+    title: 'Mở ứng dụng HocVui',
+    description: 'Đang tải ứng dụng HocVui…',
+    path: '/app',
+    noindex: true,
+  }}
+  locale="vi"
+>
+  <div class="grid min-h-screen place-items-center bg-gradient-to-br from-pink-bg to-cream px-4 text-center">
+    <div>
+      <div class="mx-auto grid h-24 w-24 animate-float place-items-center rounded-full bg-gradient-to-br from-[#FFC1DA] to-pink text-5xl shadow-chunky">🐸</div>
+      <h1 class="mt-6 font-display text-2xl font-extrabold text-purple-deep">Đang tải HocVui…</h1>
+      <p class="mt-2 text-purple-deep/70">Nếu không tự chuyển sau 3 giây, bấm nút dưới.</p>
+      <a href="/app/" class="mt-6 inline-flex items-center gap-2 rounded-full bg-pink px-6 py-3 text-sm font-bold text-white shadow-pill transition hover:bg-pink-dark">Mở ứng dụng</a>
+    </div>
+  </div>
+
+  <script is:inline>
+    // Soft redirect: if /app doesn't load (Traefik rewrites to flutter-web), we wait briefly.
+    // This page itself is just a fallback in case /app isn't reachable.
+  </script>
+</BaseLayout>

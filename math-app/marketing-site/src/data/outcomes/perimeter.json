@@ -1,0 +1,11 @@
+{
+  "name_vi": "Chu vi",
+  "name_en": "Perimeter",
+  "outcomes": [
+    "Hiểu chu vi là tổng độ dài các cạnh của hình",
+    "Tính chu vi hình vuông, hình chữ nhật",
+    "Tính chu vi hình tam giác",
+    "Áp dụng vào bài toán thực tế (rào sân, viền khung tranh)"
+  ],
+  "parent_tip": "Cho bé đo cạnh bàn, sách, cửa sổ rồi tính chu vi. Bé thấy chu vi ứng dụng thực tế sẽ học tốt hơn là chỉ làm bài tập trên giấy."
+}

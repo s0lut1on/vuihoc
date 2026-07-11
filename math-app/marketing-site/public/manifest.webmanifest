@@ -1,0 +1,19 @@
+{
+  "name": "HocVui",
+  "short_name": "HocVui",
+  "description": "Toán vui cho bé 5-7 tuổi. Hơn 6,000 bài học song ngữ Việt-Anh.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#FFF5FA",
+  "theme_color": "#FF6B9D",
+  "lang": "vi",
+  "categories": ["education", "kids"],
+  "icons": [
+    { "src": "/brand/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/brand/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/brand/icon-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/brand/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

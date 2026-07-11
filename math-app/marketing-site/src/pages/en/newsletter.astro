@@ -1,0 +1,45 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import Newsletter from '../../components/Newsletter.astro';
+---
+<BaseLayout
+  seo={{
+    title: 'Subscribe — weekly math tips for parents',
+    description: 'Get weekly worksheets, methods, and learning paths for kids 5–7. Free, no ads.',
+    path: '/en/newsletter',
+  }}
+  locale="en"
+>
+  <Header slot="nav" locale="en" currentPath="/newsletter" />
+  <Fragment slot="footer"><Footer locale="en" /></Fragment>
+
+  <section class="bg-gradient-to-b from-pink-soft to-pink-bg py-12 sm:py-20">
+    <div class="mx-auto max-w-3xl px-4 text-center sm:px-6 lg:px-8">
+      <span class="inline-flex items-center gap-2 rounded-full border border-pink-soft bg-white/70 px-3 py-1 text-xs font-bold text-pink-dark">
+        📬 Free newsletter
+      </span>
+      <h1 class="mt-5 font-display text-4xl font-extrabold leading-tight text-purple-deep sm:text-5xl">
+        Math tips for kids 5–7<br />
+        <span class="text-pink-dark">in your inbox weekly</span>
+      </h1>
+      <p class="mx-auto mt-4 max-w-2xl text-lg text-purple-deep/80">
+        One sign-up. One email per week with:
+      </p>
+      <ul class="mx-auto mt-6 grid max-w-xl gap-2 text-left text-purple-deep/80 sm:grid-cols-2">
+        <li class="flex items-start gap-2"><span class="mt-0.5 text-pink-dark">✓</span><span>3 fresh math worksheets</span></li>
+        <li class="flex items-start gap-2"><span class="mt-0.5 text-pink-dark">✓</span><span>Expert teaching methods</span></li>
+        <li class="flex items-start gap-2"><span class="mt-0.5 text-pink-dark">✓</span><span>Age-by-age learning paths</span></li>
+        <li class="flex items-start gap-2"><span class="mt-0.5 text-pink-dark">✓</span><span>Premium member promos</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-2xl px-4 pb-12 sm:px-6 lg:px-8">
+    <Newsletter locale="en" source="en-newsletter-page" />
+    <p class="mt-6 text-center text-sm text-purple-deep/60">
+      500+ parents already subscribed. Unsubscribe anytime via the link in any email.
+    </p>
+  </section>
+</BaseLayout>

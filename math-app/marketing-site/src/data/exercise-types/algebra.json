@@ -1,0 +1,10 @@
+{
+  "name_vi": "Đại số",
+  "name_en": "Algebra",
+  "types": [
+    "Tìm số tiếp theo trong dãy số",
+    "Tìm x trong phép tính (x + 5 = 12)",
+    "Điền vào bảng số theo quy luật",
+    "Cân bằng phương trình đơn giản bằng hình ảnh"
+  ]
+}

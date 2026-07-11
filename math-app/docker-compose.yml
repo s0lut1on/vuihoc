@@ -20,9 +20,52 @@ services:
         GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.flutter-web.rule=Host(`localhost`)"
+      - "traefik.http.routers.flutter-web.rule=Host(`localhost`) && PathPrefix(`/app`)"
+      - "traefik.http.routers.flutter-web.priority=50"
+      - "traefik.http.middlewares.flutter-strip.stripprefix.prefixes=/app"
+      - "traefik.http.middlewares.flutter-strip.stripprefix.forceSlash=false"
       - "traefik.http.middlewares.flutter-coop.headers.customResponseHeaders.Cross-Origin-Opener-Policy=unsafe-none"
-      - "traefik.http.routers.flutter-web.middlewares=flutter-coop"
+      - "traefik.http.routers.flutter-web.middlewares=flutter-strip,flutter-coop"
+    restart: unless-stopped
+
+  marketing-site:
+    image: nginx:1.27-alpine
+    volumes:
+      - ./marketing-site/dist:/usr/share/nginx/html:ro
+      - ./marketing-site/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.marketing.rule=Host(`localhost`)"
+      - "traefik.http.routers.marketing.priority=10"
+    restart: unless-stopped
+
+  umami:
+    image: ghcr.io/umami-software/umami:postgresql-latest
+    environment:
+      - DATABASE_URL=postgresql://umami:umami@umami-db:5432/umami
+      - APP_SECRET=dev-secret-change-in-prod
+    depends_on:
+      - umami-db
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.umami.rule=Host(`localhost`) && PathPrefix(`/umami`)"
+      - "traefik.http.routers.umami.priority=50"
+      - "traefik.http.middlewares.umami-strip.stripprefix.prefixes=/umami"
+      - "traefik.http.middlewares.umami-strip.stripprefix.forceSlash=false"
+      - "traefik.http.routers.umami.middlewares=umami-strip"
+      - "traefik.http.routers.umami-static.rule=Host(`localhost`) && PathPrefix(`/_next`)"
+      - "traefik.http.routers.umami-static.priority=50"
+      - "traefik.http.services.umami.loadbalancer.server.port=3000"
+    restart: unless-stopped
+
+  umami-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: umami
+      POSTGRES_USER: umami
+      POSTGRES_PASSWORD: umami
+    volumes:
+      - umami_db_data:/var/lib/postgresql/data
     restart: unless-stopped
 
   auth-service:
@@ -290,3 +333,4 @@ volumes:
   qb_db_data:
   language_db_data:
   minio_data:
+  umami_db_data:

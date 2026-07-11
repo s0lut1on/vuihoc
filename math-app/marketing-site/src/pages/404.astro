@@ -1,0 +1,15 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+---
+<BaseLayout seo={{ title: '404 — Không tìm thấy', description: 'Trang không tồn tại.', path: '/404' }} locale="vi" noindex>
+  <div class="grid min-h-[60vh] place-items-center px-4 text-center">
+    <div>
+      <p class="font-display text-7xl font-extrabold text-pink">404</p>
+      <h1 class="mt-4 font-display text-2xl font-extrabold text-purple-deep">Không tìm thấy trang</h1>
+      <p class="mt-2 text-purple-deep/70">Có thể trang đã được di chuyển hoặc bạn gõ sai đường dẫn.</p>
+      <a href="/" class="mt-6 inline-flex items-center gap-2 rounded-full bg-pink px-5 py-2.5 text-sm font-bold text-white shadow-pill hover:bg-pink-dark">← Về trang chủ</a>
+    </div>
+  </div>
+</BaseLayout>

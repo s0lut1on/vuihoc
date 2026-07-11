@@ -1,0 +1,12 @@
+{
+  "name_vi": "Thể tích",
+  "name_en": "Volume",
+  "outcomes": [
+    "Hiểu thể tích là dung tích chứa đựng",
+    "Đo thể tích bằng đơn vị (ml, l, cm³, m³)",
+    "Tính thể tích hình hộp chữ nhật (dài × rộng × cao)",
+    "Tính thể tích hình lập phương",
+    "So sánh thể tích hai vật"
+  ],
+  "parent_tip": "Bé hiểu diện tích rồi mới tới thể tích. Dùng hộp các kích cỡ, đổ nước vào để so sánh. Trực quan sẽ giúp bé hiểu 'thể tích' là gì."
+}

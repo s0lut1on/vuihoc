@@ -1,0 +1,17 @@
+# Logrotate for Traefik access log.
+# Daily rotate, keep 30 days, compress.
+
+/var/log/traefik/access.log {
+    daily
+    rotate 30
+    compress
+    delaycompress
+    notifempty
+    missingok
+    create 0644 root root
+    sharedscripts
+    postrotate
+        # Traefik reopens its own log file when it receives SIGHUP.
+        docker kill --signal=HUP math-app-traefik-1 2>/dev/null || true
+    endscript
+}

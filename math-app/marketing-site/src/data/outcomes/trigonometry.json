@@ -1,0 +1,11 @@
+{
+  "name_vi": "Lượng giác",
+  "name_en": "Trigonometry",
+  "outcomes": [
+    "Hiểu khái niệm góc (góc nhọn, góc vuông, góc tù)",
+    "Làm quen với hàm sin, cos, tan cơ bản",
+    "Tính cạnh và góc trong tam giác vuông",
+    "Áp dụng vào bài toán thực tế (chiều cao, khoảng cách)"
+  ],
+  "parent_tip": "Lượng giác trừu tượng — đợi bé 12+ tuổi. Dùng hình ảnh trực quan: vẽ tam giác, đo cạnh, tính tỉ số. App có hình minh hoạ tương tác cho mỗi bài."
+}

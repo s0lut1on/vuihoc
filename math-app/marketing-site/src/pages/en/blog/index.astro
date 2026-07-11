@@ -1,0 +1,63 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import Header from '../../../components/Header.astro';
+import Footer from '../../../components/Footer.astro';
+
+const posts = (await getCollection('blog-en'))
+  .filter((p) => !p.data.draft)
+  .sort((a, b) => new Date(b.data.publishedTime).getTime() - new Date(a.data.publishedTime).getTime());
+
+const formatDate = (iso: string) =>
+  new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+---
+<BaseLayout
+  seo={{
+    title: 'Blog — Math tips for parents',
+    description: 'Math learning guides for parents of kids 5–7: worksheets, methods, free apps.',
+    path: '/en/blog',
+  }}
+  locale="en"
+>
+  <Header slot="nav" locale="en" currentPath="/blog" />
+  <Fragment slot="footer"><Footer locale="en" /></Fragment>
+
+  <section class="bg-gradient-to-b from-pink-soft to-pink-bg py-12 sm:py-16">
+    <div class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+      <h1 class="font-display text-4xl font-extrabold text-purple-deep sm:text-5xl">Blog</h1>
+      <p class="mt-3 max-w-2xl text-lg text-purple-deep/70">
+        Math learning guides for parents of kids 5–7. Updated weekly.
+      </p>
+      <a href="/en/blog/rss.xml" class="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-pink-dark hover:underline">
+        📡 RSS feed
+      </a>
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8">
+    {posts.length === 0 ? (
+      <div class="rounded-3xl border-2 border-dashed border-pink-soft bg-white p-12 text-center">
+        <p class="text-lg text-purple-deep/60">No posts yet. Check back soon!</p>
+        <a href="/en/lessons" class="mt-4 inline-block font-bold text-pink-dark hover:underline">Browse free lessons →</a>
+      </div>
+    ) : (
+      <div class="space-y-6">
+        {posts.map((post) => (
+          <article class="rounded-3xl border-2 border-pink-soft bg-white p-6 transition hover:border-pink hover:shadow-chunky-sm">
+            <div class="flex items-center gap-3 text-xs text-purple-deep/60">
+              <time datetime={post.data.publishedTime}>{formatDate(post.data.publishedTime)}</time>
+              {post.data.tags.length > 0 && <><span>·</span><span>{post.data.tags.slice(0, 3).join(', ')}</span></>}
+            </div>
+            <h2 class="mt-2 font-display text-2xl font-extrabold text-purple-deep">
+              <a href={`/en/blog/${post.id}/`} class="hover:text-pink-dark">{post.data.title}</a>
+            </h2>
+            <p class="mt-2 text-purple-deep/80">{post.data.description}</p>
+            <a href={`/en/blog/${post.id}/`} class="mt-3 inline-flex items-center gap-1 text-sm font-bold text-pink-dark hover:underline">
+              Read more →
+            </a>
+          </article>
+        ))}
+      </div>
+    )}
+  </section>
+</BaseLayout>

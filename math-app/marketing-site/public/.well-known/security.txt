@@ -1,0 +1,4 @@
+Contact: mailto:security@sekklings.com
+Expires: 2027-12-31T23:59:59z
+Preferred-Languages: vi, en
+Canonical: https://sekklings.com/.well-known/security.txt

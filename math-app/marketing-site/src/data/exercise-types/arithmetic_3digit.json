@@ -1,0 +1,10 @@
+{
+  "name_vi": "Cộng trừ 3 chữ số",
+  "name_en": "3-digit arithmetic",
+  "types": [
+    "Đặt tính theo cột dọc với số 3 chữ số",
+    "Bài toán có lời văn 2 bước",
+    "So sánh kết quả (lớn hơn / nhỏ hơn)",
+    "Tính chu vi, diện tích đơn giản"
+  ]
+}

@@ -1,0 +1,46 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+---
+<BaseLayout
+  seo={{ title: 'About HocVui', description: 'The story and mission of HocVui — bilingual math for Vietnamese kids.', path: '/en/about' }}
+  locale="en"
+>
+  <Header slot="nav" locale="en" currentPath="/about" />
+  <Fragment slot="footer"><Footer locale="en" /></Fragment>
+
+  <section class="bg-gradient-to-b from-pink-soft to-pink-bg py-12 sm:py-16">
+    <div class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
+      <h1 class="font-display text-4xl font-extrabold text-purple-deep sm:text-5xl">About HocVui</h1>
+      <p class="mt-3 text-lg text-purple-deep/70">
+        We believe every kid can learn math joyfully.
+      </p>
+    </div>
+  </section>
+
+  <article class="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8 prose prose-purple">
+    <h2>The story</h2>
+    <p>
+      HocVui started with a simple observation: many Vietnamese kids are afraid of math.
+      Not because math is hard, but because the teaching style doesn’t match the kid’s personality.
+    </p>
+    <p>
+      In 2024, a small team of Vietnamese primary-school teachers and software engineers
+      began building HocVui with one goal: a math app that adapts to <strong>4 learning personas</strong>,
+      is <strong>bilingual</strong>, and is <strong>free forever</strong>.
+    </p>
+    <h2>Mission</h2>
+    <p>Help 10 million Vietnamese kids fall in love with math — through fit, not force.</p>
+    <h2>Team</h2>
+    <p>
+      Built by s0lut1on and contributors, with primary-school teacher advisors in Ho Chi Minh City and Hanoi.
+    </p>
+    <h2>Contact</h2>
+    <p>
+      Email: <a href="mailto:contact@sekklings.com">contact@sekklings.com</a><br>
+      Press: <a href="mailto:press@sekklings.com">press@sekklings.com</a><br>
+      Privacy: <a href="mailto:privacy@sekklings.com">privacy@sekklings.com</a>
+    </p>
+  </article>
+</BaseLayout>

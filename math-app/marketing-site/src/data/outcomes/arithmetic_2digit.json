@@ -1,0 +1,12 @@
+{
+  "name_vi": "Cộng trừ 2 chữ số",
+  "name_en": "2-digit arithmetic",
+  "outcomes": [
+    "Cộng hai số có 2 chữ số (không nhớ)",
+    "Cộng hai số có 2 chữ số (có nhớ)",
+    "Trừ hai số có 2 chữ số (không nhớ)",
+    "Trừ hai số có 2 chữ số (có nhớ)",
+    "Giải bài toán có lời văn với phép cộng trừ 2 chữ số"
+  ],
+  "parent_tip": "Luyện tập cộng trừ 2 chữ số mỗi ngày 15 phút. Dùng que tính hoặc bút vẽ hàng dọc để bé thấy rõ quy trình nhớ."
+}

@@ -29,8 +29,12 @@ Cargo.lock
 
 # Node.js
 node_modules/
-package-lock.json
 yarn.lock
+
+# Marketing site (Astro) — node_modules and dist excluded, but keep package-lock.json
+marketing-site/dist/
+marketing-site/.astro/
+!marketing-site/package-lock.json
 
 # IDE
 .vscode/

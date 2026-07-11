@@ -1,0 +1,10 @@
+{
+  "name_vi": "Lượng giác",
+  "name_en": "Trigonometry",
+  "types": [
+    "Vẽ và đo góc bằng thước đo góc",
+    "Tính sin/cos/tan cho góc đặc biệt (30°, 45°, 60°)",
+    "Giải tam giác vuông",
+    "Bài toán thực tế: chiều cao toà nhà, độ dốc cầu"
+  ]
+}

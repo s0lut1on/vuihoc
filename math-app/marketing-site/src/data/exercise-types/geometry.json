@@ -1,0 +1,11 @@
+{
+  "name_vi": "Hình học",
+  "name_en": "Geometry",
+  "types": [
+    "Kéo thả hình vào đúng vị trí",
+    "Đếm cạnh và đỉnh của hình",
+    "Tìm hình ẩn trong bức tranh lớn",
+    "Vẽ hình theo yêu cầu",
+    "Ghép hình từ nhiều mảnh nhỏ"
+  ]
+}

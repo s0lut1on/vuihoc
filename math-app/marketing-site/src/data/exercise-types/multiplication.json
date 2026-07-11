@@ -1,0 +1,10 @@
+{
+  "name_vi": "Bảng cửu chương",
+  "name_en": "Multiplication tables",
+  "types": [
+    "Bảng cửu chương tương tác (xoay, lật thẻ)",
+    "Bài toán đếm nhóm (có 4 nhóm, mỗi nhóm 5 quả, tổng?)",
+    "Bài toán có lời văn về tiền, đồ vật",
+    "Trò chơi ghép cặp (phép tính ↔ kết quả)"
+  ]
+}

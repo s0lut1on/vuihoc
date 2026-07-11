@@ -1,0 +1,66 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+
+const faqs = [
+  { q: 'What age is HocVui for?', a: 'Best for kids 5–7 (grades 1–2). Content goes up to grade 12, but the UI is optimized for early learners.' },
+  { q: 'Is HocVui free?', a: 'Yes. Free accounts get 50 lessons per day, no credit card. Premium unlocks unlimited lessons.' },
+  { q: 'My kid hates math. Can HocVui help?', a: 'Yes. 4 learning personas adapt to your kid’s personality. The Struggler persona is designed for kids who get frustrated easily.' },
+  { q: 'Is it bilingual?', a: 'Yes. Every lesson is in Vietnamese and English. Kids can switch languages mid-lesson.' },
+  { q: 'Do I need to install anything?', a: 'No. HocVui runs in any modern browser (Chrome, Safari, Edge) and on Android. You can add it to your home screen as a PWA.' },
+  { q: 'How do I track progress?', a: 'The Parent Dashboard (PIN-gated) shows weekly progress. Premium adds email reports and CSV export.' },
+  { q: 'Is my child’s data safe?', a: 'HocVui complies with COPPA and GDPR-K. We don’t share data with third-party advertisers, and you can delete the account at any time.' },
+  { q: 'Does it work on iPad/iPhone?', a: 'Yes. Add HocVui to your home screen (Share → Add to Home Screen) for an app-like experience.' },
+];
+---
+<BaseLayout
+  seo={{ title: 'For parents — FAQ + privacy', description: 'HocVui for kids 5-7: free, bilingual, persona-based. Parent FAQ and privacy commitments.', path: '/en/parents' }}
+  locale="en"
+  pageJsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: faqs.map((f) => ({
+        '@type': 'Question', name: f.q,
+        acceptedAnswer: { '@type': 'Answer', text: f.a },
+      })),
+    },
+  ]}
+>
+  <Header slot="nav" locale="en" currentPath="/parents" />
+  <Fragment slot="footer"><Footer locale="en" /></Fragment>
+
+  <section class="bg-gradient-to-b from-pink-soft to-pink-bg py-12 sm:py-16">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <h1 class="font-display text-4xl font-extrabold text-purple-deep sm:text-5xl">For parents</h1>
+      <p class="mt-3 max-w-2xl text-lg text-purple-deep/70">
+        FAQ, getting started, and our privacy commitments for your kid.
+      </p>
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
+    <div class="space-y-3">
+      {faqs.map((f) => (
+        <details class="group rounded-2xl border-2 border-pink-soft bg-white open:bg-pink-bg">
+          <summary class="flex cursor-pointer items-center justify-between p-5 font-bold text-purple-deep">
+            <span>{f.q}</span>
+            <span class="text-2xl text-pink-dark transition group-open:rotate-45">+</span>
+          </summary>
+          <div class="px-5 pb-5 text-purple-deep/80">{f.a}</div>
+        </details>
+      ))}
+    </div>
+
+    <div class="mt-12 rounded-3xl border-2 border-pink-soft bg-white p-6 sm:p-8">
+      <h2 class="font-display text-2xl font-extrabold text-purple-deep">Privacy commitments</h2>
+      <p class="mt-3 text-purple-deep/80">
+        HocVui complies with <strong>COPPA</strong> (US) and <strong>GDPR-K</strong> (EU) for children under 13.
+        We don’t collect personal data beyond what’s needed for learning, we don’t share with third-party
+        advertisers, and parents can delete the account + data at any time via
+        <a href="mailto:privacy@sekklings.com" class="font-bold text-pink-dark hover:underline">privacy@sekklings.com</a>.
+      </p>
+    </div>
+  </section>
+</BaseLayout>

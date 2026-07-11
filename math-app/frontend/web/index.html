@@ -1,49 +1,93 @@
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
-
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
-
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
-
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
-  -->
-  <base href="$FLUTTER_BASE_HREF">
+  <base href="/app/">
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
-  <!-- iOS meta tags & icons -->
+  <!-- Primary Meta Tags -->
+  <title>HocVui — Toán vui cho bé 5–7 tuổi</title>
+  <meta name="title" content="HocVui — Toán vui cho bé 5–7 tuổi">
+  <meta name="description" content="Ứng dụng học Toán song ngữ Việt–Anh cho bé 5–7 tuổi. Hơn 6,000 bài học, 4 phong cách học, miễn phí.">
+  <meta name="keywords" content="học toán, toán lớp 1, app học toán, học toán cho bé, toán tư duy, math for kids, bilingual, hocvui">
+  <meta name="author" content="HocVui">
+  <meta name="robots" content="noindex, nofollow">
+
+  <!-- Canonical: point at the marketing site, not the SPA. -->
+  <link rel="canonical" href="https://sekklings.com/">
+
+  <!-- Theme + manifest -->
+  <meta name="theme-color" content="#FF6B9D">
+  <meta name="color-scheme" content="light">
+  <link rel="manifest" href="/manifest.webmanifest">
+
+  <!-- OpenGraph -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://sekklings.com/app/">
+  <meta property="og:title" content="HocVui — Toán vui cho bé 5–7 tuổi">
+  <meta property="og:description" content="Ứng dụng học Toán song ngữ cho bé 5–7 tuổi. 6,000+ bài học, miễn phí.">
+  <meta property="og:image" content="https://sekklings.com/brand/og-image-vi.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:locale" content="vi_VN">
+  <meta property="og:locale:alternate" content="en_US">
+  <meta property="og:site_name" content="HocVui">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="HocVui — Toán vui cho bé 5–7 tuổi">
+  <meta name="twitter:description" content="Ứng dụng học Toán song ngữ cho bé 5–7 tuổi. 6,000+ bài học, miễn phí.">
+  <meta name="twitter:image" content="https://sekklings.com/brand/og-image-vi.png">
+
+  <!-- Hreflang -->
+  <link rel="alternate" hreflang="vi" href="https://sekklings.com/">
+  <link rel="alternate" hreflang="en" href="https://sekklings.com/en">
+  <link rel="alternate" hreflang="x-default" href="https://sekklings.com/">
+
+  <!-- Icons -->
+  <link rel="icon" type="image/x-icon" href="/brand/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/brand/favicon-32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/brand/apple-touch-icon.png">
+
+  <!-- iOS PWA -->
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="math_app">
-  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="HocVui">
+  <meta name="format-detection" content="telephone=no">
 
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon.png"/>
-
+  <!-- Google Sign-In (kept) -->
   <meta name="google-signin-client_id" content="1026978886898-cpqjll5m4b2ds8h7udb2i0j3ogq1u5um.apps.googleusercontent.com">
   <meta name="google-signin-scope" content="email profile">
 
-  <title>math_app</title>
-  <link rel="manifest" href="manifest.json">
+  <!-- Preload Flutter bootstrap for faster first paint -->
+  <link rel="preload" href="flutter_bootstrap.js" as="script">
+  <link rel="preconnect" href="https://sekklings.com" crossorigin>
+  <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+
+  <script async defer data-website-id="2153c8a8-f486-4b72-9284-332c036d1c16" src="https://sekklings.com/umami/script.js"></script>
+
+  <style>
+    html, body { margin: 0; padding: 0; height: 100%; background: #FFF5FA; font-family: 'Inter', 'Noto Sans', system-ui, -apple-system, sans-serif; }
+    body { display: flex; align-items: center; justify-content: center; }
+    .splash { text-align: center; }
+    .splash .logo { display: inline-grid; place-items: center; width: 96px; height: 96px; border-radius: 9999px; background: radial-gradient(circle at 30% 30%, #FFC1DA, #FF6B9D); box-shadow: 0 8px 0 0 #C0266B, 0 12px 24px rgba(0,0,0,0.12); font-size: 56px; animation: float 3s ease-in-out infinite; }
+    .splash h1 { margin: 16px 0 4px; color: #2D1B4E; font-weight: 800; font-size: 22px; }
+    .splash p { margin: 0; color: #6B5B95; font-size: 14px; }
+    .splash .loader { margin: 24px auto 0; width: 32px; height: 32px; border: 3px solid #FFE0EC; border-top-color: #FF6B9D; border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
 </head>
 <body>
-  <!--
-    You can customize the "flutter_bootstrap.js" script.
-    This is useful to provide a custom configuration to the Flutter loader
-    or to give the user feedback during the initialization process.
+  <div class="splash" role="status" aria-live="polite">
+    <div class="logo" aria-hidden="true">🐸</div>
+    <h1>HocVui</h1>
+    <p>Đang tải bài học…</p>
+    <div class="loader" aria-hidden="true"></div>
+  </div>
 
-    For more details:
-    * https://docs.flutter.dev/platform-integration/web/initialization
-  -->
-  <script src="flutter_bootstrap.js" async></script>
+  <script src="flutter_bootstrap.js?v=1782749966" async></script>
 </body>
 </html>

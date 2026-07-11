@@ -1,0 +1,10 @@
+{
+  "name_vi": "Số thập phân",
+  "name_en": "Decimals",
+  "types": [
+    "Đổi phân số đơn giản sang số thập phân",
+    "Cộng trừ số thập phân theo cột dọc",
+    "Tính tiền mua sắm (3.5K + 2.5K)",
+    "So sánh số thập phân (0.7 vs 0.65)"
+  ]
+}

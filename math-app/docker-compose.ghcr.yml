@@ -24,12 +24,83 @@ services:
     image: ghcr.io/${OWNER_REPO:-your-username/math-app}/flutter-web:${IMAGE_TAG:-latest}
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.flutter-web.rule=Host(`${DOMAIN}`) || Host(`www.${DOMAIN}`)"
+      - "traefik.http.routers.flutter-web.rule=Host(`${DOMAIN}`) && PathPrefix(`/app`)"
       - "traefik.http.routers.flutter-web.entrypoints=websecure"
       - "traefik.http.routers.flutter-web.tls.certresolver=letsencrypt"
       - "traefik.http.routers.flutter-web.tls=true"
+      - "traefik.http.routers.flutter-web.priority=50"
+      - "traefik.http.middlewares.flutter-strip.stripprefix.prefixes=/app"
+      - "traefik.http.middlewares.flutter-strip.stripprefix.forceSlash=false"
       - "traefik.http.middlewares.flutter-coop.headers.customResponseHeaders.Cross-Origin-Opener-Policy=unsafe-none"
-      - "traefik.http.routers.flutter-web.middlewares=flutter-coop"
+      - "traefik.http.routers.flutter-web.middlewares=flutter-strip,flutter-coop"
+    restart: unless-stopped
+
+  marketing-site:
+    image: nginx:1.27-alpine
+    volumes:
+      - ./marketing-site/dist:/usr/share/nginx/html:ro
+      - ./marketing-site/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.marketing.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.marketing.entrypoints=websecure"
+      - "traefik.http.routers.marketing.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.marketing.priority=10"
+      - "traefik.http.middlewares.marketing-csp.headers.customResponseHeaders.Content-Security-Policy=default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' https://plausible.io https://sekklings.com 'sha256-'; connect-src 'self' https://plausible.io https://sekklings.com"
+      - "traefik.http.middlewares.marketing-csp.headers.stsIncludeSubdomains=true"
+      - "traefik.http.middlewares.marketing-csp.headers.stsSeconds=31536000"
+      - "traefik.http.middlewares.marketing-csp.headers.customFrameOptionsValue=SAMEORIGIN"
+      - "traefik.http.routers.marketing.middlewares=marketing-csp"
+    restart: unless-stopped
+
+  umami:
+    image: ghcr.io/umami-software/umami:postgresql-latest
+    environment:
+      - DATABASE_URL=postgresql://umami:${UMAMI_DB_PASS}@umami-db:5432/umami
+      - APP_SECRET=${UMAMI_APP_SECRET}
+    depends_on:
+      - umami-db
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.umami.rule=Host(`${DOMAIN}`) && PathPrefix(`/umami`)"
+      - "traefik.http.routers.umami.entrypoints=websecure"
+      - "traefik.http.routers.umami.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.umami.priority=50"
+      - "traefik.http.middlewares.umami-strip.stripprefix.prefixes=/umami"
+      - "traefik.http.middlewares.umami-strip.stripprefix.forceSlash=false"
+      - "traefik.http.routers.umami.middlewares=umami-strip"
+      - "traefik.http.routers.umami-static.rule=Host(`${DOMAIN}`) && PathPrefix(`/_next`)"
+      - "traefik.http.routers.umami-static.entrypoints=websecure"
+      - "traefik.http.routers.umami-static.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.umami-static.priority=50"
+      - "traefik.http.services.umami.loadbalancer.server.port=3000"
+    restart: unless-stopped
+
+  umami-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: umami
+      POSTGRES_USER: umami
+      POSTGRES_PASSWORD: ${UMAMI_DB_PASS}
+    volumes:
+      - umami_db_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  www-redirect:
+    image: traefik:latest
+    command:
+      - "--providers.docker=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.www-redirect.rule=Host(`www.${DOMAIN}`)"
+      - "traefik.http.routers.www-redirect.entrypoints=websecure"
+      - "traefik.http.routers.www-redirect.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.www-redirect.priority=200"
+      - "traefik.http.middlewares.www-redirect.redirectregex.regex=^https://www\\.${DOMAIN}(/.*)?"
+      - "traefik.http.middlewares.www-redirect.redirectregex.replacement=https://${DOMAIN}$${1}"
+      - "traefik.http.routers.www-redirect.middlewares=www-redirect"
     restart: unless-stopped
 
   auth-service:
@@ -283,3 +354,4 @@ volumes:
   qb_db_data:
   language_db_data:
   minio_data:
+  umami_db_data:

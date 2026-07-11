@@ -1,0 +1,12 @@
+{
+  "name_vi": "Số học",
+  "name_en": "Numbers",
+  "types": [
+    "Đếm số lượng đồ vật (kéo thả, tô màu)",
+    "Điền số còn thiếu trong dãy số",
+    "Tính nhẩm nhanh (cộng trừ)",
+    "Bài toán có lời văn ngắn",
+    "Sắp xếp số theo thứ tự tăng/giảm dần",
+    "Tìm số lớn nhất / nhỏ nhất trong nhóm"
+  ]
+}

@@ -1,0 +1,49 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+---
+<BaseLayout
+  seo={{ title: 'Về HocVui', description: 'Câu chuyện và sứ mệnh của HocVui — ứng dụng học Toán cho bé Việt Nam.', path: '/about' }}
+  locale="vi"
+>
+  <Header slot="nav" locale="vi" currentPath="/about" />
+  <Fragment slot="footer"><Footer locale="vi" /></Fragment>
+
+  <section class="bg-gradient-to-b from-pink-soft to-pink-bg py-12 sm:py-16">
+    <div class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
+      <h1 class="font-display text-4xl font-extrabold text-purple-deep sm:text-5xl">Về HocVui</h1>
+      <p class="mt-3 text-lg text-purple-deep/70">
+        Chúng tôi tin rằng mỗi bé đều có thể học Toán vui vẻ.
+      </p>
+    </div>
+  </section>
+
+  <article class="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8 prose prose-purple">
+    <h2>Câu chuyện</h2>
+    <p>
+      HocVui ra đời từ một quan sát đơn giản: nhiều bé Việt Nam sợ Toán. Không phải vì Toán khó,
+      mà vì cách dạy không phù hợp với tính cách của bé.
+    </p>
+    <p>
+      Năm 2024, một nhóm giáo viên tiểu học và kỹ sư phần mềm Việt Nam bắt đầu xây dựng HocVui
+      với mục tiêu: một ứng dụng học Toán cá nhân hoá theo <strong>4 phong cách học</strong>,
+      <strong>song ngữ</strong>, và hoàn toàn <strong>miễn phí</strong>.
+    </p>
+    <h2>Sứ mệnh</h2>
+    <p>
+      Giúp 10 triệu bé Việt Nam yêu thích Toán — không phải bằng áp lực, mà bằng sự phù hợp.
+    </p>
+    <h2>Đội ngũ</h2>
+    <p>
+      HocVui được phát triển bởi s0lut1on và cộng sự, với sự cố vấn của giáo viên tiểu học
+      tại TP. Hồ Chí Minh và Hà Nội.
+    </p>
+    <h2>Liên hệ</h2>
+    <p>
+      Email: <a href="mailto:contact@sekklings.com">contact@sekklings.com</a><br>
+      Báo chí: <a href="mailto:press@sekklings.com">press@sekklings.com</a><br>
+      Quyền riêng tư: <a href="mailto:privacy@sekklings.com">privacy@sekklings.com</a>
+    </p>
+  </article>
+</BaseLayout>

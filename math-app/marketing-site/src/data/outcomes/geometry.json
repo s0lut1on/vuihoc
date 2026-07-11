@@ -1,0 +1,13 @@
+{
+  "name_vi": "Hình học",
+  "name_en": "Geometry",
+  "outcomes": [
+    "Nhận biết các hình phẳng: tròn, vuông, tam giác, chữ nhật, lục giác",
+    "Nhận biết khối 3D: cầu, lập phương, hộp chữ nhật, trụ, nón",
+    "Đếm số cạnh, số đỉnh, số mặt của các hình",
+    "So sánh độ dài, chiều cao, chiều rộng giữa các đối tượng",
+    "Xác định vị trí: trên/dưới, trái/phải, trong/ngoài",
+    "Tìm hình trong tự nhiên và đồ vật xung quanh"
+  ],
+  "parent_tip": "Cho bé chơi với khối gỗ, lego, hộp các tông — vừa vui vừa học hình. Đi dạo ngoài trời, hỏi bé 'chiếc lá này hình gì?' là cách học tự nhiên nhất."
+}

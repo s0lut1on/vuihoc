@@ -1,0 +1,9 @@
+{
+  "name_vi": "Bài toán có lời văn",
+  "name_en": "Word problems",
+  "types": [
+    "Bài toán về tiền, đồ vật, thời gian",
+    "Bài toán nhiều bước (mua 3 cái kẹo, 2 cái bánh, tổng bao nhiêu?)",
+    "Bài toán ngược (cho kết quả, tìm phép tính)"
+  ]
+}

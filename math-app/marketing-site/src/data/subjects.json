@@ -1,0 +1,182 @@
+[
+  {
+    "id": "numbers",
+    "name_vi": "Số học",
+    "name_en": "Numbers",
+    "icon": "🔢",
+    "color": "#FFE8F0",
+    "grade_min": 1,
+    "grade_max": 12
+  },
+  {
+    "id": "geometry",
+    "name_vi": "Hình học",
+    "name_en": "Geometry",
+    "icon": "📐",
+    "color": "#E0F2FE",
+    "grade_min": 1,
+    "grade_max": 12
+  },
+  {
+    "id": "measurement",
+    "name_vi": "Đo lường",
+    "name_en": "Measurement",
+    "icon": "📏",
+    "color": "#FFF3E0",
+    "grade_min": 1,
+    "grade_max": 12
+  },
+  {
+    "id": "logic",
+    "name_vi": "Tư duy",
+    "name_en": "Logic",
+    "icon": "🧠",
+    "color": "#F3E5F5",
+    "grade_min": 1,
+    "grade_max": 12
+  },
+  {
+    "id": "algebra",
+    "name_vi": "Đại số",
+    "name_en": "Algebra",
+    "icon": "➕",
+    "color": "#DCFCE7",
+    "grade_min": 2,
+    "grade_max": 12
+  },
+  {
+    "id": "trigonometry",
+    "name_vi": "Lượng giác",
+    "name_en": "Trigonometry",
+    "icon": "📊",
+    "color": "#FFE0EC",
+    "grade_min": 3,
+    "grade_max": 12
+  },
+  {
+    "id": "statistics",
+    "name_vi": "Thống kê",
+    "name_en": "Statistics",
+    "icon": "📈",
+    "color": "#E8F5E9",
+    "grade_min": 4,
+    "grade_max": 12
+  },
+  {
+    "id": "arithmetic_2digit",
+    "name_vi": "Cộng trừ 2 chữ số",
+    "name_en": "2-digit arithmetic",
+    "icon": "🧮",
+    "color": "#FFF8E1",
+    "grade_min": 2,
+    "grade_max": 2
+  },
+  {
+    "id": "arithmetic_3digit",
+    "name_vi": "Cộng trừ 3 chữ số",
+    "name_en": "3-digit arithmetic",
+    "icon": "🧮",
+    "color": "#FFF8E1",
+    "grade_min": 3,
+    "grade_max": 3
+  },
+  {
+    "id": "multiplication",
+    "name_vi": "Bảng cửu chương",
+    "name_en": "Multiplication tables",
+    "icon": "✖️",
+    "color": "#FFF8E1",
+    "grade_min": 2,
+    "grade_max": 3
+  },
+  {
+    "id": "division",
+    "name_vi": "Phép chia",
+    "name_en": "Division",
+    "icon": "➗",
+    "color": "#FFF8E1",
+    "grade_min": 3,
+    "grade_max": 3
+  },
+  {
+    "id": "fractions",
+    "name_vi": "Phân số",
+    "name_en": "Fractions",
+    "icon": "½",
+    "color": "#FFE0EC",
+    "grade_min": 3,
+    "grade_max": 3
+  },
+  {
+    "id": "decimals",
+    "name_vi": "Số thập phân",
+    "name_en": "Decimals",
+    "icon": "0.5",
+    "color": "#E0F2FE",
+    "grade_min": 3,
+    "grade_max": 3
+  },
+  {
+    "id": "perimeter",
+    "name_vi": "Chu vi",
+    "name_en": "Perimeter",
+    "icon": "📏",
+    "color": "#E0F2FE",
+    "grade_min": 2,
+    "grade_max": 2
+  },
+  {
+    "id": "area",
+    "name_vi": "Diện tích",
+    "name_en": "Area",
+    "icon": "⬛",
+    "color": "#E0F2FE",
+    "grade_min": 3,
+    "grade_max": 3
+  },
+  {
+    "id": "angles",
+    "name_vi": "Góc",
+    "name_en": "Angles",
+    "icon": "📐",
+    "color": "#E0F2FE",
+    "grade_min": 3,
+    "grade_max": 3
+  },
+  {
+    "id": "time_money",
+    "name_vi": "Thời gian & Tiền",
+    "name_en": "Time & Money",
+    "icon": "⏰",
+    "color": "#FFF3E0",
+    "grade_min": 2,
+    "grade_max": 2
+  },
+  {
+    "id": "volume",
+    "name_vi": "Thể tích",
+    "name_en": "Volume",
+    "icon": "🧊",
+    "color": "#FFF3E0",
+    "grade_min": 3,
+    "grade_max": 3
+  },
+  {
+    "id": "speed",
+    "name_vi": "Tốc độ",
+    "name_en": "Speed",
+    "icon": "🏃",
+    "color": "#FFF3E0",
+    "grade_min": 3,
+    "grade_max": 3
+  },
+  {
+    "id": "word_problems",
+    "name_vi": "Bài toán có lời văn",
+    "name_en": "Word problems",
+    "icon": "📝",
+    "color": "#F3E5F5",
+    "grade_min": 2,
+    "grade_max": 2
+  }
+]

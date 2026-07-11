@@ -1,0 +1,63 @@
+---
+import { Locale, t, type I18nEntry } from '../lib/i18n';
+import { NAV } from '../lib/nav';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const isEn = locale === 'en';
+const year = new Date().getFullYear();
+const nav = NAV;
+---
+<footer class="mt-24 border-t border-pink-soft bg-gradient-to-b from-pink-bg to-white">
+  <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+    <div class="grid gap-10 md:grid-cols-4">
+      <div class="md:col-span-2">
+        <a href={isEn ? '/en' : '/'} class="inline-flex items-center gap-2.5 font-display text-xl font-extrabold text-purple-deep">
+          <span class="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-[#FFC1DA] to-pink text-2xl shadow-pill">🐸</span>
+          HocVui
+        </a>
+        <p class="mt-4 max-w-md text-sm leading-relaxed text-purple-deep/70">
+          {isEn
+            ? 'A bilingual math app for kids 5–7, built around 4 learning personas. 6,000+ lessons, 100% free to start.'
+            : 'Ứng dụng học toán song ngữ cho bé 5–7 tuổi, với 4 phong cách học tập. Hơn 6.000 bài học, hoàn toàn miễn phí.'}
+        </p>
+      </div>
+
+      <div>
+        <h3 class="text-xs font-bold uppercase tracking-wider text-purple-deep/60">
+          {isEn ? 'Product' : 'Sản phẩm'}
+        </h3>
+        <ul class="mt-4 space-y-2 text-sm">
+          <li><a href={isEn ? '/en/lessons' : '/lessons'} class="text-purple-deep/80 hover:text-pink-dark">{t(nav.lessons, locale)}</a></li>
+          <li><a href={isEn ? '/en/personas' : '/personas'} class="text-purple-deep/80 hover:text-pink-dark">{t({ vi: 'Phong cách học', en: 'Learning personas' }, locale)}</a></li>
+          <li><a href={isEn ? '/en/pricing' : '/pricing'} class="text-purple-deep/80 hover:text-pink-dark">{t(nav.pricing, locale)}</a></li>
+          <li><a href="/app" class="text-purple-deep/80 hover:text-pink-dark">{t({ vi: 'Mở ứng dụng', en: 'Open app' }, locale)}</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h3 class="text-xs font-bold uppercase tracking-wider text-purple-deep/60">
+          {isEn ? 'Company' : 'Công ty'}
+        </h3>
+        <ul class="mt-4 space-y-2 text-sm">
+          <li><a href={isEn ? '/en/about' : '/about'} class="text-purple-deep/80 hover:text-pink-dark">{t(nav.about, locale)}</a></li>
+          <li><a href={isEn ? '/en/parents' : '/parents'} class="text-purple-deep/80 hover:text-pink-dark">{t(nav.parents, locale)}</a></li>
+          <li><a href={isEn ? '/en/blog' : '/blog'} class="text-purple-deep/80 hover:text-pink-dark">{t(nav.blog, locale)}</a></li>
+          <li><a href="mailto:contact@sekklings.com" class="text-purple-deep/80 hover:text-pink-dark">{t(nav.contact, locale)}</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="mt-10 flex flex-col items-start gap-3 border-t border-pink-soft pt-6 text-xs text-purple-deep/50 sm:flex-row sm:items-center sm:justify-between">
+      <p>© {year} HocVui. {isEn ? 'All rights reserved.' : 'Bảo lưu mọi quyền.'}</p>
+      <p>
+        <a href={isEn ? '/en/privacy' : '/privacy'} class="hover:text-pink-dark">{t(nav.privacy, locale)}</a>
+        <span class="mx-2">·</span>
+        <a href={isEn ? '/en/terms' : '/terms'} class="hover:text-pink-dark">{t(nav.terms, locale)}</a>
+      </p>
+    </div>
+  </div>
+</footer>

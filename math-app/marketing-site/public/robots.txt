@@ -1,0 +1,24 @@
+# HocVui robots.txt
+# AI-bot policy: we explicitly allow search but not AI-training.
+
+User-agent: *
+Allow: /
+Disallow: /app/
+Disallow: /api/
+Disallow: /en/app/
+
+# Block AI training crawlers (per Cloudflare's "Content Signals: ai-train=no")
+User-agent: GPTBot
+Disallow: /
+User-agent: ClaudeBot
+Disallow: /
+User-agent: Google-Extended
+Disallow: /
+User-agent: CCBot
+Disallow: /
+User-agent: anthropic-ai
+Disallow: /
+User-agent: Bytespider
+Disallow: /
+
+Sitemap: https://sekklings.com/sitemap-index.xml
