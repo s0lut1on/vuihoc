@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fix: popular card gradient blends with page bg</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800;900&family=Nunito:wght@400;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    :root {
+      --pink: #ff6b9d;
+      --pink-dark: #c0266b;
+      --pink-soft: #ffe0ec;
+      --pink-bg: #fff5fa;
+      --deep-purple: #2d1b4e;
+      --muted-purple: #6b5b95;
+      --cream: #fff8e1;
+      --white: #fff;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: 'Nunito', system-ui, -apple-system, sans-serif;
+      font-weight: 600;
+      color: var(--deep-purple);
+      background: var(--pink-bg);
+      min-height: 100vh;
+      padding: 24px 20px 60px;
+    }
+    h1 { font-family: 'Baloo 2'; font-weight: 900; font-size: 22px; margin: 0 0 8px; }
+    h2 { font-family: 'Baloo 2'; font-weight: 800; font-size: 18px; margin: 32px 0 12px; }
+    p { color: var(--muted-purple); font-size: 13px; line-height: 1.5; }
+    .container { max-width: 1100px; margin: 0 auto; }
+    .where { display: inline-block; background: var(--pink-soft); color: var(--pink-dark);
+             font-family: ui-monospace, monospace; font-size: 11px; padding: 2px 8px; border-radius: 4px; }
+    .problem { background: #fff0f0; border-left: 4px solid #e74c3c; padding: 12px 16px; border-radius: 4px; margin: 16px 0; }
+    .fix { background: #f0fff0; border-left: 4px solid #22c55e; padding: 12px 16px; border-radius: 4px; margin: 16px 0; }
+
+    /* Tier card */
+    .tier-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+      margin-top: 16px;
+    }
+    .tier {
+      border-radius: 24px;
+      padding: 24px 20px;
+      position: relative;
+    }
+    .tier.free { background: var(--white); border: 2px solid var(--pink-soft); }
+    .tier.popular-current { background: var(--white); border: 4px solid var(--pink);
+      background-image: linear-gradient(135deg, var(--pink-bg), var(--cream));
+    }
+    .tier.popular-fixed { background: var(--white); border: 4px solid var(--pink);
+      background-image: linear-gradient(135deg, var(--pink-soft), var(--cream));
+    }
+    .tier.yearly { background: var(--cream); border: 2px solid var(--pink-soft); }
+    .tier .name { font-size: 11px; font-weight: 800; color: var(--pink-dark);
+                  text-transform: uppercase; letter-spacing: 0.5px; }
+    .tier .price { font-family: 'Baloo 2'; font-weight: 900; font-size: 32px; margin-top: 4px; }
+    .tier .features { margin-top: 12px; font-size: 12px; color: var(--muted-purple); }
+    .tier .features li { margin: 4px 0; }
+    .badge { position: absolute; top: -10px; right: 16px; background: var(--pink);
+             color: var(--white); font-size: 10px; font-weight: 800;
+             padding: 4px 10px; border-radius: 999px; text-transform: uppercase; }
+    .arrow { font-size: 24px; color: var(--pink-dark); }
+    .col-label { font-size: 10px; font-weight: 800; color: var(--pink-dark);
+                 text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Bug: Popular card gradient invisible against page bg</h1>
+    <p>
+      <code>AppColors.pinkBg</code> = <code>#FFF5FA</code> = <code>rgb(255, 245, 250)</code>.
+      The page background is also <code>pinkBg</code>. So the popular card's
+      gradient <code>[pinkBg, cream]</code> has an INVISIBLE left/top edge
+      (top-left of the card is the same color as the page bg behind it).
+    </p>
+    <p>
+      The yearly card is solid <code>cream</code>. The popular card's
+      bottom-right is also <code>cream</code>. The two cards visually merge
+      into one big "right block". User sees: <strong>free on left + (popular+yearly)
+      on right = 2 visible things</strong>. They report "i only see 2 col" and
+      "3rd card missing".
+    </p>
+
+    <h2>1. CURRENT (deployed — commit 76fb815) — popular gradient [pinkBg, cream]</h2>
+    <p>The popular card's left edge is invisible. The cream bottom-right blends
+       into the yearly card.</p>
+    <div class="tier-row">
+      <div class="tier free">
+        <div class="name">Free</div>
+        <div class="price">0 đ</div>
+        <div class="features">
+          <li>20 bài học miễn phí</li>
+          <li>3 chủ đề Numbers</li>
+          <li>Theo dõi tiến độ</li>
+        </div>
+      </div>
+      <div class="tier popular-current">
+        <div class="badge">Phổ biến</div>
+        <div class="name">Premium</div>
+        <div class="price">199K<span style="font-size: 14px; color: var(--muted-purple)"> / tháng</span></div>
+        <div class="features">
+          <li>Tất cả bài học</li>
+          <li>Bảng điều khiển phụ huynh</li>
+          <li>Báo cáo tuần</li>
+        </div>
+      </div>
+      <div class="tier yearly">
+        <div class="name">Premium (năm)</div>
+        <div class="price">1,99 triệu<span style="font-size: 14px; color: var(--muted-purple)"> / năm</span></div>
+        <div class="features" style="color: #22c55e; font-weight: 700;">
+          Tiết kiệm 17% so với trả theo tháng
+        </div>
+        <div class="features">
+          <li>Tất cả bài học</li>
+          <li>Bảng điều khiển phụ huynh</li>
+        </div>
+      </div>
+    </div>
+
+    <h2>2. FIXED — popular gradient [pinkSoft, cream]</h2>
+    <p>Change popular gradient to <code>[pinkSoft, cream]</code> (was
+       <code>[pinkBg, cream]</code>). pinkSoft is <code>#FFE0EC</code> — clearly
+       distinct from the page bg. The popular card now has a visible left edge
+       and a different "feel" from the yearly card.</p>
+    <div class="tier-row">
+      <div class="tier free">
+        <div class="name">Free</div>
+        <div class="price">0 đ</div>
+        <div class="features">
+          <li>20 bài học miễn phí</li>
+          <li>3 chủ đề Numbers</li>
+          <li>Theo dõi tiến độ</li>
+        </div>
+      </div>
+      <div class="tier popular-fixed">
+        <div class="badge">Phổ biến</div>
+        <div class="name">Premium</div>
+        <div class="price">199K<span style="font-size: 14px; color: var(--muted-purple)"> / tháng</span></div>
+        <div class="features">
+          <li>Tất cả bài học</li>
+          <li>Bảng điều khiển phụ huynh</li>
+          <li>Báo cáo tuần</li>
+        </div>
+      </div>
+      <div class="tier yearly">
+        <div class="name">Premium (năm)</div>
+        <div class="price">1,99 triệu<span style="font-size: 14px; color: var(--muted-purple)"> / năm</span></div>
+        <div class="features" style="color: #22c55e; font-weight: 700;">
+          Tiết kiệm 17% so với trả theo tháng
+        </div>
+        <div class="features">
+          <li>Tất cả bài học</li>
+          <li>Bảng điều khiển phụ huynh</li>
+        </div>
+      </div>
+    </div>
+
+    <div class="problem">
+      <strong>Why this happens:</strong> Flutter's <code>Container</code> with
+      a gradient and no <code>color</code> shows the gradient. The
+      <code>Border.all(width: 4, color: pink)</code> should outline the card,
+      but the page bg is the same color as the gradient's top-left, so the
+      border's top-left corner visually disappears into the page bg. Combined
+      with the yearly card's cream bg touching the popular card's cream end,
+      they look like one big block.
+    </div>
+
+    <div class="fix">
+      <strong>Proposed fix:</strong> Change one line in
+      <span class="where">lib/screens/pricing_screen.dart:231-235</span>:
+      <pre style="background: #fff; padding: 8px; border-radius: 4px; margin: 8px 0; font-size: 12px;">// Before
+const LinearGradient(
+  colors: [AppColors.pinkBg, AppColors.cream],
+  begin: Alignment.topLeft,
+  end: Alignment.bottomRight,
+)
+
+// After
+const LinearGradient(
+  colors: [AppColors.pinkSoft, AppColors.cream],
+  begin: Alignment.topLeft,
+  end: Alignment.bottomRight,
+)</pre>
+      <strong>No data, l10n, or business logic change. Just the gradient colors.</strong>
+    </div>
+
+    <h2>Alternatives I considered</h2>
+    <ul style="font-size: 13px; line-height: 1.6; color: var(--muted-purple);">
+      <li><strong>Reverse gradient</strong> [cream, pinkBg] — still has the
+          same problem on the bottom-left.</li>
+      <li><strong>Vertical gradient</strong> [pinkSoft, white] — looks like
+          a different style from the rest of the design system.</li>
+      <li><strong>Solid pinkSoft bg</strong> — boring, loses the "premium"
+          gradient feel.</li>
+      <li><strong>Thicker border + drop shadow</strong> — would make the
+          popular card stick out but doesn't fix the visual merge with yearly.</li>
+    </ul>
+  </div>
+</body>
+</html>
