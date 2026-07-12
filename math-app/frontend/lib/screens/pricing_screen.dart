@@ -386,7 +386,8 @@ class PricingScreen extends StatelessWidget {
 
   // Subtitle under the monthly price: "1,99 triệu / năm (tiết kiệm 17%)"
   Widget _buildYearlySubtitle(PricingConfig pricing, bool isEn) {
-    final yearly = pricing.tierById('premium_yearly')!;
+    final yearly = pricing.tierById('premium_yearly');
+    if (yearly == null) return const SizedBox.shrink();
     final price = pricing.formatPrice(yearly['price'] as num, en: isEn);
     if (isEn) {
       return Text(
