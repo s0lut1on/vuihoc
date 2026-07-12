@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fix: wider pricing cards</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800;900&family=Nunito:wght@400;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    :root {
+      --pink: #ff6b9d;
+      --pink-dark: #c0266b;
+      --pink-soft: #ffe0ec;
+      --pink-bg: #fff5fa;
+      --deep-purple: #2d1b4e;
+      --muted-purple: #6b5b95;
+      --muted-text: #a89cb8;
+      --cream: #fff8e1;
+      --white: #fff;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: 'Nunito', system-ui, -apple-system, sans-serif;
+      font-weight: 600;
+      color: var(--deep-purple);
+      background: #f5f3f7;
+      min-height: 100vh;
+      padding: 32px 16px 60px;
+    }
+    h1 { font-family: 'Baloo 2'; font-weight: 900; font-size: 22px; margin: 0 0 6px; }
+    h2 { font-family: 'Baloo 2'; font-weight: 800; font-size: 16px; margin: 24px 0 8px; }
+    p { color: var(--muted-purple); font-size: 13px; line-height: 1.5; margin: 4px 0; }
+    .where { display: inline-block; background: var(--pink-soft); color: var(--pink-dark);
+             font-family: ui-monospace, monospace; font-size: 11px; padding: 2px 8px; border-radius: 4px; }
+    .frame {
+      max-width: 1320px; margin: 0 auto;
+      border: 1px solid #e5e0eb; border-radius: 12px;
+      overflow: hidden; background: var(--pink-bg);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+      margin-top: 12px;
+    }
+    .frame-header {
+      background: #1a0d2e; color: #fff; padding: 8px 14px;
+      font-family: ui-monospace, monospace; font-size: 11px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .frame-header .viewport { color: #c4b5d9; }
+    .frame-header .tag { background: var(--pink); color: #fff; padding: 2px 8px; border-radius: 999px; font-weight: 800; font-size: 10px; text-transform: uppercase; }
+    .frame-body { padding: 20px; }
+
+    .tier-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+    }
+    .tier {
+      border-radius: 24px;
+      padding: 24px 20px;
+      position: relative;
+    }
+    .tier.free { background: var(--white); border: 2px solid var(--pink-soft); }
+    .tier.popular { background: var(--white); border: 4px solid var(--pink);
+      background-image: linear-gradient(135deg, var(--pink-soft), var(--cream));
+    }
+    .tier.yearly { background: var(--cream); border: 2px solid var(--pink-soft); }
+    .tier .name { font-size: 11px; font-weight: 800; color: var(--pink-dark);
+                  text-transform: uppercase; letter-spacing: 0.5px; }
+    .tier .price { font-family: 'Baloo 2'; font-weight: 900; font-size: 32px; margin-top: 4px; }
+    .tier .period { font-size: 14px; color: var(--muted-purple); margin-left: 4px; }
+    .tier ul { margin: 12px 0 16px; padding: 0; list-style: none; font-size: 12px; }
+    .tier li { margin: 6px 0; color: var(--muted-purple); }
+    .tier li::before { content: '✓ '; color: var(--pink-dark); font-weight: 800; }
+    .tier .cta {
+      display: block; text-align: center; padding: 10px;
+      border-radius: 999px; font-size: 12px; font-weight: 800;
+      margin-top: 12px;
+    }
+    .tier.free .cta { border: 2px solid var(--pink); color: var(--pink-dark); background: #fff; }
+    .tier.popular .cta { background: var(--pink); color: #fff; }
+    .tier.yearly .cta { border: 2px solid var(--pink); color: var(--pink-dark); background: #fff; }
+    .badge { position: absolute; top: -10px; right: 16px; background: var(--pink);
+             color: #fff; font-size: 10px; font-weight: 800;
+             padding: 4px 10px; border-radius: 999px; text-transform: uppercase; }
+    .gap-indicator {
+      background: rgba(0,0,0,0.05);
+      border: 2px dashed rgba(0,0,0,0.2);
+      padding: 4px 8px;
+      font-family: ui-monospace, monospace; font-size: 10px;
+      text-align: center; color: #666;
+    }
+    .gap-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-top: 4px; }
+    .gap-row .gap { background: rgba(255,107,157,0.15); border: 1px dashed var(--pink); padding: 6px; text-align: center; font-size: 10px; font-family: ui-monospace, monospace; color: var(--pink-dark); border-radius: 4px; }
+
+    .compare { background: var(--white); border-radius: 24px; padding: 20px; border: 2px solid var(--pink-soft); margin-top: 24px; }
+    .compare h3 { text-align: center; font-family: 'Baloo 2'; font-weight: 800; font-size: 18px; margin: 0 0 16px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { padding: 10px 8px; text-align: left; border-bottom: 1px solid var(--pink-soft); }
+    th { font-weight: 800; color: var(--pink-dark); text-align: center; }
+    td:nth-child(1) { font-weight: 600; }
+    td.center { text-align: center; color: var(--muted-purple); }
+
+    .viewport-label { background: #f0e8f5; padding: 6px 12px; font-family: ui-monospace, monospace; font-size: 11px; color: var(--muted-purple); display: inline-block; border-radius: 4px; margin-bottom: 8px; }
+  </style>
+</head>
+<body>
+  <div style="max-width: 1320px; margin: 0 auto;">
+    <h1>Fix: pricing cards are too small on wide viewports</h1>
+    <p>Current layout caps content at <code>max-width: 1024px</code>. On a 1280px viewport, that leaves ~128px empty on each side. Cards feel cramped relative to the screen.</p>
+    <p>User feedback: <em>"i see the pricing, but its look small than i expected, there is still many empty space in 2 side"</em></p>
+    <p>Source: <span class="where">lib/screens/pricing_screen.dart:40-41</span></p>
+
+    <h2 style="margin-top: 28px;">Comparison at 1280px viewport</h2>
+
+    <div class="viewport-label">Current: max-width 1024px (128px gap on each side)</div>
+    <div class="frame">
+      <div class="frame-header">
+        <span>app/pricing</span>
+        <span class="viewport">viewport: 1280 × 800</span>
+        <span class="tag">DEPLOYED</span>
+      </div>
+      <div class="frame-body" style="max-width: 1024px; margin: 0 auto;">
+        <div class="tier-row">
+          <div class="tier free">
+            <div class="name">Miễn phí</div>
+            <div><span class="price">0 đ</span><span class="period">/ mãi mãi</span></div>
+            <ul><li>50 bài/ngày</li><li>4 phong cách</li><li>Song ngữ</li></ul>
+            <a class="cta">Bắt đầu</a>
+          </div>
+          <div class="tier popular">
+            <span class="badge">Phổ biến</span>
+            <div class="name">Premium</div>
+            <div><span class="price">199K</span><span class="period">/ tháng</span></div>
+            <ul><li>Không giới hạn</li><li>Báo cáo tuần</li><li>Xuất CSV</li></ul>
+            <a class="cta">Nâng cấp</a>
+          </div>
+          <div class="tier yearly">
+            <div class="name">Premium (năm)</div>
+            <div><span class="price">1,99 triệu</span><span class="period">/ năm</span></div>
+            <ul><li>Tất cả Premium</li><li>Tiết kiệm 17%</li></ul>
+            <a class="cta">Tiết kiệm</a>
+          </div>
+        </div>
+        <div class="gap-row">
+          <div></div>
+          <div class="gap">128px gap (side)</div>
+          <div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="viewport-label" style="margin-top: 32px;">Proposed A: max-width 1400px (no gap at 1280px, cap kicks in at 1400+)</div>
+    <div class="frame">
+      <div class="frame-header">
+        <span>app/pricing</span>
+        <span class="viewport">viewport: 1280 × 800</span>
+        <span class="tag">OPTION A</span>
+      </div>
+      <div class="frame-body" style="max-width: 1400px; margin: 0 auto;">
+        <div class="tier-row">
+          <div class="tier free">
+            <div class="name">Miễn phí</div>
+            <div><span class="price">0 đ</span><span class="period">/ mãi mãi</span></div>
+            <ul><li>50 bài/ngày</li><li>4 phong cách</li><li>Song ngữ</li></ul>
+            <a class="cta">Bắt đầu</a>
+          </div>
+          <div class="tier popular">
+            <span class="badge">Phổ biến</span>
+            <div class="name">Premium</div>
+            <div><span class="price">199K</span><span class="period">/ tháng</span></div>
+            <ul><li>Không giới hạn</li><li>Báo cáo tuần</li><li>Xuất CSV</li></ul>
+            <a class="cta">Nâng cấp</a>
+          </div>
+          <div class="tier yearly">
+            <div class="name">Premium (năm)</div>
+            <div><span class="price">1,99 triệu</span><span class="period">/ năm</span></div>
+            <ul><li>Tất cả Premium</li><li>Tiết kiệm 17%</li></ul>
+            <a class="cta">Tiết kiệm</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="viewport-label" style="margin-top: 32px;">Proposed B: no max-width cap (cards fill full viewport width, capped only at very wide screens)</div>
+    <div class="frame">
+      <div class="frame-header">
+        <span>app/pricing</span>
+        <span class="viewport">viewport: 1280 × 800</span>
+        <span class="tag">OPTION B</span>
+      </div>
+      <div class="frame-body" style="max-width: 100%; margin: 0 auto;">
+        <div class="tier-row">
+          <div class="tier free">
+            <div class="name">Miễn phí</div>
+            <div><span class="price">0 đ</span><span class="period">/ mãi mãi</span></div>
+            <ul><li>50 bài/ngày</li><li>4 phong cách</li><li>Song ngữ</li></ul>
+            <a class="cta">Bắt đầu</a>
+          </div>
+          <div class="tier popular">
+            <span class="badge">Phổ biến</span>
+            <div class="name">Premium</div>
+            <div><span class="price">199K</span><span class="period">/ tháng</span></div>
+            <ul><li>Không giới hạn</li><li>Báo cáo tuần</li><li>Xuất CSV</li></ul>
+            <a class="cta">Nâng cấp</a>
+          </div>
+          <div class="tier yearly">
+            <div class="name">Premium (năm)</div>
+            <div><span class="price">1,99 triệu</span><span class="period">/ năm</span></div>
+            <ul><li>Tất cả Premium</li><li>Tiết kiệm 17%</li></ul>
+            <a class="cta">Tiết kiệm</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h2 style="margin-top: 32px;">Card width at 1280px viewport</h2>
+    <table class="compare" style="margin-top: 0;">
+      <thead><tr><th>Layout</th><th>Content area</th><th>Card width each</th><th>Side gap</th></tr></thead>
+      <tbody>
+        <tr><td>Current (1024 cap)</td><td class="center">1024px</td><td class="center">320px</td><td class="center">128px</td></tr>
+        <tr><td>Proposed A (1400 cap)</td><td class="center">1280px (no cap)</td><td class="center">416px</td><td class="center">0px</td></tr>
+        <tr><td>Proposed B (no cap)</td><td class="center">1240px (viewport − 40 padding)</td><td class="center">403px</td><td class="center">0px</td></tr>
+      </tbody>
+    </table>
+
+    <h2 style="margin-top: 32px;">Trade-offs</h2>
+    <ul style="font-size: 13px; line-height: 1.7; color: var(--muted-purple);">
+      <li><strong>Proposed A (1400 cap)</strong>: Big enough at 1280px, still has a cap for very wide screens (>1400px) to prevent the cards from stretching too far. Best balance.</li>
+      <li><strong>Proposed B (no cap)</strong>: Maximum use of screen space. On ultra-wide screens (>1920px), the cards would stretch to ~600px each which can look weird with the current border-radius.</li>
+      <li><strong>Current (1024 cap)</strong>: Matches the original mockup. Too cramped on standard laptop screens (1280-1440px).</li>
+    </ul>
+  </div>
+</body>
+</html>
