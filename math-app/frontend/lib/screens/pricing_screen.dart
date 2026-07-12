@@ -22,35 +22,9 @@ class PricingScreen extends StatelessWidget {
     final pricing = PricingConfig.instance;
     final isEn = Localizations.localeOf(context).languageCode == 'en';
 
-    final free = pricing.tierById('free');
-    final premium = pricing.tierById('premium_monthly');
-    final yearly = pricing.tierById('premium_yearly');
-
-    // Defensive: if the pricing JSON hasn't loaded yet (e.g. asset fetch
-    // is slow on first paint, or the load() promise hasn't resolved),
-    // show a loading state instead of crashing with a null-check error.
-    // Previously this used `!` on each tier and threw "Null check operator
-    // used on a null value" when the PricingConfig was still the empty
-    // stub — which made the pricing screen render as just the top bar.
-    if (free == null || premium == null || yearly == null) {
-      return Scaffold(
-        backgroundColor: AppColors.pinkBg,
-        body: SafeArea(
-          child: Column(
-            children: [
-              _buildTopBar(context, l10n),
-              const Expanded(
-                child: Center(
-                  child: CircularProgressIndicator(
-                    color: AppColors.pink,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
+    final free = pricing.tierById('free')!;
+    final premium = pricing.tierById('premium_monthly')!;
+    final yearly = pricing.tierById('premium_yearly')!;
 
     return Scaffold(
       backgroundColor: AppColors.pinkBg,
@@ -386,8 +360,7 @@ class PricingScreen extends StatelessWidget {
 
   // Subtitle under the monthly price: "1,99 triệu / năm (tiết kiệm 17%)"
   Widget _buildYearlySubtitle(PricingConfig pricing, bool isEn) {
-    final yearly = pricing.tierById('premium_yearly');
-    if (yearly == null) return const SizedBox.shrink();
+    final yearly = pricing.tierById('premium_yearly')!;
     final price = pricing.formatPrice(yearly['price'] as num, en: isEn);
     if (isEn) {
       return Text(
