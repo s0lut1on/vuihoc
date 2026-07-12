@@ -459,4 +459,29 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pricingBannerRemindLater => 'Remind me later';
+
+  @override
+  String get pricingHeroTitle => 'Pricing';
+
+  @override
+  String get pricingHeroSubtitle => 'Free to start. Upgrade when you need more.';
+
+  @override
+  String get pricingYearlySaveLine => 'Save 17% vs monthly';
+
+  @override
+  String get pricingRefundLine => 'Cancel anytime. 7-day refund.';
+
+  @override
+  String get pricingNoteLabel => 'Note: ';
+
+  @override
+  String pricingNoteBody(String email) =>
+      'Online payment is not yet integrated. Upgrade to Premium via: $email';
+
+  @override
+  String get pricingBackTooltip => 'Back';
+
+  @override
+  String get pricingBrandShort => 'HocVui';
 }

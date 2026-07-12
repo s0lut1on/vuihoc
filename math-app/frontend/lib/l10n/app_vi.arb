@@ -193,5 +193,19 @@
   "pricingBannerTitle": "Bạn đã học hôm nay rồi!",
   "pricingBannerBody": "Nâng cấp Premium để học không giới hạn mỗi ngày.",
   "pricingBannerCta": "Xem gói học",
-  "pricingBannerRemindLater": "Nhắc tôi sau"
+  "pricingBannerRemindLater": "Nhắc tôi sau",
+
+  "pricingHeroTitle": "Gói học",
+  "pricingHeroSubtitle": "Bắt đầu miễn phí. Nâng cấp khi cần.",
+  "pricingYearlySaveLine": "Tiết kiệm 17% so với trả theo tháng",
+  "pricingRefundLine": "Huỷ bất cứ lúc nào. Hoàn tiền trong 7 ngày.",
+  "pricingNoteLabel": "Lưu ý: ",
+  "pricingNoteBody": "Hiện tại thanh toán chưa tích hợp online. Nâng cấp Premium qua liên hệ: {email}",
+  "@pricingNoteBody": {
+    "placeholders": {
+      "email": {"type": "String"}
+    }
+  },
+  "pricingBackTooltip": "Quay lại",
+  "pricingBrandShort": "HocVui"
 }

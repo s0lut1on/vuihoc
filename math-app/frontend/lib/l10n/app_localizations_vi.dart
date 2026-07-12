@@ -461,4 +461,29 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get pricingBannerRemindLater => 'Nhắc tôi sau';
+
+  @override
+  String get pricingHeroTitle => 'Gói học';
+
+  @override
+  String get pricingHeroSubtitle => 'Bắt đầu miễn phí. Nâng cấp khi cần.';
+
+  @override
+  String get pricingYearlySaveLine => 'Tiết kiệm 17% so với trả theo tháng';
+
+  @override
+  String get pricingRefundLine => 'Huỷ bất cứ lúc nào. Hoàn tiền trong 7 ngày.';
+
+  @override
+  String get pricingNoteLabel => 'Lưu ý: ';
+
+  @override
+  String pricingNoteBody(String email) =>
+      'Hiện tại thanh toán chưa tích hợp online. Nâng cấp Premium qua liên hệ: $email';
+
+  @override
+  String get pricingBackTooltip => 'Quay lại';
+
+  @override
+  String get pricingBrandShort => 'HocVui';
 }

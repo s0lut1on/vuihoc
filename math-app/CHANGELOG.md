@@ -1,5 +1,16 @@
 ## [Unreleased]
 
+### Changed
+- **Pricing screen (in-app) — match marketing site `/pricing/`** (`lib/screens/pricing_screen.dart`)
+  - Removed `KidNavBar` + `BigMascot`; replaced with minimal back-arrow + brand top bar and a marketing-style hero (gradient `pink-soft` → `pink-bg`, plain title `Gói học` / `Pricing`, subtitle `Bắt đầu miễn phí. Nâng cấp khi cần.`)
+  - Tier cards: plain `✓` text checkmarks (no circle backgrounds) like the Astro page; `Phổ biến` / `Popular` badge now absolute-positioned `-top-3 right-6` above the card
+  - Free card now shows CTA `Bắt đầu miễn phí` / `Get started free` (instead of being hidden behind a "Đang dùng" badge)
+  - Monthly card: "1,99 triệu / năm (tiết kiệm 17%)" subtitle + `Cancel anytime. 7-day refund.` microcopy under CTA
+  - Yearly card: green `Save 17% vs monthly` / `Tiết kiệm 17% so với trả theo tháng` line
+  - Note section: bordered white box with `Lưu ý: ` / `Note: ` prefix, no 💡 emoji
+  - Content max-width capped at 1024px on wide viewports so the page reads like a marketing page, not a stretched kid screen
+  - 8 new l10n keys added: `pricingHeroTitle`, `pricingHeroSubtitle`, `pricingYearlySaveLine`, `pricingRefundLine`, `pricingNoteLabel`, `pricingNoteBody`, `pricingBackTooltip`, `pricingBrandShort` (both `app_en.arb` and `app_vi.arb`; generated localizations patched to match)
+
 ### Added
 - **HocVui Marketing Site (sekklings.com)** — full SEO rebuild with marketing site at root + Flutter app at `/app/`
   - **Marketing site (Astro + Tailwind)**: 240+ bilingual HTML pages (vi + en) at the root, including:

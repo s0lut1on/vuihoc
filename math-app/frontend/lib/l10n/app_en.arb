@@ -193,5 +193,19 @@
   "pricingBannerTitle": "You've hit today's lesson limit!",
   "pricingBannerBody": "Upgrade to Premium for unlimited lessons every day.",
   "pricingBannerCta": "View pricing",
-  "pricingBannerRemindLater": "Remind me later"
+  "pricingBannerRemindLater": "Remind me later",
+
+  "pricingHeroTitle": "Pricing",
+  "pricingHeroSubtitle": "Free to start. Upgrade when you need more.",
+  "pricingYearlySaveLine": "Save 17% vs monthly",
+  "pricingRefundLine": "Cancel anytime. 7-day refund.",
+  "pricingNoteLabel": "Note: ",
+  "pricingNoteBody": "Online payment is not yet integrated. Upgrade to Premium via: {email}",
+  "@pricingNoteBody": {
+    "placeholders": {
+      "email": {"type": "String"}
+    }
+  },
+  "pricingBackTooltip": "Back",
+  "pricingBrandShort": "HocVui"
 }

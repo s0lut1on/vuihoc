@@ -949,6 +949,54 @@ abstract class AppLocalizations {
   /// In vi, this message translates to:
   /// **'Nhắc tôi sau'**
   String get pricingBannerRemindLater;
+
+  /// No description provided for @pricingHeroTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Gói học'**
+  String get pricingHeroTitle;
+
+  /// No description provided for @pricingHeroSubtitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Bắt đầu miễn phí. Nâng cấp khi cần.'**
+  String get pricingHeroSubtitle;
+
+  /// No description provided for @pricingYearlySaveLine.
+  ///
+  /// In vi, this message translates to:
+  /// **'Tiết kiệm 17% so với trả theo tháng'**
+  String get pricingYearlySaveLine;
+
+  /// No description provided for @pricingRefundLine.
+  ///
+  /// In vi, this message translates to:
+  /// **'Huỷ bất cứ lúc nào. Hoàn tiền trong 7 ngày.'**
+  String get pricingRefundLine;
+
+  /// No description provided for @pricingNoteLabel.
+  ///
+  /// In vi, this message translates to:
+  /// **'Lưu ý: '**
+  String get pricingNoteLabel;
+
+  /// No description provided for @pricingNoteBody.
+  ///
+  /// In vi, this message translates to:
+  /// **'Hiện tại thanh toán chưa tích hợp online. Nâng cấp Premium qua liên hệ: {email}'**
+  String pricingNoteBody(String email);
+
+  /// No description provided for @pricingBackTooltip.
+  ///
+  /// In vi, this message translates to:
+  /// **'Quay lại'**
+  String get pricingBackTooltip;
+
+  /// No description provided for @pricingBrandShort.
+  ///
+  /// In vi, this message translates to:
+  /// **'HocVui'**
+  String get pricingBrandShort;
 }
 
 class _AppLocalizationsDelegate
