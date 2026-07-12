@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HocVui Flutter — "Bảng giá" Experience Mockup</title>
+  <title>HocVui Flutter — "Bảng giá" Current State</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
@@ -12,7 +12,6 @@
   />
   <style>
     :root {
-      /* Mirrors math-app/frontend/lib/core/app_colors.dart */
       --pink: #ff6b9d;
       --pink-dark: #c0266b;
       --pink-soft: #ffe0ec;
@@ -39,40 +38,38 @@
     .display { font-family: 'Baloo 2', sans-serif; font-weight: 800; }
     .container { max-width: 1100px; margin: 0 auto; padding: 24px 20px 80px; }
     h1 { font-family: 'Baloo 2'; font-weight: 900; font-size: 32px; margin: 0 0 8px; }
-    .subtitle { color: var(--muted-purple); font-size: 15px; margin: 0 0 32px; }
+    h2 { font-family: 'Baloo 2'; font-weight: 800; font-size: 22px; margin: 0 0 4px; }
+    .subtitle { color: var(--muted-purple); font-size: 15px; margin: 0 0 16px; }
+
+    .where { display: inline-block; background: var(--pink-soft); color: var(--pink-dark); font-family: ui-monospace, 'JetBrains Mono', monospace; font-size: 11px; padding: 2px 8px; border-radius: 4px; margin-left: 6px; }
+
+    .screen-label { display: inline-flex; align-items: center; gap: 8px; background: var(--pink); color: var(--white); padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
     .section { background: var(--white); border-radius: 24px; padding: 28px 28px 32px; margin-bottom: 32px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); }
     .section h2 { font-family: 'Baloo 2'; font-weight: 800; font-size: 22px; margin: 0 0 4px; }
-    .section .meta { display: inline-flex; gap: 6px; align-items: center; background: var(--pink-soft); color: var(--pink-dark); padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 16px; }
     .section .desc { color: var(--muted-purple); font-size: 14px; margin: 0 0 24px; max-width: 720px; }
-    .section .code { display: block; background: #f8f6fa; border: 1px solid var(--border-light); border-radius: 8px; padding: 8px 12px; font-family: ui-monospace, 'JetBrains Mono', monospace; font-size: 12px; color: var(--deep-purple); margin: 8px 0; }
-    .section .label-row { display: flex; gap: 16px; flex-wrap: wrap; align-items: baseline; margin-bottom: 4px; }
-    .section .label-row .k { color: var(--muted-purple); font-size: 12px; min-width: 110px; }
+    .section .file { display: inline-block; background: var(--pink-bg); border: 1px solid var(--pink-soft); border-radius: 6px; padding: 2px 8px; font-family: ui-monospace, monospace; font-size: 11px; color: var(--pink-dark); }
 
-    /* --- MOCKUP FRAME: the simulated Flutter screen --- */
-    .flutter-frame {
+    /* Phone-frame for the pricing screen */
+    .phone-frame {
       background: var(--pink-bg);
       border-radius: 24px;
       overflow: hidden;
+      max-width: 100%;
       box-shadow: 0 6px 24px rgba(0,0,0,0.08);
       border: 4px solid var(--white);
     }
-    .flutter-frame .notch {
-      background: var(--deep-purple);
-      height: 28px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
+    .phone-frame .notch {
+      background: var(--deep-purple); height: 28px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--white); font-size: 12px; font-weight: 700;
     }
-    .flutter-frame .notch::before { content: '9:41'; color: var(--white); font-size: 12px; font-weight: 700; }
 
-    /* --- 1. KID NAV BAR (Top of Home Screen) --- */
+    /* --- KID NAV BAR --- */
     .kidnav {
       background: var(--white);
       border-bottom: 4px solid var(--pink-soft);
       padding: 14px 24px;
-      display: flex;
-      align-items: center;
+      display: flex; align-items: center;
       box-shadow: 0 2px 6px rgba(0,0,0,0.08);
     }
     .kidnav .brand { display: flex; align-items: center; gap: 10px; }
@@ -109,24 +106,10 @@
       font-size: 15px; font-weight: 800;
       box-shadow: 0 4px 0 0 var(--pink-dark), 0 6px 8px rgba(0,0,0,0.12);
       cursor: pointer;
-      transition: transform 0.1s, box-shadow 0.1s;
     }
-    .kidnav .cta:hover { transform: translateY(1px); box-shadow: 0 2px 0 0 var(--pink-dark), 0 4px 6px rgba(0,0,0,0.1); }
     .kidnav .cta.active { border: 2px solid var(--white); }
-    .kidnav .cta .arrow { font-size: 16px; font-weight: 800; }
 
-    /* Before/after comparison for nav */
-    .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    .compare .col { background: var(--pink-bg); border: 2px dashed var(--pink-soft); border-radius: 16px; padding: 14px; }
-    .compare .col h3 { font-family: 'Baloo 2'; font-weight: 800; font-size: 14px; margin: 0 0 10px; color: var(--pink-dark); }
-    .kidnav-old { background: var(--white); border-bottom: 4px solid var(--pink-soft); padding: 14px 48px; display: flex; align-items: center; opacity: 0.65; }
-    .kidnav-old .brand { display: flex; align-items: center; gap: 10px; }
-    .kidnav-old .brand .mascot { width: 44px; height: 44px; border-radius: 9999px; background: var(--pink-soft); display: grid; place-items: center; font-size: 22px; }
-    .kidnav-old .brand .name { font-family: 'Baloo 2'; font-weight: 800; font-size: 22px; }
-    .kidnav-old .links { display: flex; gap: 4px; }
-    .kidnav-old .text-link { padding: 12px; color: var(--deep-purple); font-size: 14px; font-weight: 800; }
-
-    /* --- 2. PRICING BANNER (Soft dismissible) --- */
+    /* --- PRICING BANNER (Soft dismissible) --- */
     .pricing-banner {
       margin: 16px 48px 8px;
       border-radius: 20px;
@@ -158,7 +141,7 @@
       cursor: pointer;
     }
 
-    /* --- 3. PRICING SCREEN (/app#/pricing) --- */
+    /* --- PRICING SCREEN --- */
     .pricing-content { padding: 16px 20px 32px; }
     .pricing-content .header { text-align: center; }
     .pricing-content .mascot {
@@ -251,30 +234,14 @@
     }
     .footer-note .emoji { font-size: 18px; }
 
-    /* Annotation: where in the code */
-    .where {
-      display: inline-block;
-      background: var(--pink-soft);
-      color: var(--pink-dark);
-      font-family: ui-monospace, 'JetBrains Mono', monospace;
-      font-size: 11px;
-      padding: 2px 8px; border-radius: 4px;
-      margin-left: 6px;
-    }
+    /* Section wrapper for mockup */
+    .mockup { background: var(--pink-bg); padding: 16px; border-radius: 16px; }
 
-    /* Page intro */
-    .page-intro {
-      background: var(--white); border-radius: 24px;
-      padding: 24px 28px;
-      margin-bottom: 32px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.04);
-    }
+    .page-intro { background: var(--white); border-radius: 24px; padding: 24px 28px; margin-bottom: 32px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); }
     .page-intro h1 { margin: 0 0 8px; }
     .page-intro p { color: var(--muted-purple); font-size: 15px; margin: 0 0 8px; }
-    .page-intro code { background: var(--pink-soft); padding: 2px 6px; border-radius: 4px; font-size: 13px; }
-
-    /* Section wrapper for multiple mockup variants */
-    .mockup-section { background: var(--pink-bg); padding: 16px; border-radius: 16px; margin-top: 8px; }
+    .status { display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 800; }
+    .status.live { background: var(--success); color: var(--white); }
   </style>
 </head>
 <body>
@@ -282,59 +249,25 @@
 <div class="container">
 
   <div class="page-intro">
-    <h1>Bảng giá — Flutter app visual mockup</h1>
-    <p>This page shows every place the user sees <strong>"Bảng giá"</strong> in the Flutter app. Each section is a faithful render of the actual Dart widget, using the same fonts, colors, and data the app uses.</p>
-    <p style="margin-top:12px"><strong>Workflow rule (new):</strong> for any layout change or new screen, I draw an HTML mockup like this one first, get your sign-off, then implement in Dart. No more "looks ugly" surprises after deploy.</p>
+    <h1>"Bảng giá" in the Flutter app — current state</h1>
+    <p>This page shows what "Bảng giá" looks like in the app <strong>today</strong> (after commit <code>29dc2ee</code> "fix(nav): polish 'Bảng giá' link"). Every mockup here matches the current Dart code 1:1.</p>
+    <p>If something doesn't match what you see on screen, tell me which part — e.g. "the Bảng giá pill is taller" or "the banner is on the right". I'll re-mockup the discrepancy.</p>
+    <p style="margin-top: 14px;"><span class="status live">LIVE NOW</span> &nbsp; Hard-refresh <code>https://sekklings.com/app/#/home</code> if the app looks stale.</p>
   </div>
 
   <!-- ============================================================== -->
-  <!-- SECTION 1: TOP NAV BAR (Home Screen) -->
+  <!-- 1. TOP NAV BAR (always visible) -->
   <!-- ============================================================== -->
   <div class="section">
-    <div class="meta">KidNavBar</div>
-    <div class="label-row"><div class="k">Where</div><div>top of <code>HomeScreen</code> — always visible <span class="where">kid_nav_bar.dart:9</span></div></div>
-    <div class="label-row"><div class="k">Before</div><div>plain bold text, no visual hierarchy</div></div>
-    <div class="label-row"><div class="k">After</div><div>"Bảng giá" is a primary CTA pill (3D shadow, gradient). "Chủ đề" + "Liên hệ" are quiet text links with soft-pill active state + dot indicator.</div></div>
-    <h2 style="margin-top:24px">Before / After (currently live)</h2>
-    <div class="compare">
-      <div>
-        <div class="col">
-          <h3>Before — plain text</h3>
-          <div class="kidnav-old">
-            <div class="brand">
-              <div class="mascot">🐸</div>
-              <div class="name">Học Vui</div>
-            </div>
-            <div class="spacer" style="flex:1"></div>
-            <div class="links">
-              <div class="text-link">Chủ đề</div>
-              <div class="text-link">Bảng giá</div>
-              <div class="text-link">Liên hệ</div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div>
-        <div class="col">
-          <h3>After — Bảng giá is the CTA</h3>
-          <div class="kidnav">
-            <div class="brand">
-              <div class="mascot">🐸</div>
-              <div class="name">Học Vui</div>
-            </div>
-            <div class="spacer"></div>
-            <div class="links">
-              <div class="text-link">Chủ đề</div>
-              <div class="cta">Bảng giá <span class="arrow">→</span></div>
-              <div class="text-link">Liên hệ</div>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div class="screen-label">KidNavBar</div>
+    <h2>1. The "Bảng giá" link in the top nav</h2>
+    <div class="desc">
+      <span class="file">lib/widgets/kid_nav_bar.dart:9</span> — visible on every screen.
+      "Bảng giá" is the conversion path (links to /pricing), so it's the primary CTA pill.
+      "Chủ đề" and "Liên hệ" are quiet text links.
     </div>
 
-    <h2 style="margin-top:32px">Active state (when on /pricing)</h2>
-    <div class="mockup-section">
+    <div class="mockup">
       <div class="kidnav">
         <div class="brand">
           <div class="mascot">🐸</div>
@@ -343,25 +276,49 @@
         <div class="spacer"></div>
         <div class="links">
           <div class="text-link">Chủ đề</div>
-          <div class="cta active">Bảng giá <span class="arrow">→</span></div>
+          <div class="cta">Bảng giá →</div>
           <div class="text-link">Liên hệ</div>
         </div>
       </div>
     </div>
+
+    <h2 style="margin-top: 24px;">Active state (when on /pricing)</h2>
+    <div class="mockup">
+      <div class="kidnav">
+        <div class="brand">
+          <div class="mascot">🐸</div>
+          <div class="name">Học Vui</div>
+        </div>
+        <div class="spacer"></div>
+        <div class="links">
+          <div class="text-link">Chủ đề</div>
+          <div class="cta active">Bảng giá →</div>
+          <div class="text-link">Liên hệ</div>
+        </div>
+      </div>
+    </div>
+
+    <h2 style="margin-top: 24px;">What the active state looks like in code</h2>
+    <ul style="font-size: 13px; color: var(--deep-purple); line-height: 1.8;">
+      <li>The "Bảng giá" pill gets a <code>2px white border</code> when <code>activeLabel == 'Bảng giá'</code> (set by the pricing screen's KidNavBar)</li>
+      <li>The "Chủ đề" text link gets a soft-pink <code>pinkSoft</code> pill background + small dot when <code>activeLabel == 'Chủ đề'</code> (set by the home screen)</li>
+      <li>The "Liên hệ" link opens Facebook in a new tab (external URL, no active state)</li>
+    </ul>
   </div>
 
   <!-- ============================================================== -->
-  <!-- SECTION 2: PRICING BANNER (Soft dismissible) -->
+  <!-- 2. PRICING BANNER (only when at daily limit) -->
   <!-- ============================================================== -->
   <div class="section">
-    <div class="meta">PricingBanner</div>
-    <div class="label-row"><div class="k">Where</div><div>top of home content (above Continue card) <span class="where">home_screen.dart:65</span></div></div>
-    <div class="label-row"><div class="k">Shows when</div><div>kid hits daily limit AND not premium AND not dismissed in last 24h</div></div>
-    <div class="label-row"><div class="k">Data</div><div>reads <code>dailyLimitProvider</code> + <code>getPricingBannerDismissedAt()</code> from Hive</div></div>
-    <div class="label-row"><div class="k">l10n</div><div>pricingBannerTitle, pricingBannerBody, pricingBannerCta, pricingBannerRemindLater</div></div>
+    <div class="screen-label">PricingBanner</div>
+    <h2>2. The "Nhắc tôi sau" banner on home</h2>
+    <div class="desc">
+      <span class="file">lib/widgets/pricing_banner.dart</span> — appears <em>only</em> when the kid hits the daily 50-lesson cap and hasn't dismissed in the last 24h.
+      Not visible on a fresh home screen.
+    </div>
 
-    <h2 style="margin-top:24px">Banner shown on home (Vietnamese default)</h2>
-    <div class="mockup-section">
+    <h2 style="margin-top: 16px;">Vietnamese (default app locale)</h2>
+    <div class="mockup">
       <div class="pricing-banner">
         <div class="emoji">⭐</div>
         <div class="body">
@@ -376,8 +333,8 @@
       </div>
     </div>
 
-    <h2 style="margin-top:32px">English variant (when app locale is 'en')</h2>
-    <div class="mockup-section">
+    <h2 style="margin-top: 24px;">English (when app locale is 'en')</h2>
+    <div class="mockup">
       <div class="pricing-banner">
         <div class="emoji">⭐</div>
         <div class="body">
@@ -394,202 +351,235 @@
   </div>
 
   <!-- ============================================================== -->
-  <!-- SECTION 3: PRICING SCREEN (/app#/pricing) -->
+  <!-- 3. PRICING SCREEN (/app#/pricing) -->
   <!-- ============================================================== -->
   <div class="section">
-    <div class="meta">PricingScreen</div>
-    <div class="label-row"><div class="k">Where</div><div>route <code>/pricing</code> (added Phase A) <span class="where">app_router.dart:62</span></div></div>
-    <div class="label-row"><div class="k">Data</div><div>reads <code>PricingConfig.instance</code> from <code>assets/pricing.json</code> (synced from <code>math-app/pricing.json</code>)</div></div>
-    <div class="label-row"><div class="k">Tiers</div><div>Free (0đ) / Premium monthly (199K) / Premium yearly (1.99M) — all vi+en</div></div>
-    <div class="label-row"><div class="k">l10n</div><div>~15 keys (header, badges, CTAs, compare table, footer, brand, mailto subject)</div></div>
+    <div class="screen-label">PricingScreen</div>
+    <h2>3. The full pricing screen (after tapping "Bảng giá")</h2>
+    <div class="desc">
+      <span class="file">lib/screens/pricing_screen.dart</span> — route <code>/pricing</code>, added in commit <code>54ae5af</code>. Reads from
+      <code>PricingConfig.instance</code> which loads <code>assets/pricing.json</code> at startup.
+      Bilingual (vi/en) based on the app locale.
+    </div>
 
-    <h2 style="margin-top:24px">Vietnamese (default app locale)</h2>
-    <div class="mockup-section">
-      <div class="pricing-content">
-        <div class="header">
-          <div class="mascot">🐸</div>
-          <div class="h1">Bảng giá HocVui</div>
-          <div class="sub">Học vui mỗi ngày, miễn phí hoặc nâng cấp Premium</div>
-        </div>
-        <div class="tier-row">
-          <div class="tier free">
-            <div class="top">
-              <div class="icon free-icon">🎁</div>
-              <div class="name">Miễn phí</div>
-              <div class="current-badge">Đang dùng</div>
-            </div>
-            <div class="price-row">
-              <div class="price">0</div>
-              <div class="period">đ / mãi mãi</div>
-            </div>
-            <ul class="features">
-              <li><div class="check">✓</div>50 bài học mỗi ngày</li>
-              <li><div class="check">✓</div>Đầy đủ 4 phong cách học</li>
-              <li><div class="check">✓</div>Song ngữ Việt–Anh</li>
-              <li><div class="check">✓</div>Dashboard phụ huynh cơ bản</li>
-              <li><div class="check">✓</div>Google Sign-In + Guest</li>
-              <li><div class="check">✓</div>Không giới hạn thời gian</li>
-            </ul>
+    <h2 style="margin-top: 16px;">Vietnamese (default)</h2>
+    <div class="mockup">
+      <div class="phone-frame">
+        <div class="notch">9:41</div>
+        <div class="kidnav">
+          <div class="brand">
+            <div class="mascot">🐸</div>
+            <div class="name">Học Vui</div>
           </div>
-
-          <div class="tier premium">
-            <div class="popular-badge">Phổ biến</div>
-            <div class="top">
-              <div class="icon premium-icon">👑</div>
-              <div class="name">Premium</div>
-            </div>
-            <div class="price-row">
-              <div class="price">199K</div>
-              <div class="period">/ tháng</div>
-            </div>
-            <div style="color:var(--pink-dark); font-size:13px; margin-top:-4px">hoặc 1,99 triệu / năm (tiết kiệm 17%)</div>
-            <ul class="features">
-              <li><div class="check">✓</div>Không giới hạn bài học mỗi ngày</li>
-              <li><div class="check">✓</div>Báo cáo tiến bộ hàng tuần qua email</li>
-              <li><div class="check">✓</div>Xuất dữ liệu học tập (CSV)</li>
-              <li><div class="check">✓</div>Nhiều hồ sơ bé trong 1 tài khoản</li>
-              <li><div class="check">✓</div>Hỗ trợ ưu tiên 24/7</li>
-              <li><div class="check">✓</div>Sớm nhận nội dung mới</li>
-            </ul>
-            <div class="cta-btn">Nâng cấp ngay 🚀</div>
-          </div>
-
-          <div class="tier yearly">
-            <div class="top">
-              <div class="icon premium-icon">👑</div>
-              <div class="name">Premium (năm)</div>
-            </div>
-            <div class="price-row">
-              <div class="price">1,99M</div>
-              <div class="period">/ năm</div>
-            </div>
-            <div style="color:var(--success); font-size:13px; margin-top:-4px">Tiết kiệm 17% so với trả theo tháng</div>
-            <ul class="features">
-              <li><div class="check">✓</div>Bao gồm tất cả tính năng Premium</li>
-              <li><div class="check">✓</div>Tiết kiệm 17% so với trả theo tháng</li>
-            </ul>
-            <div class="cta-btn">Tiết kiệm ngay</div>
+          <div class="spacer"></div>
+          <div class="links">
+            <div class="text-link">Chủ đề</div>
+            <div class="cta active">Bảng giá →</div>
+            <div class="text-link">Liên hệ</div>
           </div>
         </div>
-
-        <div class="compare-table">
-          <h3>So sánh chi tiết</h3>
-          <div class="compare-row header-row">
-            <div>Tính năng</div>
-            <div>Free</div>
-            <div>Premium</div>
+        <div class="pricing-content">
+          <div class="header">
+            <div class="mascot">🐸</div>
+            <div class="h1">Bảng giá HocVui</div>
+            <div class="sub">Học vui mỗi ngày, miễn phí hoặc nâng cấp Premium</div>
           </div>
-          <div class="compare-row"><div>Bài học / ngày</div><div>50</div><div>Không giới hạn</div></div>
-          <div class="compare-row"><div>4 phong cách học</div><div>✓</div><div>✓</div></div>
-          <div class="compare-row"><div>Song ngữ Việt–Anh</div><div>✓</div><div>✓</div></div>
-          <div class="compare-row"><div>Dashboard phụ huynh</div><div>Cơ bản</div><div>Nâng cao + email</div></div>
-          <div class="compare-row"><div>Nhiều hồ sơ bé</div><div>—</div><div>✓</div></div>
-          <div class="compare-row"><div>Hỗ trợ ưu tiên</div><div>—</div><div>✓</div></div>
-          <div class="compare-row"><div>Sớm nhận nội dung mới</div><div>—</div><div>✓</div></div>
-        </div>
+          <div class="tier-row">
+            <div class="tier free">
+              <div class="top">
+                <div class="icon free-icon">🎁</div>
+                <div class="name">Miễn phí</div>
+                <div class="current-badge">Đang dùng</div>
+              </div>
+              <div class="price-row">
+                <div class="price">0</div>
+                <div class="period">đ / mãi mãi</div>
+              </div>
+              <ul class="features">
+                <li><div class="check">✓</div>50 bài học mỗi ngày</li>
+                <li><div class="check">✓</div>Đầy đủ 4 phong cách học</li>
+                <li><div class="check">✓</div>Song ngữ Việt–Anh</li>
+                <li><div class="check">✓</div>Dashboard phụ huynh cơ bản</li>
+                <li><div class="check">✓</div>Google Sign-In + Guest</li>
+                <li><div class="check">✓</div>Không giới hạn thời gian</li>
+              </ul>
+            </div>
 
-        <div class="footer-note">
-          <div class="emoji">💡</div>
-          <div>Thanh toán online chưa tích hợp. Bé đang dùng gói Premium? Liên hệ <strong>contact@sekklings.com</strong> — admin sẽ kích hoạt trong 24h.</div>
+            <div class="tier premium">
+              <div class="popular-badge">Phổ biến</div>
+              <div class="top">
+                <div class="icon premium-icon">👑</div>
+                <div class="name">Premium</div>
+              </div>
+              <div class="price-row">
+                <div class="price">199K</div>
+                <div class="period">/ tháng</div>
+              </div>
+              <div style="color:var(--pink-dark); font-size:13px; margin-top:-4px">hoặc 1,99 triệu / năm (tiết kiệm 17%)</div>
+              <ul class="features">
+                <li><div class="check">✓</div>Không giới hạn bài học mỗi ngày</li>
+                <li><div class="check">✓</div>Báo cáo tiến bộ hàng tuần qua email</li>
+                <li><div class="check">✓</div>Xuất dữ liệu học tập (CSV)</li>
+                <li><div class="check">✓</div>Nhiều hồ sơ bé trong 1 tài khoản</li>
+                <li><div class="check">✓</div>Hỗ trợ ưu tiên 24/7</li>
+                <li><div class="check">✓</div>Sớm nhận nội dung mới</li>
+              </ul>
+              <div class="cta-btn">Nâng cấp ngay 🚀</div>
+            </div>
+
+            <div class="tier yearly">
+              <div class="top">
+                <div class="icon premium-icon">👑</div>
+                <div class="name">Premium (năm)</div>
+              </div>
+              <div class="price-row">
+                <div class="price">1,99M</div>
+                <div class="period">/ năm</div>
+              </div>
+              <div style="color:var(--success); font-size:13px; margin-top:-4px">Tiết kiệm 17% so với trả theo tháng</div>
+              <ul class="features">
+                <li><div class="check">✓</div>Bao gồm tất cả tính năng Premium</li>
+                <li><div class="check">✓</div>Tiết kiệm 17% so với trả theo tháng</li>
+              </ul>
+              <div class="cta-btn">Tiết kiệm ngay</div>
+            </div>
+          </div>
+
+          <div class="compare-table">
+            <h3>So sánh chi tiết</h3>
+            <div class="compare-row header-row">
+              <div>Tính năng</div>
+              <div>Free</div>
+              <div>Premium</div>
+            </div>
+            <div class="compare-row"><div>Bài học / ngày</div><div>50</div><div>Không giới hạn</div></div>
+            <div class="compare-row"><div>4 phong cách học</div><div>✓</div><div>✓</div></div>
+            <div class="compare-row"><div>Song ngữ Việt–Anh</div><div>✓</div><div>✓</div></div>
+            <div class="compare-row"><div>Dashboard phụ huynh</div><div>Cơ bản</div><div>Nâng cao + email</div></div>
+            <div class="compare-row"><div>Nhiều hồ sơ bé</div><div>—</div><div>✓</div></div>
+            <div class="compare-row"><div>Hỗ trợ ưu tiên</div><div>—</div><div>✓</div></div>
+            <div class="compare-row"><div>Sớm nhận nội dung mới</div><div>—</div><div>✓</div></div>
+          </div>
+
+          <div class="footer-note">
+            <div class="emoji">💡</div>
+            <div>Thanh toán online chưa tích hợp. Bé đang dùng gói Premium? Liên hệ <strong>contact@sekklings.com</strong> — admin sẽ kích hoạt trong 24h.</div>
+          </div>
         </div>
       </div>
     </div>
 
-    <h2 style="margin-top:32px">English (when app locale is 'en')</h2>
-    <div class="mockup-section">
-      <div class="pricing-content">
-        <div class="header">
-          <div class="mascot">🐸</div>
-          <div class="h1">HocVui Pricing</div>
-          <div class="sub">Learn joyfully every day — free or upgrade to Premium</div>
-        </div>
-        <div class="tier-row">
-          <div class="tier free">
-            <div class="top">
-              <div class="icon free-icon">🎁</div>
-              <div class="name">Free</div>
-              <div class="current-badge">Current plan</div>
-            </div>
-            <div class="price-row">
-              <div class="price">$0</div>
-              <div class="period">/ forever</div>
-            </div>
-            <ul class="features">
-              <li><div class="check">✓</div>50 lessons per day</li>
-              <li><div class="check">✓</div>All 4 learning personas</li>
-              <li><div class="check">✓</div>Bilingual Vietnamese–English</li>
-              <li><div class="check">✓</div>Basic parent dashboard</li>
-              <li><div class="check">✓</div>Google Sign-In + Guest</li>
-              <li><div class="check">✓</div>No time limit</li>
-            </ul>
+    <h2 style="margin-top: 32px;">English variant (when app locale is 'en')</h2>
+    <div class="mockup">
+      <div class="phone-frame">
+        <div class="notch">9:41</div>
+        <div class="kidnav">
+          <div class="brand">
+            <div class="mascot">🐸</div>
+            <div class="name">HocVui</div>
           </div>
-
-          <div class="tier premium">
-            <div class="popular-badge">Popular</div>
-            <div class="top">
-              <div class="icon premium-icon">👑</div>
-              <div class="name">Premium</div>
-            </div>
-            <div class="price-row">
-              <div class="price">$199K</div>
-              <div class="period">/ month</div>
-            </div>
-            <div style="color:var(--pink-dark); font-size:13px; margin-top:-4px">or $1.99M/year (save 17%)</div>
-            <ul class="features">
-              <li><div class="check">✓</div>Unlimited lessons per day</li>
-              <li><div class="check">✓</div>Weekly progress reports via email</li>
-              <li><div class="check">✓</div>Export learning data (CSV)</li>
-              <li><div class="check">✓</div>Multiple child profiles</li>
-              <li><div class="check">✓</div>Priority 24/7 support</li>
-              <li><div class="check">✓</div>Early access to new content</li>
-            </ul>
-            <div class="cta-btn">Upgrade now 🚀</div>
-          </div>
-
-          <div class="tier yearly">
-            <div class="top">
-              <div class="icon premium-icon">👑</div>
-              <div class="name">Premium (yearly)</div>
-            </div>
-            <div class="price-row">
-              <div class="price">$1.99M</div>
-              <div class="period">/ year</div>
-            </div>
-            <div style="color:var(--success); font-size:13px; margin-top:-4px">Save 17% vs monthly</div>
-            <ul class="features">
-              <li><div class="check">✓</div>All Premium features included</li>
-              <li><div class="check">✓</div>Save 17% vs monthly</li>
-            </ul>
-            <div class="cta-btn">Save 17%</div>
+          <div class="spacer"></div>
+          <div class="links">
+            <div class="text-link">Subjects</div>
+            <div class="cta active">Pricing →</div>
+            <div class="text-link">Contact</div>
           </div>
         </div>
-
-        <div class="compare-table">
-          <h3>Detailed comparison</h3>
-          <div class="compare-row header-row">
-            <div>Feature</div>
-            <div>Free</div>
-            <div>Premium</div>
+        <div class="pricing-content">
+          <div class="header">
+            <div class="mascot">🐸</div>
+            <div class="h1">HocVui Pricing</div>
+            <div class="sub">Learn joyfully every day — free or upgrade to Premium</div>
           </div>
-          <div class="compare-row"><div>Lessons / day</div><div>50</div><div>Unlimited</div></div>
-          <div class="compare-row"><div>4 learning personas</div><div>✓</div><div>✓</div></div>
-          <div class="compare-row"><div>Bilingual VI–EN</div><div>✓</div><div>✓</div></div>
-          <div class="compare-row"><div>Parent dashboard</div><div>Basic</div><div>Advanced + email</div></div>
-          <div class="compare-row"><div>Multiple child profiles</div><div>—</div><div>✓</div></div>
-          <div class="compare-row"><div>Priority support</div><div>—</div><div>✓</div></div>
-          <div class="compare-row"><div>Early access</div><div>—</div><div>✓</div></div>
-        </div>
+          <div class="tier-row">
+            <div class="tier free">
+              <div class="top">
+                <div class="icon free-icon">🎁</div>
+                <div class="name">Free</div>
+                <div class="current-badge">Current plan</div>
+              </div>
+              <div class="price-row">
+                <div class="price">$0</div>
+                <div class="period">/ forever</div>
+              </div>
+              <ul class="features">
+                <li><div class="check">✓</div>50 lessons per day</li>
+                <li><div class="check">✓</div>All 4 learning personas</li>
+                <li><div class="check">✓</div>Bilingual Vietnamese–English</li>
+                <li><div class="check">✓</div>Basic parent dashboard</li>
+                <li><div class="check">✓</div>Google Sign-In + Guest</li>
+                <li><div class="check">✓</div>No time limit</li>
+              </ul>
+            </div>
 
-        <div class="footer-note">
-          <div class="emoji">💡</div>
-          <div>Online payment is not yet integrated. Need Premium? Email <strong>contact@sekklings.com</strong> — admin activates within 24h.</div>
+            <div class="tier premium">
+              <div class="popular-badge">Popular</div>
+              <div class="top">
+                <div class="icon premium-icon">👑</div>
+                <div class="name">Premium</div>
+              </div>
+              <div class="price-row">
+                <div class="price">$199K</div>
+                <div class="period">/ month</div>
+              </div>
+              <div style="color:var(--pink-dark); font-size:13px; margin-top:-4px">or $1.99M/year (save 17%)</div>
+              <ul class="features">
+                <li><div class="check">✓</div>Unlimited lessons per day</li>
+                <li><div class="check">✓</div>Weekly progress reports via email</li>
+                <li><div class="check">✓</div>Export learning data (CSV)</li>
+                <li><div class="check">✓</div>Multiple child profiles</li>
+                <li><div class="check">✓</div>Priority 24/7 support</li>
+                <li><div class="check">✓</div>Early access to new content</li>
+              </ul>
+              <div class="cta-btn">Upgrade now 🚀</div>
+            </div>
+
+            <div class="tier yearly">
+              <div class="top">
+                <div class="icon premium-icon">👑</div>
+                <div class="name">Premium (yearly)</div>
+              </div>
+              <div class="price-row">
+                <div class="price">$1.99M</div>
+                <div class="period">/ year</div>
+              </div>
+              <div style="color:var(--success); font-size:13px; margin-top:-4px">Save 17% vs monthly</div>
+              <ul class="features">
+                <li><div class="check">✓</div>All Premium features included</li>
+                <li><div class="check">✓</div>Save 17% vs monthly</li>
+              </ul>
+              <div class="cta-btn">Save 17%</div>
+            </div>
+          </div>
+
+          <div class="compare-table">
+            <h3>Detailed comparison</h3>
+            <div class="compare-row header-row">
+              <div>Feature</div>
+              <div>Free</div>
+              <div>Premium</div>
+            </div>
+            <div class="compare-row"><div>Lessons / day</div><div>50</div><div>Unlimited</div></div>
+            <div class="compare-row"><div>4 learning personas</div><div>✓</div><div>✓</div></div>
+            <div class="compare-row"><div>Bilingual VI–EN</div><div>✓</div><div>✓</div></div>
+            <div class="compare-row"><div>Parent dashboard</div><div>Basic</div><div>Advanced + email</div></div>
+            <div class="compare-row"><div>Multiple child profiles</div><div>—</div><div>✓</div></div>
+            <div class="compare-row"><div>Priority support</div><div>—</div><div>✓</div></div>
+            <div class="compare-row"><div>Early access</div><div>—</div><div>✓</div></div>
+          </div>
+
+          <div class="footer-note">
+            <div class="emoji">💡</div>
+            <div>Online payment is not yet integrated. Need Premium? Email <strong>contact@sekklings.com</strong> — admin activates within 24h.</div>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-  <div style="text-align:center; color:var(--muted-purple); font-size:12px; padding: 24px;">
-    Workflow rule active. Future layout changes + new screens will get an HTML mockup like this for your approval before any Dart code changes.
+  <div style="text-align:center; color:var(--muted-purple); font-size:13px; padding: 32px 20px; background: var(--white); border-radius: 16px; margin-top: 8px;">
+    <strong>Reminder of the workflow rule:</strong> for any layout change or new screen, I draw an HTML mockup like this one, get your sign-off, then implement in Dart. <br>
+    Open the file with <code>open math-app/frontend/docs/design/bang-gia-experience.html</code> or just say "approved" / "change this and that" to continue.
   </div>
 
 </div>
