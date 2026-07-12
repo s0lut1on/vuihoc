@@ -229,7 +229,13 @@ class PricingScreen extends StatelessWidget {
                 : (popular ? null : AppColors.white),
             gradient: popular
                 ? const LinearGradient(
-                    colors: [AppColors.pinkBg, AppColors.cream],
+                    // pinkSoft (not pinkBg) on the top-left so the
+                    // card's outline stays visible against the page
+                    // background — pinkBg is the same color as the
+                    // page bg, which made the top-left edge invisible
+                    // and made the popular card merge with the
+                    // cream-colored yearly card.
+                    colors: [AppColors.pinkSoft, AppColors.cream],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   )
