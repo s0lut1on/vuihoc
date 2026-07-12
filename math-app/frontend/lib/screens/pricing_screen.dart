@@ -174,23 +174,25 @@ class PricingScreen extends StatelessWidget {
     final viewportW = MediaQuery.sizeOf(context).width;
     final wide = viewportW >= 768;
     if (wide) {
-      return Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Expanded(child: _buildTierCard(context, l10n, free, isEn: isEn)),
-          const SizedBox(width: 16),
-          Expanded(
-            child: _buildTierCard(
-              context,
-              l10n,
-              premium,
-              isEn: isEn,
-              popular: true,
+      return IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(child: _buildTierCard(context, l10n, free, isEn: isEn)),
+            const SizedBox(width: 16),
+            Expanded(
+              child: _buildTierCard(
+                context,
+                l10n,
+                premium,
+                isEn: isEn,
+                popular: true,
+              ),
             ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(child: _buildTierCard(context, l10n, yearly, isEn: isEn)),
-        ],
+            const SizedBox(width: 16),
+            Expanded(child: _buildTierCard(context, l10n, yearly, isEn: isEn)),
+          ],
+        ),
       );
     }
     return Column(
