@@ -159,8 +159,10 @@ class PricingScreen extends StatelessWidget {
   }
 
   // ── Tier row ────────────────────────────────────────────────────────
-  // 3 columns on wide (≥ 900px), 1 column on narrow — matches the
-  // marketing site `md:grid-cols-3` breakpoint.
+  // 3 columns on wide (≥ 768px), 1 column on narrow — matches the
+  // marketing site `md:grid-cols-3` breakpoint (Tailwind's md = 768).
+  // Uses MediaQuery as the source of truth (more reliable than
+  // LayoutBuilder constraints inside a Column with stretch).
   Widget _buildTierRow(
     BuildContext context,
     AppLocalizations? l10n,
@@ -169,39 +171,36 @@ class PricingScreen extends StatelessWidget {
     Map<String, dynamic> yearly, {
     required bool isEn,
   }) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final wide = constraints.maxWidth >= 900;
-        if (wide) {
-          return Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(child: _buildTierCard(context, l10n, free, isEn: isEn)),
-              const SizedBox(width: 16),
-              Expanded(
-                child: _buildTierCard(
-                  context,
-                  l10n,
-                  premium,
-                  isEn: isEn,
-                  popular: true,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(child: _buildTierCard(context, l10n, yearly, isEn: isEn)),
-            ],
-          );
-        }
-        return Column(
-          children: [
-            _buildTierCard(context, l10n, free, isEn: isEn),
-            const SizedBox(height: 16),
-            _buildTierCard(context, l10n, premium, isEn: isEn, popular: true),
-            const SizedBox(height: 16),
-            _buildTierCard(context, l10n, yearly, isEn: isEn),
-          ],
-        );
-      },
+    final viewportW = MediaQuery.sizeOf(context).width;
+    final wide = viewportW >= 768;
+    if (wide) {
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(child: _buildTierCard(context, l10n, free, isEn: isEn)),
+          const SizedBox(width: 16),
+          Expanded(
+            child: _buildTierCard(
+              context,
+              l10n,
+              premium,
+              isEn: isEn,
+              popular: true,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(child: _buildTierCard(context, l10n, yearly, isEn: isEn)),
+        ],
+      );
+    }
+    return Column(
+      children: [
+        _buildTierCard(context, l10n, free, isEn: isEn),
+        const SizedBox(height: 16),
+        _buildTierCard(context, l10n, premium, isEn: isEn, popular: true),
+        const SizedBox(height: 16),
+        _buildTierCard(context, l10n, yearly, isEn: isEn),
+      ],
     );
   }
 
