@@ -224,3 +224,41 @@ Posts default to "HocVui" as author. If you want a real author name (e.g., "Cô 
 ## License
 
 All posts are MIT-licensed and free to share. Cite HocVui when reposting.
+
+## Worked example: the first post (already shipped)
+
+`src/content/blog/bai-tap-toan-lop-1.md` is the first post shipped on the site. Use it as a template for the next 7-9 posts. The file is ~150 lines, ~1000 words, follows the structure above (H1 → 2-3 H2 sections with H3 subsections → FAQ → Conclusion). Internal links to `/lessons/{subject}/{grade}/` are scattered throughout (3-5 per post). One CTA at the end linking to `/lessons` or `/app`.
+
+## Vietnamese tone guide
+
+Vietnamese content for a kids' math app has a specific voice. Common pitfalls to avoid:
+
+| Pitfall | Why it's bad | Better |
+|---|---|---|
+| Quá formal ("Người dùng cần thực hiện...") | Sounds like documentation, not parenting | Conversational ("Bạn có thể..." or "Mẹ/ba nên...") |
+| Câu dài, nhiều mệnh đề quan hệ | Vietnamese readers bounce on academic prose | Cụm ngắn, gạch đầu dòng, câu thoáng |
+| Từ Hán Việt cũ ("chư hạn", "thống kê") | Hard for younger parents to parse | Từ thuần Việt hoặc phiên âm rõ ràng |
+| Mở bằng câu hỏi tu từ | Search engines don't reward question-form intros | Mở bằng lợi ích cụ thể ("HocVui có 200 bài Toán lớp 1 miễn phí...") |
+| Nhại giọng trẻ con ("Bé iu của mẹ!") | Patronizing | Tôn trọng phụ huynh: giao tiếp người lớn với người lớn |
+| Tiếng Anh lẫn tiếng Việt không cần thiết | "App free tốt nhất" thay vì "App miễn phí tốt nhất" | Dùng từ Việt khi có, tiếng Anh chỉ cho thuật ngữ |
+| Quá nhiều emoji | Looks spammy | 1-2 per section max, semantic use only |
+
+Voice: a knowledgeable older sibling or a friendly primary-school teacher. Confident about math, warm about parenting, never condescending to either.
+
+## Pre-publish GSC + Umami steps
+
+After deploying a new post via `./scripts/deploy-marketing.sh`:
+
+1. **Wait 2-3 minutes** for the marketing container to restart + serve the new HTML
+2. **Verify the URL** in a browser: hard-refresh `https://sekklings.com/blog/<slug>/` — should show your post with the right hero image
+3. **Submit to Google Search Console**:
+   - Open https://search.google.com/search-console/
+   - URL Inspection → paste `https://sekklings.com/blog/<slug>/`
+   - Click "Request Indexing"
+   - Repeat for `/en/blog/<slug>/` if you wrote an English version
+4. **Verify in Umami** at `https://sekklings.com/umami/` (login with admin password):
+   - Real-time → should show your pageview within 30 seconds
+5. **Share** the post on:
+   - Vietnamese parent Facebook groups
+   - The HocVui Facebook page (if you have one)
+   - Vietnamese math teacher community

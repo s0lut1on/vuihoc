@@ -75,6 +75,11 @@
   - `home_screen.dart` — banner rendered at top of content area (above Continue card)
   - Visibility logic: `shouldShowPricingBanner(dismissedAt, now, count, tier)` returns true if `tier != 'premium' && count >= 50 && (dismissedAt == null || elapsed > 24h)`
 
+- **OG images v2 (real-screenshot look) + EN blog sample**
+  - `marketing-site/scripts/gen_lesson_og.py` — rewrote: left side has subject icon + name + count, right side has a "lesson card" previewing 4 actual lesson titles from `lessons.json` (numbered circles, checkmarks, progress bar). Reads real sample_titles_vi per cell. ~41KB per image (was 35KB), 92 generated.
+  - `marketing-site/src/content/blog-en/free-math-app-for-kids.md` — first EN blog post (~1000 words), demonstrates the structure, tone, internal linking for the rest of the EN blog queue
+  - `marketing-site/docs/WRITING_BLOG.md` — added 3 sections: worked example referencing the first post, Vietnamese tone guide (table of common pitfalls + fixes), pre-publish GSC + Umami steps
+
 ### Changed
 - **Course content**: padded every (subject, grade) cell to ≥ 50 lessons via migration 012_pad_to_50.sql
   - Migration applied live on VPS (no down time)
