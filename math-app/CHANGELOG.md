@@ -1,5 +1,11 @@
 ## [Unreleased]
 
+### Fixed
+- **Pricing screen — 3 tier cards side-by-side on wide viewports (≥ 768px)** (`lib/screens/pricing_screen.dart`)
+  - Layout: extracted the 3 inline `_buildTierCard` calls into `_buildTierRow()` helper, which uses `MediaQuery.sizeOf(context).width` (not `LayoutBuilder`) to switch between `Row` (3 `Expanded` + 16px gaps) and `Column` (stacked). Breakpoint is 768px, matching the marketing site's Tailwind `md:grid-cols-3`.
+  - Visual: changed the popular tier's `LinearGradient` from `[pinkBg, cream]` to `[pinkSoft, cream]`. `pinkBg` (#FFF5FA) was the same color as the page background, so the popular card's top-left edge was invisible and the card visually merged with the cream-colored yearly card (user saw "2 col" + "3rd card missing"). `pinkSoft` (#FFE0EC) is clearly distinct from the page bg, so the popular card now has a visible outline.
+  - Mockup: `frontend/docs/design/pricing-popular-gradient-fix.html` shows before/after.
+
 ### Changed
 - **Pricing screen (in-app) — match marketing site `/pricing/`** (`lib/screens/pricing_screen.dart`)
   - Removed `KidNavBar` + `BigMascot`; replaced with minimal back-arrow + brand top bar and a marketing-style hero (gradient `pink-soft` → `pink-bg`, plain title `Gói học` / `Pricing`, subtitle `Bắt đầu miễn phí. Nâng cấp khi cần.`)
