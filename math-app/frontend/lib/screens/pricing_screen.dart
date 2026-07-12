@@ -37,8 +37,10 @@ class PricingScreen extends StatelessWidget {
                 builder: (context, constraints) {
                   // Cap content width on very wide viewports so the page
                   // reads like a marketing page, not a stretched kid screen.
+                  // Cap raised from 1024 → 1400 so cards fill more of the
+                  // screen on standard laptop viewports (1280-1440px).
                   final maxW =
-                      constraints.maxWidth >= 1024 ? 1024.0 : double.infinity;
+                      constraints.maxWidth >= 1400 ? 1400.0 : double.infinity;
                   return SingleChildScrollView(
                     padding: const EdgeInsets.only(bottom: 40),
                     child: Center(
