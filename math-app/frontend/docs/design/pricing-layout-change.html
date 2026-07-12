@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HocVui Pricing — Proposed: 3 tiers side-by-side on wide screens</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800;900&family=Nunito:wght@400;600;700;800&display=swap"
+  rel="stylesheet"
+  />
+  <style>
+    :root {
+      --pink: #ff6b9d;
+      --pink-dark: #c0266b;
+      --pink-soft: #ffe0ec;
+      --pink-bg: #fff5fa;
+      --deep-purple: #2d1b4e;
+      --muted-purple: #6b5b95;
+      --cream: #fff8e1;
+      --orange-soft: #fff3e0;
+      --success: #22c55e;
+      --white: #fff;
+      --border-light: #f0e8f0;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: 'Nunito', system-ui, -apple-system, sans-serif;
+      font-weight: 600;
+      color: var(--deep-purple);
+      background: #f5f3f7;
+      min-height: 100vh;
+    }
+    .container { max-width: 1200px; margin: 0 auto; padding: 24px 20px 60px; }
+    h1 { font-family: 'Baloo 2'; font-weight: 900; font-size: 30px; margin: 0 0 8px; }
+    h2 { font-family: 'Baloo 2'; font-weight: 800; font-size: 20px; margin: 24px 0 8px; }
+    p { color: var(--muted-purple); font-size: 14px; line-height: 1.6; }
+
+    .where { display: inline-block; background: var(--pink-soft); color: var(--pink-dark); font-family: ui-monospace, 'JetBrains Mono', monospace; font-size: 11px; padding: 2px 8px; border-radius: 4px; }
+    .tag { display: inline-block; background: var(--success); color: var(--white); padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
+    .tag.compare { background: var(--pink); }
+
+    .card { background: var(--white); border-radius: 24px; padding: 24px 28px; margin-bottom: 32px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); }
+    .card h2 { margin-top: 0; }
+
+    /* Tier shared styles */
+    .tier-row {
+      display: grid;
+      gap: 16px;
+    }
+    .tier-row.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+    .tier-row.cols-1 { grid-template-columns: 1fr; }
+    .tier {
+      border-radius: 24px;
+      padding: 20px;
+      position: relative;
+    }
+    .tier.free { background: var(--white); border: 2px solid var(--pink-soft); }
+    .tier.premium {
+      background: linear-gradient(135deg, var(--pink-bg), var(--cream));
+      border: 3px solid var(--pink);
+      box-shadow: 0 6px 0 0 var(--pink-dark);
+    }
+    .tier.yearly { background: var(--cream); border: 2px solid var(--pink-soft); }
+    .tier .top { display: flex; align-items: center; gap: 12px; }
+    .tier .icon {
+      width: 44px; height: 44px; border-radius: 9999px;
+      display: grid; place-items: center; font-size: 22px;
+      flex-shrink: 0;
+    }
+    .tier .icon.free-icon { background: var(--pink-soft); }
+    .tier .icon.premium-icon { background: var(--pink); }
+    .tier .name { font-family: 'Baloo 2'; font-weight: 800; font-size: 22px; }
+    .tier .current-badge {
+      margin-left: auto;
+      padding: 4px 10px; border-radius: 999px;
+      background: rgba(34, 197, 94, 0.15);
+      border: 1px solid var(--success);
+      color: var(--success);
+      font-size: 12px; font-weight: 800;
+    }
+    .tier .popular-badge {
+      position: absolute; top: -10px; right: 20px;
+      padding: 4px 12px; border-radius: 999px;
+      background: var(--pink); color: var(--white);
+      font-size: 12px; font-weight: 800;
+    }
+    .tier .price-row { display: flex; align-items: end; margin: 12px 0; }
+    .tier .price { font-family: 'Baloo 2'; font-weight: 800; font-size: 40px; }
+    .tier .period { color: var(--muted-purple); font-size: 16px; margin-left: 4px; padding-bottom: 4px; }
+    .tier .features { list-style: none; padding: 0; margin: 12px 0; }
+    .tier .features li { display: flex; align-items: start; gap: 10px; padding: 4px 0; font-size: 13px; }
+    .tier .features li .check {
+      width: 22px; height: 22px; border-radius: 9999px;
+      display: grid; place-items: center;
+      font-size: 12px; font-weight: 800; color: var(--deep-purple);
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .tier.premium .features li .check { background: var(--white); color: var(--pink-dark); }
+    .tier.free .features li .check { background: var(--pink-soft); color: var(--pink-dark); }
+    .tier .cta-btn {
+      display: block; width: 100%; padding: 14px; border-radius: 24px;
+      text-align: center; font-weight: 800; font-size: 14px;
+      margin-top: 18px;
+    }
+    .tier.free .cta-btn { background: var(--white); border: 2px solid var(--pink); color: var(--pink-dark); }
+    .tier.premium .cta-btn {
+      background: var(--pink); color: var(--white);
+      box-shadow: 0 4px 0 0 var(--pink-dark);
+    }
+    .tier.yearly .cta-btn { background: var(--white); border: 2px solid var(--pink); color: var(--pink-dark); }
+
+    .mockup {
+      background: var(--pink-bg); padding: 20px; border-radius: 16px;
+      border: 1px solid var(--pink-soft);
+    }
+    .mockup .label {
+      display: inline-block; background: var(--deep-purple); color: var(--white);
+      padding: 3px 10px; border-radius: 4px; font-size: 11px; font-weight: 800;
+      text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px;
+    }
+    .mockup .label.current { background: var(--muted-purple); }
+    .mockup .label.proposed { background: var(--success); }
+    .mockup .label.comparison { background: var(--pink); }
+
+    .arrow { text-align: center; font-size: 32px; color: var(--muted-purple); padding: 12px 0; }
+
+    /* Window width indicator */
+    .window-tag {
+      display: inline-flex; gap: 6px; align-items: center;
+      background: var(--deep-purple); color: var(--white);
+      padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 700;
+    }
+
+    .cta-bar { display: flex; justify-content: center; gap: 8px; margin-top: 20px; padding: 20px; }
+    .cta-bar button {
+      background: var(--pink); color: var(--white); border: none;
+      padding: 10px 20px; border-radius: 999px; font-weight: 800;
+      font-size: 14px; cursor: pointer;
+      box-shadow: 0 4px 0 0 var(--pink-dark);
+    }
+    .cta-bar button.secondary {
+      background: var(--white); color: var(--pink-dark);
+      box-shadow: 0 0 0 2px var(--pink) inset;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <h1>Pricing screen — proposed change</h1>
+  <p>
+    <span class="tag compare">CHANGE REQUEST</span>
+    &nbsp;
+    <strong>"Current pricing screen shows 3 tiers in vertically, it's supposed to show horizontal"</strong>
+  </p>
+  <p style="margin-top: 12px;">
+    File: <span class="where">lib/screens/pricing_screen.dart</span> &nbsp; (line 47–55 in the current build, the 3 tier cards are rendered as Column children)
+    <br>
+    Plan: use <code>LayoutBuilder</code> to switch between Row (≥900px) and Column (&lt;900px) based on viewport width.
+  </p>
+
+  <div class="card">
+    <h2>Current (1 column — what you see today)</h2>
+    <div class="mockup">
+      <div class="label current">CURRENT — 1 COLUMN, ALL WIDTHS</div>
+      <div class="tier-row cols-1">
+        <div class="tier free">
+          <div class="top">
+            <div class="icon free-icon">🎁</div>
+            <div class="name">Miễn phí</div>
+            <div class="current-badge">Đang dùng</div>
+          </div>
+          <div class="price-row">
+            <div class="price">0</div>
+            <div class="period">đ / mãi mãi</div>
+          </div>
+          <ul class="features">
+            <li><div class="check">✓</div>50 bài học mỗi ngày</li>
+            <li><div class="check">✓</div>Đầy đủ 4 phong cách học</li>
+            <li><div class="check">✓</div>Song ngữ Việt–Anh</li>
+            <li><div class="check">✓</div>Dashboard phụ huynh cơ bản</li>
+            <li><div class="check">✓</div>Google Sign-In + Guest</li>
+            <li><div class="check">✓</div>Không giới hạn thời gian</li>
+          </ul>
+        </div>
+        <div class="tier premium">
+          <div class="popular-badge">Phổ biến</div>
+          <div class="top">
+            <div class="icon premium-icon">👑</div>
+            <div class="name">Premium</div>
+          </div>
+          <div class="price-row">
+            <div class="price">199K</div>
+            <div class="period">/ tháng</div>
+          </div>
+          <div style="color:var(--pink-dark); font-size:13px; margin-top:-4px">hoặc 1,99 triệu / năm (tiết kiệm 17%)</div>
+          <ul class="features">
+            <li><div class="check">✓</div>Không giới hạn bài học mỗi ngày</li>
+            <li><div class="check">✓</div>Báo cáo tiến bộ hàng tuần qua email</li>
+            <li><div class="check">✓</div>Xuất dữ liệu học tập (CSV)</li>
+            <li><div class="check">✓</div>Nhiều hồ sơ bé trong 1 tài khoản</li>
+            <li><div class="check">✓</div>Hỗ trợ ưu tiên 24/7</li>
+            <li><div class="check">✓</div>Sớm nhận nội dung mới</li>
+          </ul>
+          <div class="cta-btn">Nâng cấp ngay 🚀</div>
+        </div>
+        <div class="tier yearly">
+          <div class="top">
+            <div class="icon premium-icon">👑</div>
+            <div class="name">Premium (năm)</div>
+          </div>
+          <div class="price-row">
+            <div class="price">1,99M</div>
+            <div class="period">/ năm</div>
+          </div>
+          <div style="color:var(--success); font-size:13px; margin-top:-4px">Tiết kiệm 17% so với trả theo tháng</div>
+          <ul class="features">
+            <li><div class="check">✓</div>Bao gồm tất cả tính năng Premium</li>
+            <li><div class="check">✓</div>Tiết kiệm 17% so với trả theo tháng</li>
+          </ul>
+          <div class="cta-btn">Tiết kiệm ngay</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="arrow">↓ proposed change ↓</div>
+
+  <div class="card">
+    <h2>Proposed (3-column row on wide screens, 1-column on narrow) — viewport ≥ 900px</h2>
+    <p>The 3 tier cards in a single Row on desktop, stacked vertically on mobile / tablet. The "popular" tier stays in the middle (column 2) so it doesn't fall out of view first on hover.</p>
+    <div class="mockup">
+      <div class="label proposed">PROPOSED — 3 COLUMNS, ≥ 900PX WIDE</div>
+      <div class="window-tag">Desktop ≥ 900px</div>
+      <div class="tier-row cols-3" style="margin-top: 16px;">
+        <div class="tier free">
+          <div class="top">
+            <div class="icon free-icon">🎁</div>
+            <div class="name">Miễn phí</div>
+            <div class="current-badge">Đang dùng</div>
+          </div>
+          <div class="price-row">
+            <div class="price">0</div>
+            <div class="period">đ / mãi mãi</div>
+          </div>
+          <ul class="features">
+            <li><div class="check">✓</div>50 bài học mỗi ngày</li>
+            <li><div class="check">✓</div>Đầy đủ 4 phong cách học</li>
+            <li><div class="check">✓</div>Song ngữ Việt–Anh</li>
+            <li><div class="check">✓</div>Dashboard phụ huynh cơ bản</li>
+            <li><div class="check">✓</div>Google Sign-In + Guest</li>
+            <li><div class="check">✓</div>Không giới hạn thời gian</li>
+          </ul>
+        </div>
+        <div class="tier premium">
+          <div class="popular-badge">Phổ biến</div>
+          <div class="top">
+            <div class="icon premium-icon">👑</div>
+            <div class="name">Premium</div>
+          </div>
+          <div class="price-row">
+            <div class="price">199K</div>
+            <div class="period">/ tháng</div>
+          </div>
+          <div style="color:var(--pink-dark); font-size:13px; margin-top:-4px">hoặc 1,99 triệu / năm (tiết kiệm 17%)</div>
+          <ul class="features">
+            <li><div class="check">✓</div>Không giới hạn bài học mỗi ngày</li>
+            <li><div class="check">✓</div>Báo cáo tiến bộ hàng tuần qua email</li>
+            <li><div class="check">✓</div>Xuất dữ liệu học tập (CSV)</li>
+            <li><div class="check">✓</div>Nhiều hồ sơ bé trong 1 tài khoản</li>
+            <li><div class="check">✓</div>Hỗ trợ ưu tiên 24/7</li>
+            <li><div class="check">✓</div>Sớm nhận nội dung mới</li>
+          </ul>
+          <div class="cta-btn">Nâng cấp ngay 🚀</div>
+        </div>
+        <div class="tier yearly">
+          <div class="top">
+            <div class="icon premium-icon">👑</div>
+            <div class="name">Premium (năm)</div>
+          </div>
+          <div class="price-row">
+            <div class="price">1,99M</div>
+            <div class="period">/ năm</div>
+          </div>
+          <div style="color:var(--success); font-size:13px; margin-top:-4px">Tiết kiệm 17% so với trả theo tháng</div>
+          <ul class="features">
+            <li><div class="check">✓</div>Bao gồm tất cả tính năng Premium</li>
+            <li><div class="check">✓</div>Tiết kiệm 17% so với trả theo tháng</li>
+          </ul>
+          <div class="cta-btn">Tiết kiệm ngay</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Proposed (1 column on narrow screens) — viewport &lt; 900px</h2>
+    <p>On phones / narrow tablets, falls back to a single column (same as current). Nothing changes for those viewports.</p>
+    <div class="mockup">
+      <div class="label proposed">PROPOSED — 1 COLUMN, &lt; 900PX WIDE</div>
+      <div class="window-tag">Mobile &lt; 900px</div>
+      <div class="tier-row cols-1" style="margin-top: 16px;">
+        <div class="tier free">
+          <div class="top">
+            <div class="icon free-icon">🎁</div>
+            <div class="name">Miễn phí</div>
+            <div class="current-badge">Đang dùng</div>
+          </div>
+          <div class="price-row">
+            <div class="price">0</div>
+            <div class="period">đ / mãi mãi</div>
+          </div>
+          <ul class="features">
+            <li><div class="check">✓</div>50 bài học mỗi ngày</li>
+            <li><div class="check">✓</div>Đầy đủ 4 phong cách học</li>
+            <li><div class="check">✓</div>Song ngữ Việt–Anh</li>
+            <li><div class="check">✓</div>Dashboard phụ huynh cơ bản</li>
+            <li><div class="check">✓</div>Google Sign-In + Guest</li>
+            <li><div class="check">✓</div>Không giới hạn thời gian</li>
+          </ul>
+        </div>
+        <div class="tier premium">
+          <div class="popular-badge">Phổ biến</div>
+          <div class="top">
+            <div class="icon premium-icon">👑</div>
+            <div class="name">Premium</div>
+          </div>
+          <div class="price-row">
+            <div class="price">199K</div>
+            <div class="period">/ tháng</div>
+          </div>
+          <ul class="features">
+            <li><div class="check">✓</div>Không giới hạn bài học mỗi ngày</li>
+            <li><div class="check">✓</div>Báo cáo tiến bộ hàng tuần qua email</li>
+            <li><div class="check">✓</div>Xuất dữ liệu học tập (CSV)</li>
+            <li><div class="check">✓</div>Nhiều hồ sơ bé trong 1 tài khoản</li>
+            <li><div class="check">✓</div>Hỗ trợ ưu tiên 24/7</li>
+            <li><div class="check">✓</div>Sớm nhận nội dung mới</li>
+          </ul>
+          <div class="cta-btn">Nâng cấp ngay 🚀</div>
+        </div>
+        <div class="tier yearly">
+          <div class="top">
+            <div class="icon premium-icon">👑</div>
+            <div class="name">Premium (năm)</div>
+          </div>
+          <div class="price-row">
+            <div class="price">1,99M</div>
+            <div class="period">/ năm</div>
+          </div>
+          <ul class="features">
+            <li><div class="check">✓</div>Bao gồm tất cả tính năng Premium</li>
+            <li><div class="check">✓</div>Tiết kiệm 17% so với trả theo tháng</li>
+          </ul>
+          <div class="cta-btn">Tiết kiệm ngay</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>What changes in the Dart code</h2>
+    <p>One file: <span class="where">lib/screens/pricing_screen.dart</span> — the 3 tier cards (lines 50–54) are wrapped in a <code>LayoutBuilder</code> that switches between <code>Row</code> and <code>Column</code> based on <code>constraints.maxWidth &gt;= 900</code>.</p>
+    <p>No data, no l10n, no business logic change. Pure layout.</p>
+    <p style="margin-top: 12px;"><strong>Approx diff</strong>:</p>
+    <pre style="background: #f8f6fa; border: 1px solid var(--border-light); border-radius: 8px; padding: 12px; font-family: ui-monospace, monospace; font-size: 12px; overflow-x: auto;">_buildTierRow(BuildContext context, AppLocalizations? l10n, PricingConfig pricing, bool isEn) {
+  return LayoutBuilder(
+    builder: (context, constraints) {
+      final wide = constraints.maxWidth >= 900;
+      final free = pricing.tierById('free')!;
+      final premium = pricing.tierById('premium_monthly')!;
+      final yearly = pricing.tierById('premium_yearly')!;
+      if (wide) {
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(child: _buildTierCard(context, l10n, free, isEn: isEn, currentBadge: true)),
+            const SizedBox(width: 16),
+            Expanded(child: _buildTierCard(context, l10n, premium, isEn: isEn, popular: true, currentBadge: false)),
+            const SizedBox(width: 16),
+            Expanded(child: _buildTierCard(context, l10n, yearly, isEn: isEn, currentBadge: false)),
+          ],
+        );
+      }
+      return Column(
+        children: [
+          _buildTierCard(context, l10n, free, isEn: isEn, currentBadge: true),
+          const SizedBox(height: 16),
+          _buildTierCard(context, l10n, premium, isEn: isEn, popular: true, currentBadge: false),
+          const SizedBox(height: 16),
+          _buildTierCard(context, l10n, yearly, isEn: isEn, currentBadge: false),
+        ],
+      );
+    },
+  );
+}</pre>
+  </div>
+
+  <div class="cta-bar">
+    <button onclick="alert('Approval will be sent as: \\'approved\\' in your next message')">Approve this change</button>
+    <button class="secondary" onclick="alert('Tell me what to change in your next message')">I want to change something</button>
+  </div>
+
+  <p style="text-align: center; color: var(--muted-purple); font-size: 12px; margin-top: 24px;">
+    Workflow rule still in effect: confirm this mockup, then I touch the Dart code.
+  </p>
+
+</div>
+
+</body>
+</html>
