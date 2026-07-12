@@ -47,11 +47,7 @@ class PricingScreen extends StatelessWidget {
                   children: [
                     _buildHeader(l10n),
                     const SizedBox(height: 20),
-                    _buildTierCard(context, l10n, free, isEn: isEn, currentBadge: true),
-                    const SizedBox(height: 16),
-                    _buildTierCard(context, l10n, premium, isEn: isEn, popular: true, currentBadge: false),
-                    const SizedBox(height: 16),
-                    _buildTierCard(context, l10n, yearly, isEn: isEn, currentBadge: false),
+                    _buildTierRow(context, l10n, free, premium, yearly, isEn: isEn),
                     const SizedBox(height: 16),
                     _buildCompareTable(context, l10n, pricing, isEn: isEn),
                     const SizedBox(height: 24),
@@ -67,6 +63,44 @@ class PricingScreen extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  /// Responsive tier row: 3 columns on wide (≥ 900px), 1 column on narrow.
+  /// Switches via LayoutBuilder — no window listener, no global state.
+  Widget _buildTierRow(
+    BuildContext context,
+    AppLocalizations? l10n,
+    Map<String, dynamic> free,
+    Map<String, dynamic> premium,
+    Map<String, dynamic> yearly, {
+    required bool isEn,
+  }) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final wide = constraints.maxWidth >= 900;
+        if (wide) {
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(child: _buildTierCard(context, l10n, free, isEn: isEn, currentBadge: true)),
+              const SizedBox(width: 16),
+              Expanded(child: _buildTierCard(context, l10n, premium, isEn: isEn, popular: true, currentBadge: false)),
+              const SizedBox(width: 16),
+              Expanded(child: _buildTierCard(context, l10n, yearly, isEn: isEn, currentBadge: false)),
+            ],
+          );
+        }
+        return Column(
+          children: [
+            _buildTierCard(context, l10n, free, isEn: isEn, currentBadge: true),
+            const SizedBox(height: 16),
+            _buildTierCard(context, l10n, premium, isEn: isEn, popular: true, currentBadge: false),
+            const SizedBox(height: 16),
+            _buildTierCard(context, l10n, yearly, isEn: isEn, currentBadge: false),
+          ],
+        );
+      },
     );
   }
 
