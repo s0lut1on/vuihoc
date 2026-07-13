@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import '../utils/jwt_utils.dart';
 import 'api_service.dart';
 
 class AuthService {
@@ -13,6 +14,38 @@ class AuthService {
     // Register silent-refresh hook with the API layer so Dio can refresh
     // expiring tokens before requests and on 401.
     ApiService().setTokenRefresher(refreshTokenSilently);
+    // React to token changes: schedule a background refresh 5 minutes
+    // before the new token expires, so most requests never see a stale
+    // token. Falls back to the per-request 401 retry in api_service if
+    // the timer misses (e.g. device was asleep).
+    tokenNotifier.addListener(_scheduleProactiveRefresh);
+  }
+
+  /// Proactive background JWT refresh. Triggered when [tokenNotifier]
+  /// changes. Decodes the new token's `exp` claim and schedules a
+  /// refresh 5 minutes before expiry (or immediately if already within
+  /// the 5-minute window). The previous timer is cancelled so only one
+  /// is in flight at a time.
+  ///
+  /// This avoids the per-request `isExpiringSoon` check in api_service
+  /// (which added JWT parsing overhead to every request).
+  Timer? _refreshTimer;
+  void _scheduleProactiveRefresh() {
+    _refreshTimer?.cancel();
+    _refreshTimer = null;
+    final token = tokenNotifier.value;
+    if (token == null || token.isEmpty) return;
+    final exp = JwtUtil.getExpiration(token);
+    if (exp == null) return; // malformed token — let the 401 handler deal with it
+    final refreshAt = exp.subtract(const Duration(minutes: 5));
+    final delay = refreshAt.difference(DateTime.now());
+    if (delay.isNegative || delay.inSeconds < 5) {
+      // Already inside the refresh window (or the token expires in < 5s).
+      // Refresh immediately in the background — don't block the caller.
+      unawaited(refreshTokenSilently());
+      return;
+    }
+    _refreshTimer = Timer(delay, () => refreshTokenSilently());
   }
 
   final GoogleSignIn _googleSignIn = GoogleSignIn(

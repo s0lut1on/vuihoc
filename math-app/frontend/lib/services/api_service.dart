@@ -1,6 +1,5 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import '../utils/jwt_utils.dart';
 
 class ApiService {
   static final ApiService _instance = ApiService._internal();
@@ -10,8 +9,13 @@ class ApiService {
   late Dio _dio;
   static String? _token;
 
-  /// Called by the Dio interceptor to silently refresh the JWT.
-  /// Set via [setTokenRefresher]. Returns the new token, or null on failure.
+  /// Called by the Dio interceptor to silently refresh the JWT on a 401
+  /// response. Set via [setTokenRefresher]. Returns the new token, or
+  /// null on failure.
+  ///
+  /// Note: proactive refresh (5 min before expiry) is handled by
+  /// [AuthService._scheduleProactiveRefresh] — this hook is only the
+  /// 401 fallback for edge cases (device asleep, clock skew, etc.).
   Future<String?> Function()? _tokenRefresher;
 
   /// Reference to our own interceptor so we can remove it on re-setup
@@ -48,18 +52,6 @@ class ApiService {
       options.headers['Authorization'] = 'Bearer $_token';
     }
     options.headers['Content-Type'] = 'application/json';
-
-    // Pre-flight: refresh if expiring soon. Skip auth endpoints to
-    // avoid infinite loops during login.
-    if (_tokenRefresher != null &&
-        _token != null &&
-        !options.path.contains('/auth/') &&
-        JwtUtil.isExpiringSoon(_token)) {
-      final fresh = await _tokenRefresher!();
-      if (fresh != null) {
-        options.headers['Authorization'] = 'Bearer $fresh';
-      }
-    }
     return handler.next(options);
   }
 
