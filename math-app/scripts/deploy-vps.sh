@@ -172,8 +172,7 @@ cmd_sync() {
     fi
     (cd "$APP_DIR/frontend" && \
       "$FLUTTER_BIN" build web --release \
-        --dart-define=GOOGLE_CLIENT_ID="$GOOGLE_CLIENT_ID" \
-        --no-tree-shake-icons) || die "Flutter build failed"
+        --dart-define=GOOGLE_CLIENT_ID="$GOOGLE_CLIENT_ID") || die "Flutter build failed"
     ok "Flutter build/web/ ready (GOOGLE_CLIENT_ID baked into index.html)"
   elif [[ "${SKIP_FRONTEND:-0}" = "1" ]]; then
     log "Skipping Flutter build (SKIP_FRONTEND=1)"

@@ -116,8 +116,7 @@ if ! $SKIP_FRONTEND; then
     step "Building Flutter web (local) using $FLUTTER_BIN"
     (cd "$LOCAL_FRONTEND" && \
       "$FLUTTER_BIN" build web --release \
-        --dart-define=GOOGLE_CLIENT_ID="$GOOGLE_CLIENT_ID" \
-        --no-tree-shake-icons) \
+        --dart-define=GOOGLE_CLIENT_ID="$GOOGLE_CLIENT_ID") \
       || err "Flutter build failed"
     ok "Flutter web built → build/web/"
   else
