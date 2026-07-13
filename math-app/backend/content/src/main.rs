@@ -9,10 +9,12 @@ use utoipa_swagger_ui::SwaggerUi;
 mod handlers;
 mod models;
 
-use models::{ApiExercise, ApiLesson, AppState, CurriculumSubject, SubjectSummary};
+use models::{
+    ApiExercise, ApiLesson, AppState, CurriculumSubject, LessonSummary, SubjectSummary,
+};
 
 #[derive(OpenApi)]
-#[openapi(components(schemas(CurriculumSubject, ApiLesson, ApiExercise, SubjectSummary)))]
+#[openapi(components(schemas(CurriculumSubject, ApiLesson, ApiExercise, SubjectSummary, LessonSummary)))]
 pub struct ApiDoc;
 
 #[tokio::main]
@@ -50,6 +52,10 @@ async fn main() {
     let protected = Router::new()
         .route("/api/content/curriculum", get(handlers::curriculum))
         .route("/api/content/subjects", get(handlers::subjects))
+        .route(
+            "/api/content/subject/:id/lessons",
+            get(handlers::get_subject_lessons),
+        )
         .route("/api/content/lesson/:id", get(handlers::get_lesson))
         .route_layer(axum::middleware::from_fn(shared::auth_middleware));
 

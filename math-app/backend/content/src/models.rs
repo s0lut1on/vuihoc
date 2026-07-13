@@ -129,6 +129,23 @@ pub struct SubjectSummary {
     pub lesson_count: i64,
 }
 
+/// Lightweight lesson row for the per-subject lesson list. No
+/// exercises (those are fetched on-demand by the lesson screen via
+/// `GET /api/content/lesson/:id`). Without this, the subject screen
+/// would have to call `get_curriculum` and download ~1700 lessons +
+/// ~1730 exercises (808KB JSON) just to render a list of 30-50
+/// lesson cards.
+#[derive(Serialize, sqlx::FromRow, Clone, ToSchema)]
+pub struct LessonSummary {
+    pub id: String,
+    pub subject_id: String,
+    pub title_vi: String,
+    pub title_en: String,
+    pub lesson_order: i32,
+    pub difficulty: i32,
+    pub is_premium: bool,
+}
+
 // ============================================================================
 // APP STATE
 // ============================================================================
@@ -322,6 +339,42 @@ impl AppState {
             }
             None => Ok(None),
         }
+    }
+
+    /// Lightweight per-subject lesson list for the subject screen.
+    /// Returns just the lesson metadata (id, title, order, difficulty,
+    /// is_premium) — no exercise data. The lesson screen fetches
+    /// the full lesson + exercises on-demand when the user clicks
+    /// a lesson card.
+    ///
+    /// Indexes used: `idx_lessons_subject_grade_order` (added in
+    /// migration 013) for the WHERE + ORDER BY. The grade = 0
+    /// fallback mirrors the curriculum() query so shared lessons
+    /// surface in the right grade.
+    pub async fn get_subject_lessons(
+        &self,
+        subject_id: &str,
+        grade: i32,
+    ) -> Result<Vec<LessonSummary>, sqlx::Error> {
+        let rows = sqlx::query_as::<_, LessonSummary>(
+            r#"SELECT
+                id,
+                subject_id,
+                title_vi,
+                title_en,
+                lesson_order,
+                difficulty,
+                is_premium
+            FROM lessons
+            WHERE subject_id = $1 AND (grade = $2 OR grade = 0)
+            ORDER BY lesson_order"#,
+        )
+        .bind(subject_id)
+        .bind(grade)
+        .fetch_all(&self.db)
+        .await?;
+
+        Ok(rows)
     }
 }
 

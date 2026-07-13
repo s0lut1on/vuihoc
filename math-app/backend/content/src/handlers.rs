@@ -71,6 +71,29 @@ pub async fn get_lesson(
     }
 }
 
+/// Lightweight per-subject lesson list. Replaces the 808KB
+/// `get_curriculum` call (which returns all subjects + all lessons +
+/// all exercises) that the subject screen was using just to show
+/// 30-50 lesson cards. Returns just lesson metadata — exercises
+/// are fetched on-demand by the lesson screen.
+pub async fn get_subject_lessons(
+    State(state): State<AppState>,
+    Path(subject_id): Path<String>,
+    Query(query): Query<GradeQuery>,
+) -> ApiResponse<Vec<crate::models::LessonSummary>> {
+    let grade = query.grade.unwrap_or(1);
+    match state.get_subject_lessons(&subject_id, grade).await {
+        Ok(data) => ApiResponse::ok(data),
+        Err(e) => {
+            tracing::warn!(
+                "DB query for subject {} lessons failed ({}), returning empty",
+                subject_id, e
+            );
+            ApiResponse::ok(vec![])
+        }
+    }
+}
+
 pub async fn health() -> ApiResponse<shared::HealthResponse> {
     ApiResponse::ok(shared::health("content"))
 }
