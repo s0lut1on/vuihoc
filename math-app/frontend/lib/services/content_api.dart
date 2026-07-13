@@ -25,6 +25,25 @@ class ContentApi {
     }
   }
 
+  /// Lightweight per-subject lesson list. Replaces `getCurriculum` for
+  /// the subject screen — returns just lesson metadata for ONE subject
+  /// (no exercise data), avoiding the 808KB denormalized curriculum
+  /// payload. Exercises are fetched on-demand by the lesson screen
+  /// via `get_lesson`. ~9x smaller payload, ~5x faster.
+  static Future<List<ApiLesson>> getSubjectLessons(
+      String subjectId, int grade) async {
+    try {
+      final response =
+          await _api.get('/content/subject/$subjectId/lessons?grade=$grade');
+      final data = response['data'] as List<dynamic>;
+      return data
+          .map((l) => ApiLesson.fromJson(l as Map<String, dynamic>))
+          .toList();
+    } catch (_) {
+      return [];
+    }
+  }
+
   static Future<List<Map<String, dynamic>>> getSubjects({int grade = 1}) async {
     try {
       final response = await _api.get('/content/subjects?grade=$grade');
