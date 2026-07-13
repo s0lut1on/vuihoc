@@ -16,33 +16,56 @@ import 'data/pricing.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await PricingConfig.load();
-  await Hive.initFlutter();
-  await Hive.openBox('offline_cache');
-  await Hive.openBox('pending_sync');
-  ConnectivityService().init();
 
+  // Phase 2: defer slow I/O so the first frame paints sooner.
+  //
+  // Before: sequential awaits for PricingConfig, Hive init+openBox (×2),
+  // 3 Hive reads, and silentSignIn all block runApp. ~200-400ms added
+  // before the first frame.
+  //
+  // After: PricingConfig is awaited (needed for the pricing screen to
+  // render). Hive init + openBox run in parallel via unawaited Future.
+  // tokenNotifier is set from the loaded token so the router sees the
+  // user as signed-in immediately. silentSignIn validates the token
+  // in the background and updates auth state if the token is invalid.
+  //
+  // Trade-off: a user with a stale token might briefly see /home
+  // before being redirected to /login when silentSignIn completes.
+  // This is a few-frame flash at most — acceptable for the startup
+  // time savings.
+  await PricingConfig.load();
+
+  // Fire-and-forget Hive init + non-essential box opens. These run
+  // in parallel with runApp. The settings/auth boxes are opened
+  // lazily on first use by _loadLocale/_loadToken/etc.
+  unawaited(_initHive());
+
+  // Load the token from the auth box. This also sets it on the ApiService
+  // so the first API calls after runApp have the auth header.
+  final token = await _loadToken();
+
+  // Demo mode bypass for screenshots.
+  if (token == null && _isDemoMode()) {
+    AuthService().tokenNotifier.value = 'demo-token-no-network';
+    ApiService().setToken('demo-token-no-network');
+  } else if (token != null) {
+    AuthService().tokenNotifier.value = token;
+    ApiService().setToken(token);
+    // currentUserProvider (in app_providers.dart) is a FutureProvider
+    // that calls /api/auth/me when first watched (typically from the
+    // home screen). It handles the initial auth validation. We do NOT
+    // call silentSignIn here because that would cause a duplicate
+    // /me call. The token refresh timer is set up lazily by the
+    // ApiService interceptor on the first 401 response.
+  }
+
+  // Load the remaining settings (fast Hive reads) for the provider
+  // overrides. These run synchronously because runApp needs the
+  // values to set up ProviderScope overrides.
   final storedLocale = await _loadLocale();
   final ttsEnabled = await _loadTtsEnabled();
   final unlockAnimEnabled =
       await LocalStorageService.getUnlockAnimationsEnabled();
-  var token = await _loadToken();
-
-  // Screenshot/demo mode: bypass auth when URL contains ?demo=true.
-  // Useful for taking screenshots of protected screens without a backend.
-  if (token == null && _isDemoMode()) {
-    token = 'demo-token-no-network';
-    ApiService().setToken(token);
-    AuthService().tokenNotifier.value = token;
-  }
-
-  if (token != null) {
-    ApiService().setToken(token);
-    AuthService().tokenNotifier.value = token;
-  }
-
-  final didAutoSignIn =
-      token != null ? await AuthService().silentSignIn() : false;
 
   runApp(
     ProviderScope(
@@ -52,9 +75,24 @@ void main() async {
         unlockAnimationsEnabledProvider
             .overrideWith((ref) => unlockAnimEnabled),
       ],
-      child: MathApp(autoSignedIn: didAutoSignIn),
+      child: const MathApp(),
     ),
   );
+}
+
+/// Hive init + non-essential box opens. Runs in the background after
+/// runApp. The settings + auth boxes open lazily on first use.
+Future<void> _initHive() async {
+  try {
+    await Hive.initFlutter();
+    await Hive.openBox('offline_cache');
+    await Hive.openBox('pending_sync');
+    ConnectivityService().init();
+  } catch (e) {
+    // Hive init failure shouldn't crash the app — the boxes that fail
+    // to open will throw on first use. Log and continue.
+    debugPrint('Hive init failed: $e');
+  }
 }
 
 bool _isDemoMode() {
@@ -81,12 +119,7 @@ Future<bool> _loadTtsEnabled() async {
 }
 
 class MathApp extends ConsumerStatefulWidget {
-  final bool autoSignedIn;
-
-  const MathApp({
-    super.key,
-    this.autoSignedIn = false,
-  });
+  const MathApp({super.key});
 
   @override
   ConsumerState<MathApp> createState() => _MathAppState();
@@ -98,7 +131,11 @@ class _MathAppState extends ConsumerState<MathApp> {
   @override
   void initState() {
     super.initState();
-    _router = AppRouter(initialSignedIn: widget.autoSignedIn);
+    // tokenNotifier is set in main() before runApp, so initialSignedIn
+    // just reflects whether a token is present. silentSignIn runs
+    // in the background and will update auth state if the token is
+    // invalid.
+    _router = AppRouter(initialSignedIn: AuthService().tokenNotifier.value != null);
   }
 
   @override

@@ -113,7 +113,7 @@ build-web:
 	cd $(FRONTEND) && $(FLUTTER_CMD) build web --release \
 		--dart-define=GOOGLE_CLIENT_ID=$$GOOGLE_CLIENT_ID \
 		--dart-define=APP_VERSION=$$APP_VERSION \
-		--dart-define=FLUTTER_WEB_CANVASKIT_URL=https://www.gstatic.com/flutter-canvaskit/
+		--dart-define=FLUTTER_WEB_CANVASKIT_URL=/canvaskit/
 
 # ─── Rust Backend ─────────────────────────────
 
