@@ -18,14 +18,17 @@ const subjectOrder = <String>[
 ///
 /// Unlocking rule: within a subject, lesson N is unlocked iff lesson N-1 has
 /// been completed. The first lesson of every subject is always unlocked.
+///
+/// Takes a pre-grouped map (`subjectId -> sorted lessons`) so the caller
+/// can use the lightweight per-subject endpoint instead of fetching
+/// the full 808KB curriculum just to find the next lesson.
 LessonRef? nextUnlockedLesson({
-  required List<ApiLesson> lessons,
+  required Map<String, List<ApiLesson>> bySubject,
   required Set<String> completed,
 }) {
-  if (lessons.isEmpty) return null;
   for (final subjectId in subjectOrder) {
-    final subjectLessons = [...lessons.where((l) => l.subjectId == subjectId)]
-      ..sort((a, b) => a.order.compareTo(b.order));
+    final subjectLessons = bySubject[subjectId];
+    if (subjectLessons == null) continue;
     for (var i = 0; i < subjectLessons.length; i++) {
       final lesson = subjectLessons[i];
       final isUnlocked = i == 0 || completed.contains(subjectLessons[i - 1].id);

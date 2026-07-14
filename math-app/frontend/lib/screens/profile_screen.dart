@@ -232,13 +232,16 @@ class ProfileScreen extends ConsumerWidget {
                             if (context.mounted) {
                               ref.read(userProvider.notifier).setUser(updated);
                               // Invalidate everything that depends on grade
-                              // so subjects / curriculum / sub-subjects /
-                              // progress all reload for the new grade.
+                              // so subjects / sub-subjects / progress all reload
+                              // for the new grade. curriculumProvider was removed
+                              // in the subject-load perf refactor (it fetched
+                              // the full 808KB curriculum) — nextLessonProvider
+                              // now does parallel per-subject queries that
+                              // re-run automatically on grade change.
                               // NOTE: do NOT invalidate userProvider here —
                               // that creates a fresh StateNotifier that
                               // doesn't know about our setUser call, and
                               // the UI would flicker back to grade 1.
-                              ref.invalidate(curriculumProvider(g));
                               ref.invalidate(subjectsProvider(g));
                               ref.invalidate(rawProgressProvider);
                               ref.invalidate(languageSubjectsProvider(g));

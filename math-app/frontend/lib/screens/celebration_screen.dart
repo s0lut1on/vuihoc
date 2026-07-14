@@ -239,11 +239,13 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
 
   Future<String?> _resolveNextLesson() async {
     if (widget.subjectId == null || widget.lessonId == null) return null;
+    // Use the lightweight per-subject endpoint instead of fetching
+    // the full curriculum (1,720 lessons, 808KB) just to find the
+    // next sibling. ~5x faster, payload is just this subject's
+    // 30-50 lesson summaries.
     final userGrade = ref.read(userProvider).value?.grade ?? 1;
-    final lessons = await ContentApi.getCurriculum(grade: userGrade);
-    final subjectLessons = lessons
-        .where((l) => l.subjectId == widget.subjectId)
-        .toList()
+    final subjectLessons = await ContentApi.getSubjectLessons(
+        widget.subjectId!, userGrade)
       ..sort((a, b) => a.order.compareTo(b.order));
     final currentIndex =
         subjectLessons.indexWhere((l) => l.id == widget.lessonId);

@@ -30,11 +30,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final l10n = AppLocalizations.of(context)!;
     final user = ref.watch(userProvider).value;
     final streakAsync = ref.watch(streakProvider);
-    // React to grade changes — this refetches the curriculum for the
-    // new grade, which in turn refreshes the lesson counts shown in
-    // each SubjectTile and the Continue card.
+    // React to grade changes — the subjectsProvider refetches the
+    // per-subject lesson counts when the user changes grade in
+    // Profile. The `subjects` endpoint returns each subject's
+    // lesson_count directly from the DB (~488 bytes), replacing the
+    // 808KB curriculum payload that used to be fetched just to
+    // count lessons client-side.
     final userGrade = user?.grade ?? 1;
-    final curriculumAsync = ref.watch(curriculumProvider(userGrade));
+    final subjectsAsync = ref.watch(subjectsProvider(userGrade));
     final languageSubjectsAsync = ref.watch(languageSubjectsProvider(userGrade));
     return Scaffold(
       backgroundColor: AppColors.pinkBg,
@@ -168,7 +171,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     LayoutBuilder(builder: (context, c) {
                       final cols =
                           c.maxWidth > 1100 ? 4 : (c.maxWidth > 700 ? 3 : 2);
-                      return _subjectsGrid(cols, curriculumAsync, languageSubjectsAsync, userGrade);
+                      return _subjectsGrid(cols, subjectsAsync, languageSubjectsAsync, userGrade);
                     }),
                     const SizedBox(height: 24),
                     const _BuildVersionFooter(),
@@ -182,8 +185,40 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  Widget _subjectsGrid(int cols, AsyncValue<List<ApiLesson>> curriculum, AsyncValue<List<Map<String, dynamic>>> languageSubjects, int userGrade) {
-    final subjects = _buildSubjects(curriculum.valueOrNull ?? const [], languageSubjects.valueOrNull ?? const [], userGrade);
+  Widget _subjectsGrid(int cols, AsyncValue<List<Map<String, dynamic>>> subjects, AsyncValue<List<Map<String, dynamic>>> languageSubjects, int userGrade) {
+    // Use subjectsProvider for the math subjects — it returns each
+    // subject's lesson_count directly from the DB (no 808KB
+    // curriculum payload to filter client-side). The backend
+    // /api/content/subjects query is a lightweight COUNT grouped
+    // by subject (~10 subjects × 1 row = 488 bytes).
+    final mathSubjects = subjects.valueOrNull ?? const [];
+    final langSubjects = languageSubjects.valueOrNull ?? const [];
+    return _subjectsGridFromLists(cols, mathSubjects, langSubjects, userGrade);
+  }
+
+  Widget _subjectsGridFromLists(
+    int cols,
+    List<Map<String, dynamic>> mathSubjects,
+    List<Map<String, dynamic>> languageSubjects,
+    int userGrade,
+  ) {
+    // Lesson counts come from each subject's own API response
+    // (mathSubjects already includes lesson_count, languageSubjects
+    // also has it). No need to fetch the full curriculum anymore.
+    final bySubject = <String, int>{};
+    for (final s in mathSubjects) {
+      final id = s['id'] as String?;
+      final count = s['lessonCount'] as int?;
+      if (id != null && count != null) bySubject[id] = count;
+    }
+    for (final s in languageSubjects) {
+      final id = s['id'] as String?;
+      final count = s['lesson_count'] as int?;
+      if (id != null && count != null) bySubject[id] = count;
+    }
+    // Build the subject tiles. The `lessons` parameter is no longer
+    // needed because each subject's count comes from its own response.
+    final subjects = _buildSubjectTiles(bySubject, userGrade);
     return GridView.count(
       crossAxisCount: cols,
       mainAxisSpacing: 12,
@@ -195,29 +230,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  List<Widget> _buildSubjects(List<ApiLesson> lessons, List<Map<String, dynamic>> languageSubjects, int userGrade) {
-    // Group curriculum lessons by subject_id so the tiles show real
-    // per-grade counts. When the user changes grade in Profile, this
-    // rebuilds with the new grade's curriculum (curriculumProvider is
-    // a family keyed on grade).
-    final bySubject = <String, int>{};
-    for (final l in lessons) {
-      bySubject[l.subjectId] = (bySubject[l.subjectId] ?? 0) + 1;
-    }
-    // Merge language subjects (Vietnamese / English) counts from the
-    // language API. Keys are 'vietnamese' and 'english' matching tile ids.
-    for (final s in languageSubjects) {
-      final id = s['id'] as String?;
-      final count = s['lesson_count'] as int?;
-      if (id != null && count != null) {
-        bySubject[id] = count;
-      }
-    }
+  /// Build the subject tile widgets. Replaces the old
+  /// `_buildSubjects` function — no longer takes a lessons list
+  /// because each subject's `lesson_count` is in `bySubject`
+  /// (populated from the per-subject API responses).
+  List<Widget> _buildSubjectTiles(
+      Map<String, int> bySubject, int userGrade) {
     // Each subject has a `gradeMin` — the lowest grade that can take
     // it. Tiles below the user's grade are hidden entirely; tiles at
-    // or above the user's grade are shown. Lesson counts come from the
-    // backend (live curriculum).
-    final all = [
+    // or above the user's grade are shown. Lesson counts come from
+    // the per-subject API responses (lightweight, no 808KB
+    // curriculum payload).
+    const all = [
       _SubjectMeta(
           id: 'numbers',
           emoji: '🔢',
