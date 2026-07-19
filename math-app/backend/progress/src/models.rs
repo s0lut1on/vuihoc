@@ -101,6 +101,24 @@ pub struct BadgeDefinition {
 }
 
 #[derive(Serialize, Deserialize, ToSchema)]
+pub struct BatchProgressItem {
+    pub lesson_id: String,
+    pub stars: i32,
+    pub completed: bool,
+}
+
+#[derive(Serialize, Deserialize, ToSchema)]
+pub struct BatchProgressRequest {
+    pub user_id: String,
+    pub items: Vec<BatchProgressItem>,
+}
+
+#[derive(Serialize, ToSchema)]
+pub struct BatchProgressResponse {
+    pub updated: i32,
+}
+
+#[derive(Serialize, Deserialize, ToSchema)]
 pub struct AchievementList {
     pub badges: Vec<AchievementWithDefinition>,
 }

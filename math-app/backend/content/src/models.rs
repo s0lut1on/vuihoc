@@ -146,6 +146,63 @@ pub struct LessonSummary {
     pub is_premium: bool,
 }
 
+use serde::Deserialize;
+
+#[derive(Deserialize, ToSchema)]
+pub struct CreateSubjectRequest {
+    pub id: String,
+    pub name_vi: String,
+    pub name_en: String,
+    pub description_vi: String,
+    pub description_en: String,
+    pub icon: String,
+    pub color: String,
+    pub display_order: i32,
+    pub grade_min: i32,
+    pub grade_max: i32,
+}
+
+#[derive(Deserialize, ToSchema)]
+pub struct UpdateSubjectRequest {
+    pub name_vi: Option<String>,
+    pub name_en: Option<String>,
+    pub description_vi: Option<String>,
+    pub description_en: Option<String>,
+    pub icon: Option<String>,
+    pub color: Option<String>,
+    pub display_order: Option<i32>,
+    pub grade_min: Option<i32>,
+    pub grade_max: Option<i32>,
+}
+
+#[derive(Deserialize, ToSchema)]
+pub struct CreateLessonRequest {
+    pub id: String,
+    pub subject_id: String,
+    pub title_vi: String,
+    pub title_en: String,
+    pub description_vi: String,
+    pub description_en: String,
+    pub lesson_order: i32,
+    pub difficulty: i32,
+    pub is_premium: bool,
+    pub grade: i32,
+}
+
+#[derive(Deserialize, ToSchema)]
+pub struct CreateExerciseRequest {
+    pub id: String,
+    pub lesson_id: String,
+    pub question_vi: String,
+    pub question_en: String,
+    pub options: Vec<String>,
+    pub correct_index: i32,
+    pub visual_asset: String,
+    pub hint_vi: String,
+    pub hint_en: String,
+    pub exercise_order: i32,
+}
+
 // ============================================================================
 // APP STATE
 // ============================================================================

@@ -19,6 +19,9 @@ uuid = { workspace = true }
 anyhow = { workspace = true }
 thiserror = { workspace = true }
 shared = { path = "../shared" }
+minijinja = { workspace = true }
+rand = { workspace = true }
+meval = { workspace = true }
 
 [dev-dependencies]
 reqwest = { workspace = true }

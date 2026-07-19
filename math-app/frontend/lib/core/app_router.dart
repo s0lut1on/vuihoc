@@ -16,6 +16,7 @@ import '../screens/review_screen.dart';
 import '../screens/achievement_screen.dart';
 import '../screens/language_lesson_screen.dart';
 import '../screens/leaderboard_screen.dart';
+import '../screens/admin_dashboard_screen.dart';
 
 /// Public routes that do NOT require authentication.
 const _publicRoutes = {
@@ -130,6 +131,10 @@ class AppRouter {
       GoRoute(
         path: '/leaderboard',
         builder: (context, state) => const LeaderboardScreen(),
+      ),
+      GoRoute(
+        path: '/admin',
+        builder: (context, state) => const AdminDashboardScreen(),
       ),
     ],
   );

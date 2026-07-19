@@ -25,6 +25,55 @@ pub struct NotificationPayload {
     pub body_en: String,
 }
 
+#[derive(Serialize, sqlx::FromRow, ToSchema, Clone)]
+pub struct PushSubscription {
+    pub id: Uuid,
+    pub user_id: Uuid,
+    pub fcm_token: String,
+    pub platform: String,
+    pub is_active: bool,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Deserialize, ToSchema)]
+pub struct SubscribeRequest {
+    pub fcm_token: String,
+    pub platform: String,
+}
+
+#[derive(Serialize, sqlx::FromRow, ToSchema, Clone)]
+pub struct NotificationPreferences {
+    pub id: Uuid,
+    pub user_id: Uuid,
+    pub daily_reminder_enabled: bool,
+    pub reminder_hour: i32,
+    pub timezone: String,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Deserialize, ToSchema)]
+pub struct UpdatePreferencesRequest {
+    pub daily_reminder_enabled: Option<bool>,
+    pub reminder_hour: Option<i32>,
+    pub timezone: Option<String>,
+}
+
+#[derive(Serialize, ToSchema)]
+pub struct SubscriptionStatus {
+    pub subscribed: bool,
+    pub platform: Option<String>,
+}
+
+#[derive(Serialize, ToSchema)]
+pub struct ReminderResult {
+    pub sent: usize,
+    pub failed: usize,
+    pub total: usize,
+    pub reason: Option<String>,
+}
+
 #[derive(Clone)]
 pub struct AppState {
     pub db: PgPool,

@@ -126,6 +126,17 @@ class ApiService {
     }
   }
 
+  Future<Map<String, dynamic>> put(String path,
+      {Map<String, dynamic>? data}) async {
+    try {
+      final response = await _dio.put(path, data: data);
+      return _parseResponse(response);
+    } on DioException catch (e) {
+      throw ApiException(
+          'HTTP ${e.response?.statusCode ?? '???'}: ${e.message ?? ''}');
+    }
+  }
+
   Future<Map<String, dynamic>> delete(String path) async {
     try {
       final response = await _dio.delete(path);

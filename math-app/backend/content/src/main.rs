@@ -1,4 +1,4 @@
-use axum::{routing::get, Router};
+use axum::{routing::{get, post, delete, put}, Router};
 use sqlx::PgPool;
 use std::net::SocketAddr;
 use std::path::PathBuf;
@@ -11,10 +11,11 @@ mod models;
 
 use models::{
     ApiExercise, ApiLesson, AppState, CurriculumSubject, LessonSummary, SubjectSummary,
+    CreateSubjectRequest, CreateLessonRequest, CreateExerciseRequest, UpdateSubjectRequest,
 };
 
 #[derive(OpenApi)]
-#[openapi(components(schemas(CurriculumSubject, ApiLesson, ApiExercise, SubjectSummary, LessonSummary)))]
+#[openapi(components(schemas(CurriculumSubject, ApiLesson, ApiExercise, SubjectSummary, LessonSummary, CreateSubjectRequest, CreateLessonRequest, CreateExerciseRequest, UpdateSubjectRequest)))]
 pub struct ApiDoc;
 
 #[tokio::main]
@@ -59,9 +60,25 @@ async fn main() {
         .route("/api/content/lesson/:id", get(handlers::get_lesson))
         .route_layer(axum::middleware::from_fn(shared::auth_middleware));
 
+    let admin = Router::new()
+        .route("/api/content/admin/subjects", post(handlers::create_subject))
+        .route("/api/content/admin/subjects/:id", put(handlers::update_subject))
+        .route("/api/content/admin/lessons", post(handlers::create_lesson))
+        .route("/api/content/admin/lessons/:id", put(handlers::update_lesson))
+        .route("/api/content/admin/lessons/:id", delete(handlers::delete_lesson))
+        .route("/api/content/admin/exercises", post(handlers::create_exercise))
+        .route("/api/content/admin/exercises/:id", put(handlers::update_exercise))
+        .route_layer(axum::middleware::from_fn(shared::auth_middleware))
+        .route_layer(axum::middleware::from_fn(shared::require_admin));
+
+    let public_content = Router::new()
+        .route("/api/content/lesson/:id/worksheet", get(handlers::worksheet));
+
     let app = Router::new()
         .route("/api/content/health", get(handlers::health))
+        .merge(public_content)
         .merge(protected)
+        .merge(admin)
         .merge(
             SwaggerUi::new("/api/content/swagger-ui")
                 .url("/api/content/openapi.json", ApiDoc::openapi()),

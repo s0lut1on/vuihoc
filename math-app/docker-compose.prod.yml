@@ -14,7 +14,7 @@ services:
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
-      - "--certificatesresolvers.letsencrypt.acme.tlschallenge=false
+      - "--certificatesresolvers.letsencrypt.acme.tlschallenge=false"
       - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
       - "--certificatesresolvers.letsencrypt.acme.email=${LETSENCRYPT_EMAIL}"
       - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
@@ -88,6 +88,7 @@ services:
         APP_VERSION: ${APP_VERSION:-local-dev}
     labels:
       - "traefik.enable=true"
+      # Main Flutter app under /app prefix (with strip)
       - "traefik.http.routers.flutter-web.rule=Host(`${DOMAIN}`) && PathPrefix(`/app`)"
       - "traefik.http.routers.flutter-web.entrypoints=websecure"
       - "traefik.http.routers.flutter-web.tls.certresolver=letsencrypt"
@@ -97,6 +98,19 @@ services:
       - "traefik.http.middlewares.flutter-strip.stripprefix.forceSlash=false"
       - "traefik.http.middlewares.flutter-coop.headers.customResponseHeaders.Cross-Origin-Opener-Policy=unsafe-none"
       - "traefik.http.routers.flutter-web.middlewares=flutter-strip,flutter-coop"
+      # CanvasKit WASM — Flutter loads from absolute /canvaskit/ path (no /app prefix)
+      - "traefik.http.routers.flutter-canvas.rule=Host(`${DOMAIN}`) && PathPrefix(`/canvaskit`)"
+      - "traefik.http.routers.flutter-canvas.entrypoints=websecure"
+      - "traefik.http.routers.flutter-canvas.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.flutter-canvas.tls=true"
+      - "traefik.http.routers.flutter-canvas.priority=60"
+      - "traefik.http.routers.flutter-canvas.middlewares=flutter-coop"
+      # Flutter manifest + brand assets — loaded by index.html without /app prefix
+      - "traefik.http.routers.flutter-assets.rule=Host(`${DOMAIN}`) && PathPrefix(`/brand`)"
+      - "traefik.http.routers.flutter-assets.entrypoints=websecure"
+      - "traefik.http.routers.flutter-assets.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.flutter-assets.tls=true"
+      - "traefik.http.routers.flutter-assets.priority=60"
     restart: unless-stopped
 
   marketing-site:

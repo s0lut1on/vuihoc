@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["shared", "auth", "user", "content", "progress", "notification", "media", "question_bank"]
+members = ["shared", "auth", "user", "content", "progress", "notification", "media", "question_bank", "payment"]
 
 [workspace.dependencies]
 tokio = { version = "1", features = ["full"] }

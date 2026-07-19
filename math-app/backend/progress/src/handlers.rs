@@ -198,6 +198,39 @@ async fn increment_daily_count(db: &sqlx::PgPool, user_id: uuid::Uuid) -> Result
     Ok(())
 }
 
+pub async fn batch_update_progress(
+    State(state): State<AppState>,
+    Json(body): Json<BatchProgressRequest>,
+) -> ApiResponse<BatchProgressResponse> {
+    let user_uuid = match parse_uuid(&body.user_id) {
+        Ok(u) => u,
+        Err(e) => return ApiResponse::err(e),
+    };
+
+    let mut updated = 0i32;
+    for item in body.items {
+        let result = sqlx::query_as::<_, Progress>(
+            "INSERT INTO progress (user_id, lesson_id, completed, stars, attempts, updated_at)
+             VALUES ($1, $2, $3, $4, 1, NOW())
+             ON CONFLICT (user_id, lesson_id)
+             DO UPDATE SET completed = $3, stars = GREATEST(progress.stars, $4), attempts = progress.attempts + 1, updated_at = NOW()
+             RETURNING *",
+        )
+        .bind(user_uuid)
+        .bind(&item.lesson_id)
+        .bind(item.completed)
+        .bind(item.stars)
+        .fetch_one(&state.db)
+        .await;
+
+        if result.is_ok() {
+            updated += 1;
+        }
+    }
+
+    ApiResponse::ok(BatchProgressResponse { updated })
+}
+
 pub async fn health() -> ApiResponse<shared::HealthResponse> {
     ApiResponse::ok(shared::health("progress"))
 }

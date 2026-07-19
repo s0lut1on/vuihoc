@@ -26,7 +26,9 @@ pub use models::*;
     AchievementList,
     UserExerciseStat,
     ReviewExercise,
-    ReviewSession
+    ReviewSession,
+    BatchProgressRequest,
+    BatchProgressResponse
 )))]
 pub struct ApiDoc;
 
@@ -93,6 +95,7 @@ async fn main() {
             post(handlers::mark_achievement_read),
         )
         .route("/api/progress", post(handlers::update_progress))
+        .route("/api/progress/batch", post(handlers::batch_update_progress))
         .route("/api/progress/review", post(handlers::update_exercise_stat))
         .route(
             "/api/progress/review/:user_id",

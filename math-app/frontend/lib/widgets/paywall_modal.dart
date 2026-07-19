@@ -2,12 +2,31 @@ import 'package:flutter/material.dart';
 import '../core/app_colors.dart';
 import '../core/app_theme.dart';
 import '../l10n/app_localizations.dart';
+import '../services/api_service.dart';
+import '../utils/url_launcher.dart';
 import 'bubble_button.dart';
 import 'mascot.dart';
 
 class PaywallModal extends StatelessWidget {
   final VoidCallback onClose;
   const PaywallModal({super.key, required this.onClose});
+
+  void _upgrade(context) async {
+    try {
+      final resp = await ApiService().post('/payments/create-checkout', data: {
+        'price_id': 'premium_monthly',
+        'success_url': '${Uri.base.origin}/home',
+        'cancel_url': '${Uri.base.origin}/home',
+      });
+      final url = resp['data']?['url'] as String?;
+      if (url != null && url.isNotEmpty) {
+        openExternalUrl(url);
+      }
+    } catch (e) {
+      debugPrint('Checkout failed: $e');
+    }
+    onClose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +59,7 @@ class PaywallModal extends StatelessWidget {
               minWidth: 220,
               height: 52,
               fontSize: 16,
-              onPressed: onClose,
+              onPressed: () => _upgrade(context),
             ),
             const SizedBox(height: 8),
             TextButton(

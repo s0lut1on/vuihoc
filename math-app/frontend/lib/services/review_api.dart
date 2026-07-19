@@ -58,4 +58,16 @@ class ReviewApi {
       return false;
     }
   }
+
+  /// Get count of wrong answers for a user.
+  static Future<int> getWrongAnswerCount(String userId) async {
+    try {
+      final response = await _api.get('/review/$userId');
+      final data = response['data'] as Map<String, dynamic>?;
+      final entries = data?['entries'] as List<dynamic>? ?? [];
+      return entries.length;
+    } catch (_) {
+      return 0;
+    }
+  }
 }

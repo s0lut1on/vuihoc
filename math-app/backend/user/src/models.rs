@@ -18,6 +18,7 @@ pub struct User {
     pub subscription_tier: String,
     pub classroom_code: Option<String>,
     pub grade: i32,
+    pub parent_id: Option<Uuid>,
     pub created_at: DateTime<Utc>,
 }
 
@@ -45,6 +46,12 @@ pub struct LeaderboardEntry {
     pub name: String,
     pub avatar: String,
     pub weekly_stars: i64,
+}
+
+#[derive(Serialize, Deserialize, utoipa::ToSchema)]
+pub struct CreateChildRequest {
+    pub name: String,
+    pub grade: Option<i32>,
 }
 
 #[derive(Clone)]

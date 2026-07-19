@@ -5,6 +5,56 @@ use axum::{
 
 use crate::models::{AppState, CreateUserRequest, JoinClassroomRequest, User};
 
+pub async fn list_children(
+    State(state): State<AppState>,
+    Extension(claims): Extension<shared::Claims>,
+) -> shared::ApiResponse<Vec<User>> {
+    let parent_id = match uuid::Uuid::try_parse(&claims.sub) {
+        Ok(u) => u,
+        Err(_) => return shared::ApiResponse::err("Invalid user_id"),
+    };
+    let children = sqlx::query_as::<_, User>("SELECT * FROM users WHERE parent_id = $1")
+        .bind(parent_id)
+        .fetch_all(&state.db)
+        .await;
+    match children {
+        Ok(data) => shared::ApiResponse::ok(data),
+        Err(e) => {
+            tracing::error!("Database error in list_children: {}", e);
+            shared::ApiResponse::err("Internal server error")
+        }
+    }
+}
+
+pub async fn create_child(
+    State(state): State<AppState>,
+    Extension(claims): Extension<shared::Claims>,
+    Json(body): Json<crate::models::CreateChildRequest>,
+) -> shared::ApiResponse<User> {
+    let parent_id = match uuid::Uuid::try_parse(&claims.sub) {
+        Ok(u) => u,
+        Err(_) => return shared::ApiResponse::err("Invalid user_id"),
+    };
+    let grade = body.grade.unwrap_or(1);
+    let child = sqlx::query_as::<_, User>(
+        "INSERT INTO users (name, persona, avatar, grade, parent_id) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+    )
+    .bind(&body.name)
+    .bind("achiever")
+    .bind("🐸")
+    .bind(grade)
+    .bind(parent_id)
+    .fetch_one(&state.db)
+    .await;
+    match child {
+        Ok(u) => shared::ApiResponse::ok(u),
+        Err(e) => {
+            tracing::error!("Database error in create_child: {}", e);
+            shared::ApiResponse::err("Failed to create child")
+        }
+    }
+}
+
 pub async fn get_user(
     State(state): State<AppState>,
     Extension(claims): Extension<shared::Claims>,

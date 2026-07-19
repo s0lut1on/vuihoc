@@ -3,6 +3,8 @@ use std::sync::Arc;
 use uuid::Uuid;
 
 use crate::db::Db;
+use crate::engine::bkt::BktState as BktEngineState;
+use crate::engine::AdaptiveSelector;
 use crate::llm::anthropic::{hint_contains_answer, llm_available, AnthropicClient};
 use crate::models::*;
 use shared::ApiResponse;
@@ -20,10 +22,34 @@ pub async fn health() -> ApiResponse<shared::HealthResponse> {
 }
 
 pub async fn next_question(
-    Path(_student_id): Path<Uuid>,
-    State(_state): State<Arc<AppState>>,
-) -> ApiResponse<Question> {
-    ApiResponse::err("Not yet implemented: need kc_id param")
+    Path((student_id, kc_id)): Path<(Uuid, Uuid)>,
+    State(state): State<Arc<AppState>>,
+) -> shared::ApiResponse<Question> {
+    let bkt = match sqlx::query_as::<_, BktEngineState>(
+        "SELECT * FROM mastery WHERE student_id = $1 AND kc_id = $2",
+    )
+    .bind(student_id)
+    .bind(kc_id)
+    .fetch_optional(state.db.pool())
+    .await
+    {
+        Ok(Some(m)) => m,
+        Ok(None) => BktEngineState::default(),
+        Err(e) => {
+            tracing::error!("DB error in next_question (mastery lookup): {}", e);
+            return ApiResponse::err("Internal server error");
+        }
+    };
+
+    let selector = AdaptiveSelector::new(state.db.pool());
+    match selector.next_question(student_id, kc_id, &bkt).await {
+        Ok(Some(q)) => ApiResponse::ok(q),
+        Ok(None) => ApiResponse::err("No questions available for this skill"),
+        Err(e) => {
+            tracing::error!("Selector error in next_question: {}", e);
+            ApiResponse::err("Failed to select next question")
+        }
+    }
 }
 
 pub async fn submit_answer(

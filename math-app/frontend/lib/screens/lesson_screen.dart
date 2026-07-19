@@ -7,6 +7,8 @@ import '../core/app_theme.dart';
 import '../l10n/app_localizations.dart';
 import '../models/lesson_model.dart';
 import '../providers/app_providers.dart';
+import 'package:flutter/foundation.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../services/content_api.dart';
 import '../services/daily_limit.dart';
 import '../services/progress_api.dart';
@@ -186,6 +188,26 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
               style: AppTheme.display(size: 14, color: AppColors.pink)),
         ),
         const Spacer(),
+        GestureDetector(
+          onTap: _openWorksheet,
+          child: Container(
+            width: 48,
+            height: 48,
+            margin: const EdgeInsets.only(right: 8),
+            decoration: BoxDecoration(
+              color: AppColors.white,
+              shape: BoxShape.circle,
+              boxShadow: const [
+                BoxShadow(
+                    color: AppColors.pinkDark,
+                    offset: Offset(0, 4),
+                    blurRadius: 0)
+              ],
+            ),
+            child: const Center(
+                child: Text('📄', style: TextStyle(fontSize: 20))),
+          ),
+        ),
         GestureDetector(
           onTap: _speakQuestion,
           child: Container(
@@ -620,6 +642,12 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
 
   void _showIncorrectFeedback() {
     setState(() => _showHint = true);
+  }
+
+  Future<void> _openWorksheet() async {
+    final baseUrl = kIsWeb ? '/api' : 'http://localhost/api';
+    final uri = Uri.parse('$baseUrl/content/lesson/${widget.lessonId}/worksheet');
+    await launchUrl(uri, webOnlyWindowName: '_blank');
   }
 
   void _speakQuestion() {

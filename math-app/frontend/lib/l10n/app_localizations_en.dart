@@ -464,7 +464,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pricingHeroTitle => 'Pricing';
 
   @override
-  String get pricingHeroSubtitle => 'Free to start. Upgrade when you need more.';
+  String get pricingHeroSubtitle =>
+      'Free to start. Upgrade when you need more.';
 
   @override
   String get pricingYearlySaveLine => 'Save 17% vs monthly';
@@ -476,8 +477,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pricingNoteLabel => 'Note: ';
 
   @override
-  String pricingNoteBody(String email) =>
-      'Online payment is not yet integrated. Upgrade to Premium via: $email';
+  String pricingNoteBody(String email) {
+    return 'Online payment is not yet integrated. Upgrade to Premium via: $email';
+  }
 
   @override
   String get pricingBackTooltip => 'Back';

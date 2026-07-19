@@ -9,6 +9,7 @@ import '../models/lesson_model.dart';
 import '../providers/app_providers.dart';
 import '../services/local_storage_service.dart';
 import '../services/daily_limit.dart';
+import '../services/review_api.dart';
 import '../widgets/bubble_button.dart';
 import '../widgets/kid_card.dart';
 import '../widgets/kid_nav_bar.dart';
@@ -25,6 +26,21 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
+  int _wrongAnswerCount = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadWrongAnswers();
+  }
+
+  Future<void> _loadWrongAnswers() async {
+    final userId = ref.read(userIdProvider) ?? '';
+    if (userId.isEmpty) return;
+    final count = await ReviewApi.getWrongAnswerCount(userId);
+    if (mounted) setState(() => _wrongAnswerCount = count);
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -69,6 +85,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     // Phase C: dismissible pricing banner (visible when
                     // daily limit hit + not Premium + last dismiss > 24h ago).
                     const PricingBanner(),
+                    if (_wrongAnswerCount > 0)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: _ReviewCard(count: _wrongAnswerCount),
+                      ),
                     // Continue card + 2 stats
                     LayoutBuilder(builder: (context, c) {
                       final wide = c.maxWidth > 900;
@@ -473,6 +494,38 @@ class _Stat extends StatelessWidget {
               textAlign: TextAlign.center,
               style: AppTheme.body(size: 12, color: AppColors.mutedPurple)),
         ],
+      ),
+    );
+  }
+}
+
+class _ReviewCard extends StatelessWidget {
+  final int count;
+  const _ReviewCard({required this.count});
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => context.go('/review'),
+      child: KidCard(
+        gradient: const [AppColors.orangeSoft, AppColors.cream],
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            const Text('📝', style: TextStyle(fontSize: 32)),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Ôn tập lỗi', style: AppTheme.display(size: 18)),
+                  Text('$count câu cần ôn lại',
+                      style: AppTheme.body(size: 12, color: AppColors.mutedPurple)),
+                ],
+              ),
+            ),
+            const Icon(Icons.arrow_forward_ios, color: AppColors.deepPurple, size: 16),
+          ],
+        ),
       ),
     );
   }

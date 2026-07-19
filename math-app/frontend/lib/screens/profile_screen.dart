@@ -6,8 +6,10 @@ import '../core/app_colors.dart';
 import '../core/app_theme.dart';
 import '../l10n/app_localizations.dart';
 import '../providers/app_providers.dart';
+import '../services/audio_service.dart';
 import '../services/auth_service.dart';
 import '../services/local_storage_service.dart';
+import '../services/notification_service.dart';
 import '../services/user_api.dart';
 import '../widgets/bubble_button.dart';
 import '../widgets/kid_card.dart';
@@ -95,6 +97,10 @@ class ProfileScreen extends ConsumerWidget {
                     const SizedBox(height: 24),
                     _buildTtsTile(context, ref),
                     const SizedBox(height: 8),
+                    _buildNotificationTile(context, ref),
+                    const SizedBox(height: 8),
+                    _buildSoundTile(context, ref),
+                    const SizedBox(height: 8),
                     _buildGradeTile(context, ref),
                     const SizedBox(height: 24),
                     BubbleButton(
@@ -177,6 +183,120 @@ class ProfileScreen extends ConsumerWidget {
                 ref.read(ttsEnabledProvider.notifier).state = v;
                 LocalStorageService.saveTtsEnabled(v);
               }),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNotificationTile(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final isEnabled = ref.watch(dailyReminderEnabledProvider);
+    return KidCard(
+      onTap: () async {
+        final newValue = !isEnabled;
+        ref.read(dailyReminderEnabledProvider.notifier).state = newValue;
+        await NotificationService().updatePreferences(
+          dailyReminderEnabled: newValue,
+        );
+      },
+      padding: const EdgeInsets.all(16),
+      child: Row(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: isEnabled ? AppColors.pinkSoft : AppColors.grayBg,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Icon(
+              isEnabled ? Icons.notifications_active : Icons.notifications_off,
+              color: AppColors.deepPurple,
+              size: 24,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l10n?.dailyReminderTitle ?? 'Nhắc nhở học bài',
+                  style: AppTheme.display(size: 16),
+                ),
+                Text(
+                  l10n?.dailyReminderSubtitle ?? 'Nhận thông báo nhắc học hàng ngày',
+                  style: AppTheme.body(size: 12, color: AppColors.mutedPurple),
+                ),
+              ],
+            ),
+          ),
+          Switch(
+            value: isEnabled,
+            activeThumbColor: AppColors.pink,
+            onChanged: (v) async {
+              ref.read(dailyReminderEnabledProvider.notifier).state = v;
+              await NotificationService().updatePreferences(
+                dailyReminderEnabled: v,
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSoundTile(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final isMuted = ref.watch(audioMutedProvider);
+    return KidCard(
+      onTap: () {
+        final newVal = !isMuted;
+        ref.read(audioMutedProvider.notifier).state = newVal;
+        AudioService().muted = newVal;
+        LocalStorageService.saveSoundMuted(newVal);
+      },
+      padding: const EdgeInsets.all(16),
+      child: Row(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: isMuted ? AppColors.grayBg : AppColors.pinkSoft,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Icon(
+              isMuted ? Icons.music_off : Icons.music_note,
+              color: AppColors.deepPurple,
+              size: 24,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l10n?.soundEffectsTitle ?? 'Âm thanh',
+                  style: AppTheme.display(size: 16),
+                ),
+                Text(
+                  l10n?.soundEffectsSubtitle ?? 'Hiệu ứng âm thanh bài học',
+                  style: AppTheme.body(size: 12, color: AppColors.mutedPurple),
+                ),
+              ],
+            ),
+          ),
+          Switch(
+            value: !isMuted,
+            activeThumbColor: AppColors.pink,
+            onChanged: (v) {
+              ref.read(audioMutedProvider.notifier).state = !v;
+              AudioService().muted = !v;
+              LocalStorageService.saveSoundMuted(!v);
+            },
+          ),
         ],
       ),
     );

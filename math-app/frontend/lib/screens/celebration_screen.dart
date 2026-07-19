@@ -6,6 +6,8 @@ import '../core/app_theme.dart';
 import '../l10n/app_localizations.dart';
 import '../models/persona_model.dart';
 import '../providers/app_providers.dart';
+import '../services/achievement_service.dart';
+import '../models/achievement_model.dart';
 import '../services/content_api.dart';
 import '../widgets/bubble_button.dart';
 import '../widgets/kid_card.dart';
@@ -34,6 +36,7 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
   late final AnimationController _controller;
   late final Animation<double> _scaleAnimation;
   late final List<Offset> _confetti;
+  List<Achievement> _newBadges = [];
 
   @override
   void initState() {
@@ -47,6 +50,7 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
       final r = i * 1.7;
       return Offset(((r * 13) % 400) - 200, -((r * 17) % 600));
     });
+    _checkNewBadges();
   }
 
   @override
@@ -256,6 +260,65 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
       return '/language-lesson/${widget.subjectId}/${next.id}';
     }
     return '/lesson/${widget.subjectId}/${next.id}';
+  }
+
+  Future<void> _checkNewBadges() async {
+    final userId = ref.read(userIdProvider) ?? '';
+    if (userId.isEmpty) return;
+    try {
+      final rows = await AchievementService.getAchievements(userId);
+      final badges = rows.map(Achievement.fromJson).toList();
+      final newBadges = badges.where((b) => b.isNew).toList();
+      if (newBadges.isNotEmpty && mounted) {
+        _showBadgePopup(newBadges);
+      }
+    } catch (_) {}
+  }
+
+  void _showBadgePopup(List<Achievement> badges) {
+    if (!mounted) return;
+    Future.delayed(const Duration(milliseconds: 1500), () {
+      if (!mounted) return;
+      final userId = ref.read(userIdProvider) ?? '';
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          backgroundColor: AppColors.cream,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          title: Text('🏅 Huy chương mới!', style: AppTheme.display(size: 22)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: badges.map((b) => Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Row(
+                children: [
+                  Text(b.icon, style: const TextStyle(fontSize: 40)),
+                  const SizedBox(width: 12),
+                  Expanded(child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(b.name, style: AppTheme.display(size: 16)),
+                      Text(b.description, style: AppTheme.body(size: 12, color: AppColors.mutedPurple)),
+                    ],
+                  )),
+                ],
+              ),
+            )).toList(),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(ctx).pop();
+                for (final b in badges) {
+                  AchievementService.markRead(userId, b.badgeType);
+                }
+              },
+              child: Text('Tuyệt vời! 🎉', style: AppTheme.display(size: 14, color: AppColors.pink)),
+            ),
+          ],
+        ),
+      );
+    });
   }
 
   Map<String, String> _getMessages(AppLocalizations l10n, Persona persona) {

@@ -98,9 +98,9 @@ pub async fn login_with_google(
         .fetch_one(&state.db)
         .await;
 
-    let (user_uuid, tier) = match db_user {
-        Ok(u) => (u.id, u.subscription_tier),
-        Err(_) => (uuid::Uuid::new_v4(), "free".to_string()),
+    let (user_uuid, tier, role) = match db_user {
+        Ok(u) => (u.id, u.subscription_tier, u.role),
+        Err(_) => (uuid::Uuid::new_v4(), "free".to_string(), "child".to_string()),
     };
 
     let jwt_secret =
@@ -111,6 +111,7 @@ pub async fn login_with_google(
         name,
         picture: info.picture.clone().unwrap_or_default(),
         tier,
+        role,
         exp: (Utc::now() + Duration::hours(24)).timestamp() as usize,
         aud: "math-app".to_string(),
     };
@@ -148,6 +149,7 @@ pub async fn register(Json(body): Json<RegisterRequest>) -> ApiResponse<TokenRes
         name: body.name,
         picture: String::new(),
         tier: "free".to_string(),
+        role: "child".to_string(),
         exp: (Utc::now() + Duration::hours(24)).timestamp() as usize,
         aud: "math-app".to_string(),
     };
@@ -198,6 +200,7 @@ pub async fn me(headers: axum::http::HeaderMap) -> Result<ApiResponse<MeResponse
         picture: claims.picture,
         given_name: claims.name,
         tier: claims.tier,
+        role: claims.role,
     }))
 }
 
@@ -319,6 +322,7 @@ pub async fn login_as_guest(
         name: name.clone(),
         picture: String::new(),
         tier: "free".to_string(),
+        role: "child".to_string(),
         exp: (Utc::now() + Duration::hours(24 * 7)).timestamp() as usize,
         aud: "math-app".to_string(),
     };

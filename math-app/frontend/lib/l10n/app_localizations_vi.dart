@@ -478,8 +478,9 @@ class AppLocalizationsVi extends AppLocalizations {
   String get pricingNoteLabel => 'Lưu ý: ';
 
   @override
-  String pricingNoteBody(String email) =>
-      'Hiện tại thanh toán chưa tích hợp online. Nâng cấp Premium qua liên hệ: $email';
+  String pricingNoteBody(String email) {
+    return 'Hiện tại thanh toán chưa tích hợp online. Nâng cấp Premium qua liên hệ: $email';
+  }
 
   @override
   String get pricingBackTooltip => 'Quay lại';

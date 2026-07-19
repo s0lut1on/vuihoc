@@ -59,6 +59,8 @@ pub struct Claims {
     pub name: String,
     pub picture: String,
     pub tier: String,
+    #[serde(default)]
+    pub role: String,
     pub exp: usize,
     #[serde(default = "default_aud")]
     pub aud: String,
@@ -66,6 +68,18 @@ pub struct Claims {
 
 fn default_aud() -> String {
     "math-app".to_string()
+}
+
+pub async fn require_admin(request: Request, next: Next) -> axum::response::Response {
+    let claims = request.extensions().get::<Claims>().cloned();
+    match claims {
+        Some(c) if c.role == "admin" => next.run(request).await,
+        _ => (
+            StatusCode::FORBIDDEN,
+            Json(ApiResponse::<()>::err("Admin access required")),
+        )
+            .into_response(),
+    }
 }
 
 pub async fn auth_middleware(request: Request, next: Next) -> axum::response::Response {

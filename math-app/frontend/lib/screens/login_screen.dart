@@ -4,6 +4,7 @@ import '../core/app_colors.dart';
 import '../core/app_theme.dart';
 import '../l10n/app_localizations.dart';
 import '../services/auth_service.dart';
+import '../services/notification_service.dart';
 import '../widgets/bubble_button.dart';
 import '../widgets/mascot.dart';
 
@@ -187,7 +188,10 @@ class _LoginScreenState extends State<LoginScreen>
     setState(() => _isSigningIn = true);
     try {
       final ok = await AuthService().signInWithGoogle();
-      if (ok && mounted) context.go('/home');
+      if (ok && mounted) {
+        NotificationService().initialize();
+        context.go('/home');
+      }
     } finally {
       if (mounted) setState(() => _isSigningIn = false);
     }
@@ -195,6 +199,9 @@ class _LoginScreenState extends State<LoginScreen>
 
   void _signInAsGuest() async {
     final ok = await AuthService().signInAsGuest();
-    if (ok && mounted) context.go('/home');
+    if (ok && mounted) {
+      NotificationService().initialize();
+      context.go('/home');
+    }
   }
 }

@@ -49,6 +49,7 @@ async fn main() {
             get(handlers::get_leaderboard),
         )
         .route("/api/users/grade", post(handlers::update_grade))
+        .route("/api/users/children", get(handlers::list_children).post(handlers::create_child))
         .route_layer(axum::middleware::from_fn(shared::auth_middleware));
 
     let app = Router::new()

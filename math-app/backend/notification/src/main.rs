@@ -1,4 +1,4 @@
-use axum::{routing::get, Router};
+use axum::{routing::{get, post}, Router};
 use std::net::SocketAddr;
 use tower_http::cors::CorsLayer;
 use utoipa::OpenApi;
@@ -6,11 +6,12 @@ use utoipa_swagger_ui::SwaggerUi;
 
 mod handlers;
 mod models;
+mod fcm;
 
-pub use models::{AppState, Notification, NotificationPayload};
+pub use models::{AppState, Notification, NotificationPayload, PushSubscription, NotificationPreferences, SubscribeRequest, UpdatePreferencesRequest, SubscriptionStatus};
 
 #[derive(OpenApi)]
-#[openapi(components(schemas(Notification, NotificationPayload)))]
+#[openapi(components(schemas(Notification, NotificationPayload, PushSubscription, NotificationPreferences, SubscribeRequest, UpdatePreferencesRequest, SubscriptionStatus)))]
 pub struct ApiDoc;
 
 #[cfg(test)]
@@ -60,15 +61,24 @@ async fn main() {
     sqlx::migrate!("./migrations").run(&db).await.ok();
 
     let state = AppState { db };
-    let protected = Router::new()
+
+    let protected = Router::<AppState>::new()
         .route(
             "/api/notifications",
             get(handlers::list_notifications).post(handlers::send_test_notification),
         )
+        .route("/api/notifications/subscribe", post(handlers::subscribe_push))
+        .route("/api/notifications/unsubscribe", post(handlers::unsubscribe_push))
+        .route("/api/notifications/status", get(handlers::get_subscription_status))
+        .route(
+            "/api/notifications/preferences",
+            get(handlers::get_preferences).put(handlers::update_preferences),
+        )
         .route_layer(axum::middleware::from_fn(shared::auth_middleware));
 
-    let app = Router::new()
+    let app = Router::<AppState>::new()
         .route("/api/notifications/health", get(handlers::health))
+        .route("/api/notifications/send-report", post(handlers::send_report))
         .merge(protected)
         .merge(
             SwaggerUi::new("/api/notifications/swagger-ui")

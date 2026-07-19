@@ -33,6 +33,7 @@ pub struct AuthUser {
     pub avatar: Option<String>,
     pub locale: String,
     pub subscription_tier: String,
+    pub role: String,
     pub created_at: DateTime<Utc>,
 }
 
@@ -52,6 +53,8 @@ pub struct Claims {
     pub picture: String,
     #[serde(default)]
     pub tier: String,
+    #[serde(default)]
+    pub role: String,
     pub exp: usize,
     #[serde(default = "default_aud")]
     pub aud: String,
@@ -79,6 +82,7 @@ pub struct MeResponse {
     pub picture: String,
     pub given_name: String,
     pub tier: String,
+    pub role: String,
 }
 
 #[derive(Clone)]
@@ -135,6 +139,7 @@ mod tests {
             name: "Test".to_string(),
             picture: "https://pic.jpg".to_string(),
             tier: "free".to_string(),
+            role: "child".to_string(),
             exp: 1234567890,
             aud: "math-app".to_string(),
         };
@@ -144,6 +149,7 @@ mod tests {
         assert_eq!(decoded.email, "test@test.com");
         assert_eq!(decoded.picture, "https://pic.jpg");
         assert_eq!(decoded.tier, "free");
+        assert_eq!(decoded.role, "child");
     }
 
     #[test]
@@ -152,6 +158,7 @@ mod tests {
         let claims: Claims = serde_json::from_str(json).unwrap();
         assert_eq!(claims.picture, "");
         assert_eq!(claims.tier, "");
+        assert_eq!(claims.role, "");
     }
 
     #[test]
@@ -175,10 +182,12 @@ mod tests {
             picture: "pic.jpg".to_string(),
             given_name: "G".to_string(),
             tier: "premium".to_string(),
+            role: "child".to_string(),
         };
         let json = serde_json::to_string(&resp).unwrap();
         assert!(json.contains("u1"));
         assert!(json.contains("premium"));
+        assert!(json.contains("child"));
     }
 
     #[test]
@@ -204,8 +213,10 @@ mod tests {
             avatar: Some("🐸".to_string()),
             locale: "vi_VN".to_string(),
             subscription_tier: "free".to_string(),
+            role: "child".to_string(),
             created_at: Utc::now(),
         };
         assert_eq!(user.subscription_tier, "free");
+        assert_eq!(user.role, "child");
     }
 }

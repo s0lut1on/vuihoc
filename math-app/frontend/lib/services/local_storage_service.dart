@@ -127,4 +127,14 @@ class LocalStorageService {
     if (v == null) return null;
     return DateTime.fromMillisecondsSinceEpoch(v as int);
   }
+
+  static Future<void> saveSoundMuted(bool muted) async {
+    final box = await Hive.openBox(_settingsBox);
+    await box.put('soundMuted', muted);
+  }
+
+  static Future<bool> getSoundMuted() async {
+    final box = await Hive.openBox(_settingsBox);
+    return box.get('soundMuted', defaultValue: false) as bool;
+  }
 }

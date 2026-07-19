@@ -18,10 +18,14 @@ final localeProvider = StateProvider<Locale>((ref) => const Locale('vi', 'VN'));
 
 final ttsEnabledProvider = StateProvider<bool>((ref) => true);
 
+final dailyReminderEnabledProvider = StateProvider<bool>((ref) => true);
+
 /// Whether unlock-celebration animations should play. Parents can disable
 /// from the dashboard to reduce overstimulation. Default: true (opt-out, not
 /// opt-in, because the surprise moment is part of the value for most kids).
 final unlockAnimationsEnabledProvider = StateProvider<bool>((ref) => true);
+
+final audioMutedProvider = StateProvider<bool>((ref) => false);
 
 final personaProvider = StateProvider<Persona?>((ref) => null);
 
