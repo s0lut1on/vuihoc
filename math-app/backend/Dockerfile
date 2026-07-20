@@ -13,6 +13,7 @@ COPY progress progress
 COPY notification notification
 COPY media media
 COPY question_bank question_bank
+COPY payment payment
 
 # Build shared first so Cargo resolves deps
 RUN cargo fetch
