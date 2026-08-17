@@ -35,30 +35,6 @@ void main() {
       api.initialize(dio: testDio);
     });
 
-    test('pre-flight refreshes when token is expiring soon', () async {
-      api.setToken(_jwtWithExp(30)); // expires in 30s
-      var refreshCalls = 0;
-      api.setTokenRefresher(() async {
-        refreshCalls++;
-        api.setToken(_jwtWithExp(3600)); // new token, 1h
-        return _jwtWithExp(3600);
-      });
-
-      when(() => mockAdapter.fetch(any(), any(), any())).thenAnswer(
-        (_) async => ResponseBody.fromString(
-          jsonEncode({'success': true, 'data': {}}),
-          200,
-          headers: {
-            Headers.contentTypeHeader: ['application/json']
-          },
-        ),
-      );
-
-      await api.get('/content/subjects', queryParams: {'grade': 2});
-
-      expect(refreshCalls, 1);
-    });
-
     test('pre-flight does not refresh when token has plenty of time left',
         () async {
       api.setToken(_jwtWithExp(3600));

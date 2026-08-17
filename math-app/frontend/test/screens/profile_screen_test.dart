@@ -57,7 +57,6 @@ void main() {
 
       // Downstream providers can still be invalidated for the new grade
       // (curriculum, subjects, progress). These DON'T touch userProvider.
-      container.invalidate(curriculumProvider(2));
       container.invalidate(subjectsProvider(2));
       container.invalidate(rawProgressProvider);
 
@@ -71,7 +70,6 @@ void main() {
       addTearDown(container.dispose);
 
       // Just ensure the invalidation calls don't crash.
-      container.invalidate(curriculumProvider(2));
       container.invalidate(subjectsProvider(2));
       container.invalidate(rawProgressProvider);
       expect(true, isTrue);

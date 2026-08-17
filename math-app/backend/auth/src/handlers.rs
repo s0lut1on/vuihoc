@@ -224,6 +224,7 @@ mod tests {
             name: "Test User".to_string(),
             picture: "".to_string(),
             tier: "free".to_string(),
+            role: "child".to_string(),
             exp: (Utc::now() + Duration::days(1)).timestamp() as usize,
             aud: "math-app".to_string(),
         };

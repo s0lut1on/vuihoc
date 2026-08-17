@@ -15,7 +15,7 @@ void main() {
     // Build our app and trigger a frame.
     await tester.pumpWidget(
       ProviderScope(
-        child: const MathApp(autoSignedIn: false),
+        child: const MathApp(),
       ),
     );
     // pump once (not pumpAndSettle — infinite mascot animations would hang)

@@ -91,6 +91,7 @@ mod tests {
             subscription_tier: "free".to_string(),
             classroom_code: None,
             grade: 1,
+            parent_id: None,
             created_at: chrono::Utc::now(),
         };
         assert_eq!(u.name, "Be An");

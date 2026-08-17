@@ -97,20 +97,29 @@ services:
       - "traefik.http.middlewares.flutter-strip.stripprefix.prefixes=/app"
       - "traefik.http.middlewares.flutter-strip.stripprefix.forceSlash=false"
       - "traefik.http.middlewares.flutter-coop.headers.customResponseHeaders.Cross-Origin-Opener-Policy=unsafe-none"
-      - "traefik.http.routers.flutter-web.middlewares=flutter-strip,flutter-coop"
+      # Security headers for Flutter web (CSP omitted — Flutter wasm/eval needs
+      # a permissive policy; tracked as a separate task).
+      - "traefik.http.middlewares.flutter-headers.headers.customFrameOptionsValue=SAMEORIGIN"
+      - "traefik.http.middlewares.flutter-headers.headers.contentTypeNosniff=true"
+      - "traefik.http.middlewares.flutter-headers.headers.stsSeconds=31536000"
+      - "traefik.http.middlewares.flutter-headers.headers.stsIncludeSubdomains=true"
+      - "traefik.http.middlewares.flutter-headers.headers.permissionsPolicy=geolocation=(), microphone=(), camera()"
+      - "traefik.http.middlewares.flutter-headers.headers.referrerPolicy=strict-origin-when-cross-origin"
+      - "traefik.http.routers.flutter-web.middlewares=flutter-strip,flutter-coop,flutter-headers"
       # CanvasKit WASM — Flutter loads from absolute /canvaskit/ path (no /app prefix)
       - "traefik.http.routers.flutter-canvas.rule=Host(`${DOMAIN}`) && PathPrefix(`/canvaskit`)"
       - "traefik.http.routers.flutter-canvas.entrypoints=websecure"
       - "traefik.http.routers.flutter-canvas.tls.certresolver=letsencrypt"
       - "traefik.http.routers.flutter-canvas.tls=true"
       - "traefik.http.routers.flutter-canvas.priority=60"
-      - "traefik.http.routers.flutter-canvas.middlewares=flutter-coop"
+      - "traefik.http.routers.flutter-canvas.middlewares=flutter-coop,flutter-headers"
       # Flutter manifest + brand assets — loaded by index.html without /app prefix
       - "traefik.http.routers.flutter-assets.rule=Host(`${DOMAIN}`) && PathPrefix(`/brand`)"
       - "traefik.http.routers.flutter-assets.entrypoints=websecure"
       - "traefik.http.routers.flutter-assets.tls.certresolver=letsencrypt"
       - "traefik.http.routers.flutter-assets.tls=true"
       - "traefik.http.routers.flutter-assets.priority=60"
+      - "traefik.http.routers.flutter-assets.middlewares=flutter-headers"
     restart: unless-stopped
 
   marketing-site:
@@ -390,6 +399,40 @@ services:
       - qb_db_data:/var/lib/postgresql/data
     restart: unless-stopped
 
+  payment-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: ${PAYMENT_DB_NAME:-payment_db}
+      POSTGRES_USER: ${PAYMENT_DB_USER:-payment_user}
+      POSTGRES_PASSWORD: ${PAYMENT_DB_PASS:-payment_pass}
+    volumes:
+      - payment_db_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  payment-service:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: payment
+    environment:
+      - PORT=3000
+      - DATABASE_URL=${PAYMENT_DB_URL}
+      - JWT_SECRET=${JWT_SECRET}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - payment-db
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.payment.rule=Host(`${DOMAIN}`) && PathPrefix(`/api/payments`)"
+      - "traefik.http.routers.payment.entrypoints=websecure"
+      - "traefik.http.routers.payment.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.payment.priority=100"
+      - "traefik.http.services.payment.loadbalancer.server.port=3000"
+    restart: unless-stopped
+
   redis:
     image: redis:7-alpine
     restart: unless-stopped
@@ -415,3 +458,4 @@ volumes:
   language_db_data:
   minio_data:
   umami_db_data:
+  payment_db_data:
