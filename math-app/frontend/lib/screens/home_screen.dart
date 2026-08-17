@@ -229,7 +229,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final bySubject = <String, int>{};
     for (final s in mathSubjects) {
       final id = s['id'] as String?;
-      final count = s['lessonCount'] as int?;
+      // API returns snake_case 'lesson_count' — NOT camelCase 'lessonCount'.
+      final count = s['lesson_count'] as int? ?? s['lessonCount'] as int?;
       if (id != null && count != null) bySubject[id] = count;
     }
     for (final s in languageSubjects) {
