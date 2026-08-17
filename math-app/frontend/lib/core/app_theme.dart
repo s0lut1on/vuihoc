@@ -1,18 +1,30 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'app_colors.dart';
 
-/// Kid-friendly design system. Baloo 2 (display) + Nunito (body).
+/// Kid-friendly design system. Rounded display + body fonts.
 /// Big rounded shapes, 3D "bubble" shadows, soft pastel palette.
+///
+/// Note: previously used the `google_fonts` package (Baloo 2 + Nunito)
+/// but it crashes on Flutter 3.44 web due to a FontWeight const-eval bug
+/// in the package's const map. Replaced with system font families that
+/// are close visual matches: 'Baloo 2' (if installed) → rounded sans,
+/// falling back to the platform default rounded sans-serif.
 class AppTheme {
   AppTheme._();
 
-  static TextStyle get _display => GoogleFonts.baloo2(
+  /// Display font: rounded, heavy. Falls back to system sans if the
+  /// named family isn't available (Flutter resolves gracefully).
+  static const String _displayFamily = 'Baloo 2';
+  static const String _bodyFamily = 'Nunito';
+
+  static TextStyle get _display => TextStyle(
+        fontFamily: _displayFamily,
         fontWeight: FontWeight.w800,
         color: AppColors.deepPurple,
       );
 
-  static TextStyle get _body => GoogleFonts.nunito(
+  static TextStyle get _body => TextStyle(
+        fontFamily: _bodyFamily,
         fontWeight: FontWeight.w600,
         color: AppColors.deepPurple,
       );
@@ -44,7 +56,8 @@ class AppTheme {
     );
     return base.copyWith(
       scaffoldBackgroundColor: AppColors.pinkBg,
-      textTheme: GoogleFonts.nunitoTextTheme(base.textTheme).apply(
+      textTheme: base.textTheme.apply(
+        fontFamily: _bodyFamily,
         bodyColor: AppColors.deepPurple,
         displayColor: AppColors.deepPurple,
       ),
@@ -111,8 +124,10 @@ class AppTheme {
           borderRadius: BorderRadius.circular(16),
           borderSide: const BorderSide(color: AppColors.pink, width: 2),
         ),
-        hintStyle: GoogleFonts.nunito(
-            color: AppColors.mutedText, fontWeight: FontWeight.w600),
+        hintStyle: TextStyle(
+            fontFamily: _bodyFamily,
+            color: AppColors.mutedText,
+            fontWeight: FontWeight.w600),
       ),
       cardTheme: CardThemeData(
         elevation: 0,
@@ -128,7 +143,7 @@ class AppTheme {
     );
   }
 
-  /// Build a Baloo 2 display text style.
+  /// Build a display text style.
   static TextStyle display(
       {double size = 28, FontWeight weight = FontWeight.w800, Color? color}) {
     return _display.copyWith(
@@ -137,7 +152,7 @@ class AppTheme {
         color: color ?? AppColors.deepPurple);
   }
 
-  /// Build a Nunito body text style.
+  /// Build a body text style.
   static TextStyle body(
       {double size = 16, FontWeight weight = FontWeight.w600, Color? color}) {
     return _body.copyWith(

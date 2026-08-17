@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:path_provider/path_provider.dart';
 import 'core/app_theme.dart';
 import 'core/app_router.dart';
 import 'providers/app_providers.dart';
@@ -35,10 +36,10 @@ void main() async {
   // time savings.
   await PricingConfig.load();
 
-  // Fire-and-forget Hive init + non-essential box opens. These run
-  // in parallel with runApp. The settings/auth boxes are opened
-  // lazily on first use by _loadLocale/_loadToken/etc.
-  unawaited(_initHive());
+  // Initialize Hive first. On mobile, Hive.initFlutter() must complete
+  // before any Hive.openBox() call, otherwise it throws "You need to
+  // initialize Hive or provide a path to store the box."
+  await _initHive();
 
   // Load the token from the auth box. This also sets it on the ApiService
   // so the first API calls after runApp have the auth header.
@@ -80,19 +81,22 @@ void main() async {
   );
 }
 
-/// Hive init + non-essential box opens. Runs in the background after
-/// runApp. The settings + auth boxes open lazily on first use.
+/// Hive init + non-essential box opens.
+///
+/// On mobile, `Hive.initFlutter()` must complete before any `Hive.openBox()`
+/// call. On web, `getApplicationDocumentsDirectory()` is not available via
+/// the platform channel (path_provider_web may not be registered), so we
+/// use `Hive.initFlutter()` which handles web internally.
 Future<void> _initHive() async {
-  try {
+  if (kIsWeb) {
     await Hive.initFlutter();
-    await Hive.openBox('offline_cache');
-    await Hive.openBox('pending_sync');
-    ConnectivityService().init();
-  } catch (e) {
-    // Hive init failure shouldn't crash the app — the boxes that fail
-    // to open will throw on first use. Log and continue.
-    debugPrint('Hive init failed: $e');
+  } else {
+    final dir = await getApplicationDocumentsDirectory();
+    Hive.init(dir.path);
   }
+  await Hive.openBox('offline_cache');
+  await Hive.openBox('pending_sync');
+  ConnectivityService().init();
 }
 
 bool _isDemoMode() {

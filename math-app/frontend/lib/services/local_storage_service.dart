@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import '../models/user_model.dart';
 import '../models/persona_model.dart';
@@ -8,8 +10,12 @@ class LocalStorageService {
   static const String _settingsBox = 'settingsBox';
 
   static Future<void> init() async {
-    final dir = await getApplicationDocumentsDirectory();
-    Hive.init(dir.path);
+    if (kIsWeb) {
+      await Hive.initFlutter();
+    } else {
+      final dir = await getApplicationDocumentsDirectory();
+      Hive.init(dir.path);
+    }
     // Register adapters here if custom objects are stored
   }
 

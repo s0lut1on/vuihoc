@@ -103,7 +103,7 @@ services:
       - "traefik.http.middlewares.flutter-headers.headers.contentTypeNosniff=true"
       - "traefik.http.middlewares.flutter-headers.headers.stsSeconds=31536000"
       - "traefik.http.middlewares.flutter-headers.headers.stsIncludeSubdomains=true"
-      - "traefik.http.middlewares.flutter-headers.headers.permissionsPolicy=geolocation=(), microphone=(), camera()"
+      - "traefik.http.middlewares.flutter-headers.headers.permissionsPolicy=geolocation=(), microphone=(), camera=()"
       - "traefik.http.middlewares.flutter-headers.headers.referrerPolicy=strict-origin-when-cross-origin"
       - "traefik.http.routers.flutter-web.middlewares=flutter-strip,flutter-coop,flutter-headers"
       # CanvasKit WASM — Flutter loads from absolute /canvaskit/ path (no /app prefix)
