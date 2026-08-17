@@ -5,6 +5,7 @@
  *
  * Plan: this screen was MISSING from PLAN_E2E_TESTS.md.
  */
+import { appUrl } from '../utils/config';
 import { test, expect } from '@playwright/test';
 import { signInAsGuest } from '../utils/auth';
 import { waitForRoute } from '../utils/wait';
@@ -14,7 +15,7 @@ test.describe('Review screen', () => {
     await signInAsGuest(page, { emptyReview: true });
     await waitForRoute(page, /\/home/);
 
-    await page.goto('/review');
+    await page.goto(appUrl('/review'));
     await page.waitForTimeout(800);
 
     // Empty state renders centered 🎉 + "All clear" text.
@@ -39,7 +40,7 @@ test.describe('Review screen', () => {
       if (u.includes('/api/language/lessons')) lessonCalls.push(u);
     });
 
-    await page.goto('/review');
+    await page.goto(appUrl('/review'));
     await page.waitForTimeout(1500);
 
     expect(reviewCalls.length).toBeGreaterThanOrEqual(1);
@@ -56,7 +57,7 @@ test.describe('Review screen', () => {
       if (u.includes('/api/progress/review/submit') && r.method() === 'POST') submitCalls.push(u);
     });
 
-    await page.goto('/review');
+    await page.goto(appUrl('/review'));
     await page.waitForTimeout(1000);
     // Cannot click Flutter widgets from CanvasKit without a11y, but
     // we verify the endpoint contract is correctly defined.
@@ -69,9 +70,9 @@ test.describe('Review screen', () => {
 
   test('unauthenticated user is redirected to /login from /review', async ({ page }) => {
     // No installMockBackend → no token in storage
-    await page.goto('/login');
+    await page.goto(appUrl('/login'));
     await page.waitForTimeout(500);
-    await page.goto('/review');
+    await page.goto(appUrl('/review'));
     await waitForRoute(page, /\/login/);
   });
 });

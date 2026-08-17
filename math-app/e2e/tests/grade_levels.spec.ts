@@ -1,9 +1,9 @@
+import { apiUrl } from '../utils/config';
 import { test, expect, APIRequestContext } from '@playwright/test';
 
-const BASE = process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:8082';
 
 async function guestLoginApi(request: APIRequestContext): Promise<string> {
-  const res = await request.post(`${BASE}/api/auth/guest`, { data: {} });
+  const res = await request.post(apiUrl("/api/auth/guest"), { data: {} });
   expect(res.status()).toBe(200);
   const body = await res.json();
   expect(body.success).toBe(true);
@@ -13,7 +13,7 @@ async function guestLoginApi(request: APIRequestContext): Promise<string> {
 test.describe('Grade Levels API', () => {
   test('Grade 1 curriculum returns original lessons', async ({ request }) => {
     const token = await guestLoginApi(request);
-    const res = await request.get(`${BASE}/api/content/curriculum?grade=1`, {
+    const res = await request.get(apiUrl("/api/content/curriculum?grade=1"), {
       headers: { Authorization: `Bearer ${token}` },
     });
     expect(res.status()).toBe(200);
@@ -29,7 +29,7 @@ test.describe('Grade Levels API', () => {
 
   test('Grade 2 curriculum returns harder lessons', async ({ request }) => {
     const token = await guestLoginApi(request);
-    const res = await request.get(`${BASE}/api/content/curriculum?grade=2`, {
+    const res = await request.get(apiUrl("/api/content/curriculum?grade=2"), {
       headers: { Authorization: `Bearer ${token}` },
     });
     expect(res.status()).toBe(200);
@@ -47,7 +47,7 @@ test.describe('Grade Levels API', () => {
 
   test('Grade 2 subjects show correct lesson counts', async ({ request }) => {
     const token = await guestLoginApi(request);
-    const res = await request.get(`${BASE}/api/content/subjects?grade=2`, {
+    const res = await request.get(apiUrl("/api/content/subjects?grade=2"), {
       headers: { Authorization: `Bearer ${token}` },
     });
     expect(res.status()).toBe(200);
@@ -60,7 +60,7 @@ test.describe('Grade Levels API', () => {
 
   test('Grade 3 curriculum returns empty or future lessons', async ({ request }) => {
     const token = await guestLoginApi(request);
-    const res = await request.get(`${BASE}/api/content/curriculum?grade=3`, {
+    const res = await request.get(apiUrl("/api/content/curriculum?grade=3"), {
       headers: { Authorization: `Bearer ${token}` },
     });
     expect(res.status()).toBe(200);
@@ -70,10 +70,10 @@ test.describe('Grade Levels API', () => {
 
   test('Default grade is 1 when no param provided', async ({ request }) => {
     const token = await guestLoginApi(request);
-    const defaultRes = await request.get(`${BASE}/api/content/curriculum`, {
+    const defaultRes = await request.get(apiUrl("/api/content/curriculum"), {
       headers: { Authorization: `Bearer ${token}` },
     });
-    const grade1Res = await request.get(`${BASE}/api/content/curriculum?grade=1`, {
+    const grade1Res = await request.get(apiUrl("/api/content/curriculum?grade=1"), {
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -85,7 +85,7 @@ test.describe('Grade Levels API', () => {
 
   test('User profile includes grade field', async ({ request }) => {
     const token = await guestLoginApi(request);
-    const res = await request.get(`${BASE}/api/users`, {
+    const res = await request.get(apiUrl("/api/users"), {
       headers: { Authorization: `Bearer ${token}` },
     });
     expect(res.status()).toBe(200);
@@ -98,7 +98,7 @@ test.describe('Grade Levels API', () => {
 
   test('User can update grade', async ({ request }) => {
     const token = await guestLoginApi(request);
-    const res = await request.post(`${BASE}/api/users/grade`, {
+    const res = await request.post(apiUrl("/api/users/grade"), {
       headers: { Authorization: `Bearer ${token}` },
       data: { grade: 2 },
     });
@@ -110,7 +110,7 @@ test.describe('Grade Levels API', () => {
 
   test('Language service Grade 2 curriculum', async ({ request }) => {
     const token = await guestLoginApi(request);
-    const res = await request.get(`${BASE}/api/language/curriculum?grade=2`, {
+    const res = await request.get(apiUrl("/api/language/curriculum?grade=2"), {
       headers: { Authorization: `Bearer ${token}` },
     });
     expect(res.status()).toBe(200);

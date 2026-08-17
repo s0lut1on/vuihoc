@@ -2,6 +2,7 @@
  * Achievement screen — Vietnamese-only strings (not localized).
  * NEW chip on unread badges, mark-read on tap, snackbar on new badges loaded.
  */
+import { appUrl } from '../utils/config';
 import { test, expect } from '@playwright/test';
 import { signInAsGuest } from '../utils/auth';
 import { waitForRoute } from '../utils/wait';
@@ -18,7 +19,7 @@ test.describe('Achievement screen', () => {
       }
     });
 
-    await page.goto('/achievements');
+    await page.goto(appUrl('/achievements'));
     await page.waitForTimeout(1000);
     expect(calls.length).toBeGreaterThanOrEqual(1);
   });
@@ -35,9 +36,9 @@ test.describe('Achievement screen', () => {
   });
 
   test('unauthenticated /achievements redirects to /login', async ({ page }) => {
-    await page.goto('/login');
+    await page.goto(appUrl('/login'));
     await page.waitForTimeout(300);
-    await page.goto('/achievements');
+    await page.goto(appUrl('/achievements'));
     await waitForRoute(page, /\/login/);
   });
 
@@ -46,7 +47,7 @@ test.describe('Achievement screen', () => {
       route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ success: true, data: [] }) }),
     );
     await signInAsGuest(page);
-    await page.goto('/achievements');
+    await page.goto(appUrl('/achievements'));
     await page.waitForTimeout(1000);
     // No crash, URL is on /achievements
     expect(page.url()).toMatch(/\/achievements/);

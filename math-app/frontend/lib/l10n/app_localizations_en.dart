@@ -273,6 +273,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsTtsSubtitle => 'Auto-read questions during lessons';
 
   @override
+  String get dailyReminderTitle => 'Daily reminders';
+
+  @override
+  String get dailyReminderSubtitle => 'Get notified to practice every day';
+
+  @override
+  String get soundEffectsTitle => 'Sound effects';
+
+  @override
+  String get soundEffectsSubtitle => 'Lesson feedback sounds';
+
+  @override
   String get reviewScreenTitle => 'Review mistakes';
 
   @override

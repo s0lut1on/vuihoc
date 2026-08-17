@@ -1,3 +1,4 @@
+import { appUrl } from '../utils/config';
 import { test, expect } from '@playwright/test';
 
 test.describe('API health checks', () => {
@@ -40,7 +41,7 @@ test.describe('API health checks', () => {
 
 test.describe('Web smoke tests', () => {
   test('login page loads', async ({ page }) => {
-    const response = await page.goto('/login');
+    const response = await page.goto(appUrl('/login'));
     expect(response?.status()).toBe(200);
     await expect(page).toHaveTitle(/Học Toán Vui|math_app/i);
   });

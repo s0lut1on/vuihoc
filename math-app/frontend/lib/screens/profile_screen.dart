@@ -178,7 +178,7 @@ class ProfileScreen extends ConsumerWidget {
           ),
           Switch(
               value: isEnabled,
-              activeThumbColor: AppColors.pink,
+              thumbColor: WidgetStateProperty.all(AppColors.pink),
               onChanged: (v) {
                 ref.read(ttsEnabledProvider.notifier).state = v;
                 LocalStorageService.saveTtsEnabled(v);
@@ -233,7 +233,7 @@ class ProfileScreen extends ConsumerWidget {
           ),
           Switch(
             value: isEnabled,
-            activeThumbColor: AppColors.pink,
+            thumbColor: WidgetStateProperty.all(AppColors.pink),
             onChanged: (v) async {
               ref.read(dailyReminderEnabledProvider.notifier).state = v;
               await NotificationService().updatePreferences(
@@ -290,7 +290,7 @@ class ProfileScreen extends ConsumerWidget {
           ),
           Switch(
             value: !isMuted,
-            activeThumbColor: AppColors.pink,
+            thumbColor: WidgetStateProperty.all(AppColors.pink),
             onChanged: (v) {
               ref.read(audioMutedProvider.notifier).state = !v;
               AudioService().muted = !v;

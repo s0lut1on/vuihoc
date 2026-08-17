@@ -5,6 +5,7 @@
  *
  * Plan: this 506-line screen was MISSING from PLAN_E2E_TESTS.md.
  */
+import { appUrl } from '../utils/config';
 import { test, expect } from '@playwright/test';
 import { signInAsGuest } from '../utils/auth';
 import { waitForRoute } from '../utils/wait';
@@ -19,7 +20,7 @@ test.describe('Language lesson screen', () => {
       if (r.url().includes('/api/language/lessons/')) lessonCalls.push(r.url());
     });
 
-    await page.goto('/language-lesson/vietnamese/lesson_v1');
+    await page.goto(appUrl('/language-lesson/vietnamese/lesson_v1'));
     await page.waitForTimeout(1500);
 
     expect(lessonCalls.length).toBeGreaterThanOrEqual(1);
@@ -33,7 +34,7 @@ test.describe('Language lesson screen', () => {
       route.fulfill({ status: 404, body: JSON.stringify({ success: false, error: 'Not found' }) }),
     );
 
-    await page.goto('/language-lesson/vietnamese/missing');
+    await page.goto(appUrl('/language-lesson/vietnamese/missing'));
     await page.waitForTimeout(1500);
     // App catches error, sets _loading=false, renders "Not found" text
     // (CanvasKit — no DOM assertion possible, just verify no crash).
@@ -41,9 +42,9 @@ test.describe('Language lesson screen', () => {
   });
 
   test('unauthenticated redirect', async ({ page }) => {
-    await page.goto('/login');
+    await page.goto(appUrl('/login'));
     await page.waitForTimeout(500);
-    await page.goto('/language-lesson/vietnamese/lesson_v1');
+    await page.goto(appUrl('/language-lesson/vietnamese/lesson_v1'));
     await waitForRoute(page, /\/login/);
   });
 });

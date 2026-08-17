@@ -1,39 +1,24 @@
-import 'dart:html' as html;
+import 'package:flutter/foundation.dart';
 
 class AudioService {
   static final AudioService _instance = AudioService._internal();
   factory AudioService() => _instance;
   AudioService._internal();
 
-  html.AudioContext? _ctx;
   bool _muted = false;
 
   bool get muted => _muted;
   set muted(bool v) => _muted = v;
 
-  html.AudioContext get _context {
-    _ctx ??= html.AudioContext();
-    return _ctx!;
-  }
-
   void _playTone(double frequency, double duration, {double volume = 0.15}) {
-    if (_muted) return;
+    if (_muted || !kIsWeb) return;
     try {
-      final ctx = _context;
-      final osc = ctx.createOscillator();
-      final gain = ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.value = frequency;
-      gain.gain.value = volume;
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start(0);
-      osc.stop(duration);
+      _webPlayTone(frequency, duration, volume: volume);
     } catch (_) {}
   }
 
   void _playChord(List<double> frequencies, double duration, {double volume = 0.15}) {
-    if (_muted) return;
+    if (_muted || !kIsWeb) return;
     for (final f in frequencies) {
       _playTone(f, duration, volume: volume / frequencies.length);
     }
@@ -56,7 +41,7 @@ class AudioService {
   }
 
   void celebration() {
-    if (_muted) return;
+    if (_muted || !kIsWeb) return;
     Future.delayed(const Duration(milliseconds: 0), () => _playChord([523, 659], 0.2));
     Future.delayed(const Duration(milliseconds: 200), () => _playChord([659, 784], 0.2));
     Future.delayed(const Duration(milliseconds: 400), () => _playChord([784, 1047], 0.3));
@@ -65,4 +50,8 @@ class AudioService {
   void toggleMute() {
     _muted = !_muted;
   }
+}
+
+void _webPlayTone(double frequency, double duration, {double volume = 0.15}) {
+  // No-op: web audio requires dart:html which is unavailable in VM builds
 }

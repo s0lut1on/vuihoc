@@ -14,6 +14,11 @@ This folder contains scoped implementation plans for new features. Each plan inc
 | 6 | Peer / Sibling Leaderboard (Anonymous) | 2-3 days | Medium | Medium | Medium |
 | 7 | AI-Generated Hints (Controlled) | 1-2 days | Medium | Medium | Medium |
 | 8 | Subject-Specific Unlock Animations | 1-2 days | None | High | Low |
+| 9 | Multi-Child Profiles | 3-4 days | Medium | High | High |
+| 10 | Printable Worksheets (Growth) | 2-3 days | Medium | Low | High |
+| 11 | Sound Effects + Background Music | 0 days | None | High | Medium |
+| 12 | Adaptive Difficulty (BKT Wire-up) | 2-3 days | Medium | Medium | High |
+| 13 | Weekly Parent Email Report | 3-4 days | High | Low | Medium |
 
 ## How to use
 

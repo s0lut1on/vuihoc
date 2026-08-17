@@ -1,9 +1,9 @@
+import { apiUrl } from '../utils/config';
 import { test, expect, APIRequestContext } from '@playwright/test';
 
-const BASE = 'http://localhost:8082';
 
 async function guestLoginApi(request: APIRequestContext): Promise<string> {
-  const res = await request.post(`${BASE}/api/auth/guest`, { data: {} });
+  const res = await request.post(apiUrl("/api/auth/guest"), { data: {} });
   expect(res.status()).toBe(200);
   const body = await res.json();
   expect(body.success).toBe(true);
@@ -13,7 +13,7 @@ async function guestLoginApi(request: APIRequestContext): Promise<string> {
 test.describe('Content API', () => {
   test('get curriculum returns subjects', async ({ request }) => {
     const token = await guestLoginApi(request);
-    const res = await request.get(`${BASE}/api/content/curriculum`, {
+    const res = await request.get(apiUrl("/api/content/curriculum"), {
       headers: { Authorization: `Bearer ${token}` },
     });
     expect(res.status()).toBe(200);
@@ -29,7 +29,7 @@ test.describe('Content API', () => {
 
   test('get subjects returns summaries', async ({ request }) => {
     const token = await guestLoginApi(request);
-    const res = await request.get(`${BASE}/api/content/subjects`, {
+    const res = await request.get(apiUrl("/api/content/subjects"), {
       headers: { Authorization: `Bearer ${token}` },
     });
     expect(res.status()).toBe(200);
@@ -46,7 +46,7 @@ test.describe('Content API', () => {
 
   test('get lesson by id returns lesson data or 404', async ({ request }) => {
     const token = await guestLoginApi(request);
-    const res = await request.get(`${BASE}/api/content/lesson/lesson_001`, {
+    const res = await request.get(apiUrl("/api/content/lesson/lesson_001"), {
       headers: { Authorization: `Bearer ${token}` },
     });
     const body = await res.json();
@@ -58,7 +58,7 @@ test.describe('Question Bank API', () => {
   test('mastery endpoint returns response', async ({ request }) => {
     const studentId = '00000000-0000-0000-0000-000000000000';
     const kcId = '00000000-0000-0000-0000-000000000000';
-    const res = await request.get(`${BASE}/api/questions/mastery/${studentId}/${kcId}`);
+    const res = await request.get(apiUrl("/api/questions/mastery/${studentId}/${kcId}"));
     expect(res.status()).toBe(200);
     const body = await res.json();
     expect(body).toHaveProperty('success');
@@ -67,7 +67,7 @@ test.describe('Question Bank API', () => {
 
 test.describe('Auth API', () => {
   test('health returns service info', async ({ request }) => {
-    const res = await request.get(`${BASE}/api/auth/health`);
+    const res = await request.get(apiUrl("/api/auth/health"));
     expect(res.status()).toBe(200);
     const body = await res.json();
     expect(body.success).toBe(true);

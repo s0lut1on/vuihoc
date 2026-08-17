@@ -1,9 +1,9 @@
+import { apiUrl } from '../utils/config';
 import { test, expect, APIRequestContext } from '@playwright/test';
 
-const BASE = 'http://localhost:8082';
 
 async function guestLoginApi(request: APIRequestContext): Promise<string> {
-  const res = await request.post(`${BASE}/api/auth/guest`, { data: {} });
+  const res = await request.post(apiUrl("/api/auth/guest"), { data: {} });
   expect(res.status()).toBe(200);
   const body = await res.json();
   expect(body.success).toBe(true);
@@ -13,13 +13,13 @@ async function guestLoginApi(request: APIRequestContext): Promise<string> {
 test.describe('Progress API — daily limit', () => {
   test('daily-limit returns count=0 limit=50 for new guest', async ({ request }) => {
     const token = await guestLoginApi(request);
-    const meRes = await request.get(`${BASE}/api/auth/me`, {
+    const meRes = await request.get(apiUrl("/api/auth/me"), {
       headers: { Authorization: `Bearer ${token}` },
     });
     const meBody = await meRes.json();
     const userId = meBody.data.id;
 
-    const res = await request.get(`${BASE}/api/progress/daily-limit/${userId}`, {
+    const res = await request.get(apiUrl("/api/progress/daily-limit/${userId}"), {
       headers: { Authorization: `Bearer ${token}` },
     });
     expect(res.status()).toBe(200);
@@ -32,12 +32,12 @@ test.describe('Progress API — daily limit', () => {
 
   test('update progress creates a record', async ({ request }) => {
     const token = await guestLoginApi(request);
-    const meRes = await request.get(`${BASE}/api/auth/me`, {
+    const meRes = await request.get(apiUrl("/api/auth/me"), {
       headers: { Authorization: `Bearer ${token}` },
     });
     const userId = (await meRes.json()).data.id;
 
-    const res = await request.post(`${BASE}/api/progress`, {
+    const res = await request.post(apiUrl("/api/progress"), {
       headers: { Authorization: `Bearer ${token}` },
       data: { user_id: userId, lesson_id: 'lesson_test_001', stars: 3, completed: true },
     });
@@ -50,17 +50,17 @@ test.describe('Progress API — daily limit', () => {
 
   test('daily-limit count increments after completion', async ({ request }) => {
     const token = await guestLoginApi(request);
-    const meRes = await request.get(`${BASE}/api/auth/me`, {
+    const meRes = await request.get(apiUrl("/api/auth/me"), {
       headers: { Authorization: `Bearer ${token}` },
     });
     const userId = (await meRes.json()).data.id;
 
-    await request.post(`${BASE}/api/progress`, {
+    await request.post(apiUrl("/api/progress"), {
       headers: { Authorization: `Bearer ${token}` },
       data: { user_id: userId, lesson_id: `lesson_${Date.now()}`, stars: 3, completed: true },
     });
 
-    const res = await request.get(`${BASE}/api/progress/daily-limit/${userId}`, {
+    const res = await request.get(apiUrl("/api/progress/daily-limit/${userId}"), {
       headers: { Authorization: `Bearer ${token}` },
     });
     expect(res.status()).toBe(200);
@@ -70,12 +70,12 @@ test.describe('Progress API — daily limit', () => {
 
   test('get streak returns initial zero for new user', async ({ request }) => {
     const token = await guestLoginApi(request);
-    const meRes = await request.get(`${BASE}/api/auth/me`, {
+    const meRes = await request.get(apiUrl("/api/auth/me"), {
       headers: { Authorization: `Bearer ${token}` },
     });
     const userId = (await meRes.json()).data.id;
 
-    const res = await request.get(`${BASE}/api/progress/streak/${userId}`, {
+    const res = await request.get(apiUrl("/api/progress/streak/${userId}"), {
       headers: { Authorization: `Bearer ${token}` },
     });
     expect(res.status()).toBe(200);
@@ -87,12 +87,12 @@ test.describe('Progress API — daily limit', () => {
 
   test('get user progress returns array for new user', async ({ request }) => {
     const token = await guestLoginApi(request);
-    const meRes = await request.get(`${BASE}/api/auth/me`, {
+    const meRes = await request.get(apiUrl("/api/auth/me"), {
       headers: { Authorization: `Bearer ${token}` },
     });
     const userId = (await meRes.json()).data.id;
 
-    const res = await request.get(`${BASE}/api/progress/${userId}`, {
+    const res = await request.get(apiUrl("/api/progress/${userId}"), {
       headers: { Authorization: `Bearer ${token}` },
     });
     expect(res.status()).toBe(200);

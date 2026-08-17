@@ -2,6 +2,7 @@
  * Leaderboard screen — join classroom code input, weekly stars.
  * Vietnamese-only strings ("Bảng xếp hạng", "Mã lớp học", "Tham gia", "Rời lớp").
  */
+import { appUrl } from '../utils/config';
 import { test, expect } from '@playwright/test';
 import { signInAsGuest } from '../utils/auth';
 import { waitForRoute } from '../utils/wait';
@@ -16,14 +17,14 @@ test.describe('Leaderboard + classroom', () => {
       if (r.url().includes('/api/users/leaderboard')) calls.push(r.url());
     });
 
-    await page.goto('/leaderboard');
+    await page.goto(appUrl('/leaderboard'));
     await page.waitForTimeout(1000);
     expect(calls.length).toBeGreaterThanOrEqual(1);
   });
 
   test('empty leaderboard shows "Chưa có dữ liệu" message', async ({ page }) => {
     await signInAsGuest(page, { emptyLeaderboard: true });
-    await page.goto('/leaderboard');
+    await page.goto(appUrl('/leaderboard'));
     await page.waitForTimeout(1000);
     expect(page.url()).toMatch(/\/leaderboard/);
   });
@@ -39,7 +40,7 @@ test.describe('Leaderboard + classroom', () => {
       }
     });
 
-    await page.goto('/leaderboard');
+    await page.goto(appUrl('/leaderboard'));
     await page.waitForTimeout(500);
 
     // Verify the contract: the API accepts a 6-char code in the body
@@ -63,9 +64,9 @@ test.describe('Leaderboard + classroom', () => {
   });
 
   test('unauthenticated /leaderboard redirects to /login', async ({ page }) => {
-    await page.goto('/login');
+    await page.goto(appUrl('/login'));
     await page.waitForTimeout(300);
-    await page.goto('/leaderboard');
+    await page.goto(appUrl('/leaderboard'));
     await waitForRoute(page, /\/login/);
   });
 });

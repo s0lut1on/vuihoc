@@ -514,7 +514,7 @@ class _UnlockAnimationToggle extends StatelessWidget {
           ),
           Switch(
             value: enabled,
-            activeThumbColor: AppColors.primaryPink,
+            thumbColor: WidgetStateProperty.all(AppColors.primaryPink),
             onChanged: onChanged,
           ),
         ],

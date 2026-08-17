@@ -1,9 +1,9 @@
+import { apiUrl } from '../utils/config';
 import { test, expect, APIRequestContext } from '@playwright/test';
 
-const BASE = 'http://localhost:8082';
 
 async function guestLoginApi(request: APIRequestContext): Promise<string> {
-  const res = await request.post(`${BASE}/api/auth/guest`, { data: {} });
+  const res = await request.post(apiUrl("/api/auth/guest"), { data: {} });
   expect(res.status()).toBe(200);
   const body = await res.json();
   expect(body.success).toBe(true);
@@ -13,7 +13,7 @@ async function guestLoginApi(request: APIRequestContext): Promise<string> {
 test.describe('Lesson Flow — API', () => {
   test('curriculum returns subjects', async ({ request }) => {
     const token = await guestLoginApi(request);
-    const res = await request.get(`${BASE}/api/content/curriculum`, {
+    const res = await request.get(apiUrl("/api/content/curriculum"), {
       headers: { Authorization: `Bearer ${token}` },
     });
     expect(res.status()).toBe(200);
@@ -25,7 +25,7 @@ test.describe('Lesson Flow — API', () => {
 
   test('subjects returns summaries', async ({ request }) => {
     const token = await guestLoginApi(request);
-    const res = await request.get(`${BASE}/api/content/subjects`, {
+    const res = await request.get(apiUrl("/api/content/subjects"), {
       headers: { Authorization: `Bearer ${token}` },
     });
     expect(res.status()).toBe(200);
@@ -37,7 +37,7 @@ test.describe('Lesson Flow — API', () => {
 
   test('lesson by id returns data or 404', async ({ request }) => {
     const token = await guestLoginApi(request);
-    const res = await request.get(`${BASE}/api/content/lesson/lesson_n1`, {
+    const res = await request.get(apiUrl("/api/content/lesson/lesson_n1"), {
       headers: { Authorization: `Bearer ${token}` },
     });
     const body = await res.json();

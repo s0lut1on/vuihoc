@@ -49,13 +49,20 @@ class AuthService {
   }
 
   final GoogleSignIn _googleSignIn = GoogleSignIn(
-    scopes: const ['email', 'profile'],
+    scopes: const ['email', 'profile', 'openid'],
+    // Web + desktop use explicit clientId. Android reads the OAuth client from
+    // google-services.json, but we still pass the *web* client ID as
+    // serverClientId so the plugin returns an idToken for backend verification.
     clientId: kIsWeb || !Platform.isAndroid
         ? const String.fromEnvironment(
             'GOOGLE_CLIENT_ID',
             defaultValue: '',
           )
         : null,
+    serverClientId: const String.fromEnvironment(
+      'GOOGLE_CLIENT_ID',
+      defaultValue: '',
+    ),
   );
 
   /// Notifies listeners whenever the auth token changes (login/logout/refresh).

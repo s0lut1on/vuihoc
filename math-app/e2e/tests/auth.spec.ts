@@ -1,9 +1,9 @@
+import { apiUrl } from '../utils/config';
 import { test, expect, APIRequestContext } from '@playwright/test';
 
-const BASE = 'http://localhost:8082';
 
 async function guestLoginApi(request: APIRequestContext): Promise<string> {
-  const res = await request.post(`${BASE}/api/auth/guest`, { data: {} });
+  const res = await request.post(apiUrl("/api/auth/guest"), { data: {} });
   expect(res.status()).toBe(200);
   const body = await res.json();
   expect(body.success).toBe(true);
@@ -19,7 +19,7 @@ test.describe('Auth API', () => {
 
   test('auth/me returns user data', async ({ request }) => {
     const token = await guestLoginApi(request);
-    const res = await request.get(`${BASE}/api/auth/me`, {
+    const res = await request.get(apiUrl("/api/auth/me"), {
       headers: { Authorization: `Bearer ${token}` },
     });
     const body = await res.json();
@@ -29,7 +29,7 @@ test.describe('Auth API', () => {
 
   test('guest user has tier=free in me response', async ({ request }) => {
     const token = await guestLoginApi(request);
-    const res = await request.get(`${BASE}/api/auth/me`, {
+    const res = await request.get(apiUrl("/api/auth/me"), {
       headers: { Authorization: `Bearer ${token}` },
     });
     const body = await res.json();
@@ -38,7 +38,7 @@ test.describe('Auth API', () => {
   });
 
   test('auth/me without token returns error', async ({ request }) => {
-    const res = await request.get(`${BASE}/api/auth/me`);
+    const res = await request.get(apiUrl("/api/auth/me"));
     const body = await res.json();
     expect(body.success).toBe(false);
     expect(body.error).toBeTruthy();
@@ -103,7 +103,7 @@ test.describe('Route guards — public routes always accessible', () => {
 test.describe('Route guards — authenticated user redirects', () => {
   test('auth/me with guest token returns valid user', async ({ request }) => {
     const token = await guestLoginApi(request);
-    const res = await request.get(`${BASE}/api/auth/me`, {
+    const res = await request.get(apiUrl("/api/auth/me"), {
       headers: { Authorization: `Bearer ${token}` },
     });
     const body = await res.json();

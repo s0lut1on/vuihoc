@@ -7,6 +7,7 @@
  *
  * Plus: locked lessons, premium star, completion checkmark, unlock animation.
  */
+import { appUrl } from '../utils/config';
 import { test, expect } from '@playwright/test';
 import { signInAsGuest } from '../utils/auth';
 import { waitForRoute } from '../utils/wait';
@@ -29,7 +30,7 @@ test.describe('Subject screen — 3 modes', () => {
     await signInAsGuest(page);
     await waitForRoute(page, /\/home/);
 
-    await page.goto('/subject/math');
+    await page.goto(appUrl('/subject/math'));
     await page.waitForTimeout(800);
     expect(page.url()).toMatch(/\/subject\/math/);
   });
@@ -43,7 +44,7 @@ test.describe('Subject screen — 3 modes', () => {
       if (r.url().includes('/api/content/curriculum')) calls.push(r.url());
     });
 
-    await page.goto('/subject/numbers');
+    await page.goto(appUrl('/subject/numbers'));
     await page.waitForTimeout(800);
     expect(calls.length).toBeGreaterThanOrEqual(1);
   });
@@ -57,7 +58,7 @@ test.describe('Subject screen — 3 modes', () => {
       if (r.url().includes('/api/language/curriculum')) langCalls.push(r.url());
     });
 
-    await page.goto('/subject/vietnamese/reading');
+    await page.goto(appUrl('/subject/vietnamese/reading'));
     await page.waitForTimeout(800);
     expect(langCalls.length).toBeGreaterThanOrEqual(1);
   });
@@ -66,7 +67,7 @@ test.describe('Subject screen — 3 modes', () => {
     await signInAsGuest(page);
     await waitForRoute(page, /\/home/);
 
-    await page.goto('/subject/vietnamese/reading');
+    await page.goto(appUrl('/subject/vietnamese/reading'));
     await page.waitForTimeout(500);
     // In-app back button: subSubjectId != null → /subject/{id}
     // Without a11y we verify URL via API call contracts; the route
@@ -75,9 +76,9 @@ test.describe('Subject screen — 3 modes', () => {
   });
 
   test('unauthenticated user is redirected from /subject/:id to /login', async ({ page }) => {
-    await page.goto('/login');
+    await page.goto(appUrl('/login'));
     await page.waitForTimeout(300);
-    await page.goto('/subject/numbers');
+    await page.goto(appUrl('/subject/numbers'));
     await waitForRoute(page, /\/login/);
   });
 });

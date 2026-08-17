@@ -608,6 +608,30 @@ abstract class AppLocalizations {
   /// **'Tự động đọc câu hỏi khi học'**
   String get settingsTtsSubtitle;
 
+  /// No description provided for @dailyReminderTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Nhắc nhở học bài'**
+  String get dailyReminderTitle;
+
+  /// No description provided for @dailyReminderSubtitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Nhận thông báo nhắc học hàng ngày'**
+  String get dailyReminderSubtitle;
+
+  /// No description provided for @soundEffectsTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Âm thanh'**
+  String get soundEffectsTitle;
+
+  /// No description provided for @soundEffectsSubtitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Hiệu ứng âm thanh bài học'**
+  String get soundEffectsSubtitle;
+
   /// No description provided for @reviewScreenTitle.
   ///
   /// In vi, this message translates to:

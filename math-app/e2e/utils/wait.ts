@@ -12,6 +12,16 @@ export async function waitForFlutterReady(page: Page, timeoutMs = 30_000): Promi
   await page.waitForSelector(FLUTTER_GLASS_PANE, { timeout: timeoutMs, state: 'attached' });
 }
 
+export async function enableAccessibility(page: Page): Promise<void> {
+  const placeholder = page.locator('flt-semantics-placeholder');
+  if ((await placeholder.count()) === 0) return;
+  try {
+    await placeholder.first().dispatchEvent('click');
+  } catch {
+    // a11y already enabled or placeholder missing — non-fatal
+  }
+}
+
 export async function waitForSemantics(page: Page, timeoutMs = 10_000): Promise<void> {
   await page.waitForSelector(FLUTTER_SEMANTICS, { timeout: timeoutMs, state: 'attached' });
 }

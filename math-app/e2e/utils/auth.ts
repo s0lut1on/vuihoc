@@ -7,43 +7,30 @@
  */
 import type { Page } from '@playwright/test';
 import { installMockBackend, MockBackendOptions } from './mockBackend';
-import { waitForFlutterReady, waitForRoute } from './wait';
+import { waitForFlutterReady, waitForRoute, enableAccessibility } from './wait';
+import { appUrl } from './config';
 import { FACEBOOK_FANPAGE_URL } from './fixtures';
 
 export async function setupApp(page: Page, opts: MockBackendOptions = {}): Promise<void> {
   await installMockBackend(page, opts);
 }
 
-/**
- * Loads the app at /login. Waits for Flutter to be ready.
- * Doesn't sign in; the page is at the login screen.
- */
 export async function gotoLogin(page: Page, opts: MockBackendOptions = {}): Promise<void> {
   await setupApp(page, opts);
-  await page.goto('/login');
+  await page.goto(appUrl('/login'));
   await waitForFlutterReady(page);
+  await enableAccessibility(page);
 }
 
-/**
- * Clicks the Guest sign-in button via the Flutter semantics tree (a11y
- * label set by the screen on the Guest button) and waits for the app
- * to navigate to /home.
- *
- * Falls back to tapping the center-bottom of the visible canvas
- * (where the Guest button is on mobile) if a11y is not available.
- */
 export async function signInAsGuest(page: Page, opts: MockBackendOptions = {}): Promise<void> {
-  await setupApp(page, opts);
-  await page.goto('/login');
-  await waitForFlutterReady(page);
+  await gotoLogin(page, opts);
 
-  // Try a11y selector first; if not present, use a coordinate click.
-  // The Guest button is the last primary button on the login screen.
   const guestByA11y = page.locator('flt-semantics[aria-label*="Continue without signing in"], flt-semantics[aria-label*="Tiếp tục"]');
-  if ((await guestByA11y.count()) > 0) {
+  try {
+    await guestByA11y.first().waitFor({ state: 'attached', timeout: 10_000 });
     await guestByA11y.first().click();
-  } else {
-    // Mobile fallback: tap center horizontally, ~75% down the viewport
+  } catch {
+    // a11y tree unavailable — fall back to tapping the Guest button location
     const vp = page.viewportSize() ?? { width: 375, height: 812 };
     await page.mouse.click(vp.width / 2, vp.height * 0.75);
   }
@@ -51,29 +38,10 @@ export async function signInAsGuest(page: Page, opts: MockBackendOptions = {}): 
 }
 
 export async function signOut(page: Page): Promise<void> {
-  // The Profile screen's logout handler clears localStorage and
-  // navigates to /login. Easiest: clear storage + reload.
   await page.evaluate(() => {
-    try { localStorage.clear(); } catch {}
+    try { localStorage.clear(); } catch { /* ignore */ }
   });
-  await page.goto('/login');
-}
-
-/**
- * Records all network requests for the duration of a callback.
- * Useful for asserting which API calls were made.
- */
-export async function recordRequests(
-  page: Page,
-  body: () => Promise<void>,
-): Promise<string[]> {
-  const urls: string[] = [];
-  const handler = (req: import('@playwright/test').Request) => {
-    if (req.url().includes('/api/')) urls.push(req.url());
-  };
-  page.on('request', handler);
-  try { await body(); } finally { page.off('request', handler); }
-  return urls;
+  await page.goto(appUrl('/login'));
 }
 
 export { FACEBOOK_FANPAGE_URL };

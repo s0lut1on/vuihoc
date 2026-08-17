@@ -1,45 +1,46 @@
+import { appUrl } from '../utils/config';
 import { test, expect } from '@playwright/test';
 
 test.describe('Page loads', () => {
   test('login page returns 200 with title', async ({ page }) => {
-    const response = await page.goto('/login');
+    const response = await page.goto(appUrl('/login'));
     expect(response?.status()).toBe(200);
     await expect(page).toHaveTitle(/Học Toán Vui|math_app/i);
   });
 
   test('welcome page loads', async ({ page }) => {
-    await page.goto('/welcome');
+    await page.goto(appUrl('/welcome'));
     await expect(page).toHaveURL(/welcome/);
   });
 });
 
 test.describe('Route guards (unauthenticated)', () => {
   test('home redirects to login', async ({ page }) => {
-    await page.goto('/home');
+    await page.goto(appUrl('/home'));
     await page.waitForURL(/login/);
     await expect(page).toHaveURL(/login/);
   });
 
   test('lesson page redirects to login', async ({ page }) => {
-    await page.goto('/lesson/numbers/lesson_n1');
+    await page.goto(appUrl('/lesson/numbers/lesson_n1'));
     await page.waitForURL(/login/);
     await expect(page).toHaveURL(/login/);
   });
 
   test('celebration page redirects to login', async ({ page }) => {
-    await page.goto('/celebration');
+    await page.goto(appUrl('/celebration'));
     await page.waitForURL(/login/);
     await expect(page).toHaveURL(/login/);
   });
 
   test('parent dashboard redirects to login', async ({ page }) => {
-    await page.goto('/parent-dashboard');
+    await page.goto(appUrl('/parent-dashboard'));
     await page.waitForURL(/login/);
     await expect(page).toHaveURL(/login/);
   });
 
   test('profile page redirects to login', async ({ page }) => {
-    await page.goto('/profile');
+    await page.goto(appUrl('/profile'));
     await page.waitForURL(/login/);
     await expect(page).toHaveURL(/login/);
   });

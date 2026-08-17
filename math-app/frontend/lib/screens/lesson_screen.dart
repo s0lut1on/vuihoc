@@ -645,9 +645,9 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
   }
 
   Future<void> _openWorksheet() async {
-    final baseUrl = kIsWeb ? '/api' : 'http://localhost/api';
+    final baseUrl = kIsWeb ? '/api' : 'https://sekklings.com/api';
     final uri = Uri.parse('$baseUrl/content/lesson/${widget.lessonId}/worksheet');
-    await launchUrl(uri, webOnlyWindowName: '_blank');
+    await launchUrl(uri, mode: LaunchMode.externalApplication);
   }
 
   void _speakQuestion() {

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import '../services/api_service.dart';
 
@@ -8,37 +9,45 @@ class NotificationService {
   factory NotificationService() => _instance;
   NotificationService._internal();
 
-  final FirebaseMessaging _messaging = FirebaseMessaging.instance;
   bool _initialized = false;
 
   Future<void> initialize() async {
     if (_initialized) return;
     _initialized = true;
 
-    if (!kIsWeb) {
-      // Mobile: request permission
-      final settings = await _messaging.requestPermission(
-        alert: true,
-        badge: true,
-        sound: true,
-      );
-      if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-        await _registerToken();
+    try {
+      // Ensure Firebase is initialized before accessing messaging
+      if (Firebase.apps.isEmpty) {
+        debugPrint('Firebase not initialized — skipping FCM registration');
+        return;
       }
-    } else {
-      // Web: try to get token silently; browser will prompt on first use
-      await _registerToken();
-    }
 
-    // Listen for token refresh
-    FirebaseMessaging.instance.onTokenRefresh.listen((token) {
-      _subscribeBackend(token);
-    });
+      final messaging = FirebaseMessaging.instance;
+
+      if (!kIsWeb) {
+        final settings = await messaging.requestPermission(
+          alert: true,
+          badge: true,
+          sound: true,
+        );
+        if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+          await _registerToken(messaging);
+        }
+      } else {
+        await _registerToken(messaging);
+      }
+
+      messaging.onTokenRefresh.listen((token) {
+        _subscribeBackend(token);
+      });
+    } catch (e) {
+      debugPrint('FCM initialization failed: $e');
+    }
   }
 
-  Future<void> _registerToken() async {
+  Future<void> _registerToken(FirebaseMessaging messaging) async {
     try {
-      final token = await _messaging.getToken();
+      final token = await messaging.getToken();
       if (token != null) {
         await _subscribeBackend(token);
       }
@@ -62,7 +71,8 @@ class NotificationService {
     try {
       await ApiService().post('/notifications/unsubscribe', data: {});
       if (!kIsWeb) {
-        await _messaging.deleteToken();
+        final messaging = FirebaseMessaging.instance;
+        await messaging.deleteToken();
       }
     } catch (e) {
       debugPrint('Unsubscribe failed: $e');

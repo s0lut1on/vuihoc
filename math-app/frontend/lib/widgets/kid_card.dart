@@ -6,6 +6,7 @@ import '../core/app_theme.dart';
 class KidCard extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry padding;
+  final EdgeInsetsGeometry? margin;
   final Color? color;
   final List<Color>? gradient;
   final double radius;
@@ -15,6 +16,7 @@ class KidCard extends StatelessWidget {
     super.key,
     required this.child,
     this.padding = const EdgeInsets.all(20),
+    this.margin,
     this.color,
     this.gradient,
     this.radius = 24,
@@ -54,6 +56,9 @@ class KidCard extends StatelessWidget {
     }
     if (semanticLabel != null) {
       body = Semantics(label: semanticLabel, child: body);
+    }
+    if (margin != null) {
+      body = Padding(padding: margin!, child: body);
     }
     return body;
   }

@@ -23,7 +23,7 @@ class ApiService {
   Interceptor? _authInterceptor;
 
   ApiService._internal({this.baseUrl = '/api'}) {
-    final resolvedBase = kIsWeb ? baseUrl : 'http://localhost$baseUrl';
+    final resolvedBase = kIsWeb ? baseUrl : 'https://sekklings.com$baseUrl';
     _dio = Dio(BaseOptions(
       baseUrl: resolvedBase,
       connectTimeout: const Duration(seconds: 10),

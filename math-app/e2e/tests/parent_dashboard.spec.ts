@@ -5,20 +5,21 @@
  * NOTE: pin_gate_screen has correct PIN hardcoded as '1234'. Wrong PIN
  * shows red snackbar and resets the dots.
  */
+import { appUrl } from '../utils/config';
 import { test, expect } from '@playwright/test';
 import { signInAsGuest } from '../utils/auth';
 import { waitForRoute } from '../utils/wait';
 
 test.describe('Parent dashboard flow', () => {
   test('PIN gate is the only public route (no auth required)', async ({ page }) => {
-    await page.goto('/parent-dashboard');
+    await page.goto(appUrl('/parent-dashboard'));
     await page.waitForTimeout(500);
     // /parent-dashboard is in _publicRoutes; should stay there, not redirect
     expect(page.url()).toMatch(/\/parent-dashboard$/);
   });
 
   test('entering wrong PIN keeps user on PIN gate and shows error', async ({ page }) => {
-    await page.goto('/parent-dashboard');
+    await page.goto(appUrl('/parent-dashboard'));
     await page.waitForTimeout(500);
 
     // The keypad uses ElevatedButton with text '1'..'9', '0', '←', 'Back'
@@ -48,9 +49,9 @@ test.describe('Parent dashboard flow', () => {
     // The router map shows /parent-dashboard/main → ParentDashboardScreen.
     // Whether it's public is not in _publicRoutes, so it requires auth.
     // (Currently the route is registered but not in _publicRoutes set.)
-    await page.goto('/login');
+    await page.goto(appUrl('/login'));
     await page.waitForTimeout(300);
-    await page.goto('/parent-dashboard/main');
+    await page.goto(appUrl('/parent-dashboard/main'));
     await page.waitForTimeout(500);
     // The redirect logic checks _publicRoutes which contains /parent-dashboard
     // but NOT /parent-dashboard/main. So it should redirect to /login.
@@ -66,7 +67,7 @@ test.describe('Parent dashboard flow', () => {
       if (r.url().includes('/api/language/detailed-progress')) progressCalls.push(r.url());
     });
 
-    await page.goto('/parent-dashboard/main');
+    await page.goto(appUrl('/parent-dashboard/main'));
     await page.waitForTimeout(1500);
     expect(progressCalls.length).toBeGreaterThanOrEqual(1);
   });

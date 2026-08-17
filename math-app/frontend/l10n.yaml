@@ -3,4 +3,4 @@ template-arb-file: app_vi.arb
 output-localization-file: app_localizations.dart
 output-class: AppLocalizations
 output-dir: lib/l10n
-gen-inputs-and-outputs-list: {}
+synthetic-package: false

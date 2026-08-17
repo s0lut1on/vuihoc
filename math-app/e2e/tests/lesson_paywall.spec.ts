@@ -5,6 +5,7 @@
  * another lesson shows PaywallModal instead of celebration.
  * Premium tier has no limit.
  */
+import { appUrl } from '../utils/config';
 import { test, expect } from '@playwright/test';
 import { signInAsGuest } from '../utils/auth';
 import { waitForRoute } from '../utils/wait';
@@ -21,14 +22,14 @@ test.describe('Lesson screen', () => {
       }
     });
 
-    await page.goto('/lesson/numbers/lesson_n1');
+    await page.goto(appUrl('/lesson/numbers/lesson_n1'));
     await page.waitForTimeout(1500);
     expect(calls.length).toBeGreaterThanOrEqual(1);
   });
 
   test('free tier at daily limit (count>=50) blocks lesson finish', async ({ page }) => {
     await signInAsGuest(page, { dailyCount: 50 });
-    await page.goto('/lesson/numbers/lesson_n1');
+    await page.goto(appUrl('/lesson/numbers/lesson_n1'));
     await page.waitForTimeout(1500);
 
     // /api/progress/daily-limit is called on lesson init
@@ -42,7 +43,7 @@ test.describe('Lesson screen', () => {
 
   test('premium tier has no daily limit', async ({ page }) => {
     await signInAsGuest(page, { premium: true });
-    await page.goto('/lesson/numbers/lesson_n1');
+    await page.goto(appUrl('/lesson/numbers/lesson_n1'));
     await page.waitForTimeout(1500);
 
     const limit = await page.request.get('/api/progress/daily-limit/u1', {
@@ -54,9 +55,9 @@ test.describe('Lesson screen', () => {
   });
 
   test('unauthenticated /lesson redirects to /login', async ({ page }) => {
-    await page.goto('/login');
+    await page.goto(appUrl('/login'));
     await page.waitForTimeout(300);
-    await page.goto('/lesson/numbers/lesson_n1');
+    await page.goto(appUrl('/lesson/numbers/lesson_n1'));
     await waitForRoute(page, /\/login/);
   });
 
@@ -71,7 +72,7 @@ test.describe('Lesson screen', () => {
       }
     });
 
-    await page.goto('/lesson/numbers/lesson_n1');
+    await page.goto(appUrl('/lesson/numbers/lesson_n1'));
     await page.waitForTimeout(500);
     // Verify endpoint contract accepts wrong-answer submissions
     const r = await page.request.post('/api/progress/review', {

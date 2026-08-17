@@ -273,6 +273,18 @@ class AppLocalizationsVi extends AppLocalizations {
   String get settingsTtsSubtitle => 'Tự động đọc câu hỏi khi học';
 
   @override
+  String get dailyReminderTitle => 'Nhắc nhở học bài';
+
+  @override
+  String get dailyReminderSubtitle => 'Nhận thông báo nhắc học hàng ngày';
+
+  @override
+  String get soundEffectsTitle => 'Âm thanh';
+
+  @override
+  String get soundEffectsSubtitle => 'Hiệu ứng âm thanh bài học';
+
+  @override
   String get reviewScreenTitle => 'Ôn tập lỗi';
 
   @override
