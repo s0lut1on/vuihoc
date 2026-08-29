@@ -100,22 +100,20 @@ export async function installMockBackend(page: Page, opts: MockBackendOptions = 
       state.user = { ...state.user, grade: body.grade };
       return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(ok({ grade: state.user.grade })) });
     }
-    if (path === 'users/leaderboard' && method === 'GET') {
+    if (path === 'users/leaderboard/global' && method === 'GET') {
       if (opts.emptyLeaderboard) return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(ok([])) });
       return route.fulfill({
         status: 200,
         contentType: 'application/json',
         body: JSON.stringify(ok([
-          { id: 'u1', name: 'Bé A', avatar: '🐸', weekly_stars: 30 },
-          { id: state.user.id, name: state.user.name, avatar: '🐸', weekly_stars: 12 },
+          { id: 'u1', name: 'Bé A', avatar: '🐸', total_score: 150, lessons_completed: 30 },
+          { id: state.user.id, name: state.user.name, avatar: '🐸', total_score: 80, lessons_completed: 15 },
         ])),
       });
     }
-    if (path === 'users/classroom/join' && method === 'POST') {
-      return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(ok({ joined: true })) });
-    }
-    if (path === 'users/classroom/leave' && method === 'POST') {
-      return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(ok({ left: true })) });
+
+    if (path === 'progress/score' && method === 'POST') {
+      return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(ok({ total_score: 80, lessons_completed: 15 })) });
     }
 
     // --- CONTENT ---

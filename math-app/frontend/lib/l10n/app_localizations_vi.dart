@@ -371,22 +371,6 @@ class AppLocalizationsVi extends AppLocalizations {
   String get leaderboardTitle => 'Bảng xếp hạng';
 
   @override
-  String get leaderboardEmpty =>
-      'Chưa có dữ liệu bảng xếp hạng — tham gia lớp học!';
-
-  @override
-  String get leaderboardJoinCodeLabel => 'Mã lớp học';
-
-  @override
-  String get leaderboardJoinCodeHint => 'Nhập mã 6 ký tự';
-
-  @override
-  String get leaderboardJoinButton => 'Tham gia';
-
-  @override
-  String get leaderboardLeaveButton => 'Rời lớp';
-
-  @override
   String leaderboardWeeklyStars(Object count) {
     return '$count ⭐ tuần này';
   }
@@ -499,4 +483,17 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get pricingBrandShort => 'HocVui';
+
+  @override
+  String get leaderboardGlobal => 'Toàn trường';
+
+  @override
+  String get leaderboardScore => 'điểm';
+
+  @override
+  String get leaderboardEmptyGlobal =>
+      'Chưa có dữ liệu bảng xếp hạng toàn trường';
+
+  @override
+  String get leaderboardMyRank => 'Xếp hạng của bé';
 }

@@ -3,7 +3,7 @@ use axum::{
     Extension, Json,
 };
 
-use crate::models::{AppState, CreateUserRequest, JoinClassroomRequest, User};
+use crate::models::{AppState, CreateUserRequest, User};
 
 pub async fn list_children(
     State(state): State<AppState>,
@@ -158,116 +158,23 @@ pub async fn health() -> shared::ApiResponse<shared::HealthResponse> {
     shared::ApiResponse::ok(shared::health("user"))
 }
 
-pub async fn join_classroom(
-    State(state): State<AppState>,
-    Extension(claims): Extension<shared::Claims>,
-    Json(body): Json<JoinClassroomRequest>,
-) -> shared::ApiResponse<serde_json::Value> {
-    let user_id = match uuid::Uuid::try_parse(&claims.sub) {
-        Ok(u) => u,
-        Err(_) => return shared::ApiResponse::err("Invalid user_id"),
-    };
 
-    let result = sqlx::query("UPDATE users SET classroom_code = $1 WHERE id = $2 RETURNING id")
-        .bind(&body.classroom_code)
-        .bind(user_id)
-        .fetch_one(&state.db)
-        .await;
-
-    match result {
-        Ok(_) => shared::ApiResponse::ok(serde_json::json!({"joined": true})),
-        Err(e) => {
-            tracing::error!("Database error in join_classroom: {}", e);
-            shared::ApiResponse::err("Internal server error")
-        }
-    }
-}
-
-pub async fn leave_classroom(
-    State(state): State<AppState>,
-    Extension(claims): Extension<shared::Claims>,
-) -> shared::ApiResponse<serde_json::Value> {
-    let user_id = match uuid::Uuid::try_parse(&claims.sub) {
-        Ok(u) => u,
-        Err(_) => return shared::ApiResponse::err("Invalid user_id"),
-    };
-
-    let result = sqlx::query("UPDATE users SET classroom_code = NULL WHERE id = $1")
-        .bind(user_id)
-        .execute(&state.db)
-        .await;
-
-    match result {
-        Ok(_) => shared::ApiResponse::ok(serde_json::json!({"left": true})),
-        Err(e) => {
-            tracing::error!("Database error in leave_classroom: {}", e);
-            shared::ApiResponse::err("Internal server error")
-        }
-    }
-}
-
-pub async fn get_leaderboard(
-    State(state): State<AppState>,
-    Extension(claims): Extension<shared::Claims>,
-) -> shared::ApiResponse<Vec<crate::models::LeaderboardEntry>> {
-    let user_id = match uuid::Uuid::try_parse(&claims.sub) {
-        Ok(u) => u,
-        Err(_) => return shared::ApiResponse::err("Invalid user_id"),
-    };
-
-    let code: Option<String> = match sqlx::query_scalar::<_, Option<String>>(
-        "SELECT classroom_code FROM users WHERE id = $1",
-    )
-    .bind(user_id)
-    .fetch_one(&state.db)
-    .await
-    {
-        Ok(c) => c,
-        Err(e) => {
-            tracing::error!("Database error in get_leaderboard: {}", e);
-            return shared::ApiResponse::err("Internal server error");
-        }
-    };
-
-    let code = match code {
-        Some(c) => c,
-        None => return shared::ApiResponse::ok(vec![]),
-    };
-
-    let rows = sqlx::query_as::<_, crate::models::LeaderboardEntry>(
-        "SELECT u.id, u.name, u.avatar, COALESCE(SUM(p.stars), 0) as weekly_stars \
-         FROM users u \
-         LEFT JOIN progress.progress p ON u.id = p.user_id \
-         AND p.updated_at >= NOW() - INTERVAL '7 days' \
-         WHERE u.classroom_code = $1 \
-         GROUP BY u.id \
-         ORDER BY weekly_stars DESC \
-         LIMIT 10",
-    )
-    .bind(&code)
-    .fetch_all(&state.db)
-    .await;
-
-    match rows {
-        Ok(data) => shared::ApiResponse::ok(data),
-        Err(e) => {
-            tracing::error!("Database error in get_leaderboard: {}", e);
-            shared::ApiResponse::err("Internal server error")
-        }
-    }
-}
 
 pub async fn update_grade(
     State(state): State<AppState>,
+    Extension(claims): Extension<shared::Claims>,
     Json(body): Json<crate::models::UpdateGradeRequest>,
 ) -> shared::ApiResponse<serde_json::Value> {
-    // Clamp to supported grades (1-12). Frontend ships chips for 1-12;
-    // backend rejects out-of-range to avoid DB drift.
     if !(1..=12).contains(&body.grade) {
         return shared::ApiResponse::err("grade must be 1..=12");
     }
-    let result = sqlx::query("UPDATE users SET grade = $1")
+    let user_id = match uuid::Uuid::try_parse(&claims.sub) {
+        Ok(u) => u,
+        Err(_) => return shared::ApiResponse::err("Invalid user_id"),
+    };
+    let result = sqlx::query("UPDATE users SET grade = $1 WHERE id = $2")
         .bind(body.grade)
+        .bind(user_id)
         .execute(&state.db)
         .await;
 
@@ -279,3 +186,28 @@ pub async fn update_grade(
         }
     }
 }
+
+pub async fn get_global_leaderboard(
+    State(state): State<AppState>,
+) -> shared::ApiResponse<Vec<crate::models::GlobalLeaderboardEntry>> {
+    let rows = sqlx::query_as::<_, crate::models::GlobalLeaderboardEntry>(
+        "SELECT s.user_id as id, s.name, s.avatar, \
+         s.total_score, s.lessons_completed \
+         FROM user_scores s \
+         WHERE s.total_score > 0 \
+         ORDER BY s.total_score DESC \
+         LIMIT 50",
+    )
+    .fetch_all(&state.db)
+    .await;
+
+    match rows {
+        Ok(data) => shared::ApiResponse::ok(data),
+        Err(e) => {
+            tracing::error!("Database error in get_global_leaderboard: {}", e);
+            shared::ApiResponse::err("Internal server error")
+        }
+    }
+}
+
+

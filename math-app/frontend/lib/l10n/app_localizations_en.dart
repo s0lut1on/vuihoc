@@ -371,21 +371,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get leaderboardTitle => 'Leaderboard';
 
   @override
-  String get leaderboardEmpty => 'No leaderboard data — join a classroom!';
-
-  @override
-  String get leaderboardJoinCodeLabel => 'Classroom code';
-
-  @override
-  String get leaderboardJoinCodeHint => 'Enter 6-character code';
-
-  @override
-  String get leaderboardJoinButton => 'Join';
-
-  @override
-  String get leaderboardLeaveButton => 'Leave';
-
-  @override
   String leaderboardWeeklyStars(Object count) {
     return '$count ⭐ this week';
   }
@@ -498,4 +483,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pricingBrandShort => 'HocVui';
+
+  @override
+  String get leaderboardGlobal => 'Global';
+
+  @override
+  String get leaderboardScore => 'points';
+
+  @override
+  String get leaderboardEmptyGlobal => 'No global leaderboard data yet';
+
+  @override
+  String get leaderboardMyRank => 'My rank';
 }

@@ -58,4 +58,6 @@ target/
 # OS
 .DS_Store
 Thumbs.db
+# Firebase / Google services
+google-services.json
 math-app/frontend/android/app/google-services.json

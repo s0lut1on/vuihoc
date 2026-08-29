@@ -107,4 +107,38 @@ class ProgressApi {
       return false;
     }
   }
+
+  static Future<bool> submitSubjectScore({
+    required String userId,
+    required String subjectId,
+    required int correctCount,
+    required int totalTimeMs,
+    required int score,
+    required String name,
+    required String avatar,
+  }) async {
+    try {
+      await _api.post('/progress/score', data: {
+        'user_id': userId,
+        'subject_id': subjectId,
+        'correct_count': correctCount,
+        'total_time_ms': totalTimeMs,
+        'score': score,
+        'name': name,
+        'avatar': avatar,
+      });
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  static Future<Map<String, dynamic>?> getUserScore(String userId) async {
+    try {
+      final res = await _api.get('/progress/score/$userId');
+      return res['data'] as Map<String, dynamic>?;
+    } catch (_) {
+      return null;
+    }
+  }
 }

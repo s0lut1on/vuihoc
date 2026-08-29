@@ -481,6 +481,82 @@ pub async fn get_review_session(
     }
 }
 
+pub async fn upsert_subject_score(
+    State(state): State<AppState>,
+    Json(body): Json<SubjectScoreUpdate>,
+) -> ApiResponse<UserScore> {
+    let user_uuid = match parse_uuid(&body.user_id) {
+        Ok(u) => u,
+        Err(e) => return ApiResponse::err(e),
+    };
+
+    let result = sqlx::query_as::<_, UserScore>(
+        "INSERT INTO user_scores (user_id, total_score, correct_count, total_time_ms, lessons_completed, name, avatar, updated_at)
+         VALUES ($1, $2, $3, $4, 1, $5, $6, NOW())
+         ON CONFLICT (user_id)
+         DO UPDATE SET
+           total_score = user_scores.total_score + $2,
+           correct_count = user_scores.correct_count + $3,
+           total_time_ms = user_scores.total_time_ms + $4,
+           lessons_completed = user_scores.lessons_completed + 1,
+           name = $5,
+           avatar = $6,
+           updated_at = NOW()
+         RETURNING *",
+    )
+    .bind(user_uuid)
+    .bind(body.score)
+    .bind(body.correct_count)
+    .bind(body.total_time_ms)
+    .bind(&body.name)
+    .bind(&body.avatar)
+    .fetch_one(&state.db)
+    .await;
+
+    match result {
+        Ok(row) => ApiResponse::ok(row),
+        Err(e) => {
+            tracing::error!("Database error in upsert_subject_score: {}", e);
+            ApiResponse::err("Internal server error")
+        }
+    }
+}
+
+pub async fn get_user_score(
+    State(state): State<AppState>,
+    Path(user_id): Path<String>,
+) -> ApiResponse<UserScore> {
+    let user_uuid = match parse_uuid(&user_id) {
+        Ok(u) => u,
+        Err(e) => return ApiResponse::err(e),
+    };
+    let result = sqlx::query_as::<_, UserScore>(
+        "SELECT * FROM user_scores WHERE user_id = $1",
+    )
+    .bind(user_uuid)
+    .fetch_optional(&state.db)
+    .await;
+
+    match result {
+        Ok(Some(row)) => ApiResponse::ok(row),
+        Ok(None) => ApiResponse::ok(UserScore {
+            user_id: user_uuid,
+            total_score: 0,
+            correct_count: 0,
+            total_time_ms: 0,
+            lessons_completed: 0,
+            name: String::new(),
+            avatar: String::new(),
+            updated_at: chrono::Utc::now(),
+        }),
+        Err(e) => {
+            tracing::error!("Database error in get_user_score: {}", e);
+            ApiResponse::err("Internal server error")
+        }
+    }
+}
+
+
 fn parse_uuid(user_id: &str) -> Result<uuid::Uuid, &'static str> {
     uuid::Uuid::try_parse(user_id).map_err(|_| "Invalid user_id format")
 }

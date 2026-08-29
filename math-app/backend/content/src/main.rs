@@ -2,7 +2,6 @@ use axum::{routing::{get, post, delete, put}, Router};
 use sqlx::PgPool;
 use std::net::SocketAddr;
 use std::path::PathBuf;
-use tower_http::cors::CorsLayer;
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 
@@ -83,7 +82,7 @@ async fn main() {
             SwaggerUi::new("/api/content/swagger-ui")
                 .url("/api/content/openapi.json", ApiDoc::openapi()),
         )
-        .layer(CorsLayer::permissive())
+        .layer(shared::cors_layer())
         .with_state(state);
 
     let port: u16 = std::env::var("PORT")
@@ -91,8 +90,8 @@ async fn main() {
         .parse()
         .unwrap();
     let addr = SocketAddr::from(([0, 0, 0, 0], port));
-    let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
-    axum::serve(listener, app).await.unwrap();
+    let listener = tokio::net::TcpListener::bind(addr).await.expect("Failed to bind TCP listener");
+    axum::serve(listener, app).await.expect("Server error");
 }
 
 #[cfg(test)]

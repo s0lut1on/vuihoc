@@ -90,7 +90,6 @@ dependencies = [
  "axum",
  "chrono",
  "jsonwebtoken",
- "regex",
  "reqwest",
  "serde",
  "serde_json",
@@ -1427,9 +1426,12 @@ dependencies = [
  "anyhow",
  "axum",
  "chrono",
+ "hex",
+ "hmac",
  "reqwest",
  "serde",
  "serde_json",
+ "sha2",
  "shared",
  "sqlx",
  "thiserror 1.0.69",
@@ -2125,6 +2127,7 @@ dependencies = [
  "jsonwebtoken",
  "serde",
  "serde_json",
+ "tower-http 0.5.2",
  "utoipa",
 ]
 

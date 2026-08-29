@@ -1,6 +1,6 @@
 use crate::models::{
     AppState, AuthUser, Claims, GoogleLoginRequest, GoogleTokenInfo, GuestLoginRequest, MeResponse,
-    RegisterRequest, TokenResponse,
+    TokenResponse,
 };
 use axum::{
     extract::{Json, State},
@@ -9,9 +9,7 @@ use axum::{
 };
 use chrono::{Duration, Utc};
 use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, Validation};
-use regex::Regex;
 use shared::ApiResponse;
-use std::sync::OnceLock;
 use utoipa::OpenApi;
 
 #[derive(OpenApi)]
@@ -130,44 +128,6 @@ pub async fn login_with_google(
     })
 }
 
-pub async fn register(Json(body): Json<RegisterRequest>) -> ApiResponse<TokenResponse> {
-    static EMAIL_RE: OnceLock<Regex> = OnceLock::new();
-    let email_re = EMAIL_RE
-        .get_or_init(|| Regex::new(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$").unwrap());
-    if !email_re.is_match(&body.email) {
-        return ApiResponse::err("Invalid email format");
-    }
-    if body.password.len() < 6 {
-        return ApiResponse::err("Password must be at least 6 characters");
-    }
-
-    let jwt_secret =
-        std::env::var("JWT_SECRET").expect("JWT_SECRET environment variable must be set");
-    let claims = Claims {
-        sub: uuid::Uuid::new_v4().to_string(),
-        email: body.email,
-        name: body.name,
-        picture: String::new(),
-        tier: "free".to_string(),
-        role: "child".to_string(),
-        exp: (Utc::now() + Duration::hours(24)).timestamp() as usize,
-        aud: "math-app".to_string(),
-    };
-    let token = match encode(
-        &Header::default(),
-        &claims,
-        &EncodingKey::from_secret(jwt_secret.as_ref()),
-    ) {
-        Ok(t) => t,
-        Err(_) => return ApiResponse::err("Failed to generate token"),
-    };
-    ApiResponse::ok(TokenResponse {
-        access_token: token,
-        token_type: "Bearer".to_string(),
-        expires_in: 86400,
-    })
-}
-
 pub async fn me(headers: axum::http::HeaderMap) -> Result<ApiResponse<MeResponse>, StatusCode> {
     let auth_header = headers
         .get(AUTHORIZATION)
@@ -204,6 +164,68 @@ pub async fn me(headers: axum::http::HeaderMap) -> Result<ApiResponse<MeResponse
     }))
 }
 
+pub async fn refresh_token(
+    headers: axum::http::HeaderMap,
+) -> ApiResponse<TokenResponse> {
+    let auth_header = headers
+        .get(AUTHORIZATION)
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("");
+    let token = auth_header.strip_prefix("Bearer ").unwrap_or(auth_header);
+
+    if token.is_empty() {
+        return ApiResponse::err("Missing authorization token");
+    }
+
+    let jwt_secret =
+        std::env::var("JWT_SECRET").expect("JWT_SECRET environment variable must be set");
+    let decoding_key = DecodingKey::from_secret(jwt_secret.as_ref());
+    let mut validation = Validation::default();
+    // Accept expired tokens within a 7-day grace period so users don't lose
+    // their session just because the token expired while the app was closed.
+    validation.validate_exp = false;
+    validation.aud = Some(std::collections::HashSet::from(["math-app".to_string()]));
+
+    let decoded = match decode::<Claims>(token, &decoding_key, &validation) {
+        Ok(data) => data,
+        Err(_) => return ApiResponse::err("Invalid token"),
+    };
+
+    let claims = decoded.claims;
+
+// Reject tokens older than 7 days since expiry
+let now = Utc::now().timestamp() as usize;
+if claims.exp + 604800 < now {
+        return ApiResponse::err("Token expired beyond refresh grace period");
+    }
+
+    let new_claims = Claims {
+        sub: claims.sub,
+        email: claims.email,
+        name: claims.name,
+        picture: claims.picture,
+        tier: claims.tier,
+        role: claims.role,
+        exp: (Utc::now() + Duration::hours(24)).timestamp() as usize,
+        aud: "math-app".to_string(),
+    };
+
+    let token = match encode(
+        &Header::default(),
+        &new_claims,
+        &EncodingKey::from_secret(jwt_secret.as_ref()),
+    ) {
+        Ok(t) => t,
+        Err(_) => return ApiResponse::err("Failed to generate token"),
+    };
+
+    ApiResponse::ok(TokenResponse {
+        access_token: token,
+        token_type: "Bearer".to_string(),
+        expires_in: 86400,
+    })
+}
+
 pub async fn health() -> ApiResponse<shared::HealthResponse> {
     ApiResponse::ok(shared::health("auth"))
 }
@@ -235,21 +257,6 @@ mod tests {
             &EncodingKey::from_secret(jwt_secret.as_ref()),
         )
         .unwrap()
-    }
-
-    #[tokio::test]
-    async fn register_returns_token_response() {
-        setup();
-        let body = RegisterRequest {
-            email: "test@test.com".to_string(),
-            password: "123456".to_string(),
-            name: "Test".to_string(),
-            locale: Some("vi".to_string()),
-        };
-        let resp = register(Json(body)).await;
-        assert!(resp.success);
-        let token = resp.data.unwrap().access_token;
-        assert!(!token.is_empty());
     }
 
     #[tokio::test]

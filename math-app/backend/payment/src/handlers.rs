@@ -73,11 +73,55 @@ pub async fn stripe_webhook(
     State(state): State<AppState>,
     req: axum::extract::Request,
 ) -> axum::response::Response {
-    use axum::body::Bytes;
+    use hmac::{Hmac, Mac};
+    use sha2::Sha256;
+
+    let stripe_sig = req
+        .headers()
+        .get("stripe-signature")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("")
+        .to_string();
+
+    let webhook_secret = match std::env::var("STRIPE_WEBHOOK_SECRET") {
+        Ok(s) => s,
+        Err(_) => {
+            tracing::error!("STRIPE_WEBHOOK_SECRET not set — rejecting webhook");
+            return (axum::http::StatusCode::UNAUTHORIZED, "Webhook secret not configured").into_response();
+        }
+    };
+
     let body = match axum::body::to_bytes(req.into_body(), 1024 * 1024).await {
         Ok(b) => b,
         Err(_) => return (axum::http::StatusCode::BAD_REQUEST, "Body too large").into_response(),
     };
+
+    let timestamp = stripe_sig
+        .split(',')
+        .find_map(|part| part.strip_prefix("t=").and_then(|t| t.parse::<u64>().ok()));
+
+    let provided_sig = stripe_sig
+        .split(',')
+        .find_map(|part| part.strip_prefix("v1=").map(|s| s.to_string()));
+
+    let (timestamp, provided_sig) = match (timestamp, provided_sig) {
+        (Some(t), Some(s)) => (t, s),
+        _ => return (axum::http::StatusCode::BAD_REQUEST, "Invalid Stripe signature header").into_response(),
+    };
+
+    let signed_payload = format!("{}.{}", timestamp, String::from_utf8_lossy(&body));
+    let mut mac = match Hmac::<Sha256>::new_from_slice(webhook_secret.as_bytes()) {
+        Ok(m) => m,
+        Err(_) => return (axum::http::StatusCode::INTERNAL_SERVER_ERROR, "HMAC init failed").into_response(),
+    };
+    mac.update(signed_payload.as_bytes());
+    let expected_sig = hex::encode(mac.finalize().into_bytes());
+
+    if expected_sig != provided_sig {
+        tracing::warn!("Stripe webhook signature mismatch — rejecting");
+        return (axum::http::StatusCode::UNAUTHORIZED, "Invalid signature").into_response();
+    }
+
     let event: serde_json::Value = match serde_json::from_slice(&body) {
         Ok(v) => v,
         Err(_) => return (axum::http::StatusCode::BAD_REQUEST, "Invalid JSON").into_response(),

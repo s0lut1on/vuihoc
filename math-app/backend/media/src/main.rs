@@ -1,6 +1,5 @@
 use axum::{routing::get, Router};
 use std::net::SocketAddr;
-use tower_http::cors::CorsLayer;
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 
@@ -39,15 +38,15 @@ async fn main() {
                 .url("/api/media/openapi.json", ApiDoc::openapi()),
         )
         .with_state(state)
-        .layer(CorsLayer::permissive());
+        .layer(shared::cors_layer());
 
     let port: u16 = std::env::var("PORT")
         .unwrap_or_else(|_| "3000".to_string())
         .parse()
         .unwrap();
     let addr = SocketAddr::from(([0, 0, 0, 0], port));
-    let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
-    axum::serve(listener, app).await.unwrap();
+    let listener = tokio::net::TcpListener::bind(addr).await.expect("Failed to bind TCP listener");
+    axum::serve(listener, app).await.expect("Server error");
 }
 
 #[cfg(test)]

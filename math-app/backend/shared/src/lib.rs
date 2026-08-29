@@ -1,7 +1,18 @@
 use axum::{response::IntoResponse, Json};
 use chrono::{DateTime, Utc};
 use serde::Serialize;
+use tower_http::cors::{AllowHeaders, AllowMethods, CorsLayer};
 use utoipa::ToSchema;
+
+pub fn cors_layer() -> CorsLayer {
+    CorsLayer::new()
+        .allow_origin([
+            "https://sekklings.com".parse().unwrap(),
+            "https://www.sekklings.com".parse().unwrap(),
+        ])
+        .allow_methods(AllowMethods::any())
+        .allow_headers(AllowHeaders::any())
+}
 
 #[derive(Serialize, Clone, ToSchema)]
 pub struct HealthResponse {

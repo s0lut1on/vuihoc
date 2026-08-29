@@ -134,6 +134,29 @@ pub struct AchievementWithDefinition {
     pub threshold: i32,
 }
 
+#[derive(Serialize, sqlx::FromRow, ToSchema, Clone)]
+pub struct UserScore {
+    pub user_id: uuid::Uuid,
+    pub total_score: i32,
+    pub correct_count: i32,
+    pub total_time_ms: i64,
+    pub lessons_completed: i32,
+    pub name: String,
+    pub avatar: String,
+    pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Serialize, Deserialize, ToSchema)]
+pub struct SubjectScoreUpdate {
+    pub user_id: String,
+    pub subject_id: Option<String>,
+    pub correct_count: i32,
+    pub total_time_ms: i64,
+    pub score: i32,
+    pub name: String,
+    pub avatar: String,
+}
+
 #[derive(Clone)]
 pub struct AppState {
     pub db: sqlx::PgPool,

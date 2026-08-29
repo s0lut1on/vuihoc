@@ -151,11 +151,6 @@
   "achievementsNewBadge": "New",
 
   "leaderboardTitle": "Leaderboard",
-  "leaderboardEmpty": "No leaderboard data — join a classroom!",
-  "leaderboardJoinCodeLabel": "Classroom code",
-  "leaderboardJoinCodeHint": "Enter 6-character code",
-  "leaderboardJoinButton": "Join",
-  "leaderboardLeaveButton": "Leave",
   "leaderboardWeeklyStars": "{count} ⭐ this week",
   "leaderboardRank": "#{rank}",
   "offlineBanner": "You are offline. Changes will sync later.",
@@ -211,5 +206,9 @@
     }
   },
   "pricingBackTooltip": "Back",
-  "pricingBrandShort": "HocVui"
+  "pricingBrandShort": "HocVui",
+  "leaderboardGlobal": "Global",
+  "leaderboardScore": "points",
+  "leaderboardEmptyGlobal": "No global leaderboard data yet",
+  "leaderboardMyRank": "My rank"
 }

@@ -124,20 +124,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     const SizedBox(height: 12),
                     // 4-up stat row
                     LayoutBuilder(builder: (context, c) {
+                      final scoreData = ref.watch(userScoreProvider).valueOrNull;
+                      final totalScore = scoreData?['total_score'] as int? ?? 0;
+                      final lessonsDone = scoreData?['lessons_completed'] as int? ?? 0;
                       final cards = [
                         _Stat(
                             emoji: '🏆',
-                            value: '3',
-                            label: l10n.parentDashboardSubjectMath,
+                            value: '$totalScore',
+                            label: 'Điểm tổng',
                             valueColor: AppColors.purple,
                             gradient: const [
                               AppColors.cream,
                               AppColors.pinkSoft
                             ]),
                         _Stat(
-                            emoji: '💎',
-                            value: '45',
-                            label: 'Viên ngọc',
+                            emoji: '📚',
+                            value: '$lessonsDone',
+                            label: 'Bài đã học',
                             valueColor: AppColors.green,
                             gradient: const [
                               AppColors.greenSoft,

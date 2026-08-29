@@ -35,17 +35,13 @@ pub struct UpdateGradeRequest {
     pub grade: i32,
 }
 
-#[derive(Serialize, Deserialize, utoipa::ToSchema)]
-pub struct JoinClassroomRequest {
-    pub classroom_code: String,
-}
-
 #[derive(Serialize, sqlx::FromRow, Clone, utoipa::ToSchema)]
-pub struct LeaderboardEntry {
+pub struct GlobalLeaderboardEntry {
     pub id: Uuid,
     pub name: String,
     pub avatar: String,
-    pub weekly_stars: i64,
+    pub total_score: i32,
+    pub lessons_completed: i32,
 }
 
 #[derive(Serialize, Deserialize, utoipa::ToSchema)]

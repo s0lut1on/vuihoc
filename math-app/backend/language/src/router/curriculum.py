@@ -13,7 +13,7 @@ from auth import require_user
 router = APIRouter()
 
 @router.get("/subjects", response_model=ApiResponse)
-async def get_subjects(grade: Optional[int] = Query(default=1), db: AsyncSession = Depends(get_db)):
+async def get_subjects(grade: Optional[int] = Query(default=1), db: AsyncSession = Depends(get_db), user_id: str = Depends(require_user)):
     result = await db.execute(
         select(
             LanguageSubject.id,
@@ -52,7 +52,8 @@ async def get_subjects(grade: Optional[int] = Query(default=1), db: AsyncSession
 async def get_sub_subjects(
     subject_id: str = Query(...),
     grade: Optional[int] = Query(default=1),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    user_id: str = Depends(require_user),
 ):
     result = await db.execute(
         select(

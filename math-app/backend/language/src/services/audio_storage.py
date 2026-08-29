@@ -1,12 +1,20 @@
 import os
 import tempfile
+import logging
 from minio import Minio
 from minio.error import S3Error
 
+logger = logging.getLogger(__name__)
+
 MINIO_ENDPOINT = os.environ.get("MINIO_ENDPOINT", "minio:9000")
-MINIO_ACCESS_KEY = os.environ.get("MINIO_ACCESS_KEY", "minioadmin")
-MINIO_SECRET_KEY = os.environ.get("MINIO_SECRET_KEY", "minioadmin")
+MINIO_ACCESS_KEY = os.environ.get("MINIO_ACCESS_KEY")
+MINIO_SECRET_KEY = os.environ.get("MINIO_SECRET_KEY")
 MINIO_SECURE = os.environ.get("MINIO_SECURE", "false").lower() == "true"
+
+if not MINIO_ACCESS_KEY or not MINIO_SECRET_KEY:
+    raise RuntimeError(
+        "MINIO_ACCESS_KEY and MINIO_SECRET_KEY must be set — refusing to use default credentials"
+    )
 
 client = Minio(
     MINIO_ENDPOINT,

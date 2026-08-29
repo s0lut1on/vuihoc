@@ -1,15 +1,14 @@
 /// Helper that takes a list of leaderboard entries (which may include the
-/// current user's id) and computes their weekly percentile.
+/// current user's id) and computes their percentile.
 ///
-/// This is a frontend-only derivation. The backend exposes a positional
-/// leaderboard via `/users/classroom/leaderboard`; we treat the user's
+/// This is a frontend-only derivation. The backend exposes a global
+/// leaderboard via `/users/leaderboard/global`; we treat the user's
 /// index in that list as their rank. When `userId` matches an entry, we use
 /// that entry's rank directly. When the user is not in the list, we assume
 /// the list is sorted descending by score and that the user is below all
 /// entries shown.
 ///
 /// Returns null when there is no data at all.
-import 'package:characters/characters.dart';
 
 class LeaderboardRank {
   /// Integer percentile (lower = better). 5 means "Top 5%". Always in [1, 100].
@@ -51,13 +50,8 @@ LeaderboardRank? computeRank({
       percentile: pct, rank: rank, totalUsers: effectiveTotal);
 }
 
-/// Convert a free-form name to "Bạn X" for anonymous display. Strips whitespace
-/// and keeps the first visible character; falls back to a single emoji if the
-/// name is empty.
 String anonymizeName(String raw) {
   final t = raw.trim();
-  if (t.isEmpty) return '🐸';
-  // Use first code point as a letter; uppercase Vietnamese letters render OK.
-  final first = t.characters.first.toUpperCase();
-  return 'Bạn $first';
+  if (t.isEmpty) return 'Bạn 🐸';
+  return t;
 }

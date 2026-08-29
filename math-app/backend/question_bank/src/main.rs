@@ -7,7 +7,6 @@ mod models;
 use axum::{routing::get, Router};
 use std::net::SocketAddr;
 use std::sync::Arc;
-use tower_http::cors::CorsLayer;
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 
@@ -96,7 +95,7 @@ async fn main() {
             SwaggerUi::new("/api/questions/swagger-ui")
                 .url("/api/questions/openapi.json", ApiDoc::openapi()),
         )
-        .layer(CorsLayer::permissive())
+        .layer(shared::cors_layer())
         .with_state(state);
 
     let port: u16 = std::env::var("PORT")
@@ -104,8 +103,8 @@ async fn main() {
         .parse()
         .unwrap();
     let addr = SocketAddr::from(([0, 0, 0, 0], port));
-    let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
+    let listener = tokio::net::TcpListener::bind(addr).await.expect("Failed to bind TCP listener");
 
     tracing::info!("Question Bank service listening on http://{}", addr);
-    axum::serve(listener, app).await.unwrap();
+    axum::serve(listener, app).await.expect("Server error");
 }

@@ -45,6 +45,9 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
   bool _loading = true;
   int _dailyCount = 0;
   String _userTier = 'free';
+  Stopwatch _questionStopwatch = Stopwatch();
+  int _correctCount = 0;
+  int _totalTimeMs = 0;
 
   @override
   void initState() {
@@ -76,6 +79,8 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
         _lesson = lesson;
         _loading = false;
       });
+      _questionStopwatch.reset();
+      _questionStopwatch.start();
     } catch (_) {
       if (!mounted) return;
       setState(() => _loading = false);
@@ -539,8 +544,11 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
   void _selectAnswer(int index, int correctIndex) {
     if (_selectedAnswer != null) return;
     HapticFeedback.lightImpact();
+    _questionStopwatch.stop();
+    _totalTimeMs += _questionStopwatch.elapsedMilliseconds;
     setState(() => _selectedAnswer = index);
     _isCorrect = index == correctIndex;
+    if (_isCorrect) _correctCount++;
 
     if (!_isCorrect) {
       final currentQ = _lesson!.exercises[_currentQuestion];
@@ -597,6 +605,8 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
         _isCorrect = false;
         _showHint = false;
       });
+      _questionStopwatch.reset();
+      _questionStopwatch.start();
     } else {
       _finishLesson();
     }
@@ -611,13 +621,30 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
       );
       return;
     }
+    final totalQuestions = _lesson?.exercises.length ?? 1;
+    final stars = (_correctCount * 3 / totalQuestions).ceil().clamp(1, 3);
+    final avgTimeSec = totalQuestions > 0 ? _totalTimeMs / totalQuestions / 1000.0 : 30.0;
+    final timeBonus = (30.0 - avgTimeSec).clamp(0.0, 30.0).round();
+    final score = _correctCount * 10 + timeBonus * 2;
     final userId = ref.read(userIdProvider) ?? '';
     if (userId.isNotEmpty) {
       await ProgressApi.updateProgress(
         userId: userId,
         lessonId: widget.lessonId,
-        stars: 3,
+        stars: stars,
         completed: true,
+      );
+      final user = ref.read(userProvider).valueOrNull;
+      final userName = user?.name ?? 'Bé';
+      final userAvatar = user?.avatar ?? '🐸';
+      ProgressApi.submitSubjectScore(
+        userId: userId,
+        subjectId: widget.subjectId,
+        correctCount: _correctCount,
+        totalTimeMs: _totalTimeMs,
+        score: score,
+        name: userName,
+        avatar: userAvatar,
       );
       final updated = await ProgressApi.getDailyLimit(userId);
       if (updated != null && mounted) {
@@ -626,7 +653,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
     }
     if (mounted) {
       context.go('/celebration', extra: {
-        'stars': 3,
+        'stars': stars,
         'persona': ref.read(personaProvider)?.name ?? 'achiever',
         'subjectId': widget.subjectId,
         'lessonId': widget.lessonId,

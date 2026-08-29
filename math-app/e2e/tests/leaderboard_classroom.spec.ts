@@ -1,20 +1,20 @@
 /**
- * Leaderboard screen — join classroom code input, weekly stars.
- * Vietnamese-only strings ("Bảng xếp hạng", "Mã lớp học", "Tham gia", "Rời lớp").
+ * Leaderboard screen — global leaderboard with total score across all subjects.
+ * Vietnamese-only strings ("Bảng xếp hạng").
  */
 import { appUrl } from '../utils/config';
 import { test, expect } from '@playwright/test';
 import { signInAsGuest } from '../utils/auth';
 import { waitForRoute } from '../utils/wait';
 
-test.describe('Leaderboard + classroom', () => {
-  test('authenticated /leaderboard loads entries from /api/users/leaderboard', async ({ page }) => {
+test.describe('Leaderboard (global only)', () => {
+  test('authenticated /leaderboard loads entries from /api/users/leaderboard/global', async ({ page }) => {
     await signInAsGuest(page);
     await waitForRoute(page, /\/home/);
 
     const calls: string[] = [];
     page.on('request', (r) => {
-      if (r.url().includes('/api/users/leaderboard')) calls.push(r.url());
+      if (r.url().includes('/api/users/leaderboard/global')) calls.push(r.url());
     });
 
     await page.goto(appUrl('/leaderboard'));
@@ -27,40 +27,6 @@ test.describe('Leaderboard + classroom', () => {
     await page.goto(appUrl('/leaderboard'));
     await page.waitForTimeout(1000);
     expect(page.url()).toMatch(/\/leaderboard/);
-  });
-
-  test('joining a classroom calls /api/users/classroom/join with the code', async ({ page }) => {
-    await signInAsGuest(page);
-    await waitForRoute(page, /\/home/);
-
-    const joinCalls: string[] = [];
-    page.on('request', (r) => {
-      if (r.url().includes('/api/users/classroom/join') && r.method() === 'POST') {
-        joinCalls.push(r.url());
-      }
-    });
-
-    await page.goto(appUrl('/leaderboard'));
-    await page.waitForTimeout(500);
-
-    // Verify the contract: the API accepts a 6-char code in the body
-    const r = await page.request.post('/api/users/classroom/join', {
-      headers: { Authorization: 'Bearer fake.jwt.guest-token-test' },
-      data: { code: 'ABC123' },
-    });
-    expect(r.status()).toBe(200);
-    expect(joinCalls.length).toBeGreaterThanOrEqual(1);
-  });
-
-  test('leaving a classroom calls /api/users/classroom/leave', async ({ page }) => {
-    await signInAsGuest(page);
-    await page.waitForTimeout(300);
-
-    const r = await page.request.post('/api/users/classroom/leave', {
-      headers: { Authorization: 'Bearer fake.jwt.guest-token-test' },
-      data: {},
-    });
-    expect(r.status()).toBe(200);
   });
 
   test('unauthenticated /leaderboard redirects to /login', async ({ page }) => {

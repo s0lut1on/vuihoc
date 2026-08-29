@@ -157,6 +157,14 @@ class AuthService {
           tokenNotifier.value = storedToken;
           return true;
         }
+        // Token expired — try refresh before giving up
+        final refreshed = await refreshTokenSilently();
+        if (refreshed != null) {
+          final user2 = await getCurrentUser();
+          if (user2 != null) {
+            return true;
+          }
+        }
         await signOut();
       }
 
@@ -215,6 +223,10 @@ class AuthService {
 
   Future<String?> _refreshGoogle() async {
     try {
+      final response = await ApiService().post('/auth/refresh');
+      return response['data']?['access_token'] as String?;
+    } catch (_) {
+      // Fallback: full Google re-auth
       final account = await _googleSignIn.signInSilently();
       if (account == null) return null;
       final auth = await account.authentication;
@@ -230,14 +242,12 @@ class AuthService {
       }
       final response = await ApiService().post('/auth/google', data: payload);
       return response['data']?['access_token'] as String?;
-    } catch (_) {
-      return null;
     }
   }
 
   Future<String?> _refreshGuest() async {
     try {
-      final response = await ApiService().post('/auth/guest', data: {});
+      final response = await ApiService().post('/auth/refresh');
       return response['data']?['access_token'] as String?;
     } catch (_) {
       return null;

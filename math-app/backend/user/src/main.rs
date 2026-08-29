@@ -3,7 +3,6 @@ use axum::{
     Router,
 };
 use std::net::SocketAddr;
-use tower_http::cors::CorsLayer;
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 
@@ -39,14 +38,9 @@ async fn main() {
         )
         .route("/api/users/me", get(handlers::get_user))
         .route("/api/users/:id", get(handlers::get_user_by_id))
-        .route("/api/users/classroom/join", post(handlers::join_classroom))
         .route(
-            "/api/users/classroom/leave",
-            post(handlers::leave_classroom),
-        )
-        .route(
-            "/api/users/classroom/leaderboard",
-            get(handlers::get_leaderboard),
+            "/api/users/leaderboard/global",
+            get(handlers::get_global_leaderboard),
         )
         .route("/api/users/grade", post(handlers::update_grade))
         .route("/api/users/children", get(handlers::list_children).post(handlers::create_child))
@@ -60,15 +54,15 @@ async fn main() {
                 .url("/api/users/openapi.json", ApiDoc::openapi()),
         )
         .with_state(state)
-        .layer(CorsLayer::permissive());
+        .layer(shared::cors_layer());
 
     let port: u16 = std::env::var("PORT")
         .unwrap_or_else(|_| "3000".to_string())
         .parse()
         .unwrap();
     let addr = SocketAddr::from(([0, 0, 0, 0], port));
-    let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
-    axum::serve(listener, app).await.unwrap();
+    let listener = tokio::net::TcpListener::bind(addr).await.expect("Failed to bind TCP listener");
+    axum::serve(listener, app).await.expect("Server error");
 }
 
 #[cfg(test)]

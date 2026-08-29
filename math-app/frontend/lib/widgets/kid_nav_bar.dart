@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../core/app_colors.dart';
+import '../core/app_constants.dart';
 import '../core/app_theme.dart';
 import '../utils/url_launcher.dart';
 import 'mascot.dart';
@@ -61,7 +62,7 @@ class KidNavBar extends StatelessWidget {
               _TextLink(
                 label: 'Liên hệ',
                 active: activeLabel == 'Liên hệ',
-                url: 'https://www.facebook.com/profile.php?id=100064784463812',
+                url: AppConstants.contactUrl,
               ),
             ],
           ),

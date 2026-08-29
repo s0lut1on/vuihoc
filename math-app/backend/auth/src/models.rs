@@ -11,14 +11,6 @@ pub struct GoogleLoginRequest {
 }
 
 #[derive(Serialize, Deserialize, ToSchema, Clone)]
-pub struct RegisterRequest {
-    pub email: String,
-    pub password: String,
-    pub name: String,
-    pub locale: Option<String>,
-}
-
-#[derive(Serialize, Deserialize, ToSchema, Clone)]
 pub struct GuestLoginRequest {
     pub name: Option<String>,
     pub locale: Option<String>,
@@ -104,20 +96,6 @@ mod tests {
         let decoded: GoogleLoginRequest = serde_json::from_str(&json).unwrap();
         assert_eq!(decoded.id_token, Some("abc".to_string()));
         assert_eq!(decoded.access_token, None);
-    }
-
-    #[test]
-    fn register_request_serde_roundtrip() {
-        let req = RegisterRequest {
-            email: "test@test.com".to_string(),
-            password: "pass".to_string(),
-            name: "Test".to_string(),
-            locale: Some("vi".to_string()),
-        };
-        let json = serde_json::to_string(&req).unwrap();
-        let decoded: RegisterRequest = serde_json::from_str(&json).unwrap();
-        assert_eq!(decoded.email, "test@test.com");
-        assert_eq!(decoded.locale, Some("vi".to_string()));
     }
 
     #[test]

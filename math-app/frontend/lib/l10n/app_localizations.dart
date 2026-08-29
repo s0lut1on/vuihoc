@@ -794,36 +794,6 @@ abstract class AppLocalizations {
   /// **'Bảng xếp hạng'**
   String get leaderboardTitle;
 
-  /// No description provided for @leaderboardEmpty.
-  ///
-  /// In vi, this message translates to:
-  /// **'Chưa có dữ liệu bảng xếp hạng — tham gia lớp học!'**
-  String get leaderboardEmpty;
-
-  /// No description provided for @leaderboardJoinCodeLabel.
-  ///
-  /// In vi, this message translates to:
-  /// **'Mã lớp học'**
-  String get leaderboardJoinCodeLabel;
-
-  /// No description provided for @leaderboardJoinCodeHint.
-  ///
-  /// In vi, this message translates to:
-  /// **'Nhập mã 6 ký tự'**
-  String get leaderboardJoinCodeHint;
-
-  /// No description provided for @leaderboardJoinButton.
-  ///
-  /// In vi, this message translates to:
-  /// **'Tham gia'**
-  String get leaderboardJoinButton;
-
-  /// No description provided for @leaderboardLeaveButton.
-  ///
-  /// In vi, this message translates to:
-  /// **'Rời lớp'**
-  String get leaderboardLeaveButton;
-
   /// No description provided for @leaderboardWeeklyStars.
   ///
   /// In vi, this message translates to:
@@ -1021,6 +991,30 @@ abstract class AppLocalizations {
   /// In vi, this message translates to:
   /// **'HocVui'**
   String get pricingBrandShort;
+
+  /// No description provided for @leaderboardGlobal.
+  ///
+  /// In vi, this message translates to:
+  /// **'Toàn trường'**
+  String get leaderboardGlobal;
+
+  /// No description provided for @leaderboardScore.
+  ///
+  /// In vi, this message translates to:
+  /// **'điểm'**
+  String get leaderboardScore;
+
+  /// No description provided for @leaderboardEmptyGlobal.
+  ///
+  /// In vi, this message translates to:
+  /// **'Chưa có dữ liệu bảng xếp hạng toàn trường'**
+  String get leaderboardEmptyGlobal;
+
+  /// No description provided for @leaderboardMyRank.
+  ///
+  /// In vi, this message translates to:
+  /// **'Xếp hạng của bé'**
+  String get leaderboardMyRank;
 }
 
 class _AppLocalizationsDelegate

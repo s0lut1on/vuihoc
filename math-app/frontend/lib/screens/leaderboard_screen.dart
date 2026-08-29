@@ -6,8 +6,8 @@ import '../core/app_theme.dart';
 import '../models/leaderboard_model.dart';
 import '../models/leaderboard_privacy.dart';
 import '../providers/app_providers.dart';
+import '../services/progress_api.dart';
 import '../services/user_api.dart';
-import '../widgets/bubble_button.dart';
 import '../widgets/kid_card.dart';
 import '../widgets/mascot.dart';
 
@@ -22,7 +22,8 @@ class LeaderboardScreen extends ConsumerStatefulWidget {
 class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
   List<LeaderboardEntry> _entries = [];
   bool _loading = true;
-  final _classroomCtrl = TextEditingController();
+  LeaderboardEntry? _myEntry;
+  bool _myEntryInList = false;
 
   @override
   void initState() {
@@ -30,36 +31,38 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
     _load();
   }
 
-  @override
-  void dispose() {
-    _classroomCtrl.dispose();
-    super.dispose();
-  }
-
   Future<void> _load() async {
+    setState(() => _loading = true);
     try {
-      final rows = await UserApi.getLeaderboard();
+      final rows = await UserApi.getGlobalLeaderboard();
+      final myId = ref.read(userIdProvider) ?? '';
       setState(() {
         _entries = rows.map(LeaderboardEntry.fromJson).toList();
         _loading = false;
       });
+      // Fetch current user's own score
+      if (myId.isNotEmpty) {
+        final inList = _entries.any((e) => e.id == myId);
+        _myEntryInList = inList;
+        if (!inList) {
+          final scoreData = await ProgressApi.getUserScore(myId);
+          if (scoreData != null && mounted) {
+            setState(() {
+              _myEntry = LeaderboardEntry(
+                id: myId,
+                name: scoreData['name'] as String? ?? 'Bạn',
+                avatar: scoreData['avatar'] as String? ?? '🐸',
+                totalScore: scoreData['total_score'] as int? ?? 0,
+                weeklyStars: 0,
+                lessonsCompleted: scoreData['lessons_completed'] as int? ?? 0,
+              );
+            });
+          }
+        }
+      }
     } catch (_) {
       setState(() => _loading = false);
     }
-  }
-
-  Future<void> _join() async {
-    try {
-      await UserApi.joinClassroom(_classroomCtrl.text.trim());
-      _load();
-    } catch (_) {}
-  }
-
-  Future<void> _leave() async {
-    try {
-      await UserApi.leaveClassroom();
-      _load();
-    } catch (_) {}
   }
 
   @override
@@ -71,21 +74,53 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
           children: [
             _header(context),
             _buildThisWeekCard(),
-            _buildJoinCard(),
             Expanded(
               child: _loading
                   ? const Center(
                       child: CircularProgressIndicator(color: AppColors.pink))
-                  : _entries.isEmpty
+                  : _entries.isEmpty && _myEntry == null
                       ? Center(
-                          child: Text('Chưa có dữ liệu bảng xếp hạng',
+                          child: Text(
+                              'Chưa có dữ liệu bảng xếp hạng toàn trường',
                               style: AppTheme.display(
                                   size: 20, color: AppColors.mutedPurple)))
-                      : ListView.builder(
-                          padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
-                          itemCount: _entries.length,
-                          itemBuilder: (context, i) =>
-                              _Row(entry: _entries[i], rank: i + 1),
+                      : Column(
+                          children: [
+                            Expanded(
+                              child: ListView.builder(
+                                padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                                itemCount: _entries.length,
+                                itemBuilder: (context, i) {
+                                  final myId = ref.read(userIdProvider) ?? '';
+                                  return _Row(
+                                    entry: _entries[i],
+                                    rank: i + 1,
+                                    isMe: _entries[i].id == myId,
+                                  );
+                                },
+                              ),
+                            ),
+                            if (_myEntry != null && !_myEntryInList)
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
+                                child: Column(
+                                  children: [
+                                    const Padding(
+                                      padding: EdgeInsets.symmetric(vertical: 8),
+                                      child: Text('· · ·',
+                                          style: TextStyle(
+                                              fontSize: 16,
+                                              color: AppColors.mutedPurple)),
+                                    ),
+                                    _Row(
+                                      entry: _myEntry!,
+                                      rank: _entries.length + 1,
+                                      isMe: true,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                          ],
                         ),
             ),
           ],
@@ -157,7 +192,7 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
     final myId = ref.read(userIdProvider) ?? '';
     final rank = computeRank(
       leaderboard: _entries
-          .map((e) => {'id': e.id, 'weekly_stars': e.weeklyStars})
+          .map((e) => {'id': e.id, 'weekly_stars': e.totalScore})
           .toList(),
       userId: myId,
     );
@@ -175,7 +210,7 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Tuần này của bé',
+                  Text('Xếp hạng của bé',
                       style: AppTheme.body(
                           size: 12, color: AppColors.mutedPurple)),
                   Text(
@@ -183,7 +218,7 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
                     style: AppTheme.display(size: 28, color: AppColors.pink),
                   ),
                   Text(
-                    'Hạng ${rank.rank} / ${rank.totalUsers} bạn cùng lớp 🎉',
+                    'Hạng ${rank.rank} / ${rank.totalUsers} 🎉',
                     style:
                         AppTheme.body(size: 12, color: AppColors.mutedPurple),
                   ),
@@ -195,58 +230,13 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
       ),
     );
   }
-
-  Widget _buildJoinCard() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-      child: KidCard(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('🏫 Mã lớp học', style: AppTheme.display(size: 18)),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _classroomCtrl,
-              maxLength: 6,
-              decoration: const InputDecoration(
-                labelText: 'Nhập mã 6 ký tự',
-                counterText: '',
-              ),
-            ),
-            const SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                BubbleButton(
-                  label: 'Tham gia',
-                  emoji: '🚀',
-                  height: 44,
-                  minWidth: 120,
-                  fontSize: 14,
-                  onPressed: _join,
-                ),
-                const SizedBox(width: 8),
-                BubbleButton.secondary(
-                  label: 'Rời lớp',
-                  height: 44,
-                  minWidth: 100,
-                  fontSize: 14,
-                  onPressed: _leave,
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }
 
 class _Row extends StatelessWidget {
   final LeaderboardEntry entry;
   final int rank;
-  const _Row({required this.entry, required this.rank});
+  final bool isMe;
+  const _Row({required this.entry, required this.rank, this.isMe = false});
   @override
   Widget build(BuildContext context) {
     Color medal;
@@ -268,10 +258,14 @@ class _Row extends StatelessWidget {
         medal = AppColors.divider;
         medalStr = '$rank';
     }
+    final scoreLabel = entry.totalScore > 0
+        ? '${entry.totalScore} điểm'
+        : '${entry.weeklyStars} ⭐';
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: KidCard(
         padding: const EdgeInsets.all(12),
+        gradient: isMe ? const [AppColors.pinkSoft, AppColors.pinkSoft] : null,
         child: Row(
           children: [
             Container(
@@ -281,7 +275,8 @@ class _Row extends StatelessWidget {
               decoration: BoxDecoration(
                 color: medal.withValues(alpha: 0.25),
                 shape: BoxShape.circle,
-                border: Border.all(color: medal, width: 2),
+                border: Border.all(
+                    color: isMe ? AppColors.pink : medal, width: 2),
               ),
               child: rank <= 3
                   ? Text(medalStr, style: const TextStyle(fontSize: 22))
@@ -294,10 +289,10 @@ class _Row extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(anonymizeName(entry.name),
+                  Text(isMe ? '${entry.name} (Bạn)' : entry.name,
                       style: AppTheme.display(size: 16)),
                   const SizedBox(height: 2),
-                  Text('${entry.weeklyStars} ⭐ tuần này',
+                  Text(scoreLabel,
                       style: AppTheme.body(
                           size: 12, color: AppColors.mutedPurple)),
                 ],

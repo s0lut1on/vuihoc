@@ -214,3 +214,11 @@ final totalStarsProvider = FutureProvider<int>((ref) async {
 final onboardingCompletedProvider = StateProvider<bool>((ref) => false);
 
 final currentSubjectProvider = StateProvider<String>((ref) => 'numbers');
+
+/// Total score across all subjects from /progress/score/{userId}.
+final userScoreProvider =
+    FutureProvider<Map<String, dynamic>?>((ref) async {
+  final userId = ref.watch(userIdProvider);
+  if (userId == null || userId.isEmpty) return null;
+  return ProgressApi.getUserScore(userId);
+});
