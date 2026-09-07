@@ -45,3 +45,13 @@ export async function signOut(page: Page): Promise<void> {
 }
 
 export { FACEBOOK_FANPAGE_URL };
+
+export async function recordRequests(
+  page: import('@playwright/test').Page,
+  action: () => Promise<void>,
+): Promise<string[]> {
+  const urls: string[] = [];
+  page.on('request', (req) => urls.push(req.url()));
+  await action();
+  return urls;
+}

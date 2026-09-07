@@ -113,13 +113,8 @@ services:
       - "traefik.http.routers.flutter-canvas.tls=true"
       - "traefik.http.routers.flutter-canvas.priority=60"
       - "traefik.http.routers.flutter-canvas.middlewares=flutter-coop,flutter-headers"
-      # Flutter manifest + brand assets — loaded by index.html without /app prefix
-      - "traefik.http.routers.flutter-assets.rule=Host(`${DOMAIN}`) && PathPrefix(`/brand`)"
-      - "traefik.http.routers.flutter-assets.entrypoints=websecure"
-      - "traefik.http.routers.flutter-assets.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.flutter-assets.tls=true"
-      - "traefik.http.routers.flutter-assets.priority=60"
-      - "traefik.http.routers.flutter-assets.middlewares=flutter-headers"
+      # Brand assets (/brand/) served by marketing-site container which has
+      # the built dist/brand/ directory. Flutter-web doesn't contain brand assets.
     restart: unless-stopped
 
   marketing-site:
@@ -133,7 +128,7 @@ services:
       - "traefik.http.routers.marketing.entrypoints=websecure"
       - "traefik.http.routers.marketing.tls.certresolver=letsencrypt"
       - "traefik.http.routers.marketing.priority=10"
-      - "traefik.http.middlewares.marketing-csp.headers.customResponseHeaders.Content-Security-Policy=default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' https://plausible.io https://sekklings.com 'sha256-'; connect-src 'self' https://plausible.io https://sekklings.com"
+      - "traefik.http.middlewares.marketing-csp.headers.customResponseHeaders.Content-Security-Policy=default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' https://sekklings.com 'sha256-'; connect-src 'self' https://sekklings.com"
       - "traefik.http.middlewares.marketing-csp.headers.stsIncludeSubdomains=true"
       - "traefik.http.middlewares.marketing-csp.headers.stsSeconds=31536000"
       - "traefik.http.middlewares.marketing-csp.headers.customFrameOptionsValue=SAMEORIGIN"

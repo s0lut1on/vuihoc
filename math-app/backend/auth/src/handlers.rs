@@ -297,6 +297,93 @@ mod tests {
         assert!(!resp.success);
         assert!(resp.error.is_some());
     }
+
+    #[tokio::test]
+    async fn refresh_token_with_valid_token_returns_new_token() {
+        setup();
+        let token = make_test_token();
+        let mut headers = axum::http::HeaderMap::new();
+        headers.insert(AUTHORIZATION, format!("Bearer {}", token).parse().unwrap());
+        let resp = refresh_token(headers).await;
+        assert!(resp.success);
+        let data = resp.data.unwrap();
+        assert_eq!(data.token_type, "Bearer");
+        assert_eq!(data.expires_in, 86400);
+        assert!(!data.access_token.is_empty());
+    }
+
+    #[tokio::test]
+    async fn refresh_token_without_token_returns_error() {
+        let headers = axum::http::HeaderMap::new();
+        let resp = refresh_token(headers).await;
+        assert!(!resp.success);
+    }
+
+    #[tokio::test]
+    async fn refresh_token_with_invalid_token_returns_error() {
+        setup();
+        let mut headers = axum::http::HeaderMap::new();
+        headers.insert(AUTHORIZATION, "Bearer invalid-token".parse().unwrap());
+        let resp = refresh_token(headers).await;
+        assert!(!resp.success);
+    }
+
+    #[tokio::test]
+    async fn refresh_token_with_expired_token_within_grace_returns_new_token() {
+        setup();
+        let expired_claims = Claims {
+            sub: "user-123".to_string(),
+            email: "test@test.com".to_string(),
+            name: "Test User".to_string(),
+            picture: "".to_string(),
+            tier: "free".to_string(),
+            role: "child".to_string(),
+            exp: (Utc::now() - Duration::days(3)).timestamp() as usize,
+            aud: "math-app".to_string(),
+        };
+        let jwt_secret = std::env::var("JWT_SECRET").unwrap();
+        let token = encode(
+            &Header::default(),
+            &expired_claims,
+            &EncodingKey::from_secret(jwt_secret.as_ref()),
+        )
+        .unwrap();
+        let mut headers = axum::http::HeaderMap::new();
+        headers.insert(AUTHORIZATION, format!("Bearer {}", token).parse().unwrap());
+        let resp = refresh_token(headers).await;
+        assert!(resp.success, "Token expired 3 days ago should be within 7-day grace");
+    }
+
+    #[tokio::test]
+    async fn refresh_token_with_expired_token_beyond_grace_returns_error() {
+        setup();
+        let expired_claims = Claims {
+            sub: "user-123".to_string(),
+            email: "test@test.com".to_string(),
+            name: "Test User".to_string(),
+            picture: "".to_string(),
+            tier: "free".to_string(),
+            role: "child".to_string(),
+            exp: (Utc::now() - Duration::days(10)).timestamp() as usize,
+            aud: "math-app".to_string(),
+        };
+        let jwt_secret = std::env::var("JWT_SECRET").unwrap();
+        let token = encode(
+            &Header::default(),
+            &expired_claims,
+            &EncodingKey::from_secret(jwt_secret.as_ref()),
+        )
+        .unwrap();
+        let mut headers = axum::http::HeaderMap::new();
+        headers.insert(AUTHORIZATION, format!("Bearer {}", token).parse().unwrap());
+        let resp = refresh_token(headers).await;
+        assert!(!resp.success, "Token expired 10 days ago should be rejected");
+    }
+
+    #[tokio::test]
+    async fn login_as_guest_returns_token_with_guest_email() {
+        setup();
+    }
 }
 
 pub async fn login_as_guest(

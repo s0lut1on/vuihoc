@@ -70,13 +70,6 @@ const siteJsonLd = [
       { '@type': 'Offer', price: '0', priceCurrency: 'VND', name: 'Free tier' },
       { '@type': 'Offer', price: '199000', priceCurrency: 'VND', name: 'Premium' },
     ],
-    aggregateRating: {
-      '@type': 'AggregateRating',
-      ratingValue: '4.8',
-      ratingCount: '1280',
-      bestRating: '5',
-      worstRating: '1',
-    },
     author: { '@id': `${SITE}#organization` },
   },
 ];
@@ -106,8 +99,8 @@ const fullTitle = seo.path === '/' && locale === 'vi'
 
     <!-- Canonical + hreflang -->
     <link rel="canonical" href={canonical} />
-    <link rel="alternate" hreflang="vi" href={viAlt} />
-    <link rel="alternate" hreflang="en" href={enAlt} />
+    <link rel="alternate" hreflang="vi-VN" href={viAlt} />
+    <link rel="alternate" hreflang="en-US" href={enAlt} />
     <link rel="alternate" hreflang="x-default" href={viAlt} />
 
     <!-- Favicons + manifest -->

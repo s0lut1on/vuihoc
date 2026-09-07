@@ -1,4 +1,5 @@
 use reqwest;
+use serde_json::json;
 
 fn base_url() -> String {
     let port = std::env::var("PORT").unwrap_or_else(|_| "3000".to_string());
@@ -7,6 +8,10 @@ fn base_url() -> String {
 
 fn auth_header() -> String {
     std::env::var("TEST_JWT_TOKEN").unwrap_or_else(|_| "test-token".to_string())
+}
+
+fn auth_bearer() -> String {
+    format!("Bearer {}", auth_header())
 }
 
 // ── Public endpoints ──────────────────────────────────────────────
@@ -24,7 +29,23 @@ async fn health_returns_200() {
     assert_eq!(json["data"]["service"], "notification");
 }
 
-// ── Auth-required endpoints ───────────────────────────────────────
+#[tokio::test]
+#[ignore]
+async fn send_report() {
+    let client = reqwest::Client::new();
+    let resp = client
+        .post(format!("{}/send-report", base_url()))
+        .send()
+        .await
+        .unwrap();
+    // send_report returns a plain string, not JSON ApiResponse.
+    // 200 if DB present + SENDGRID key set, 500 if DB missing,
+    // 200 with message if SENDGRID not set.
+    let status = resp.status().as_u16();
+    assert!(status == 200 || status == 500);
+}
+
+// ── Protected endpoints: with auth ────────────────────────────────
 
 #[tokio::test]
 #[ignore]
@@ -32,7 +53,7 @@ async fn list_notifications_with_auth() {
     let client = reqwest::Client::new();
     let resp = client
         .get(base_url())
-        .header("Authorization", format!("Bearer {}", auth_header()))
+        .header("Authorization", auth_bearer())
         .send()
         .await;
     assert!(resp.is_ok());
@@ -48,160 +69,128 @@ async fn list_notifications_with_auth() {
 
 #[tokio::test]
 #[ignore]
-async fn list_notifications_with_unread_filter() {
-    let client = reqwest::Client::new();
-    let resp = client
-        .get(format!("{}?unread=true", base_url()))
-        .header("Authorization", format!("Bearer {}", auth_header()))
-        .send()
-        .await
-        .unwrap();
-    let status = resp.status().as_u16();
-    assert!(status == 200 || status == 500);
-}
-
-#[tokio::test]
-#[ignore]
-async fn list_notifications_with_limit() {
-    let client = reqwest::Client::new();
-    let resp = client
-        .get(format!("{}?limit=5", base_url()))
-        .header("Authorization", format!("Bearer {}", auth_header()))
-        .send()
-        .await
-        .unwrap();
-    let status = resp.status().as_u16();
-    assert!(status == 200 || status == 500);
-}
-
-#[tokio::test]
-#[ignore]
-async fn create_notification_with_auth() {
+async fn send_test_notification_with_auth() {
     let client = reqwest::Client::new();
     let resp = client
         .post(base_url())
-        .header("Authorization", format!("Bearer {}", auth_header()))
-        .json(&serde_json::json!({
-            "title": "Test Notification",
-            "body": "This is a test notification body",
-            "type": "info"
-        }))
-        .send()
-        .await;
-    assert!(resp.is_ok());
-    let status = resp.unwrap().status().as_u16();
-    assert!(status == 200 || status == 500);
-}
-
-#[tokio::test]
-#[ignore]
-async fn create_notification_validation_missing_title() {
-    let client = reqwest::Client::new();
-    let resp = client
-        .post(base_url())
-        .header("Authorization", format!("Bearer {}", auth_header()))
-        .json(&serde_json::json!({
-            "body": "Missing title field"
+        .header("Authorization", auth_bearer())
+        .json(&json!({
+            "user_id": "00000000-0000-0000-0000-000000000001",
+            "title_vi": "Test thông báo",
+            "title_en": "Test notification",
+            "body_vi": "Đây là thông báo test",
+            "body_en": "This is a test notification"
         }))
         .send()
         .await
         .unwrap();
     let status = resp.status().as_u16();
-    // Missing required field → 400 or 500 (if DB error)
-    assert!(status == 400 || status == 500);
-}
-
-#[tokio::test]
-#[ignore]
-async fn mark_notification_read_with_auth() {
-    let client = reqwest::Client::new();
-    let resp = client
-        .put(format!("{}/00000000-0000-0000-0000-000000000000/read", base_url()))
-        .header("Authorization", format!("Bearer {}", auth_header()))
-        .send()
-        .await;
-    assert!(resp.is_ok());
-    let status = resp.unwrap().status().as_u16();
     assert!(status == 200 || status == 500);
+    if status == 200 {
+        let json: serde_json::Value = resp.json().await.unwrap();
+        assert_eq!(json["success"].as_bool(), Some(true));
+    }
 }
 
 #[tokio::test]
 #[ignore]
-async fn mark_all_read_with_auth() {
+async fn subscribe_push_with_auth() {
     let client = reqwest::Client::new();
     let resp = client
-        .put(format!("{}/read-all", base_url()))
-        .header("Authorization", format!("Bearer {}", auth_header()))
-        .send()
-        .await;
-    assert!(resp.is_ok());
-    let status = resp.unwrap().status().as_u16();
-    assert!(status == 200 || status == 500);
-}
-
-#[tokio::test]
-#[ignore]
-async fn delete_notification_with_auth() {
-    let client = reqwest::Client::new();
-    let resp = client
-        .delete(format!("{}/00000000-0000-0000-0000-000000000000", base_url()))
-        .header("Authorization", format!("Bearer {}", auth_header()))
-        .send()
-        .await;
-    assert!(resp.is_ok());
-    let status = resp.unwrap().status().as_u16();
-    assert!(status == 200 || status == 500);
-}
-
-#[tokio::test]
-#[ignore]
-async fn register_fcm_token_with_auth() {
-    let client = reqwest::Client::new();
-    let resp = client
-        .post(format!("{}/register", base_url()))
-        .header("Authorization", format!("Bearer {}", auth_header()))
-        .json(&serde_json::json!({
-            "token": "fake-fcm-token-for-testing-123456"
+        .post(format!("{}/subscribe", base_url()))
+        .header("Authorization", auth_bearer())
+        .json(&json!({
+            "fcm_token": "fake-fcm-token-for-testing-123456",
+            "platform": "android"
         }))
         .send()
-        .await;
-    assert!(resp.is_ok());
-    let status = resp.unwrap().status().as_u16();
+        .await
+        .unwrap();
+    let status = resp.status().as_u16();
     assert!(status == 200 || status == 500);
+    if status == 200 {
+        let json: serde_json::Value = resp.json().await.unwrap();
+        assert_eq!(json["success"].as_bool(), Some(true));
+    }
 }
 
 #[tokio::test]
 #[ignore]
-async fn unregister_fcm_token_with_auth() {
+async fn unsubscribe_push_with_auth() {
     let client = reqwest::Client::new();
     let resp = client
-        .delete(format!("{}/register", base_url()))
-        .header("Authorization", format!("Bearer {}", auth_header()))
+        .post(format!("{}/unsubscribe", base_url()))
+        .header("Authorization", auth_bearer())
         .send()
-        .await;
-    assert!(resp.is_ok());
-    let status = resp.unwrap().status().as_u16();
+        .await
+        .unwrap();
+    let status = resp.status().as_u16();
     assert!(status == 200 || status == 500);
+    if status == 200 {
+        let json: serde_json::Value = resp.json().await.unwrap();
+        assert_eq!(json["success"].as_bool(), Some(true));
+    }
 }
 
 #[tokio::test]
 #[ignore]
-async fn send_notification_admin_only() {
+async fn get_subscription_status_with_auth() {
     let client = reqwest::Client::new();
     let resp = client
-        .post(format!("{}/send", base_url()))
-        .header("Authorization", format!("Bearer {}", auth_header()))
-        .json(&serde_json::json!({
-            "user_id": "00000000-0000-0000-0000-000000000000",
-            "title": "Admin Push",
-            "body": "Admin sent this"
+        .get(format!("{}/status", base_url()))
+        .header("Authorization", auth_bearer())
+        .send()
+        .await
+        .unwrap();
+    let status = resp.status().as_u16();
+    assert!(status == 200 || status == 500);
+    if status == 200 {
+        let json: serde_json::Value = resp.json().await.unwrap();
+        assert_eq!(json["success"].as_bool(), Some(true));
+        assert!(json["data"]["subscribed"].is_boolean());
+    }
+}
+
+#[tokio::test]
+#[ignore]
+async fn get_preferences_with_auth() {
+    let client = reqwest::Client::new();
+    let resp = client
+        .get(format!("{}/preferences", base_url()))
+        .header("Authorization", auth_bearer())
+        .send()
+        .await
+        .unwrap();
+    let status = resp.status().as_u16();
+    assert!(status == 200 || status == 500);
+    if status == 200 {
+        let json: serde_json::Value = resp.json().await.unwrap();
+        assert_eq!(json["success"].as_bool(), Some(true));
+        assert!(json["data"]["daily_reminder_enabled"].is_boolean());
+    }
+}
+
+#[tokio::test]
+#[ignore]
+async fn update_preferences_with_auth() {
+    let client = reqwest::Client::new();
+    let resp = client
+        .put(format!("{}/preferences", base_url()))
+        .header("Authorization", auth_bearer())
+        .json(&json!({
+            "daily_reminder_enabled": true,
+            "reminder_hour": 19,
+            "timezone": "Asia/Ho_Chi_Minh"
         }))
         .send()
-        .await;
-    assert!(resp.is_ok());
-    let status = resp.unwrap().status().as_u16();
-    // 200 if admin + FCM key, 403 if not admin, 500 if no FCM/DB
-    assert!(status == 200 || status == 403 || status == 500);
+        .await
+        .unwrap();
+    let status = resp.status().as_u16();
+    assert!(status == 200 || status == 500);
+    if status == 200 {
+        let json: serde_json::Value = resp.json().await.unwrap();
+        assert_eq!(json["success"].as_bool(), Some(true));
+    }
 }
 
 // ── Negative tests: no auth ───────────────────────────────────────
@@ -216,11 +205,11 @@ async fn list_notifications_without_auth_returns_401() {
 
 #[tokio::test]
 #[ignore]
-async fn create_notification_without_auth_returns_401() {
+async fn send_test_notification_without_auth_returns_401() {
     let client = reqwest::Client::new();
     let resp = client
         .post(base_url())
-        .json(&serde_json::json!({"title": "Test", "body": "Test"}))
+        .json(&json!({"user_id": "x", "title_vi": "x", "title_en": "x", "body_vi": "x", "body_en": "x"}))
         .send()
         .await
         .unwrap();
@@ -229,10 +218,11 @@ async fn create_notification_without_auth_returns_401() {
 
 #[tokio::test]
 #[ignore]
-async fn mark_read_without_auth_returns_401() {
+async fn subscribe_push_without_auth_returns_401() {
     let client = reqwest::Client::new();
     let resp = client
-        .put(format!("{}/00000000-0000-0000-0000-000000000000/read", base_url()))
+        .post(format!("{}/subscribe", base_url()))
+        .json(&json!({"fcm_token": "fake", "platform": "android"}))
         .send()
         .await
         .unwrap();
@@ -241,11 +231,10 @@ async fn mark_read_without_auth_returns_401() {
 
 #[tokio::test]
 #[ignore]
-async fn register_fcm_without_auth_returns_401() {
+async fn unsubscribe_push_without_auth_returns_401() {
     let client = reqwest::Client::new();
     let resp = client
-        .post(format!("{}/register", base_url()))
-        .json(&serde_json::json!({"token": "fake"}))
+        .post(format!("{}/unsubscribe", base_url()))
         .send()
         .await
         .unwrap();
@@ -254,11 +243,22 @@ async fn register_fcm_without_auth_returns_401() {
 
 #[tokio::test]
 #[ignore]
-async fn send_notification_without_auth_returns_401() {
+async fn get_subscription_status_without_auth_returns_401() {
     let client = reqwest::Client::new();
     let resp = client
-        .post(format!("{}/send", base_url()))
-        .json(&serde_json::json!({"user_id": "x", "title": "x", "body": "x"}))
+        .get(format!("{}/status", base_url()))
+        .send()
+        .await
+        .unwrap();
+    assert_eq!(resp.status().as_u16(), 401);
+}
+
+#[tokio::test]
+#[ignore]
+async fn get_preferences_without_auth_returns_401() {
+    let client = reqwest::Client::new();
+    let resp = client
+        .get(format!("{}/preferences", base_url()))
         .send()
         .await
         .unwrap();
