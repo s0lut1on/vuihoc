@@ -3,7 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 ---
-<BaseLayout seo={{ title: 'Điều khoản sử dụng', description: 'Điều khoản sử dụng HocVui.', path: '/terms' }} locale="vi" noindex>
+<BaseLayout seo={{ title: 'Điều khoản sử dụng', description: 'Điều khoản sử dụng HocVui.', path: '/terms', noindex: true }} locale="vi">
   <Header slot="nav" locale="vi" currentPath="/terms" />
   <Fragment slot="footer"><Footer locale="vi" /></Fragment>
   <section class="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8 prose prose-purple">

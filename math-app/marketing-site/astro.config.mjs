@@ -19,15 +19,16 @@ export default defineConfig({
     mdx(),
     sitemap({
       entryLimit: 10000,
-      // Astro sitemap's i18n config generates hreflang annotations automatically
-      // by stripping the locale prefix from each URL. We use English as the only
-      // alternative locale (Vietnamese is the default at the root).
       i18n: {
         defaultLocale: 'vi',
         locales: {
           vi: 'vi-VN',
           en: 'en-US',
         },
+      },
+      serialize(item) {
+        item.lastmod = item.lastmod ?? new Date().toISOString();
+        return item;
       },
     }),
   ],

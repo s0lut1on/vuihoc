@@ -3,7 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 ---
-<BaseLayout seo={{ title: 'Chính sách bảo mật', description: 'Chính sách bảo mật HocVui — tuân thủ COPPA và GDPR-K.', path: '/privacy' }} locale="vi" noindex>
+<BaseLayout seo={{ title: 'Chính sách bảo mật', description: 'Chính sách bảo mật HocVui — tuân thủ COPPA và GDPR-K.', path: '/privacy', noindex: true }} locale="vi">
   <Header slot="nav" locale="vi" currentPath="/privacy" />
   <Fragment slot="footer"><Footer locale="vi" /></Fragment>
   <section class="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8 prose prose-purple">

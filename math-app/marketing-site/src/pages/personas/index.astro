@@ -17,14 +17,16 @@ const personas = [
     path: '/personas',
   }}
   locale="vi"
-  pageJsonLd={personas.map((p) => ({
+  pageJsonLd={[{
     '@context': 'https://schema.org',
-    '@type': 'Article',
-    headline: `Phong cách học ${p.vi} (${p.en})`,
-    description: p.desc,
-    author: { '@type': 'Organization', name: 'HocVui' },
-    publisher: { '@id': 'https://sekklings.com/#organization' },
-  }))}
+    '@type': 'ItemList',
+    itemListElement: personas.map((p, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      name: `Phong cách học ${p.vi} (${p.en})`,
+      description: p.desc,
+    })),
+  }]}
 >
   <Header slot="nav" locale="vi" currentPath="/personas" />
   <Fragment slot="footer"><Footer locale="vi" /></Fragment>
