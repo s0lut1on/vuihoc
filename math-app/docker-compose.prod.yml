@@ -133,6 +133,11 @@ services:
       - "traefik.http.middlewares.marketing-csp.headers.stsSeconds=31536000"
       - "traefik.http.middlewares.marketing-csp.headers.customFrameOptionsValue=SAMEORIGIN"
       - "traefik.http.routers.marketing.middlewares=marketing-csp"
+      # Sitemap/robots router — no CSP/security headers (Google fetcher needs clean XML)
+      - "traefik.http.routers.marketing-sitemaps.rule=Host(`${DOMAIN}`) && (Path(`/sitemap.xml`) || Path(`/sitemap-index.xml`) || Path(`/sitemap-0.xml`) || Path(`/robots.txt`))"
+      - "traefik.http.routers.marketing-sitemaps.entrypoints=websecure"
+      - "traefik.http.routers.marketing-sitemaps.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.marketing-sitemaps.priority=15"
     restart: unless-stopped
 
   umami:

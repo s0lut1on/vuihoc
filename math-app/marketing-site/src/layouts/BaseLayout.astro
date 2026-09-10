@@ -97,6 +97,10 @@ const fullTitle = seo.path === '/' && locale === 'vi'
 
     {seo.noindex && <meta name="robots" content="noindex,nofollow" />}
 
+    {import.meta.env.PUBLIC_GSC_VERIFICATION && (
+      <meta name="google-site-verification" content={import.meta.env.PUBLIC_GSC_VERIFICATION} />
+    )}
+
     <!-- Canonical + hreflang -->
     <link rel="canonical" href={canonical} />
     <link rel="alternate" hreflang="vi-VN" href={viAlt} />
