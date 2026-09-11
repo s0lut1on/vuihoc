@@ -1,0 +1,69 @@
+{
+  "version": 2,
+  "currency": "VND",
+  "contact_email": "contact@sekklings.com",
+  "tiers": [
+    {
+      "id": "free",
+      "name_vi": "Miễn phí",
+      "name_en": "Free",
+      "price": 0,
+      "price_period_vi": "/ mãi mãi",
+      "price_period_en": "/ forever",
+      "is_default": true,
+      "popular": false,
+      "features": [
+        { "id": "unlimited_lessons", "text_vi": "Không giới hạn bài học mỗi ngày", "text_en": "Unlimited lessons per day" },
+        { "id": "personas", "text_vi": "Đầy đủ 4 phong cách học", "text_en": "All 4 learning personas" },
+        { "id": "bilingual", "text_vi": "Song ngữ Việt–Anh", "text_en": "Bilingual Vietnamese–English" },
+        { "id": "dashboard_basic", "text_vi": "Dashboard phụ huynh cơ bản", "text_en": "Basic parent dashboard" },
+        { "id": "auth", "text_vi": "Google Sign-In + Guest", "text_en": "Google Sign-In + Guest" },
+        { "id": "unlimited_time", "text_vi": "Không giới hạn thời gian", "text_en": "No time limit" }
+      ]
+    },
+    {
+      "id": "premium_monthly",
+      "name_vi": "Premium",
+      "name_en": "Premium",
+      "price": 39000,
+      "price_period_vi": "/ tháng",
+      "price_period_en": "/ month",
+      "is_default": false,
+      "popular": true,
+      "features": [
+        { "id": "weekly_email", "text_vi": "Báo cáo tiến bộ hàng tuần qua email", "text_en": "Weekly progress reports via email" },
+        { "id": "export_csv", "text_vi": "Xuất dữ liệu học tập (CSV)", "text_en": "Export learning data (CSV)" },
+        { "id": "multi_child", "text_vi": "Nhiều hồ sơ bé trong 1 tài khoản", "text_en": "Multiple child profiles" },
+        { "id": "priority_support", "text_vi": "Hỗ trợ ưu tiên 24/7", "text_en": "Priority 24/7 support" },
+        { "id": "early_access", "text_vi": "Sớm nhận nội dung mới", "text_en": "Early access to new content" },
+        { "id": "no_ads", "text_vi": "Không quảng cáo, không giới hạn", "text_en": "No ads, no limits" }
+      ]
+    },
+    {
+      "id": "premium_yearly",
+      "name_vi": "Premium (năm)",
+      "name_en": "Premium (yearly)",
+      "price": 390000,
+      "price_period_vi": "/ năm",
+      "price_period_en": "/ year",
+      "is_default": false,
+      "popular": false,
+      "compare_to_monthly": "save_17_percent",
+      "features": [
+        { "id": "inherits_premium_monthly", "text_vi": "Bao gồm tất cả tính năng Premium", "text_en": "All Premium features included" },
+        { "id": "save_17", "text_vi": "Tiết kiệm 17% so với trả theo tháng", "text_en": "Save 17% vs monthly" }
+      ]
+    }
+  ],
+  "compare_rows": [
+    { "id": "lessons_per_day", "label_vi": "Bài học / ngày", "label_en": "Lessons / day", "free": "Không giới hạn / Unlimited", "premium": "Không giới hạn / Unlimited" },
+    { "id": "personas", "label_vi": "4 phong cách học", "label_en": "4 learning personas", "free": "✓", "premium": "✓" },
+    { "id": "bilingual", "label_vi": "Song ngữ Việt–Anh", "label_en": "Bilingual Vietnamese–English", "free": "✓", "premium": "✓" },
+    { "id": "dashboard", "label_vi": "Dashboard phụ huynh", "label_en": "Parent dashboard", "free": "Cơ bản / Basic", "premium": "Nâng cao + email / Advanced + email" },
+    { "id": "weekly_email", "label_vi": "Báo cáo email hàng tuần", "label_en": "Weekly email reports", "free": "—", "premium": "✓" },
+    { "id": "export_csv", "label_vi": "Xuất dữ liệu (CSV)", "label_en": "Export data (CSV)", "free": "—", "premium": "✓" },
+    { "id": "multi_child", "label_vi": "Nhiều hồ sơ bé", "label_en": "Multiple child profiles", "free": "—", "premium": "✓" },
+    { "id": "priority_support", "label_vi": "Hỗ trợ ưu tiên", "label_en": "Priority support", "free": "—", "premium": "✓" },
+    { "id": "early_access", "label_vi": "Sớm nhận nội dung mới", "label_en": "Early access to new content", "free": "—", "premium": "✓" }
+  ]
+}

@@ -19,19 +19,19 @@ const formatPrice = (n: number) => {
 };
 ---
 <BaseLayout
-  seo={{ title: 'Pricing — Free vs Premium', description: 'HocVui free tier: 50 lessons per day. Premium: unlimited + reports + multi-child.', path: '/en/pricing' }}
+  seo={{ title: 'Pricing — Free vs Premium', description: 'HocVui free tier: unlimited lessons. Premium: email reports, multi-child, CSV export. From 39K VND/month.', path: '/en/pricing' }}
   locale="en"
   pageJsonLd={[
     {
       '@context': 'https://schema.org',
       '@type': 'Product',
       name: 'HocVui Premium',
-      description: 'Unlock unlimited lessons, progress reports, multiple child profiles.',
+      description: 'Unlock weekly email reports, multiple child profiles, CSV export, priority support.',
       brand: { '@type': 'Brand', name: 'HocVui' },
       offers: [
         { '@type': 'Offer', price: '0', priceCurrency: 'USD', name: 'Free', availability: 'https://schema.org/InStock', priceSpecification: { '@type': 'PriceSpecification', priceCurrency: 'VND', price: 0 } },
-        { '@type': 'Offer', price: '7.99', priceCurrency: 'USD', name: 'Premium (monthly)', availability: 'https://schema.org/InStock', priceSpecification: { '@type': 'PriceSpecification', priceCurrency: 'VND', price: 199000 } },
-        { '@type': 'Offer', price: '79.00', priceCurrency: 'USD', name: 'Premium (yearly)', availability: 'https://schema.org/InStock', priceSpecification: { '@type': 'PriceSpecification', priceCurrency: 'VND', price: 1990000 } },
+        { '@type': 'Offer', price: '1.59', priceCurrency: 'USD', name: 'Premium (monthly)', availability: 'https://schema.org/InStock', priceSpecification: { '@type': 'PriceSpecification', priceCurrency: 'VND', price: 39000 } },
+        { '@type': 'Offer', price: '15.90', priceCurrency: 'USD', name: 'Premium (yearly)', availability: 'https://schema.org/InStock', priceSpecification: { '@type': 'PriceSpecification', priceCurrency: 'VND', price: 390000 } },
       ],
     },
   ]}

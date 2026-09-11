@@ -49,7 +49,7 @@ class PaywallModal extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               l10n?.paywallBody ??
-                  'Mỗi ngày bé học được 50 bài miễn phí. Nâng cấp Premium để học không giới hạn!',
+                  'Nâng cấp Premium để nhận báo cáo tiến bộ hàng tuần, nhiều hồ sơ bé, và hỗ trợ ưu tiên 24/7!',
               textAlign: TextAlign.center,
               style: AppTheme.body(size: 14, color: AppColors.mutedPurple),
             ),

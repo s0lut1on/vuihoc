@@ -68,8 +68,8 @@ pub async fn get_daily_limit(
     match daily {
         Ok(d) => ApiResponse::ok(DailyLimitStatus {
             count: d.count,
-            has_reached_limit: d.count >= 50,
-            limit: 50,
+            has_reached_limit: false,
+            limit: 0,
             tier: String::new(),
         }),
         Err(e) => {

@@ -165,9 +165,9 @@ class _SecondaryBtn extends StatelessWidget {
   }
 }
 
-/// Visibility helper — banner should be shown if:
-///   - user is at daily limit (>= [freeTierDailyLimit] for non-premium)
-///   - last dismiss was > 24h ago (or never)
+/// Visibility helper — banner is shown only to non-premium users as a
+/// soft upsell for premium features (email reports, multi-child, etc).
+/// Free tier now has unlimited lessons, so no daily-limit gate.
 bool shouldShowPricingBanner({
   required DateTime? dismissedAt,
   required DateTime now,
@@ -175,7 +175,6 @@ bool shouldShowPricingBanner({
   required String tier,
 }) {
   if (tier == 'premium') return false;
-  if (count < freeTierDailyLimit) return false;
   if (dismissedAt == null) return true;
   return now.difference(dismissedAt) > const Duration(hours: 24);
 }

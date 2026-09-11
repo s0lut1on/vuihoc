@@ -1,12 +1,11 @@
-/// Daily lesson cap for free users.
-const int freeTierDailyLimit = 50;
+/// Daily lesson cap for free users. Set to 0 = no cap (unlimited free lessons).
+const int freeTierDailyLimit = 0;
 
 /// Whether the paywall should be shown for the given user.
 ///
-/// Free users hit the cap at [freeTierDailyLimit]. Only `premium` is exempt;
-/// unknown or empty tier strings are treated as free so a missing or garbled
-/// tier value never silently bypasses the cap.
+/// Free tier now has unlimited lessons. Paywall is only shown for premium
+/// feature upsell (email reports, multi-child, CSV export, etc.) — not for
+/// blocking lesson access.
 bool shouldShowPaywall({required int count, required String tier}) {
-  if (tier == 'premium') return false;
-  return count >= freeTierDailyLimit;
+  return false;
 }

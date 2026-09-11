@@ -17,7 +17,7 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent  # math-app/
 PRICING_JSON = REPO_ROOT / "pricing.json"
-KNOWN_VERSIONS = {1}
+KNOWN_VERSIONS = {1, 2}
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
 
