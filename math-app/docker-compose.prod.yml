@@ -272,6 +272,7 @@ services:
       - DATABASE_URL=${NOTIFICATION_DB_URL}
       - REDIS_URL=redis://redis:6379
       - JWT_SECRET=${JWT_SECRET}
+      - SENDGRID_API_KEY=${SENDGRID_API_KEY:-}
     depends_on:
       - notification-db
       - redis
@@ -445,6 +446,18 @@ services:
     command: server /data --console-address ":9001"
     volumes:
       - minio_data:/data
+    restart: unless-stopped
+
+  notification-cron:
+    image: alpine:latest
+    depends_on:
+      - notification-service
+    environment:
+      - NOTIFICATION_URL=http://notification-service:3000
+    command: >
+      sh -c "echo '0 13 * * * wget -qO- $$NOTIFICATION_URL/api/notifications/send-daily-report' > /etc/crontabs/root &&
+             echo '0 2 * * 0 wget -qO- $$NOTIFICATION_URL/api/notifications/send-weekly-report' >> /etc/crontabs/root &&
+             crond -f"
     restart: unless-stopped
 
 volumes:

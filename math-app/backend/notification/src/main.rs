@@ -6,11 +6,13 @@ use utoipa_swagger_ui::SwaggerUi;
 mod handlers;
 mod models;
 mod fcm;
+mod email_template;
+mod report_data;
 
-pub use models::{AppState, Notification, NotificationPayload, PushSubscription, NotificationPreferences, SubscribeRequest, UpdatePreferencesRequest, SubscriptionStatus};
+pub use models::{AppState, Notification, NotificationPayload, PushSubscription, NotificationPreferences, SubscribeRequest, UpdatePreferencesRequest, SubscriptionStatus, ReportData, SubjectProgress, ReportSendResult};
 
 #[derive(OpenApi)]
-#[openapi(components(schemas(Notification, NotificationPayload, PushSubscription, NotificationPreferences, SubscribeRequest, UpdatePreferencesRequest, SubscriptionStatus)))]
+#[openapi(components(schemas(Notification, NotificationPayload, PushSubscription, NotificationPreferences, SubscribeRequest, UpdatePreferencesRequest, SubscriptionStatus, ReportData, SubjectProgress, ReportSendResult)))]
 pub struct ApiDoc;
 
 #[cfg(test)]
@@ -69,15 +71,15 @@ async fn main() {
         .route("/api/notifications/subscribe", post(handlers::subscribe_push))
         .route("/api/notifications/unsubscribe", post(handlers::unsubscribe_push))
         .route("/api/notifications/status", get(handlers::get_subscription_status))
-        .route(
-            "/api/notifications/preferences",
-            get(handlers::get_preferences).put(handlers::update_preferences),
-        )
+        .route("/api/notifications/preferences", get(handlers::get_preferences).put(handlers::update_preferences))
+        .route("/api/notifications/report-data/:user_id", get(handlers::get_report_data))
         .route_layer(axum::middleware::from_fn(shared::auth_middleware));
 
     let app = Router::<AppState>::new()
         .route("/api/notifications/health", get(handlers::health))
         .route("/api/notifications/send-report", post(handlers::send_report))
+        .route("/api/notifications/send-daily-report", post(handlers::send_daily_report))
+        .route("/api/notifications/send-weekly-report", post(handlers::send_weekly_report))
         .merge(protected)
         .merge(
             SwaggerUi::new("/api/notifications/swagger-ui")

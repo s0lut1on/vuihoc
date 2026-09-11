@@ -205,6 +205,22 @@ final dailyLimitProvider = FutureProvider<Map<String, dynamic>?>((ref) async {
   return ProgressApi.getDailyLimit(userId);
 });
 
+/// Streak data for the parent dashboard. Fetches from
+/// /progress/streak/{userId} via ApiService (autoDispose so it
+/// refreshes when the dashboard is revisited).
+final userStreakProvider =
+    FutureProvider.autoDispose<Map<String, dynamic>?>((ref) async {
+  final user = ref.watch(userProvider).value;
+  if (user == null) return null;
+  try {
+    final api = ApiService();
+    final resp = await api.get('/progress/streak/${user.id}');
+    return resp['data'] as Map<String, dynamic>?;
+  } catch (_) {
+    return null;
+  }
+});
+
 /// Total stars earned across all completed lessons.
 final totalStarsProvider = FutureProvider<int>((ref) async {
   final rows = await ref.watch(rawProgressProvider.future);

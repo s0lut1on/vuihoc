@@ -49,6 +49,9 @@ pub struct NotificationPreferences {
     pub daily_reminder_enabled: bool,
     pub reminder_hour: i32,
     pub timezone: String,
+    pub parent_email: Option<String>,
+    pub email_reports_enabled: bool,
+    pub report_frequency: String,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
@@ -58,6 +61,9 @@ pub struct UpdatePreferencesRequest {
     pub daily_reminder_enabled: Option<bool>,
     pub reminder_hour: Option<i32>,
     pub timezone: Option<String>,
+    pub parent_email: Option<String>,
+    pub email_reports_enabled: Option<bool>,
+    pub report_frequency: Option<String>,
 }
 
 #[derive(Serialize, ToSchema)]
@@ -71,6 +77,43 @@ pub struct ReminderResult {
     pub sent: usize,
     pub failed: usize,
     pub total: usize,
+    pub reason: Option<String>,
+}
+
+/// Aggregated progress data for email reports.
+#[derive(Serialize, ToSchema, Clone)]
+pub struct ReportData {
+    pub user_id: Uuid,
+    pub user_name: String,
+    pub locale: String,
+    pub period_label: String,
+    pub lessons_completed_period: i32,
+    pub lessons_completed_total: i32,
+    pub total_stars: i32,
+    pub current_streak: i32,
+    pub best_streak: i32,
+    pub total_score: i32,
+    pub correct_count: i32,
+    pub new_achievements: Vec<String>,
+    pub subjects: Vec<SubjectProgress>,
+}
+
+#[derive(Serialize, ToSchema, Clone)]
+pub struct SubjectProgress {
+    pub subject_id: String,
+    pub name_vi: String,
+    pub name_en: String,
+    pub icon: String,
+    pub completed: i32,
+    pub stars: i32,
+    pub completion_pct: f64,
+}
+
+#[derive(Serialize, ToSchema)]
+pub struct ReportSendResult {
+    pub sent: usize,
+    pub failed: usize,
+    pub skipped: usize,
     pub reason: Option<String>,
 }
 
